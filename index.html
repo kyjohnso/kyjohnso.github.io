@@ -21,12 +21,29 @@
             text-align: justify;
         }
 
-        /* Ensure iframes and images are responsive */
-        iframe, img {
+        /* Ensure images are responsive with a fixed fractional width */
+        .media-image {
+            width: 61.8%;
             max-width: 100%;
             height: auto;
             display: block;
             margin: 0 auto;
+        }
+
+        /* Wrapper for responsive 16:9 iframe aspect ratio */
+        .video-wrapper {
+            position: relative;
+            width: 61.8%;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            margin: 0 auto;
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
         }
     </style>
 </head>
@@ -36,68 +53,69 @@
     
     <div class="centered-text">
         <h2>Blender Con 2024</h2>
-        <p>I was fortunate enough to give my first presenetation ever at Blender Con 2024 in Amsterdam. I did a live 50 minute walk through of some of the projects that appear on this page.
-            I began with a walk through of the geometry nodes approach to modeling parametric surfaces. I then showed how to use modifiers and scripting to model the 3d dodecahedron moon.
+        <p>I was fortunate enough to give my first presentation at Blender Con 2024 in Amsterdam. I did a live 50-minute walkthrough of some of the projects that appear on this page.
+            I began with a walkthrough of the geometry nodes approach to modeling parametric surfaces, then demonstrated how to use modifiers and scripting to model the 3D dodecahedron moon.
         </p>
-        <img src="./docs/assets/images/segmented_moon_rendered.png" alt="Rendered Moon" width="61.8%"><br>
-        <img src="./docs/assets/images/segmented_moon_printed.jpg" alt="Printed Moon" width="61.8%"><br>
-        <iframe src="https://www.youtube.com/embed/m55iR8__tZc?si=MBJD2U96D7OhYiKs" allowfullscreen></iframe><br>
+        <img src="./docs/assets/images/segmented_moon_rendered.png" alt="Rendered Moon" class="media-image"><br>
+        <img src="./docs/assets/images/segmented_moon_printed.jpg" alt="Printed Moon" class="media-image"><br>
+        
+        <div class="video-wrapper">
+            <iframe src="https://www.youtube.com/embed/m55iR8__tZc?si=MBJD2U96D7OhYiKs" allowfullscreen></iframe>
+        </div><br>
 
-        <p> The files referenced in the video can be found at <a href="./bcon24/index.html" target="_blank" rel="noopener noreferrer">blender con 24 files</a></a></p>
-        <p> And all 12 moon .stl files can be found under the creative commons license at <a href="https://www.printables.com/model/1059470-dodecahedron-magnetic-moon"target="_blank" rel="noopener noreferrer">Printables.com</a></p>
+        <p> The files referenced in the video can be found at <a href="./bcon24/index.html" target="_blank" rel="noopener noreferrer">blender con 24 files</a>.</p>
+        <p> All 12 moon .stl files are available under a Creative Commons license at <a href="https://www.printables.com/model/1059470-dodecahedron-magnetic-moon" target="_blank" rel="noopener noreferrer">Printables.com</a>.</p>
+        
         <h2>Dodecahedron Moon</h2>
         <p>This is a 3D printed design of the moon (real topography from 
         <a href="https://svs.gsfc.nasa.gov/cgi-bin/details.cgi?aid=4720" target="_blank" rel="noopener noreferrer">NASA Moon Kit</a>) broken 
         into the curved hexagonal faces of a dodecahedron. The whole design is held together by
         force-fit magnets. The full 12 STL files will be posted soon at Printables.</p>
-        <img src="./docs/assets/images/dodecamoon_1.jpg" alt="Part 1 Printed" width="61.8%"><br>
+        <img src="./docs/assets/images/dodecamoon_1.jpg" alt="Part 1 Printed" class="media-image"><br>
 
         <h2>Frequency Difference</h2>
         <p>
             An exploration of the intersection of quadrics. Frequency difference (doppler difference) from a location to two different moving sensors
             can be modeled as two intersecting cones with related cone angles. Set to the music of Hans Zimmer, it can be quite mesmerizing.
         </p>
-        <iframe src="https://www.youtube.com/embed/x51qyfJ1XNM" allowfullscreen></iframe><br>
+        <div class="video-wrapper">
+            <iframe src="https://www.youtube.com/embed/x51qyfJ1XNM" allowfullscreen></iframe>
+        </div><br>
 
         <h2>CGI Sandbox</h2>
         <p>
             An exploration of CGI with drone footage. So far done only with Blender motion tracking. Hopefully evolving over the coming months. Drone footage courtesy of my buddy Greg.
         </p>
-        <iframe src="https://www.youtube.com/embed/yK5mDySToXA" allowfullscreen></iframe><br>
-        <iframe src="https://www.youtube.com/embed/AZqEn46I-dM" allowfullscreen></iframe><br>
-
-        <h2>Harrogate Philosophical Society</h2>
-        <p>
-            <a href="https://hgtphisoc.org/" target="_blank" rel="noopener noreferrer">Harrogate Philosophical Society</a> - A book club that I am tangentially involved in
-        </p><br>
-
-        <h2>3D Ellipsoid Viewer</h2>
-        <p>
-            <a href="https://kyjohnso.com/3d_ellipsoids/" target="_blank" rel="noopener noreferrer">3D Ellipsoid Viewer</a> - A WebGL and Three.js viewer for 3D covariance matrices. A Jupyter notebook for passing your own covariance matrix can be found via the link.
-        </p><br>
+        <div class="video-wrapper">
+            <iframe src="https://www.youtube.com/embed/yK5mDySToXA" allowfullscreen></iframe>
+        </div><br>
+        <div class="video-wrapper">
+            <iframe src="https://www.youtube.com/embed/AZqEn46I-dM" allowfullscreen></iframe>
+        </div><br>
 
         <h2>Intersecting Hyperboloids</h2>
         <p>
             A visualization of two intersecting hyperboloids with one of their foci shared. It is interesting to note that the intersection pencil will always intersect the plane formed by the three foci at a right angle.
         </p>
-        <iframe src="https://www.youtube.com/embed/8C2cLSR_49o" allowfullscreen></iframe><br>
+        <div class="video-wrapper">
+            <iframe src="https://www.youtube.com/embed/8C2cLSR_49o" allowfullscreen></iframe>
+        </div><br>
 
         <h2>Time Difference Visualization</h2>
         <p>
             A visualization of a time difference surface made in Blender.
         </p>
-        <iframe src="https://www.youtube.com/embed/cLdlvLBH_sY" allowfullscreen></iframe><br>
+        <div class="video-wrapper">
+            <iframe src="https://www.youtube.com/embed/cLdlvLBH_sY" allowfullscreen></iframe>
+        </div><br>
 
         <h2>Alexa-Enabled Maze Solving Robot</h2>
         <p>
             <a href="https://www.hackster.io/kyle22/dwr-an-alexa-voice-enabled-maze-solving-lego-robot-405dbf" target="_blank" rel="noopener noreferrer">Alexa Enabled Maze Solving Robot</a> - An entry into a contest to link Amazon Alexa Gadgets to Lego Mindstorms. I made a robot that you gave instructions to via Alexa to help it solve a Lego maze.
         </p>
-        <iframe src="https://www.youtube.com/embed/NFJVlPlYQhk" allowfullscreen></iframe><br>
-
-        <h2>A Magic Wand with "Real" Magic in it</h2>
-        <p>
-            <a href="https://www.hackster.io/kyle22/sufficiently-advanced-technology-wand-f7b6ba" target="_blank" rel="noopener noreferrer">Magic Wand with "Real Magic" in it</a> - When my daughter was 3 years old, she asked me to make a magic wand and insisted that it have "real magic in it." Inspired by Arthur C. Clarke, I set out to make one with sufficiently advanced technology.
-        </p>
+        <div class="video-wrapper">
+            <iframe src="https://www.youtube.com/embed/NFJVlPlYQhk" allowfullscreen></iframe>
+        </div><br>
     </div>
 </body>
 </html>
