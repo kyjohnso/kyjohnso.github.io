@@ -131,9 +131,48 @@ window.decreaseTemperature = function() {
     });
 }
 
+const moleculeRadius = 0.5; // Radius of each molecule
+
+// Function to handle collisions between molecules
+function handleMoleculeCollisions() {
+    for (let i = 0; i < molecules.length-1; i++) {
+        for (let j = i + 1; j < molecules.length; j++) {
+            const moleculeA = molecules[i];
+            const moleculeB = molecules[j];
+
+            // Calculate the distance between molecules
+            const distance = moleculeA.position.distanceTo(moleculeB.position);
+
+            // Check if they are colliding
+            if (distance < 2 * moleculeRadius) {
+                // Calculate the normal vector between the molecules
+                const normal = new THREE.Vector3().subVectors(moleculeB.position, moleculeA.position).normalize();
+
+                // Calculate relative velocity
+                const relativeVelocity = new THREE.Vector3().subVectors(moleculeA.velocity, moleculeB.velocity);
+
+                // Project the relative velocity onto the normal
+                const speed = relativeVelocity.dot(normal);
+
+                // Only proceed if molecules are moving toward each other
+                if (speed > 0) continue;
+
+                // Calculate impulse scalar for perfectly elastic collision
+                const impulse = (2 * speed) / (1 + 1); // Assuming equal mass for simplicity
+
+                // Adjust velocities of both molecules
+                moleculeA.velocity.sub(normal.clone().multiplyScalar(impulse));
+                moleculeB.velocity.add(normal.clone().multiplyScalar(impulse));
+            }
+        }
+    }
+}
+
 // Animation loop
 function animate() {
     requestAnimationFrame(animate);
+
+    handleMoleculeCollisions(); // Check and handle collisions
 
     // Update molecules
     molecules.forEach(molecule => {
