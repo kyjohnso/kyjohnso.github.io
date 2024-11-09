@@ -13,6 +13,7 @@ const controls = new THREE.OrbitControls(camera, renderer.domElement);
 
 // Initial variables
 let containerSize = 30;
+let temperature = 0.2;
 const molecules = [];
 const moleculeCount = 500;
 
@@ -29,9 +30,9 @@ function createMolecule() {
     );
 
     molecule.velocity = new THREE.Vector3(
-        (Math.random() - 0.5) * 0.5,
-        (Math.random() - 0.5) * 0.5,
-        (Math.random() - 0.5) * 0.5
+        (Math.random() - 0.5) * temperature,
+        (Math.random() - 0.5) * temperature,
+        (Math.random() - 0.5) * temperature
     );
 
     molecule.rotationSpeed = new THREE.Vector3(
@@ -45,7 +46,9 @@ function createMolecule() {
 }
 
 // Create molecules
-for (let i = 0; i < moleculeCount; i++) createMolecule();
+for (let i = 0; i < moleculeCount; i++) {
+    createMolecule();
+};
 
 // Add lights
 const light = new THREE.PointLight(0xffffff, 1);
@@ -111,6 +114,22 @@ document.getElementById('volume').addEventListener('input', (event) => {
     edges.position.set(0, 0, 0);
     scene.add(edges); // Add updated edges
 });
+  
+
+
+window.increaseTemperature = function() {
+    console.log("Increasing temperature");
+    molecules.forEach(molecule => {
+        molecule.velocity.multiplyScalar(1.1);
+    });
+}
+
+window.decreaseTemperature = function() {
+    console.log("Decreasing temperature");
+    molecules.forEach(molecule => {
+        molecule.velocity.multiplyScalar(0.9);
+    });
+}
 
 // Animation loop
 function animate() {
