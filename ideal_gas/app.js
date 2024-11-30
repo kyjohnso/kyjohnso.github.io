@@ -13,7 +13,6 @@ const controls = new THREE.OrbitControls(camera, renderer.domElement);
 
 // Initial variables
 let containerSize = 30;
-let temperature = 0.2;
 const molecules = [];
 const moleculeCount = 500;
 
@@ -30,9 +29,9 @@ function createMolecule() {
     );
 
     molecule.velocity = new THREE.Vector3(
-        (Math.random() - 0.5) * temperature,
-        (Math.random() - 0.5) * temperature,
-        (Math.random() - 0.5) * temperature
+        (Math.random() - 0.5) * 0.5,
+        (Math.random() - 0.5) * 0.5,
+        (Math.random() - 0.5) * 0.5
     );
 
     molecule.rotationSpeed = new THREE.Vector3(
@@ -46,9 +45,7 @@ function createMolecule() {
 }
 
 // Create molecules
-for (let i = 0; i < moleculeCount; i++) {
-    createMolecule();
-};
+for (let i = 0; i < moleculeCount; i++) createMolecule();
 
 // Add lights
 const light = new THREE.PointLight(0xffffff, 1);
@@ -114,65 +111,10 @@ document.getElementById('volume').addEventListener('input', (event) => {
     edges.position.set(0, 0, 0);
     scene.add(edges); // Add updated edges
 });
-  
-
-
-window.increaseTemperature = function() {
-    console.log("Increasing temperature");
-    molecules.forEach(molecule => {
-        molecule.velocity.multiplyScalar(1.1);
-    });
-}
-
-window.decreaseTemperature = function() {
-    console.log("Decreasing temperature");
-    molecules.forEach(molecule => {
-        molecule.velocity.multiplyScalar(0.9);
-    });
-}
-
-const moleculeRadius = 0.5; // Radius of each molecule
-
-// Function to handle collisions between molecules
-function handleMoleculeCollisions() {
-    for (let i = 0; i < molecules.length-1; i++) {
-        for (let j = i + 1; j < molecules.length; j++) {
-            const moleculeA = molecules[i];
-            const moleculeB = molecules[j];
-
-            // Calculate the distance between molecules
-            const distance = moleculeA.position.distanceTo(moleculeB.position);
-
-            // Check if they are colliding
-            if (distance < 2 * moleculeRadius) {
-                // Calculate the normal vector between the molecules
-                const normal = new THREE.Vector3().subVectors(moleculeB.position, moleculeA.position).normalize();
-
-                // Calculate relative velocity
-                const relativeVelocity = new THREE.Vector3().subVectors(moleculeA.velocity, moleculeB.velocity);
-
-                // Project the relative velocity onto the normal
-                const speed = relativeVelocity.dot(normal);
-
-                // Only proceed if molecules are moving toward each other
-                if (speed > 0) continue;
-
-                // Calculate impulse scalar for perfectly elastic collision
-                const impulse = (2 * speed) / (1 + 1); // Assuming equal mass for simplicity
-
-                // Adjust velocities of both molecules
-                moleculeA.velocity.sub(normal.clone().multiplyScalar(impulse));
-                moleculeB.velocity.add(normal.clone().multiplyScalar(impulse));
-            }
-        }
-    }
-}
 
 // Animation loop
 function animate() {
     requestAnimationFrame(animate);
-
-    handleMoleculeCollisions(); // Check and handle collisions
 
     // Update molecules
     molecules.forEach(molecule => {

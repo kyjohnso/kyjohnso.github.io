@@ -11,13 +11,9 @@
 </head>
 <body>
     <div id="ui">
-        <label for="volume" style="color: gray; font-family: Arial, sans-serif; font-size: 25px; font-weight: bold;">Volume:</label>
-        <input id="volume" type="range" min="10" max="50" value="30" size="250px">
-        <br>
-        <button onclick="decreaseTemperature()">Decrease Temperature</button>
-        <button onclick="increaseTemperature()">Increase Temperature</button>
+        <label for="volume">Volume:</label>
+        <input id="volume" type="range" min="10" max="50" value="30">
     </div>
-
 
     <!-- Load Three.js and OrbitControls from Unpkg CDN -->
     <script src="https://unpkg.com/three@0.143.0/build/three.min.js"></script>
