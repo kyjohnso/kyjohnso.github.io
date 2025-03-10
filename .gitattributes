@@ -1,0 +1,1 @@
+school_splat/school.splat filter=lfs diff=lfs merge=lfs -text
