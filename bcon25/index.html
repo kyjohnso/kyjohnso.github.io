@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blender Con 2025 - 3D Gaussian Splatting Resources</title>
+    <title>Blender Con 2025 - SkySplat Tutorial: From drone video to photo-realistic 3D scene</title>
     <link rel="icon" type="image/png" href="./skysplat_logo1.png">
     <style>
         * {
@@ -38,16 +38,6 @@
             text-align: center;
         }
 
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
 
         .content {
             padding: 40px 30px;
@@ -150,12 +140,36 @@
             font-size: 0.9rem;
         }
 
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
         .header-logo {
-            width: 60px;
+            width: 80px;
             height: auto;
-            margin-bottom: 15px;
             border-radius: 8px;
             opacity: 0.9;
+        }
+
+        .header-text {
+            text-align: center;
+        }
+
+        .header-text h1 {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .header-text .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 300;
+            font-style: italic;
         }
 
         .footer {
@@ -167,7 +181,12 @@
         }
 
         @media (max-width: 768px) {
-            .header h1 {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .header-text h1 {
                 font-size: 2rem;
             }
             
@@ -185,9 +204,13 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="./skysplat_logo1.png" alt="SkySplat Logo" class="header-logo">
-            <h1>Blender Con 2025</h1>
-            <p>3D Gaussian Splatting Tools & Resources</p>
+            <div class="header-content">
+                <img src="./skysplat_logo1.png" alt="SkySplat Logo" class="header-logo">
+                <div class="header-text">
+                    <h1>Blender Con 2025</h1>
+                    <p class="subtitle">SkySplat Tutorial: From drone video to photo-realistic 3D scene</p>
+                </div>
+            </div>
         </div>
         
         <div class="content">
