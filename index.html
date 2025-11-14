@@ -90,6 +90,37 @@
     </div>
 
     <div class="centered-text">
+        <h2>SkySplat: 3D Gaussian Splatting Toolkit</h2>
+        <p>
+            <a href="https://skysplat.org" target="_blank" rel="noopener noreferrer">SkySplat</a> is a comprehensive Blender addon
+            that streamlines the creation of photorealistic 3D Gaussian Splats from drone footage and aerial photography. The project
+            bridges the gap between raw video capture and finished 3D scenes by integrating structure-from-motion (COLMAP),
+            Gaussian Splatting training, and Blender's powerful 3D workflow into a single cohesive toolkit.
+        </p>
+        <img src="./docs/assets/images/puente_nuevo_bridge.png" alt="3D Gaussian Splat of Puente Nuevo Bridge" class="media-image" loading="lazy">
+        <p>
+            What sets SkySplat apart is its focus on <strong>coordinate system transformation and spatial integration</strong>. Rather
+            than treating reconstructed scenes as isolated assets, the addon allows you to rotate, scale, and position COLMAP point
+            clouds within Blender's native coordinate space before Gaussian Splatting training. This means you can align reconstructions
+            with reference imagery, combine multiple splats, or integrate traditional 3D models into photorealistic captures—all while
+            maintaining accurate spatial relationships.
+        </p>
+        <img src="./docs/assets/images/3dgs_model_loaded_5.png" alt="SkySplat Workflow in Blender" class="media-image" loading="lazy">
+        <p>
+            The complete workflow runs entirely within Blender: import video, extract frames with metadata, run COLMAP reconstruction,
+            transform and orient the scene, train Gaussian Splats with the bundled Brush renderer, and load the results directly into
+            your viewport. The addon bundles pre-compiled Gaussian Splatting binaries for all platforms and provides real-time training
+            visualization, making advanced 3D capture accessible to artists and researchers without complex dependency management.
+        </p>
+        <p>
+            I presented this project at BlenderCon 2025, demonstrating workflows for architectural visualization, terrain reconstruction,
+            and mixed CGI/photogrammetry compositions. The project is open source on GitHub at
+            <a href="https://github.com/kyjohnso/skysplat_blender" target="_blank" rel="noopener noreferrer">kyjohnso/skysplat_blender</a>,
+            with comprehensive documentation and example workflows at <a href="https://skysplat.org" target="_blank" rel="noopener noreferrer">skysplat.org</a>.
+        </p>
+    </div>
+
+    <div class="centered-text">
         <h2>ThreeJS Map</h2>
         <p>This is the current state of a very simple map and terrain visualization in threejs. It will accept latitude and longitude
             and zoom level and render a single tile in the canvas. The terrain data is provided by 
