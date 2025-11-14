@@ -57,7 +57,38 @@
 <body>
     <h1>kyjohnso dot com</h1>
     <p>This is my space for collecting some interesting projects I have worked on. Enjoy - </p><br><br>
-    
+
+    <div class="centered-text">
+        <h2>Regolith Voxel</h2>
+        <p>
+            <a href="https://github.com/kyjohnso/regolith_voxel" target="_blank" rel="noopener noreferrer">Regolith Voxel</a> is
+            an experimental mining simulation game that serves as a testbed for reinforcement learning research. The project explores
+            how RL agents can learn to manage complex resource extraction operations through indirect control of semi-autonomous mining equipment.
+        </p>
+        <img src="./docs/assets/images/regolith_voxel_screenshot.png" alt="Regolith Voxel Screenshot" class="media-image" loading="lazy">
+        <p>
+            The core concept investigates <strong>indirect control paradigms</strong> where players provide high-level strategic direction
+            rather than direct commands. Each piece of mining equipment operates autonomously, making local decisions based on its type,
+            position, and observations of the mineral-rich environment. This creates emergent behavior as multiple agents coordinate
+            their activities—samplers scout for resources, miners extract materials at different depths, refiners process raw ore,
+            and transport units move goods between sites.
+        </p>
+        <p>
+            What makes this particularly interesting for RL research is the <strong>network effects</strong> between agents. A single
+            agent's optimal strategy depends heavily on what other agents are doing: transport units need miners to produce ore,
+            refiners need raw materials delivered, and efficient sampling can guide mining operations to high-value deposits. This
+            multi-agent coordination challenge, combined with the hierarchical organization of equipment and the spatial dynamics
+            of resource management, provides a rich environment for exploring how reinforcement learning agents can learn to cooperate
+            and adapt in complex systems.
+        </p>
+        <p>
+            Built with Rust and the Bevy game engine, the project features procedurally generated mineral maps, a drag-and-drop
+            equipment hierarchy system, and a modular architecture designed to integrate RL training loops. Future work will focus
+            on implementing policy networks for autonomous equipment behavior and experimenting with reward structures that encourage
+            efficient multi-agent coordination.
+        </p>
+    </div>
+
     <div class="centered-text">
         <h2>ThreeJS Map</h2>
         <p>This is the current state of a very simple map and terrain visualization in threejs. It will accept latitude and longitude
