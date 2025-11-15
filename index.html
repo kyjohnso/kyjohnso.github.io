@@ -19,6 +19,69 @@
     <p>This is my space for collecting some interesting projects I have worked on. Enjoy - </p><br><br>
 
     <div class="centered-text">
+        <h2>Will Byers LED Chat: Talk to the Upside Down</h2>
+        <p>
+            I originally built this project in May 2022 for Stranger Things Season 4, recreating the iconic scene where Will
+            communicates from the Upside Down through Christmas lights. With Season 5 approaching in 2025, I've revived the project
+            with Claude AI playing the role of Will Byers, responding to your messages by flashing individual letters on a wall of LEDs.
+        </p>
+
+        <img src="./docs/assets/images/will_byers_demo.gif" alt="Will Byers LED Chat Demo" class="media-image" loading="lazy">
+
+        <p>
+            The hardware consists of a Raspberry Pi 4B controlling a strand of 100 individually addressable WS281x LEDs connected
+            to GPIO 18. Each LED is positioned above a letter of the alphabet painted on a piece of cardboard, cutout, and taped to the wall. 
+            The system runs on a 12V power supply for the leds (5v is available) and a separate USB power supply for the PI. 
+            The major bill of materials includes:
+        </p>
+        <ul style="text-align: left; max-width: 600px; margin: 0 auto 2rem;">
+            <li>Raspberry Pi 4B (any Pi with GPIO works)</li>
+            <li>12V WS281x LED strip (100 LEDs)</li>
+            <li>12V power supply for LEDs</li>
+            <li>Logic level converter (3.3V to 5V)</li>
+        </ul>
+
+        <picture>
+            <source srcset="./docs/assets/images/engineering_notebook_entry.webp" type="image/webp">
+            <img src="./docs/assets/images/engineering_notebook_entry.png" alt="Engineering Notebook Entry from May 2022" class="media-image" loading="lazy">
+        </picture>
+
+        <p>
+            To create the display, my daughter hand-painted all 26 letters of the alphabet on cardboard, we cut them all out, then hung them on the
+            wall. Since we can control any light, I held off on creating a letter-to-light address map until after everything was hung. 
+            In this way I could illuminate the lights individually with the code, and then note which address was closest to which letter.
+        </p>
+
+        <picture>
+            <source srcset="./docs/assets/images/painting_the_alphabet.webp" type="image/webp">
+            <img src="./docs/assets/images/painting_the_alphabet.jpg" alt="Hand-painting letters on paper" class="media-image" loading="lazy">
+        </picture>
+
+        <picture>
+            <source srcset="./docs/assets/images/full_color_wall.webp" type="image/webp">
+            <img src="./docs/assets/images/full_color_wall.jpg" alt="Completed LED installation with all letters lit" class="media-image" loading="lazy">
+        </picture>
+        <p> 
+            Now with AI technology exploding since 2022 - (especially language modeling and comprehension), I resurected the project just in time for
+            Stranger Things Season 5!! The updated project is available at <a href="https://github.com/kyjohnso/will_byers" target="_blank" rel="noopener noreferrer">github.com/kyjohnso/will_byers</a>
+            and includes two demos: a static message player that displays pre-programmed text, and an interactive chat mode where
+            Claude AI responds in character as Will Byers. The AI integration uses the Anthropic API to generate contextual responses,
+            with each letter flashing in sequence on the wall—complete with dramatic pauses for spaces, just like in the show.
+        </p>
+        <p>
+            <strong>Coming Soon:</strong> Before Season 5 premieres on Thanksgiving 2025, I'll be adding voice activation using
+            modern speech-to-text technology—finally realizing my original 2022 vision of Alexa integration (similar to my
+            <a href="#alexa-maze">Alexa-enabled Lego Mindstorms maze solver</a> below), but with full conversational AI instead
+            of simple voice commands.
+        </p>
+        <p>
+            I would LOVE to see a bunch of posts of you all recreating this scene in the run up to the finalle - this is going to be a good one!
+        </p>
+
+
+    </div>
+
+    <div class="centered-text">
         <h2>Regolith Voxel</h2>
         <p>
             <a href="https://github.com/kyjohnso/regolith_voxel" target="_blank" rel="noopener noreferrer">Regolith Voxel</a> is
@@ -255,7 +318,7 @@
             <iframe src="https://www.youtube.com/embed/cLdlvLBH_sY" allowfullscreen></iframe>
         </div><br>
     </div>
-    <div class="centered-text">
+    <div class="centered-text" id="alexa-maze">
         <h2>Alexa-Enabled Maze Solving Robot</h2>
         <p>
             <a href="https://www.hackster.io/kyle22/dwr-an-alexa-voice-enabled-maze-solving-lego-robot-405dbf" target="_blank" rel="noopener noreferrer">Alexa Enabled Maze Solving Robot</a> - An entry into a contest to link Amazon Alexa Gadgets to Lego Mindstorms. I made a robot that you gave instructions to via Alexa to help it solve a Lego maze.
