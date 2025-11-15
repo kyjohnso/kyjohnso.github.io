@@ -1,0 +1,238 @@
+/* CSS Variables */
+:root {
+    --primary-color: #2c3e50;
+    --text-color: #333;
+    --text-color-light: #666;
+    --background: #ffffff;
+    --accent-color: #3498db;
+    --max-width: 800px;
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 2rem;
+    --spacing-lg: 3rem;
+    --spacing-xl: 4rem;
+    --border-radius: 8px;
+    --transition: all 0.3s ease;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --primary-color: #ecf0f1;
+        --text-color: #e0e0e0;
+        --text-color-light: #b0b0b0;
+        --background: #1a1a1a;
+        --accent-color: #5dade2;
+    }
+}
+
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--background);
+    padding: var(--spacing-sm);
+    transition: var(--transition);
+}
+
+/* Typography */
+h1 {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-sm);
+    letter-spacing: -0.02em;
+}
+
+h2 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: var(--spacing-xl) 0 var(--spacing-md);
+    letter-spacing: -0.01em;
+}
+
+h3 {
+    font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+    font-weight: 600;
+    color: var(--primary-color);
+    margin: var(--spacing-lg) 0 var(--spacing-md);
+}
+
+p {
+    margin-bottom: var(--spacing-md);
+    color: var(--text-color);
+    text-align: justify;
+    hyphens: auto;
+}
+
+/* Links */
+a {
+    color: var(--accent-color);
+    text-decoration: none;
+    transition: var(--transition);
+    border-bottom: 1px solid transparent;
+}
+
+a:hover {
+    border-bottom: 1px solid var(--accent-color);
+}
+
+/* Header section */
+body > h1:first-of-type {
+    text-align: center;
+    margin-top: var(--spacing-md);
+}
+
+body > p:first-of-type {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto var(--spacing-xl);
+    color: var(--text-color-light);
+}
+
+/* Content sections */
+.centered-text {
+    max-width: var(--max-width);
+    margin: 0 auto var(--spacing-xl);
+    padding: 0 var(--spacing-sm);
+}
+
+.centered-text h2 {
+    text-align: center;
+}
+
+.centered-text h3 {
+    text-align: center;
+}
+
+/* Media elements */
+picture {
+    display: block;
+    margin: var(--spacing-md) auto;
+}
+
+.media-image {
+    width: 100%;
+    max-width: var(--max-width);
+    height: auto;
+    display: block;
+    margin: var(--spacing-md) auto;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: var(--transition);
+}
+
+picture .media-image {
+    margin: 0;
+}
+
+.media-image:hover {
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+/* Video wrapper for responsive 16:9 */
+.video-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: var(--max-width);
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    margin: var(--spacing-md) auto;
+    overflow: hidden;
+    background: #000;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.video-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: var(--border-radius);
+}
+
+/* Interactive iframe demos */
+iframe[data-src] {
+    width: 100%;
+    max-width: var(--max-width);
+    height: 500px;
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin: var(--spacing-md) auto;
+    display: block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    :root {
+        --max-width: 100%;
+        --spacing-lg: 2rem;
+        --spacing-xl: 3rem;
+    }
+
+    body {
+        padding: var(--spacing-xs);
+    }
+
+    .centered-text {
+        padding: 0 var(--spacing-sm);
+    }
+
+    p {
+        text-align: left;
+        hyphens: none;
+    }
+
+    iframe[data-src] {
+        height: 400px;
+    }
+}
+
+@media (max-width: 480px) {
+    html {
+        font-size: 14px;
+    }
+
+    iframe[data-src] {
+        height: 300px;
+    }
+
+    .media-image {
+        border-radius: 4px;
+    }
+}
+
+/* Print styles */
+@media print {
+    .video-wrapper,
+    iframe {
+        display: none;
+    }
+
+    body {
+        color: #000;
+        background: #fff;
+    }
+
+    a {
+        color: #000;
+        text-decoration: underline;
+    }
+}

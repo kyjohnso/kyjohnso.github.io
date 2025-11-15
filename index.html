@@ -1,58 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        
-        .centered-text {
-            text-align: center;
-            width: 80%;
-            margin: 0 auto;
-        }
-
-        .centered-text h2 {
-            font-weight: bold;
-        }
-
-        .centered-text h3 {
-            font-weight: bold;
-        }
-        .centered-text p {
-            text-align: justify;
-        }
-
-        /* Set a specific width and a max width for images */
-        .media-image {
-            width: 800px; /* Set specific width */
-            max-width: 100%; /* Ensure responsiveness */
-            height: auto;
-            display: block;
-            margin: 0 auto;
-        }
-
-        /* Wrapper for responsive 16:9 iframe aspect ratio */
-        .video-wrapper {
-            position: relative;
-            width: 800px; /* Set specific width */
-            max-width: 100%; /* Ensure responsiveness */
-            padding-bottom: 56.25%; /* 16:9 aspect ratio */
-            margin: 0 auto;
-            overflow: hidden;
-            background: #000;
-        }
-
-        .video-wrapper iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Kyle Johnson's portfolio showcasing projects in 3D graphics, Gaussian Splatting, Blender, AI alignment, and interactive simulations.">
+    <meta name="author" content="Kyle Johnson">
+    <meta property="og:title" content="kyjohnso dot com">
+    <meta property="og:description" content="Portfolio of 3D graphics, Gaussian Splatting, and interactive visualization projects">
+    <meta property="og:type" content="website">
+    <title>Kyle Johnson - Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <h1>kyjohnso dot com</h1>
@@ -65,7 +25,10 @@
             an experimental mining simulation game that serves as a testbed for reinforcement learning research. The project explores
             how RL agents can learn to manage complex resource extraction operations through indirect control of semi-autonomous mining equipment.
         </p>
-        <img src="./docs/assets/images/regolith_voxel_screenshot.png" alt="Regolith Voxel Screenshot" class="media-image" loading="lazy">
+        <picture>
+            <source srcset="./docs/assets/images/regolith_voxel_screenshot.webp" type="image/webp">
+            <img src="./docs/assets/images/regolith_voxel_screenshot.png" alt="Regolith Voxel Screenshot" class="media-image" loading="lazy">
+        </picture>
         <p>
             The core concept investigates <strong>indirect control paradigms</strong> where players provide high-level strategic direction
             rather than direct commands. Each piece of mining equipment operates autonomously, making local decisions based on its type,
@@ -97,7 +60,10 @@
             bridges the gap between raw video capture and finished 3D scenes by integrating structure-from-motion (COLMAP),
             Gaussian Splatting training, and Blender's powerful 3D workflow into a single cohesive toolkit.
         </p>
-        <img src="./docs/assets/images/puente_nuevo_bridge.png" alt="3D Gaussian Splat of Puente Nuevo Bridge" class="media-image" loading="lazy">
+        <picture>
+            <source srcset="./docs/assets/images/puente_nuevo_bridge.webp" type="image/webp">
+            <img src="./docs/assets/images/puente_nuevo_bridge.png" alt="3D Gaussian Splat of Puente Nuevo Bridge" class="media-image" loading="lazy">
+        </picture>
         <p>
             What sets SkySplat apart is its focus on <strong>coordinate system transformation and spatial integration</strong>. Rather
             than treating reconstructed scenes as isolated assets, the addon allows you to rotate, scale, and position COLMAP point
@@ -105,7 +71,10 @@
             with reference imagery, combine multiple splats, or integrate traditional 3D models into photorealistic captures—all while
             maintaining accurate spatial relationships.
         </p>
-        <img src="./docs/assets/images/3dgs_model_loaded_5.png" alt="SkySplat Workflow in Blender" class="media-image" loading="lazy">
+        <picture>
+            <source srcset="./docs/assets/images/3dgs_model_loaded_5.webp" type="image/webp">
+            <img src="./docs/assets/images/3dgs_model_loaded_5.png" alt="SkySplat Workflow in Blender" class="media-image" loading="lazy">
+        </picture>
         <p>
             The complete workflow runs entirely within Blender: import video, extract frames with metadata, run COLMAP reconstruction,
             transform and orient the scene, train Gaussian Splats with the bundled Brush renderer, and load the results directly into
@@ -155,10 +124,19 @@
             
         </p>
         <!-- <img src="docs/assets/images/school1.png" alt="School Splat Rendered Image 1" class="media-image" loading="lazy"> -->
-        <img src="docs/assets/images/school2.png" alt="School Splat Rendered Image 2" class="media-image" loading="lazy">
+        <picture>
+            <source srcset="docs/assets/images/school2.webp" type="image/webp">
+            <img src="docs/assets/images/school2.png" alt="School Splat Rendered Image 2" class="media-image" loading="lazy">
+        </picture>
         <!-- <img src="docs/assets/images/school3.png" alt="School Splat Rendered Image 3" class="media-image" loading="lazy"> -->
-        <img src="docs/assets/images/school4.png" alt="School Splat Rendered Image 4" class="media-image" loading="lazy">
-        <img src="docs/assets/images/school5.png" alt="School Splat Rendered Image 5" class="media-image" loading="lazy">
+        <picture>
+            <source srcset="docs/assets/images/school4.webp" type="image/webp">
+            <img src="docs/assets/images/school4.png" alt="School Splat Rendered Image 4" class="media-image" loading="lazy">
+        </picture>
+        <picture>
+            <source srcset="docs/assets/images/school5.webp" type="image/webp">
+            <img src="docs/assets/images/school5.png" alt="School Splat Rendered Image 5" class="media-image" loading="lazy">
+        </picture>
         <!-- <img src="docs/assets/images/school6.png" alt="School Splat Rendered Image 6" class="media-image" loading="lazy"> -->
 
     </div>
@@ -201,8 +179,14 @@
         <p>I was fortunate to have my talk selected for Blender Con 2024. I expected to have just a 20 minute talk but I was slotted for a live 50-minute walkthrough of some of the projects that appear on this page.
             I began with a walkthrough of the geometry nodes approach to modeling parametric surfaces, then demonstrated how to use modifiers and scripting to model the 3D dodecahedron moon.
         </p>
-        <img src="./docs/assets/images/segmented_moon_rendered.png" alt="Rendered Moon" class="media-image" loading="lazy"><br>
-        <img src="./docs/assets/images/segmented_moon_printed.jpg" alt="Printed Moon" class="media-image" loading="lazy"><br>
+        <picture>
+            <source srcset="./docs/assets/images/segmented_moon_rendered.webp" type="image/webp">
+            <img src="./docs/assets/images/segmented_moon_rendered.png" alt="Rendered Moon" class="media-image" loading="lazy">
+        </picture><br>
+        <picture>
+            <source srcset="./docs/assets/images/segmented_moon_printed.webp" type="image/webp">
+            <img src="./docs/assets/images/segmented_moon_printed.jpg" alt="Printed Moon" class="media-image" loading="lazy">
+        </picture><br>
         <div class="video-wrapper">
             <iframe src="https://www.youtube.com/embed/m55iR8__tZc?si=MBJD2U96D7OhYiKs" allowfullscreen></iframe>
         </div><br>
