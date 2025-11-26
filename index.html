@@ -19,19 +19,34 @@
     <p>This is my space for collecting some interesting projects I have worked on. Enjoy - </p><br><br>
 
     <div class="centered-text" id="strangerthingswall">
-        <h2>Will Byers LED Chat: Talk to the Upside Down</h2>
+        <h2>Stranger Things Wall</h2>
+
+        <picture>
+            <source srcset="./docs/assets/images/vecna_and_11.webp" type="image/webp">
+            <img src="./docs/assets/images/vecna_and_11.jpg" alt="Vecna and El figures in front of the Christmas light wall" class="media-image" loading="lazy">
+        </picture>
         <p>
             I originally built this project in May 2022 for Stranger Things Season 4, recreating the iconic scene where Will
-            communicates from the Upside Down through Christmas lights. With Season 5 approaching in 2025, I've revived the project
-            with Claude AI playing the role of Will Byers, responding to your messages by flashing individual letters on a wall of LEDs.
+            communicates from the Upside Down through Christmas lights. Initially, I planned to integrate voice activation using
+            Amazon's Alexa Gadgets API (similar to my <a href="#alexa-maze">Alexa-enabled Lego Mindstorms maze solver</a> below),
+            but Amazon discontinued the API before I could complete the integration. I was left with a static message generator
+            that could display pre-programmed text for Halloween, the Season 4 premiere, and secret messages to my kids.
         </p>
 
         <img src="./docs/assets/images/will_byers_demo.gif" alt="Will Byers LED Chat Demo" class="media-image" loading="lazy">
 
         <p>
+            With Season 5 here and the massive improvements in LLMs and speech-to-text technology, I decided to revisit
+            the project in 2025. Now it uses <a href="https://alphacephei.com/vosk/" target="_blank" rel="noopener noreferrer">Vosk</a>
+            for custom wake-word detection, <a href="https://github.com/openai/whisper" target="_blank" rel="noopener noreferrer">Whisper</a>
+            for speech-to-text, and the <a href="https://github.com/anthropics/anthropic-sdk-python" target="_blank" rel="noopener noreferrer">Anthropic SDK</a>
+            for generating Will's responses. The result realizes my original 2022 vision—you can now talk to Will in the Upside Down,
+            and he replies through the Christmas Light Alphabet!
+        </p>
+
+        <p>
             The hardware consists of a Raspberry Pi 4B controlling a strand of 100 individually addressable WS281x LEDs connected
-            to GPIO 18. Each LED is positioned above a letter of the alphabet painted on a piece of cardboard, cutout, and taped to the wall. 
-            The system runs on a 12V power supply for the leds (5v is available) and a separate USB power supply for the PI. 
+            to GPIO 18. The system runs on a 12V power supply for the LEDs (5V is also available) and a separate USB power supply for the Pi.
             The major bill of materials includes:
         </p>
         <ul style="text-align: left; max-width: 600px; margin: 0 auto 2rem;">
@@ -46,10 +61,16 @@
             <img src="./docs/assets/images/engineering_notebook_entry.png" alt="Engineering Notebook Entry from May 2022" class="media-image" loading="lazy">
         </picture>
 
+        <picture>
+            <source srcset="./docs/assets/images/breadboard.webp" type="image/webp">
+            <img src="./docs/assets/images/breadboard.jpg" alt="Prototype breadboard controlling the LED display" class="media-image" loading="lazy">
+        </picture>
+
         <p>
-            To create the display, my daughter hand-painted all 26 letters of the alphabet on cardboard, we cut them all out, then hung them on the
-            wall. Since we can control any light, I held off on creating a letter-to-light address map until after everything was hung. 
-            In this way I could illuminate the lights individually with the code, and then note which address was closest to which letter.
+            To create the original display in 2022, my daughter hand-painted all 26 letters of the alphabet on cardboard, we cut them all out, then hung them on the
+            wall. Since we can control any light, I held off on creating a letter-to-light address map until after everything was hung.
+            In this way I could illuminate the lights individually with the code, and then note which address was closest to which letter. In the New 
+            version there is a script that assists with making this mapping.
         </p>
 
         <picture>
@@ -61,21 +82,35 @@
             <source srcset="./docs/assets/images/full_color_wall.webp" type="image/webp">
             <img src="./docs/assets/images/full_color_wall.jpg" alt="Completed LED installation with all letters lit" class="media-image" loading="lazy">
         </picture>
-        <p> 
-            Now with AI technology exploding since 2022 - (especially language modeling and comprehension), I resurected the project just in time for
-            Stranger Things Season 5!! The updated project is available at <a href="https://github.com/kyjohnso/will_byers" target="_blank" rel="noopener noreferrer">github.com/kyjohnso/will_byers</a>
-            and includes two demos: a static message player that displays pre-programmed text, and an interactive chat mode where
-            Claude AI responds in character as Will Byers. The AI integration uses the Anthropic API to generate contextual responses,
-            with each letter flashing in sequence on the wall—complete with dramatic pauses for spaces, just like in the show.
+
+        <p>
+            Between 2022 and 2025, we had our flat painted, so rather than painting letters on the wall again, I decided to make a section
+            of the wall out of thin MDF. This gave me the opportunity for a major upgrade—70's era floral wallpaper as a background for the
+            lettering.
+        </p>
+
+        <picture>
+            <source srcset="./docs/assets/images/wall_paper_closeup.webp" type="image/webp">
+            <img src="./docs/assets/images/wall_paper_closeup.jpg" alt="Self-adhesive 70s floral wallpaper adds authenticity" class="media-image" loading="lazy">
+        </picture>
+
+        <p>
+            If you use the keyboard-triggered voice chat, you can even sync with Season 1 Episode 3! Watch the demo below:
+        </p>
+
+        <div class="video-wrapper">
+            <iframe src="https://www.youtube.com/embed/hM04iaqw8V4" allowfullscreen></iframe>
+        </div><br>
+
+        <p>
+            The updated project is available at <a href="https://github.com/kyjohnso/will_byers" target="_blank" rel="noopener noreferrer">github.com/kyjohnso/will_byers</a>
+            and includes multiple interaction modes: a static message player for pre-programmed text, an interactive chat mode where
+            Claude AI responds in character as Will Byers, and wake-word voice activation where you can speak directly to Will.
+            The AI integration uses the Anthropic API to generate contextual responses, with each letter flashing in sequence on the
+            wall—complete with dramatic pauses for spaces, just like in the show.
         </p>
         <p>
-            <strong>Coming Soon:</strong> Before Season 5 premieres on Thanksgiving 2025, I'll be adding voice activation using
-            modern speech-to-text technology—finally realizing my original 2022 vision of Alexa integration (similar to my
-            <a href="#alexa-maze">Alexa-enabled Lego Mindstorms maze solver</a> below), but with full conversational AI instead
-            of simple voice commands.
-        </p>
-        <p>
-            I would LOVE to see a bunch of posts of you all recreating this scene in the run up to the finalle - this is going to be a good one!
+            I would LOVE to see a bunch of posts of you all recreating this scene in the run-up to the finale—this is going to be a good one!
         </p>
 
 
