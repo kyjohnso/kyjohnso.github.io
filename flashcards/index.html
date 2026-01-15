@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Materials</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Karla:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Karla', sans-serif;
+            background: linear-gradient(135deg, #FFF8E7 0%, #FFE4C4 50%, #FFDAB9 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 800px;
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: #C44536;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 0px rgba(255, 153, 51, 0.2);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #E67E22;
+            margin-bottom: 3rem;
+            font-weight: 500;
+        }
+
+        .materials-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .material-card {
+            background: linear-gradient(135deg, #FFF8E7 0%, #FFE4C4 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 153, 51, 0.3);
+            display: block;
+        }
+
+        .material-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(255, 153, 51, 0.3);
+            border-color: #FF9933;
+        }
+
+        .material-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #C44536;
+            margin-bottom: 0.5rem;
+        }
+
+        .material-description {
+            font-size: 1rem;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .qr-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid rgba(255, 153, 51, 0.2);
+        }
+
+        .qr-title {
+            font-size: 1.1rem;
+            color: #E67E22;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .qr-code {
+            max-width: 200px;
+            height: auto;
+            margin: 0 auto;
+            border-radius: 8px;
+            background: white;
+            padding: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .material-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Study Materials</h1>
+        <p class="subtitle">Interactive Learning Resources</p>
+
+        <div class="materials-list">
+            <a href="hinduism-flashcards.html" class="material-card">
+                <div class="material-title">Hinduism Vocabulary</div>
+                <div class="material-description">
+                    50 essential terms with interactive flashcards. Tap to flip and learn!
+                </div>
+            </a>
+        </div>
+
+        <div class="qr-section">
+            <div class="qr-title">Scan to Access on Mobile</div>
+            <img src="flashcards-qr.png" alt="QR Code" class="qr-code">
+        </div>
+    </div>
+</body>
+</html>
