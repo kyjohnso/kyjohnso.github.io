@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>French Grammar Flashcards</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Karla:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --blue: #0055A4;
+            --red: #EF4135;
+            --cream: #F5F5F0;
+            --dark-blue: #003580;
+            --light-blue: #4A90E2;
+            --shadow: rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Karla', sans-serif;
+            background: linear-gradient(135deg, #E8EAF6 0%, #C5CAE9 50%, #9FA8DA 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                radial-gradient(circle at 20% 80%, rgba(0, 85, 164, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(74, 144, 226, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--dark-blue);
+            text-shadow: 2px 2px 0px rgba(0, 85, 164, 0.2);
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--blue);
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .controls {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--blue), var(--light-blue));
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 85, 164, 0.3);
+            transition: all 0.3s ease;
+            font-family: 'Karla', sans-serif;
+            margin: 0 0.5rem;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 85, 164, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-wrapper {
+            perspective: 1000px;
+            height: 200px;
+            position: relative;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .card-wrapper:hover .card {
+            transform: translateY(-4px) rotateX(5deg);
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-wrapper:hover .card.flipped {
+            transform: rotateY(180deg) translateY(-4px) rotateX(5deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 8px 30px var(--shadow);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F5F5F0 100%);
+            border-left: 5px solid var(--blue);
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, var(--blue) 0%, var(--light-blue) 100%);
+            transform: rotateY(180deg);
+            color: white;
+        }
+
+        .card-front.alt-color {
+            background: linear-gradient(135deg, #FFFEF7 0%, #E8EAF6 100%);
+            border-left: 5px solid var(--red);
+        }
+
+        .card-back.alt-color {
+            background: linear-gradient(135deg, var(--red) 0%, #E57373 100%);
+            transform: rotateY(180deg);
+            color: white;
+        }
+
+        .term {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--dark-blue);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.5px;
+        }
+
+        .card-front.alt-color .term {
+            color: var(--red);
+        }
+
+        .definition {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 400;
+        }
+
+        .card-number {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--blue);
+            opacity: 0.6;
+        }
+
+        .card-front.alt-color .card-number {
+            color: var(--red);
+        }
+
+        .flip-hint {
+            position: absolute;
+            bottom: 0.5rem;
+            font-size: 0.7rem;
+            opacity: 0.5;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .card-front .flip-hint {
+            color: var(--blue);
+        }
+
+        .card-back .flip-hint {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .card-front.alt-color .flip-hint {
+            color: var(--red);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .cards-container {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 1rem;
+            }
+
+            .card-wrapper {
+                height: 180px;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-wrapper {
+            animation: fadeIn 0.5s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .card-wrapper:nth-child(1) { animation-delay: 0.05s; }
+        .card-wrapper:nth-child(2) { animation-delay: 0.1s; }
+        .card-wrapper:nth-child(3) { animation-delay: 0.15s; }
+        .card-wrapper:nth-child(4) { animation-delay: 0.2s; }
+        .card-wrapper:nth-child(5) { animation-delay: 0.25s; }
+        .card-wrapper:nth-child(6) { animation-delay: 0.3s; }
+        .card-wrapper:nth-child(7) { animation-delay: 0.35s; }
+        .card-wrapper:nth-child(8) { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>French Grammar</h1>
+        <p class="subtitle">On part en vacances</p>
+    </div>
+
+    <div class="controls">
+        <button onclick="flipAllCards()">Flip All Cards</button>
+        <button onclick="shuffleCards()">Shuffle Cards</button>
+        <button onclick="resetCards()">Reset Layout</button>
+    </div>
+
+    <div class="cards-container" id="cardsContainer"></div>
+
+    <script>
+        const vocabularyData = [
+            { term: "ALLER", definition: "to go - Irregular verb used frequently in French" },
+            { term: "je vais", definition: "I go" },
+            { term: "tu vas", definition: "you go (informal singular)" },
+            { term: "il/elle/on va", definition: "he/she/one goes" },
+            { term: "nous allons", definition: "we go" },
+            { term: "vous allez", definition: "you go (formal/plural)" },
+            { term: "ils/elles vont", definition: "they go" },
+            { term: "PARTIR", definition: "to leave, to depart - Irregular verb ending in -ir" },
+            { term: "je pars", definition: "I leave" },
+            { term: "tu pars", definition: "you leave (informal singular)" },
+            { term: "il/elle/on part", definition: "he/she/one leaves" },
+            { term: "nous partons", definition: "we leave" },
+            { term: "vous partez", definition: "you leave (formal/plural)" },
+            { term: "ils/elles partent", definition: "they leave" },
+            { term: "SORTIR", definition: "to go out - Follows a similar pattern to partir" },
+            { term: "je sors", definition: "I go out" },
+            { term: "nous sortons", definition: "we go out" },
+            { term: "ils/elles sortent", definition: "they go out" },
+            { term: "DORMIR", definition: "to sleep - Follows a similar pattern to partir" },
+            { term: "je dors", definition: "I sleep" },
+            { term: "nous dormons", definition: "we sleep" },
+            { term: "ils/elles dorment", definition: "they sleep" },
+            { term: "à + town", definition: "Use 'à' when saying you're at/in a town. Example: J'habite à Bordeaux" },
+            { term: "au + country", definition: "Use 'au' for masculine singular countries. Example: au Portugal, au Maroc" },
+            { term: "en + country", definition: "Use 'en' for feminine singular countries. Example: en Allemagne, en Afrique" },
+            { term: "aux + country", definition: "Use 'aux' for plural countries. Example: aux Pays-Bas, aux États-Unis" },
+            { term: "au monde", definition: "in the world - 'monde' is masculine" },
+            { term: "en Asie", definition: "in Asia - continents are typically feminine" },
+            { term: "le Mexique", definition: "Mexico - EXCEPTION: masculine despite ending in -e" },
+            { term: "l'Australie", definition: "Australia - feminine (ends in -e)" },
+            { term: "Country -e rule", definition: "Countries ending in -e are usually feminine. One major exception: le Mexique" },
+            { term: "Marrakech est au Maroc", definition: "Marrakech is in Morocco (masculine country)" },
+            { term: "Athènes est en Grèce", definition: "Athens is in Greece (feminine country)" },
+            { term: "New York est aux États-Unis", definition: "New York is in the United States (plural country)" },
+            { term: "J'habite à Bordeaux", definition: "I live in Bordeaux (using à with a town)" },
+            { term: "au Portugal", definition: "in/to Portugal (masculine singular)" },
+            { term: "en Allemagne", definition: "in/to Germany (feminine singular)" },
+            { term: "en Afrique", definition: "in/to Africa (feminine continent)" },
+            { term: "aux Pays-Bas", definition: "in/to the Netherlands (plural country)" },
+            { term: "du Mexique", definition: "Remember the phrase 'du Mexique' to recall Mexico is masculine with the exception" },
+            { term: "Je vais en France", definition: "I'm going to France (en + feminine country)" },
+            { term: "Nous allons au Japon", definition: "We're going to Japan (au + masculine country)" },
+            { term: "Tu pars en vacances", definition: "You're leaving on vacation" },
+            { term: "Ils vont aux États-Unis", definition: "They're going to the United States (aux + plural country)" },
+            { term: "en Italie", definition: "in/to Italy (feminine country)" },
+            { term: "au Canada", definition: "in/to Canada (masculine country)" },
+            { term: "en Espagne", definition: "in/to Spain (feminine country)" },
+            { term: "au Brésil", definition: "in/to Brazil (masculine country)" },
+            { term: "en Chine", definition: "in/to China (feminine country)" },
+            { term: "à Paris", definition: "in/to Paris (à with city)" },
+            { term: "à Londres", definition: "in/to London (à with city)" }
+        ];
+
+        function createCard(data, index) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'card-wrapper';
+            wrapper.dataset.index = index;
+
+            const altColorClass = index >= 17 ? ' alt-color' : '';
+
+            wrapper.innerHTML = `
+                <div class="card">
+                    <div class="card-face card-front${altColorClass}">
+                        <span class="card-number">${index + 1}/${vocabularyData.length}</span>
+                        <div class="term">${data.term}</div>
+                        <span class="flip-hint">TAP TO FLIP</span>
+                    </div>
+                    <div class="card-face card-back${altColorClass}">
+                        <span class="card-number">${index + 1}/${vocabularyData.length}</span>
+                        <div class="definition">${data.definition}</div>
+                        <span class="flip-hint">TAP TO FLIP</span>
+                    </div>
+                </div>
+            `;
+
+            // Simple click/touch to flip
+            wrapper.addEventListener('click', function() {
+                const card = this.querySelector('.card');
+                card.classList.toggle('flipped');
+            });
+
+            return wrapper;
+        }
+
+        function initializeCards() {
+            const container = document.getElementById('cardsContainer');
+            container.innerHTML = '';
+            vocabularyData.forEach((data, index) => {
+                container.appendChild(createCard(data, index));
+            });
+        }
+
+        function flipAllCards() {
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                card.classList.toggle('flipped');
+            });
+        }
+
+        function shuffleCards() {
+            const container = document.getElementById('cardsContainer');
+            const cards = Array.from(container.children);
+
+            for (let i = cards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                container.appendChild(cards[j]);
+            }
+        }
+
+        function resetCards() {
+            const container = document.getElementById('cardsContainer');
+            const cards = Array.from(container.children);
+
+            cards.sort((a, b) => {
+                return parseInt(a.dataset.index) - parseInt(b.dataset.index);
+            });
+
+            cards.forEach(card => {
+                container.appendChild(card);
+                const cardElement = card.querySelector('.card');
+                cardElement.classList.remove('flipped');
+            });
+        }
+
+        // Initialize the flashcards
+        initializeCards();
+    </script>
+</body>
+</html>
