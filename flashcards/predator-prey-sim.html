@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predator-Prey Ecosystem Simulator</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0f0f0f;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #1a1a1a;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a2a1a 0%, #0d1a0d 100%);
+            padding: 30px;
+            border-bottom: 1px solid #2a4a2a;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            font-weight: 300;
+            letter-spacing: 1px;
+            color: #4a9d6f;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            font-size: 0.95em;
+            color: #888;
+            font-weight: 300;
+        }
+
+        .main {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 0;
+        }
+
+        .sim-area {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #simCanvas {
+            width: 100%;
+            max-width: 560px;
+            aspect-ratio: 1;
+            border: 1px solid #2a4a2a;
+            border-radius: 4px;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        .pop-bar {
+            display: flex;
+            gap: 20px;
+            margin: 12px 0;
+            font-size: 0.85em;
+            font-weight: 500;
+            width: 100%;
+            max-width: 560px;
+            justify-content: center;
+        }
+
+        .pop-bar span { display: flex; align-items: center; gap: 6px; }
+        .pop-bar b { display: inline-block; min-width: 52px; text-align: right; font-variant-numeric: tabular-nums; }
+        .pop-dot {
+            width: 10px; height: 10px; border-radius: 50%; display: inline-block;
+        }
+        .dot-plant { background: #2d8a4e; }
+        .dot-prey { background: #c4956a; }
+        .dot-pred { background: #c44536; }
+
+        #graphCanvas {
+            width: 100%;
+            max-width: 560px;
+            height: 150px;
+            border: 1px solid #2a4a2a;
+            border-radius: 4px;
+            background: #111;
+        }
+
+        .gen-label {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 6px;
+        }
+
+        .controls {
+            background: #151a15;
+            border-left: 1px solid #2a4a2a;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 100vh;
+            position: sticky;
+            top: 0;
+        }
+
+        .ctrl-section {
+            margin-bottom: 18px;
+        }
+
+        .ctrl-section h3 {
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #4a9d6f;
+            margin-bottom: 10px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #2a4a2a;
+        }
+
+        .ctrl-section.sec-plant h3 { color: #2d8a4e; border-color: #2d8a4e40; }
+        .ctrl-section.sec-plant .val { color: #2d8a4e; }
+        .ctrl-section.sec-plant input[type="range"]::-webkit-slider-thumb { background: #2d8a4e; }
+        .ctrl-section.sec-plant input[type="range"]::-moz-range-thumb { background: #2d8a4e; }
+
+        .ctrl-section.sec-prey h3 { color: #c4956a; border-color: #c4956a40; }
+        .ctrl-section.sec-prey .val { color: #c4956a; }
+        .ctrl-section.sec-prey input[type="range"]::-webkit-slider-thumb { background: #c4956a; }
+        .ctrl-section.sec-prey input[type="range"]::-moz-range-thumb { background: #c4956a; }
+
+        .ctrl-section.sec-pred h3 { color: #c44536; border-color: #c4453640; }
+        .ctrl-section.sec-pred .val { color: #c44536; }
+        .ctrl-section.sec-pred input[type="range"]::-webkit-slider-thumb { background: #c44536; }
+        .ctrl-section.sec-pred input[type="range"]::-moz-range-thumb { background: #c44536; }
+
+        .ctrl-row {
+            margin-bottom: 10px;
+        }
+
+        .ctrl-row label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.82em;
+            color: #aaa;
+            margin-bottom: 3px;
+        }
+
+        .ctrl-row label .val {
+            color: #4a9d6f;
+            font-weight: 600;
+            min-width: 40px;
+            text-align: right;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #0d1a0d;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #4a9d6f;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #4a9d6f;
+            cursor: pointer;
+            border: none;
+        }
+
+        select {
+            width: 100%;
+            padding: 6px 8px;
+            background: #0d1a0d;
+            color: #e0e0e0;
+            border: 1px solid #2a4a2a;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 60px;
+            padding: 8px 12px;
+            background: #1f3f1f;
+            color: #4a9d6f;
+            border: 1px solid #2a4a2a;
+            border-radius: 4px;
+            font-size: 0.85em;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn:hover { background: #2a5a2a; border-color: #4a9d6f; }
+        .btn.active { background: #2a5a2a; border-color: #4a9d6f; box-shadow: 0 0 8px rgba(74, 157, 111, 0.3); }
+
+        .info-panel {
+            padding: 24px 30px;
+            border-top: 1px solid #2a4a2a;
+        }
+
+        .info-panel h2 {
+            font-size: 1.2em;
+            font-weight: 400;
+            color: #4a9d6f;
+            margin-bottom: 14px;
+        }
+
+        .try-this {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .experiment {
+            background: #0d1a0d;
+            border: 1px solid #2a4a2a;
+            border-radius: 4px;
+            padding: 14px;
+        }
+
+        .experiment h4 {
+            color: #4a9d6f;
+            font-size: 0.9em;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .experiment p {
+            font-size: 0.82em;
+            color: #999;
+            line-height: 1.5;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin: 20px 30px;
+            color: #4a9d6f;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+
+        .back-link:hover { text-decoration: underline; }
+
+        @media (max-width: 800px) {
+            .main {
+                grid-template-columns: 1fr;
+            }
+            .controls {
+                border-left: none;
+                border-top: 1px solid #2a4a2a;
+                position: static;
+                max-height: none;
+            }
+            .try-this {
+                grid-template-columns: 1fr;
+            }
+            .header h1 { font-size: 1.5em; }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-link">&larr; Back to Study Materials</a>
+
+    <div class="container">
+        <div class="header">
+            <h1>Predator&ndash;Prey Ecosystem</h1>
+            <p>Watch how caribou, wolves, and plants interact &mdash; just like the populations in Quebec</p>
+        </div>
+
+        <div class="main">
+            <div class="sim-area">
+                <canvas id="simCanvas"></canvas>
+                <div class="pop-bar">
+                    <span><span class="pop-dot dot-plant"></span> Plants: <b id="popPlant">0</b></span>
+                    <span><span class="pop-dot dot-prey"></span> Caribou: <b id="popPrey">0</b></span>
+                    <span><span class="pop-dot dot-pred"></span> Wolves: <b id="popPred">0</b></span>
+                </div>
+                <canvas id="graphCanvas"></canvas>
+                <div class="gen-label">Generation: <span id="genLabel">0</span></div>
+            </div>
+
+            <div class="controls">
+                <div class="btn-row">
+                    <button class="btn" id="btnPlay" onclick="togglePlay()">Play</button>
+                    <button class="btn" id="btnStep" onclick="stepOnce()">Step</button>
+                    <button class="btn" id="btnReset" onclick="resetSim()">Reset</button>
+                </div>
+
+                <div class="ctrl-section">
+                    <h3>Simulation</h3>
+                    <div class="ctrl-row">
+                        <label>Grid Size</label>
+                        <select id="gridSize" onchange="changeGridSize(this.value)">
+                            <option value="128">128 &times; 128</option>
+                            <option value="256" selected>256 &times; 256</option>
+                            <option value="512">512 &times; 512</option>
+                        </select>
+                    </div>
+                    <div class="ctrl-row">
+                        <label>Speed <span class="val" id="valSpeed">15</span></label>
+                        <input type="range" id="slSpeed" min="1" max="60" value="15" oninput="updateParam(this)">
+                    </div>
+                </div>
+
+                <div class="ctrl-section">
+                    <h3>Starting Conditions</h3>
+                    <div class="ctrl-row">
+                        <label>Plant Coverage <span class="val" id="valPlants">30%</span></label>
+                        <input type="range" id="slPlants" min="5" max="60" value="30" oninput="updateParam(this)">
+                    </div>
+                    <div class="ctrl-row">
+                        <label>Caribou Count <span class="val" id="valCaribou">500</span></label>
+                        <input type="range" id="slCaribou" min="10" max="5000" value="500" step="10" oninput="updateParam(this)">
+                    </div>
+                    <div class="ctrl-row">
+                        <label>Wolf Count <span class="val" id="valWolves">100</span></label>
+                        <input type="range" id="slWolves" min="5" max="1000" value="100" step="5" oninput="updateParam(this)">
+                    </div>
+                </div>
+
+                <div class="ctrl-section sec-plant">
+                    <h3>Plants</h3>
+                    <div class="ctrl-row">
+                        <label>Growth Rate <span class="val" id="valGrowth">4%</span></label>
+                        <input type="range" id="slGrowth" min="1" max="15" value="4" oninput="updateParam(this)">
+                    </div>
+                </div>
+
+                <div class="ctrl-section sec-prey">
+                    <h3>Caribou (Prey)</h3>
+                    <div class="ctrl-row">
+                        <label>Breeding Rate <span class="val" id="valPreyRepro">15%</span></label>
+                        <input type="range" id="slPreyRepro" min="1" max="30" value="15" oninput="updateParam(this)">
+                    </div>
+                    <div class="ctrl-row">
+                        <label>Speed / Agility <span class="val" id="valCaribouSpeed">50%</span></label>
+                        <input type="range" id="slCaribouSpeed" min="10" max="100" value="50" oninput="updateParam(this)">
+                    </div>
+                </div>
+
+                <div class="ctrl-section sec-pred">
+                    <h3>Wolves (Predator)</h3>
+                    <div class="ctrl-row">
+                        <label>Breeding Rate <span class="val" id="valPredRepro">12%</span></label>
+                        <input type="range" id="slPredRepro" min="1" max="25" value="12" oninput="updateParam(this)">
+                    </div>
+                    <div class="ctrl-row">
+                        <label>Hunting Skill <span class="val" id="valHuntSkill">50%</span></label>
+                        <input type="range" id="slHuntSkill" min="10" max="100" value="50" oninput="updateParam(this)">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <h2>Try These Experiments</h2>
+            <div class="try-this">
+                <div class="experiment">
+                    <h4>1. Watch the Cycle</h4>
+                    <p>Press Play with default settings and watch the population graph. Can you see the caribou population rise and fall, just like the graph from your worksheet? Notice how wolf numbers follow caribou numbers with a delay.</p>
+                </div>
+                <div class="experiment">
+                    <h4>2. Faster Caribou</h4>
+                    <p>Increase "Caribou Speed / Agility" to 90%. What happens to the wolves? This is like Question 4a &mdash; what if caribou evolved to become faster?</p>
+                </div>
+                <div class="experiment">
+                    <h4>3. Unadapted Wolves</h4>
+                    <p>Set caribou speed high AND wolf hunting skill low. Do the wolves survive? This is Question 4b &mdash; what happens if wolves don't evolve to match faster caribou?</p>
+                </div>
+                <div class="experiment">
+                    <h4>4. Remove the Predators</h4>
+                    <p>Set wolf count to the minimum and reset. What happens to the caribou and plants without wolves to control them? What does this tell you about why predators matter?</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ========== Constants ==========
+    const EMPTY = 0, PLANT = 1, PREY = 2, PRED = 3;
+    const PREY_METABOLISM = 1;
+    const PRED_METABOLISM = 2;
+    const PREY_ENERGY_BASE = 12;
+    const PRED_ENERGY_BASE = 35;
+    const START_ENERGY = 150;
+    const REPRO_THRESHOLD = 140;
+    const REPRO_COST = 50;
+    const OFFSPRING_ENERGY = 100;
+    const SPONTANEOUS_PLANT = 0.002;
+
+    // ========== State ==========
+    let W = 256, H = 256;
+    let cells, energyArr, nextCells, nextEnergy;
+    let colorData;
+    let running = false;
+    let generation = 0;
+    let popHistory = { plants: [], prey: [], preds: [] };
+    let currentPop = { plants: 0, prey: 0, preds: 0 };
+    const emptyBuf = new Int32Array(8); // reusable buffer for movement
+
+    // Parameters from sliders
+    let plantGrowRate = 0.04;
+    let initialPlantDensity = 0.30;
+    let initialPreyCount = 500;
+    let initialPredCount = 100;
+    let preyReproRate = 0.15;
+    let caribouSpeed = 0.50;
+    let predReproRate = 0.12;
+    let wolfHuntSkill = 0.50;
+    let simSpeed = 15;
+
+    // WebGL
+    let gl, program, texture, posBuffer;
+    const simCanvas = document.getElementById('simCanvas');
+    const graphCanvas = document.getElementById('graphCanvas');
+    const graphCtx = graphCanvas.getContext('2d');
+
+    // ========== WebGL Setup ==========
+    function initWebGL() {
+        gl = simCanvas.getContext('webgl', { antialias: false, alpha: false });
+        if (!gl) {
+            alert('WebGL not supported');
+            return false;
+        }
+
+        const vs = `
+            attribute vec2 a_pos;
+            varying vec2 v_uv;
+            void main() {
+                v_uv = a_pos * 0.5 + 0.5;
+                v_uv.y = 1.0 - v_uv.y;
+                gl_Position = vec4(a_pos, 0.0, 1.0);
+            }
+        `;
+
+        const fs = `
+            precision mediump float;
+            varying vec2 v_uv;
+            uniform sampler2D u_tex;
+            void main() {
+                gl_FragColor = texture2D(u_tex, v_uv);
+            }
+        `;
+
+        function compileShader(src, type) {
+            const s = gl.createShader(type);
+            gl.shaderSource(s, src);
+            gl.compileShader(s);
+            return s;
+        }
+
+        program = gl.createProgram();
+        gl.attachShader(program, compileShader(vs, gl.VERTEX_SHADER));
+        gl.attachShader(program, compileShader(fs, gl.FRAGMENT_SHADER));
+        gl.linkProgram(program);
+        gl.useProgram(program);
+
+        posBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+
+        const aPos = gl.getAttribLocation(program, 'a_pos');
+        gl.enableVertexAttribArray(aPos);
+        gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+        texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+        return true;
+    }
+
+    function resizeCanvas() {
+        simCanvas.width = W;
+        simCanvas.height = H;
+        if (gl) gl.viewport(0, 0, W, H);
+
+        const rect = graphCanvas.getBoundingClientRect();
+        graphCanvas.width = rect.width * window.devicePixelRatio;
+        graphCanvas.height = rect.height * window.devicePixelRatio;
+    }
+
+    // ========== Simulation ==========
+    function initSim() {
+        const N = W * H;
+        cells = new Uint8Array(N);
+        energyArr = new Uint8Array(N);
+        nextCells = new Uint8Array(N);
+        nextEnergy = new Uint8Array(N);
+        colorData = new Uint8Array(N * 4);
+        generation = 0;
+        popHistory = { plants: [], prey: [], preds: [] };
+
+        // Place plants
+        for (let i = 0; i < N; i++) {
+            if (Math.random() < initialPlantDensity) {
+                cells[i] = PLANT;
+            }
+        }
+
+        // Place prey
+        const maxPrey = Math.min(initialPreyCount, Math.floor(N * 0.4));
+        let placed = 0, attempts = 0;
+        while (placed < maxPrey && attempts < N * 2) {
+            const i = (Math.random() * N) | 0;
+            if (cells[i] !== PREY && cells[i] !== PRED) {
+                cells[i] = PREY;
+                energyArr[i] = START_ENERGY;
+                placed++;
+            }
+            attempts++;
+        }
+
+        // Place predators
+        const maxPred = Math.min(initialPredCount, Math.floor(N * 0.1));
+        placed = 0; attempts = 0;
+        while (placed < maxPred && attempts < N * 2) {
+            const i = (Math.random() * N) | 0;
+            if (cells[i] !== PREY && cells[i] !== PRED) {
+                cells[i] = PRED;
+                energyArr[i] = START_ENERGY;
+                placed++;
+            }
+            attempts++;
+        }
+    }
+
+    function simulate() {
+        let plantCount = 0, preyCount = 0, predCount = 0;
+        const N = W * H;
+
+        for (let y = 0; y < H; y++) {
+            const ym = ((y - 1 + H) % H) * W;
+            const yc = y * W;
+            const yp = ((y + 1) % H) * W;
+
+            for (let x = 0; x < W; x++) {
+                const i = yc + x;
+                const xm = (x - 1 + W) % W;
+                const xp2 = (x + 1) % W;
+
+                // 8 neighbor indices
+                const n0 = ym + xm, n1 = ym + x, n2 = ym + xp2;
+                const n3 = yc + xm,               n4 = yc + xp2;
+                const n5 = yp + xm, n6 = yp + x, n7 = yp + xp2;
+
+                let plantN = 0, preyN = 0, predN = 0;
+                let t;
+
+                t = cells[n0]; if (t === PLANT) plantN++; else if (t === PREY) preyN++; else if (t === PRED) predN++;
+                t = cells[n1]; if (t === PLANT) plantN++; else if (t === PREY) preyN++; else if (t === PRED) predN++;
+                t = cells[n2]; if (t === PLANT) plantN++; else if (t === PREY) preyN++; else if (t === PRED) predN++;
+                t = cells[n3]; if (t === PLANT) plantN++; else if (t === PREY) preyN++; else if (t === PRED) predN++;
+                t = cells[n4]; if (t === PLANT) plantN++; else if (t === PREY) preyN++; else if (t === PRED) predN++;
+                t = cells[n5]; if (t === PLANT) plantN++; else if (t === PREY) preyN++; else if (t === PRED) predN++;
+                t = cells[n6]; if (t === PLANT) plantN++; else if (t === PREY) preyN++; else if (t === PRED) predN++;
+                t = cells[n7]; if (t === PLANT) plantN++; else if (t === PREY) preyN++; else if (t === PRED) predN++;
+
+                const type = cells[i];
+                const e = energyArr[i];
+
+                switch (type) {
+                    case EMPTY: {
+                        if (plantN > 0 && Math.random() < plantGrowRate * plantN * 0.125) {
+                            nextCells[i] = PLANT;
+                        } else if (Math.random() < SPONTANEOUS_PLANT) {
+                            nextCells[i] = PLANT;
+                        } else {
+                            nextCells[i] = EMPTY;
+                        }
+                        nextEnergy[i] = 0;
+                        break;
+                    }
+                    case PLANT: {
+                        if (preyN > 0 && Math.random() < caribouSpeed * preyN * 0.125) {
+                            nextCells[i] = EMPTY;
+                        } else {
+                            nextCells[i] = PLANT;
+                        }
+                        nextEnergy[i] = 0;
+                        break;
+                    }
+                    case PREY: {
+                        let newE = e - PREY_METABOLISM;
+
+                        // Grazing: gain energy from nearby plants
+                        if (plantN > 0) {
+                            const gain = (PREY_ENERGY_BASE * caribouSpeed * Math.min(plantN, 3) / 3) | 0;
+                            newE += Math.max(1, gain);
+                        }
+
+                        // Predation: chance of being eaten
+                        const evasion = 1 - caribouSpeed * 0.4;
+                        const huntChance = wolfHuntSkill * evasion * predN * 0.125;
+                        if (predN > 0 && Math.random() < huntChance) {
+                            nextCells[i] = EMPTY;
+                            nextEnergy[i] = 0;
+                            break;
+                        }
+
+                        if (newE <= 0) {
+                            nextCells[i] = EMPTY;
+                            nextEnergy[i] = 0;
+                        } else {
+                            nextCells[i] = PREY;
+                            nextEnergy[i] = Math.min(255, newE);
+                        }
+                        break;
+                    }
+                    case PRED: {
+                        let newE = e - PRED_METABOLISM;
+
+                        // Hunting: gain energy from nearby prey
+                        if (preyN > 0) {
+                            const gain = (PRED_ENERGY_BASE * wolfHuntSkill * Math.min(preyN, 3) / 3) | 0;
+                            newE += Math.max(1, gain);
+                        }
+
+                        if (newE <= 0) {
+                            nextCells[i] = EMPTY;
+                            nextEnergy[i] = 0;
+                        } else {
+                            nextCells[i] = PRED;
+                            nextEnergy[i] = Math.min(255, newE);
+                        }
+                        break;
+                    }
+                }
+
+                // Count populations
+                const nt = nextCells[i];
+                if (nt === PLANT) plantCount++;
+                else if (nt === PREY) preyCount++;
+                else if (nt === PRED) predCount++;
+            }
+        }
+
+        // Swap buffers
+        let tmp;
+        tmp = cells; cells = nextCells; nextCells = tmp;
+        tmp = energyArr; energyArr = nextEnergy; nextEnergy = tmp;
+
+        generation++;
+        currentPop = { plants: plantCount, prey: preyCount, preds: predCount };
+        popHistory.plants.push(plantCount);
+        popHistory.prey.push(preyCount);
+        popHistory.preds.push(predCount);
+
+        if (popHistory.plants.length > 600) {
+            popHistory.plants.shift();
+            popHistory.prey.shift();
+            popHistory.preds.shift();
+        }
+    }
+
+    // ========== Movement & Reproduction ==========
+    function moveCreatures() {
+        const N = W * H;
+        const forward = generation % 2 === 0;
+
+        for (let idx = 0; idx < N; idx++) {
+            const i = forward ? idx : N - 1 - idx;
+            const type = cells[i];
+            if (type !== PREY && type !== PRED) continue;
+
+            const x = i % W;
+            const y = (i / W) | 0;
+            const foodType = type === PREY ? PLANT : PREY;
+
+            // Collect empty neighbors and check for food
+            let hasFood = false;
+            let emptyCount = 0;
+
+            for (let dy = -1; dy <= 1; dy++) {
+                for (let dx = -1; dx <= 1; dx++) {
+                    if (dx === 0 && dy === 0) continue;
+                    const nx = (x + dx + W) % W;
+                    const ny = (y + dy + H) % H;
+                    const ni = ny * W + nx;
+
+                    if (cells[ni] === foodType) hasFood = true;
+                    else if (cells[ni] === EMPTY) emptyBuf[emptyCount++] = ni;
+                }
+            }
+
+            // REPRODUCTION: creature directly places offspring
+            if (emptyCount > 0 && energyArr[i] > REPRO_THRESHOLD) {
+                const reproRate = type === PREY ? preyReproRate : predReproRate;
+                if (Math.random() < reproRate) {
+                    const ti = (Math.random() * emptyCount) | 0;
+                    const target = emptyBuf[ti];
+                    cells[target] = type;
+                    energyArr[target] = OFFSPRING_ENERGY;
+                    energyArr[i] -= REPRO_COST;
+                    // Remove used cell from empty buffer
+                    emptyBuf[ti] = emptyBuf[--emptyCount];
+                }
+            }
+
+            // MOVEMENT
+            const moveProb = type === PREY
+                ? 0.15 + caribouSpeed * 0.5
+                : 0.15 + wolfHuntSkill * 0.5;
+            if (Math.random() > moveProb) continue;
+
+            // If next to food, mostly stay put (predators stick harder)
+            const stayChance = type === PRED ? 0.9 : 0.75;
+            if (hasFood && Math.random() < stayChance) continue;
+            if (emptyCount === 0) continue;
+
+            // Hungry creatures seek food-rich areas
+            let target;
+            if (energyArr[i] < 100 && emptyCount > 1) {
+                let bestIdx = 0;
+                let bestFood = -1;
+                for (let e = 0; e < emptyCount; e++) {
+                    const ei = emptyBuf[e];
+                    const ex = ei % W;
+                    const ey = (ei / W) | 0;
+                    let foodN = 0;
+                    for (let dy2 = -1; dy2 <= 1; dy2++) {
+                        for (let dx2 = -1; dx2 <= 1; dx2++) {
+                            if (dx2 === 0 && dy2 === 0) continue;
+                            const nx2 = (ex + dx2 + W) % W;
+                            const ny2 = (ey + dy2 + H) % H;
+                            if (cells[ny2 * W + nx2] === foodType) foodN++;
+                        }
+                    }
+                    const score = foodN + Math.random() * 0.5;
+                    if (score > bestFood) {
+                        bestFood = score;
+                        bestIdx = e;
+                    }
+                }
+                target = emptyBuf[bestIdx];
+            } else {
+                target = emptyBuf[(Math.random() * emptyCount) | 0];
+            }
+
+            cells[target] = type;
+            energyArr[target] = energyArr[i];
+            cells[i] = EMPTY;
+            energyArr[i] = 0;
+        }
+    }
+
+    // ========== Rendering ==========
+    function updateColors() {
+        const N = W * H;
+        for (let i = 0; i < N; i++) {
+            const ci = i << 2;
+            const type = cells[i];
+
+            if (type === EMPTY) {
+                colorData[ci] = 10;
+                colorData[ci + 1] = 18;
+                colorData[ci + 2] = 10;
+                colorData[ci + 3] = 255;
+            } else if (type === PLANT) {
+                colorData[ci] = 15;
+                colorData[ci + 1] = 110;
+                colorData[ci + 2] = 45;
+                colorData[ci + 3] = 255;
+            } else if (type === PREY) {
+                const ef = energyArr[i] / 255;
+                colorData[ci] = (80 + 120 * ef) | 0;
+                colorData[ci + 1] = (60 + 90 * ef) | 0;
+                colorData[ci + 2] = (30 + 50 * ef) | 0;
+                colorData[ci + 3] = 255;
+            } else {
+                const ef = energyArr[i] / 255;
+                colorData[ci] = (100 + 130 * ef) | 0;
+                colorData[ci + 1] = (25 + 35 * ef) | 0;
+                colorData[ci + 2] = (20 + 25 * ef) | 0;
+                colorData[ci + 3] = 255;
+            }
+        }
+    }
+
+    function renderGL() {
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, W, H, 0, gl.RGBA, gl.UNSIGNED_BYTE, colorData);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+
+    function renderGraph() {
+        const c = graphCtx;
+        const cw = graphCanvas.width;
+        const ch = graphCanvas.height;
+        const dpr = window.devicePixelRatio || 1;
+
+        c.clearRect(0, 0, cw, ch);
+        c.fillStyle = '#111';
+        c.fillRect(0, 0, cw, ch);
+
+        const hist = popHistory;
+        const len = hist.plants.length;
+        if (len < 2) return;
+
+        // Find max for scaling - scale plants and animals separately
+        const area = W * H;
+        const maxPlants = area * 0.7;
+        const maxAnimals = Math.max(
+            100,
+            Math.max(...hist.prey, ...hist.preds) * 1.3
+        );
+
+        const pad = 4 * dpr;
+        const gw = cw - pad * 2;
+        const gh = ch - pad * 2;
+
+        // Draw lines
+        function drawLine(data, maxVal, color) {
+            c.strokeStyle = color;
+            c.lineWidth = 1.5 * dpr;
+            c.beginPath();
+            for (let j = 0; j < len; j++) {
+                const px = pad + (j / (len - 1)) * gw;
+                const py = pad + gh - (data[j] / maxVal) * gh;
+                if (j === 0) c.moveTo(px, py);
+                else c.lineTo(px, py);
+            }
+            c.stroke();
+        }
+
+        drawLine(hist.plants, maxPlants, '#2d8a4e');
+        drawLine(hist.prey, maxAnimals, '#c4956a');
+        drawLine(hist.preds, maxAnimals, '#c44536');
+    }
+
+    function updatePopDisplay() {
+        document.getElementById('popPlant').textContent = currentPop.plants.toLocaleString();
+        document.getElementById('popPrey').textContent = currentPop.prey.toLocaleString();
+        document.getElementById('popPred').textContent = currentPop.preds.toLocaleString();
+        document.getElementById('genLabel').textContent = generation;
+    }
+
+    // ========== Controls ==========
+    function updateParam(el) {
+        const v = Number(el.value);
+        switch (el.id) {
+            case 'slSpeed':
+                simSpeed = v;
+                document.getElementById('valSpeed').textContent = v;
+                break;
+            case 'slPlants':
+                initialPlantDensity = v / 100;
+                document.getElementById('valPlants').textContent = v + '%';
+                break;
+            case 'slCaribou':
+                initialPreyCount = v;
+                document.getElementById('valCaribou').textContent = v;
+                break;
+            case 'slWolves':
+                initialPredCount = v;
+                document.getElementById('valWolves').textContent = v;
+                break;
+            case 'slGrowth':
+                plantGrowRate = v / 100;
+                document.getElementById('valGrowth').textContent = v + '%';
+                break;
+            case 'slPreyRepro':
+                preyReproRate = v / 100;
+                document.getElementById('valPreyRepro').textContent = v + '%';
+                break;
+            case 'slCaribouSpeed':
+                caribouSpeed = v / 100;
+                document.getElementById('valCaribouSpeed').textContent = v + '%';
+                break;
+            case 'slPredRepro':
+                predReproRate = v / 100;
+                document.getElementById('valPredRepro').textContent = v + '%';
+                break;
+            case 'slHuntSkill':
+                wolfHuntSkill = v / 100;
+                document.getElementById('valHuntSkill').textContent = v + '%';
+                break;
+        }
+    }
+
+    function changeGridSize(val) {
+        W = H = Number(val);
+        resizeCanvas();
+        resetSim();
+    }
+
+    function togglePlay() {
+        running = !running;
+        document.getElementById('btnPlay').textContent = running ? 'Pause' : 'Play';
+        document.getElementById('btnPlay').classList.toggle('active', running);
+    }
+
+    function stepOnce() {
+        if (running) { togglePlay(); }
+        simulate();
+        moveCreatures();
+        updateColors();
+        renderGL();
+        renderGraph();
+        updatePopDisplay();
+    }
+
+    function resetSim() {
+        running = false;
+        document.getElementById('btnPlay').textContent = 'Play';
+        document.getElementById('btnPlay').classList.remove('active');
+        initSim();
+        updateColors();
+        renderGL();
+        renderGraph();
+
+        // Count initial populations
+        let pc = 0, yc = 0, dc = 0;
+        for (let i = 0; i < W * H; i++) {
+            if (cells[i] === PLANT) pc++;
+            else if (cells[i] === PREY) yc++;
+            else if (cells[i] === PRED) dc++;
+        }
+        currentPop = { plants: pc, prey: yc, preds: dc };
+        updatePopDisplay();
+    }
+
+    // ========== Main Loop ==========
+    let lastTick = 0;
+
+    function gameLoop(timestamp) {
+        requestAnimationFrame(gameLoop);
+
+        if (running) {
+            const interval = 1000 / simSpeed;
+            // Allow multiple steps per frame for high speeds
+            let steps = 0;
+            while (timestamp - lastTick >= interval && steps < 5) {
+                simulate();
+                moveCreatures();
+                lastTick += interval;
+                steps++;
+            }
+            // Prevent spiral of death
+            if (timestamp - lastTick > 1000) lastTick = timestamp;
+
+            if (steps > 0) {
+                updateColors();
+                renderGL();
+                renderGraph();
+                updatePopDisplay();
+            }
+        }
+    }
+
+    // ========== Init ==========
+    function start() {
+        if (!initWebGL()) return;
+        resizeCanvas();
+        initSim();
+        updateColors();
+        renderGL();
+
+        let pc = 0, yc = 0, dc = 0;
+        for (let i = 0; i < W * H; i++) {
+            if (cells[i] === PLANT) pc++;
+            else if (cells[i] === PREY) yc++;
+            else if (cells[i] === PRED) dc++;
+        }
+        currentPop = { plants: pc, prey: yc, preds: dc };
+        updatePopDisplay();
+
+        lastTick = performance.now();
+        requestAnimationFrame(gameLoop);
+    }
+
+    window.addEventListener('resize', () => {
+        const rect = graphCanvas.getBoundingClientRect();
+        graphCanvas.width = rect.width * window.devicePixelRatio;
+        graphCanvas.height = rect.height * window.devicePixelRatio;
+        renderGraph();
+    });
+
+    start();
+    </script>
+</body>
+</html>
