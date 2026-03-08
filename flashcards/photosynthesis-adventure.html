@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photosynthesis & Respiration: Interactive Guide</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0f0f0f;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+        .container { max-width: 900px; margin: 0 auto; background: #1a1a1a; min-height: 100vh; }
+        .header {
+            background: linear-gradient(135deg, #1a3a1a 0%, #0d1f0d 100%);
+            padding: 30px; border-bottom: 1px solid #2a5a2a;
+        }
+        .header h1 { font-size: 2em; font-weight: 300; letter-spacing: 1px; color: #4a9d6f; margin-bottom: 6px; }
+        .header p { font-size: 0.95em; color: #888; font-weight: 300; }
+        .back-link { display: inline-block; margin: 20px 30px; color: #4a9d6f; text-decoration: none; font-size: 0.9em; }
+        .back-link:hover { text-decoration: underline; }
+        .section { padding: 30px; border-bottom: 1px solid #2a3a2a; }
+        .section:last-child { border-bottom: none; }
+        .section h2 { font-size: 1.5em; font-weight: 400; color: #4a9d6f; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #2a5a2a; }
+        .section-text { font-size: 0.95em; color: #c0c0c0; line-height: 1.8; margin-bottom: 20px; }
+        .section-text strong { color: #4a9d6f; font-weight: 500; }
+        .equation-display {
+            background: #0d1f0d; border-left: 3px solid #4a9d6f; padding: 16px 20px;
+            margin: 16px 0; font-family: 'Courier New', monospace; font-size: 1.05em; color: #4a9d6f; border-radius: 4px;
+        }
+        .equation-display.aerobic { border-left-color: #d4a04a; color: #d4a04a; }
+        .equation-display.anaerobic { border-left-color: #c46a4a; color: #c46a4a; }
+        .challenge-area {
+            background: #111; border: 1px solid #2a3a2a; border-radius: 8px;
+            margin: 20px 0; padding: 16px; position: relative; overflow: hidden;
+        }
+        .challenge-area.animating .molecule-pool,
+        .challenge-area.animating .recipe-counter,
+        .challenge-area.animating .btn-row-challenge,
+        .challenge-area.animating .challenge-instruction { opacity: 0; transition: opacity 0.3s; }
+        .challenge-label { font-size: 0.8em; text-transform: uppercase; letter-spacing: 1px; color: #666; margin-bottom: 8px; }
+        .challenge-instruction { font-size: 0.85em; color: #999; margin-bottom: 14px; }
+        .molecule-pool {
+            display: flex; flex-wrap: wrap; gap: 10px; min-height: 80px; padding: 10px;
+            background: #0a0f0a; border-radius: 6px; margin-bottom: 10px; align-items: center; justify-content: center;
+        }
+        .recipe-counter {
+            display: flex; flex-wrap: wrap; gap: 10px 18px; margin: 8px 0 12px 0;
+            font-size: 0.82em; padding: 0 4px;
+        }
+        .recipe-item { color: #555; transition: color 0.2s; }
+        .recipe-item.met { color: #5a5; }
+        .recipe-item.over { color: #c55; }
+        .reaction-zone {
+            border: 2px dashed #2a5a2a; border-radius: 8px; min-height: 90px; padding: 10px;
+            display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: center;
+            transition: border-color 0.3s, background 0.3s; position: relative;
+        }
+        .reaction-zone.highlight { border-color: #4a9d6f; background: rgba(74,157,111,0.05); }
+        .reaction-zone-label {
+            position: absolute; top: -10px; left: 16px; background: #111;
+            padding: 0 8px; font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; color: #4a9d6f;
+        }
+        .molecule {
+            cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none;
+            border-radius: 8px; position: relative; transition: transform 0.1s;
+        }
+        .molecule:active { cursor: grabbing; }
+        .molecule.dragging {
+            z-index: 1000; transform: scale(1.08);
+            filter: drop-shadow(0 4px 12px rgba(74,157,111,0.4));
+        }
+        .molecule.nodrag { cursor: default; pointer-events: none; opacity: 0.7; }
+        .molecule canvas { display: block; pointer-events: none; }
+        .molecule-name { text-align: center; font-size: 0.68em; color: #888; margin-top: 2px; pointer-events: none; }
+        .product-area {
+            margin-top: 14px; min-height: 80px; padding: 10px; background: #0a0f0a;
+            border-radius: 6px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center;
+        }
+        .product-area.success { border: 1px solid #4a9d6f; box-shadow: 0 0 20px rgba(74,157,111,0.15); }
+        .product-label { font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; color: #555; margin-top: 10px; margin-bottom: 6px; }
+        .btn-row-challenge { display: flex; gap: 8px; margin-top: 12px; }
+        .btn-sm {
+            padding: 8px 16px; background: #1f3f1f; color: #4a9d6f; border: 1px solid #2a4a2a;
+            border-radius: 4px; font-size: 0.82em; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-sm:hover { background: #2a5a2a; border-color: #4a9d6f; }
+        .btn-sm.aerobic { color: #d4a04a; border-color: #4a3a2a; }
+        .btn-sm.aerobic:hover { border-color: #d4a04a; }
+        .btn-sm.anaerobic { color: #c46a4a; border-color: #3a2a2a; }
+        .btn-sm.anaerobic:hover { border-color: #c46a4a; }
+        .success-msg {
+            text-align: center; padding: 10px; color: #4a9d6f; font-weight: 500;
+            font-size: 0.95em; display: none;
+        }
+        .success-msg.show { display: block; animation: fadeInUp 0.4s ease; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .resources {
+            background: #0d1f0d; padding: 16px; border: 1px solid #2a5a2a;
+            margin: 20px 0 0 0; border-radius: 4px;
+        }
+        .resources h3 { color: #4a9d6f; margin-bottom: 10px; font-size: 0.9em; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+        .resource-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .resource-link {
+            display: inline-block; padding: 6px 12px; background: #1f3f1f; border: 1px solid #2a5a2a;
+            text-decoration: none; color: #4a9d6f; font-size: 0.82em; border-radius: 4px; transition: all 0.2s;
+        }
+        .resource-link:hover { background: #2a5a2a; border-color: #4a9d6f; }
+        .fact-box {
+            background: #1f2f1f; border-left: 3px solid #888; padding: 14px; margin: 16px 0;
+            border-radius: 4px; font-size: 0.9em; color: #b0b0b0;
+        }
+        .fact-box strong { color: #aaa; }
+        @media (max-width: 600px) {
+            .header { padding: 20px 16px; }
+            .header h1 { font-size: 1.5em; }
+            .section { padding: 20px 16px; }
+            .back-link { margin: 14px 16px; }
+            .molecule-pool, .product-area { gap: 6px; }
+            .recipe-counter { font-size: 0.75em; gap: 6px 12px; }
+            .btn-sm { padding: 12px 16px; font-size: 0.9em; }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-link">&larr; Back to Study Materials</a>
+    <div class="container">
+        <div class="header">
+            <h1>Photosynthesis & Respiration</h1>
+            <p>Interactive molecule guide &mdash; drag the right molecules to build each reaction</p>
+        </div>
+
+        <!-- PHOTOSYNTHESIS -->
+        <div class="section">
+            <h2>Photosynthesis</h2>
+            <div class="section-text">
+                Photosynthesis is the process by which <strong>plants, algae, and some bacteria</strong> convert light energy into chemical energy stored in glucose. It takes place in the <strong>chloroplasts</strong> of plant cells, using the green pigment <strong>chlorophyll</strong> to absorb sunlight.
+                <br><br>
+                Plants take in <strong>carbon dioxide</strong> (CO&#8322;) through tiny pores called stomata, and absorb <strong>water</strong> (H&#8322;O) through their roots. Using light energy, they rearrange the atoms to produce <strong>glucose</strong> (C&#8326;H&#8321;&#8322;O&#8326;) and release <strong>oxygen</strong> (O&#8322;).
+            </div>
+            <div class="equation-display">6CO&#8322; + 6H&#8322;O + light energy &rarr; C&#8326;H&#8321;&#8322;O&#8326; + 6O&#8322;</div>
+            <div class="challenge-area" id="photoArea">
+                <div class="challenge-label">Challenge</div>
+                <div class="challenge-instruction">Drag the correct molecules (in the right amounts!) into the reaction zone.</div>
+                <div class="molecule-pool" id="photoPool"></div>
+                <div class="recipe-counter" id="photoRecipe"></div>
+                <div class="reaction-zone" id="photoZone"><span class="reaction-zone-label">Reaction Zone</span></div>
+                <div class="success-msg" id="photoSuccess">Correct! Light energy rearranges the atoms of CO&#8322; and H&#8322;O into glucose and oxygen.</div>
+                <div class="product-label">Products</div>
+                <div class="product-area" id="photoProducts"></div>
+                <div class="btn-row-challenge"><button class="btn-sm" onclick="resetChallenge('photo')">Reset</button></div>
+            </div>
+            <div class="fact-box"><strong>Did you know?</strong> Photosynthesis produces the oxygen that almost all living organisms need to survive and is the starting point of nearly every food chain on Earth.</div>
+            <div class="resources"><h3>Learn More</h3><div class="resource-links">
+                <a href="https://en.wikipedia.org/wiki/Photosynthesis" target="_blank" class="resource-link">Wikipedia: Photosynthesis</a>
+                <a href="https://www.bbc.co.uk/bitesize/topics/zvrrd2p/articles/zn2y7nb" target="_blank" class="resource-link">BBC Bitesize</a>
+                <a href="https://www.khanacademy.org/science/ap-biology/cellular-energetics/photosynthesis/v/photosynthesis" target="_blank" class="resource-link">Khan Academy</a>
+            </div></div>
+        </div>
+
+        <!-- AEROBIC RESPIRATION -->
+        <div class="section">
+            <h2>Aerobic Respiration</h2>
+            <div class="section-text">
+                Aerobic respiration is the process by which cells break down <strong>glucose</strong> using <strong>oxygen</strong> to release energy. This happens in the <strong>mitochondria</strong> &mdash; often called the powerhouses of the cell.
+                <br><br>
+                The energy released is stored as <strong>ATP</strong>, which cells use to power everything from muscle movement to brain activity. The waste products are <strong>carbon dioxide</strong> and <strong>water</strong> &mdash; the exact reverse of photosynthesis!
+                <br><br>
+                Aerobic respiration is very efficient, producing around <strong>38 ATP molecules</strong> per glucose.
+            </div>
+            <div class="equation-display aerobic">C&#8326;H&#8321;&#8322;O&#8326; + 6O&#8322; &rarr; 6CO&#8322; + 6H&#8322;O + energy (ATP)</div>
+            <div class="challenge-area" id="aerobicArea">
+                <div class="challenge-label" style="color:#d4a04a">Challenge</div>
+                <div class="challenge-instruction">Drag the correct reactants for aerobic respiration into the reaction zone.</div>
+                <div class="molecule-pool" id="aerobicPool"></div>
+                <div class="recipe-counter" id="aerobicRecipe"></div>
+                <div class="reaction-zone" id="aerobicZone" style="border-color:#3a4a2a"><span class="reaction-zone-label" style="color:#d4a04a">Reaction Zone</span></div>
+                <div class="success-msg" id="aerobicSuccess" style="color:#d4a04a">Correct! Cells break down glucose with oxygen to release energy, producing CO&#8322; and H&#8322;O.</div>
+                <div class="product-label">Products</div>
+                <div class="product-area" id="aerobicProducts"></div>
+                <div class="btn-row-challenge"><button class="btn-sm aerobic" onclick="resetChallenge('aerobic')">Reset</button></div>
+            </div>
+            <div class="fact-box"><strong>Connection:</strong> Aerobic respiration is the reverse of photosynthesis. Plants produce glucose and oxygen; animals (and plants!) consume them and produce CO&#8322; and H&#8322;O. A beautiful cycle in nature.</div>
+            <div class="resources"><h3>Learn More</h3><div class="resource-links">
+                <a href="https://en.wikipedia.org/wiki/Cellular_respiration" target="_blank" class="resource-link">Wikipedia: Cellular Respiration</a>
+                <a href="https://www.bbc.co.uk/bitesize/topics/zvrrd2p/articles/z9myvcw" target="_blank" class="resource-link">BBC Bitesize</a>
+            </div></div>
+        </div>
+
+        <!-- ANAEROBIC RESPIRATION -->
+        <div class="section">
+            <h2>Anaerobic Respiration</h2>
+            <div class="section-text">
+                When <strong>oxygen is not available</strong>, cells can still release energy from glucose through <strong>anaerobic respiration</strong> &mdash; but much less efficiently.
+                <br><br>
+                <strong>In yeast and some bacteria (fermentation):</strong> glucose is broken down into <strong>ethanol</strong> (C&#8322;H&#8325;OH) and <strong>carbon dioxide</strong>. This is used in brewing and baking &mdash; the CO&#8322; makes bread rise and beer fizzy!
+                <br><br>
+                <strong>In animals and muscles:</strong> glucose is broken down into <strong>lactic acid</strong> (C&#8323;H&#8326;O&#8323;). This causes the burning feeling in your muscles during intense exercise.
+                <br><br>
+                Both produce only <strong>2 ATP</strong> per glucose &mdash; far less than the 38 from aerobic respiration.
+            </div>
+            <div class="equation-display anaerobic">In yeast: C&#8326;H&#8321;&#8322;O&#8326; &rarr; 2C&#8322;H&#8325;OH + 2CO&#8322; + energy (2 ATP)</div>
+            <div class="equation-display anaerobic" style="margin-top:8px">In animals: C&#8326;H&#8321;&#8322;O&#8326; &rarr; 2C&#8323;H&#8326;O&#8323; + energy (2 ATP)</div>
+
+            <div class="challenge-area" id="anYeastArea">
+                <div class="challenge-label" style="color:#c46a4a">Challenge &mdash; Fermentation (Yeast)</div>
+                <div class="challenge-instruction">Drag the correct reactant for yeast fermentation.</div>
+                <div class="molecule-pool" id="anYeastPool"></div>
+                <div class="recipe-counter" id="anYeastRecipe"></div>
+                <div class="reaction-zone" id="anYeastZone" style="border-color:#3a2a2a"><span class="reaction-zone-label" style="color:#c46a4a">Reaction Zone</span></div>
+                <div class="success-msg" id="anYeastSuccess" style="color:#c46a4a">Correct! Without oxygen, yeast ferments glucose into ethanol and CO&#8322; &mdash; this is how bread and beer are made!</div>
+                <div class="product-label">Products</div>
+                <div class="product-area" id="anYeastProducts"></div>
+                <div class="btn-row-challenge"><button class="btn-sm anaerobic" onclick="resetChallenge('anYeast')">Reset</button></div>
+            </div>
+
+            <div class="challenge-area" id="anAnimalArea" style="margin-top:20px">
+                <div class="challenge-label" style="color:#c46a4a">Challenge &mdash; Lactic Acid (Animals)</div>
+                <div class="challenge-instruction">Drag the correct reactant for anaerobic respiration in muscles.</div>
+                <div class="molecule-pool" id="anAnimalPool"></div>
+                <div class="recipe-counter" id="anAnimalRecipe"></div>
+                <div class="reaction-zone" id="anAnimalZone" style="border-color:#3a2a2a"><span class="reaction-zone-label" style="color:#c46a4a">Reaction Zone</span></div>
+                <div class="success-msg" id="anAnimalSuccess" style="color:#c46a4a">Correct! During intense exercise, your muscles produce lactic acid when oxygen runs low. That is the burning feeling!</div>
+                <div class="product-label">Products</div>
+                <div class="product-area" id="anAnimalProducts"></div>
+                <div class="btn-row-challenge"><button class="btn-sm anaerobic" onclick="resetChallenge('anAnimal')">Reset</button></div>
+            </div>
+
+            <div class="fact-box"><strong>Comparison:</strong> Aerobic respiration produces ~38 ATP per glucose. Anaerobic produces only 2 ATP. That is why you cannot sprint forever &mdash; your muscles switch to anaerobic respiration when oxygen runs low, which is far less efficient and builds up lactic acid.</div>
+            <div class="resources"><h3>Learn More</h3><div class="resource-links">
+                <a href="https://en.wikipedia.org/wiki/Anaerobic_respiration" target="_blank" class="resource-link">Wikipedia: Anaerobic Respiration</a>
+                <a href="https://en.wikipedia.org/wiki/Fermentation" target="_blank" class="resource-link">Wikipedia: Fermentation</a>
+                <a href="https://www.bbc.co.uk/bitesize/topics/zvrrd2p/articles/zg4sxbk" target="_blank" class="resource-link">BBC Bitesize</a>
+            </div></div>
+        </div>
+    </div>
+
+<script>
+// ===== ATOMS (CPK colors, relative radii) =====
+const ATOMS = {
+    C: { color: '#555', r: 14, label: 'C' },
+    H: { color: '#fff', r: 8,  label: 'H' },
+    O: { color: '#e44', r: 12, label: 'O' },
+};
+
+// ===== ELEMENT COUNTS (for animation balancing) =====
+const ELEM = {
+    CO2:        { C:1, O:2 },
+    H2O:        { H:2, O:1 },
+    O2:         { O:2 },
+    glucose:    { C:6, H:12, O:6 },
+    ethanol:    { C:2, H:6, O:1 },
+    lacticAcid: { C:3, H:6, O:3 },
+};
+
+// ===== MOLECULE VISUAL DEFINITIONS =====
+const MOLECULES = {
+    H2O: {
+        name: 'H\u2082O', w: 70, h: 55,
+        atoms: [{el:'O',x:0,y:0},{el:'H',x:-22,y:18},{el:'H',x:22,y:18}],
+        bonds: [[0,1,1],[0,2,1]],
+    },
+    CO2: {
+        name: 'CO\u2082', w: 80, h: 45,
+        atoms: [{el:'C',x:0,y:0},{el:'O',x:-28,y:0},{el:'O',x:28,y:0}],
+        bonds: [[0,1,2],[0,2,2]],
+    },
+    O2: {
+        name: 'O\u2082', w: 55, h: 40,
+        atoms: [{el:'O',x:-14,y:0},{el:'O',x:14,y:0}],
+        bonds: [[0,1,2]],
+    },
+    glucose: {
+        name: 'C\u2086H\u2081\u2082O\u2086', w: 130, h: 100,
+        atoms: [
+            {el:'C',x:-20,y:-14},{el:'C',x:-20,y:14},{el:'C',x:0,y:26},
+            {el:'C',x:20,y:14},{el:'C',x:20,y:-14},{el:'O',x:0,y:-26},
+            {el:'C',x:38,y:-26},
+            {el:'O',x:-38,y:-24},{el:'O',x:-38,y:24},{el:'O',x:0,y:44},
+            {el:'O',x:38,y:24},{el:'O',x:52,y:-38},
+        ],
+        bonds: [[0,1,1],[1,2,1],[2,3,1],[3,4,1],[4,5,1],[5,0,1],[4,6,1],[0,7,1],[1,8,1],[2,9,1],[3,10,1],[6,11,1]],
+    },
+    ethanol: {
+        name: 'C\u2082H\u2085OH', w: 95, h: 50,
+        atoms: [
+            {el:'C',x:-18,y:0},{el:'C',x:12,y:0},{el:'O',x:36,y:0},
+            {el:'H',x:48,y:12},{el:'H',x:-32,y:-12},{el:'H',x:-32,y:12},
+            {el:'H',x:6,y:-16},{el:'H',x:6,y:16},
+        ],
+        bonds: [[0,1,1],[1,2,1],[2,3,1],[0,4,1],[0,5,1],[1,6,1],[1,7,1]],
+    },
+    lacticAcid: {
+        name: 'C\u2083H\u2086O\u2083', w: 100, h: 65,
+        atoms: [
+            {el:'C',x:-26,y:0},{el:'C',x:0,y:0},{el:'C',x:26,y:0},
+            {el:'O',x:0,y:24},{el:'O',x:40,y:-14},{el:'O',x:40,y:14},
+            {el:'H',x:-40,y:-10},{el:'H',x:-40,y:10},{el:'H',x:-8,y:-16},
+        ],
+        bonds: [[0,1,1],[1,2,1],[1,3,1],[2,4,2],[2,5,1],[0,6,1],[0,7,1],[1,8,1]],
+    },
+    light: { name: 'Light', w: 60, h: 50, special: '\u2600\uFE0F' },
+    ATP:   { name: 'ATP',   w: 60, h: 50, special: '\u26A1' },
+};
+
+const ZONE_SCALE = 0.65;
+
+// ===== CHALLENGE DEFINITIONS =====
+const CHALLENGES = {
+    photo: {
+        reactants: { CO2:6, H2O:6, light:1 },
+        products:  { glucose:1, O2:6 },
+        available: ['CO2','H2O','O2','light','glucose','ethanol'],
+    },
+    aerobic: {
+        reactants: { glucose:1, O2:6 },
+        products:  { CO2:6, H2O:6, ATP:1 },
+        available: ['glucose','O2','CO2','H2O','light','ethanol'],
+    },
+    anYeast: {
+        reactants: { glucose:1 },
+        products:  { ethanol:2, CO2:2, ATP:1 },
+        available: ['glucose','O2','H2O','CO2','ethanol','light'],
+    },
+    anAnimal: {
+        reactants: { glucose:1 },
+        products:  { lacticAcid:2, ATP:1 },
+        available: ['glucose','O2','H2O','CO2','lacticAcid','light'],
+    },
+};
+
+// Add DOM ids to each challenge
+for (const [key, ch] of Object.entries(CHALLENGES)) {
+    ch.areaId = key + 'Area';
+    ch.poolId = key + 'Pool';
+    ch.recipeId = key + 'Recipe';
+    ch.zoneId = key + 'Zone';
+    ch.productsId = key + 'Products';
+    ch.successId = key + 'Success';
+}
+
+// ===== DRAWING =====
+function drawMolecule(canvas, molKey, scale) {
+    scale = scale || 1;
+    const mol = MOLECULES[molKey];
+    const dpr = window.devicePixelRatio || 1;
+    const w = mol.w * scale, h = mol.h * scale;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr * scale, dpr * scale);
+
+    if (mol.special) {
+        ctx.font = (mol.h * 0.55) + 'px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(mol.special, mol.w / 2, mol.h / 2 - 4);
+        return;
+    }
+
+    const cx = mol.w / 2, cy = mol.h / 2;
+
+    // Bonds
+    for (const [a, b, order] of mol.bonds) {
+        const ax = mol.atoms[a].x + cx, ay = mol.atoms[a].y + cy;
+        const bx = mol.atoms[b].x + cx, by = mol.atoms[b].y + cy;
+        ctx.strokeStyle = '#666';
+        ctx.lineWidth = 2;
+        if (order === 1) {
+            ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(bx,by); ctx.stroke();
+        } else {
+            const dx = bx-ax, dy = by-ay, len = Math.sqrt(dx*dx+dy*dy)||1;
+            const nx = -dy/len*3, ny = dx/len*3;
+            ctx.beginPath(); ctx.moveTo(ax+nx,ay+ny); ctx.lineTo(bx+nx,by+ny); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(ax-nx,ay-ny); ctx.lineTo(bx-nx,by-ny); ctx.stroke();
+        }
+    }
+
+    // Atoms
+    for (const atom of mol.atoms) {
+        const def = ATOMS[atom.el];
+        const x = atom.x + cx, y = atom.y + cy;
+        ctx.beginPath();
+        ctx.arc(x, y, def.r, 0, Math.PI*2);
+        ctx.fillStyle = def.color;
+        ctx.fill();
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.fillStyle = atom.el === 'H' ? '#555' : '#eee';
+        ctx.font = 'bold ' + def.r + 'px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(def.label, x, y + 0.5);
+    }
+}
+
+function createMoleculeEl(molKey, challengeKey, scale) {
+    const mol = MOLECULES[molKey];
+    const div = document.createElement('div');
+    div.className = 'molecule';
+    div.dataset.mol = molKey;
+    div.dataset.challenge = challengeKey;
+    const canvas = document.createElement('canvas');
+    drawMolecule(canvas, molKey, scale);
+    div.appendChild(canvas);
+    const label = document.createElement('div');
+    label.className = 'molecule-name';
+    label.textContent = mol.name;
+    if (scale && scale < 0.9) label.style.fontSize = '0.6em';
+    div.appendChild(label);
+    return div;
+}
+
+// ===== DRAG MANAGER =====
+const drag = {
+    el: null, offX: 0, offY: 0, challengeKey: null,
+
+    start(el, clientX, clientY, offX, offY, challengeKey) {
+        this.el = el;
+        this.offX = offX;
+        this.offY = offY;
+        this.challengeKey = challengeKey;
+        el.classList.add('dragging');
+    },
+
+    move(clientX, clientY) {
+        if (!this.el) return;
+        this.el.style.left = (clientX - this.offX) + 'px';
+        this.el.style.top = (clientY - this.offY) + 'px';
+        // Highlight zone
+        const ch = CHALLENGES[this.challengeKey];
+        const zone = document.getElementById(ch.zoneId);
+        zone.classList.toggle('highlight', rectsOverlap(this.el.getBoundingClientRect(), zone.getBoundingClientRect()));
+    },
+
+    end() {
+        if (!this.el) return;
+        const el = this.el;
+        const key = this.challengeKey;
+        this.el = null;
+        el.classList.remove('dragging');
+        const ch = CHALLENGES[key];
+        const zone = document.getElementById(ch.zoneId);
+        const overlap = rectsOverlap(el.getBoundingClientRect(), zone.getBoundingClientRect());
+        zone.classList.remove('highlight');
+
+        el.style.position = '';
+        el.style.left = '';
+        el.style.top = '';
+        el.style.zIndex = '';
+
+        if (overlap) {
+            zone.appendChild(el);
+            setupZoneDrag(el);
+        } else {
+            el.remove();
+        }
+        updateRecipe(key);
+        if (checkChallenge(key)) triggerReaction(key);
+    },
+};
+
+function rectsOverlap(a, b) {
+    return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
+}
+
+function getClientXY(e) {
+    const t = e.touches ? e.touches[0] : e;
+    return { x: t.clientX, y: t.clientY };
+}
+
+document.addEventListener('mousemove', e => { if (drag.el) { e.preventDefault(); drag.move(e.clientX, e.clientY); }});
+document.addEventListener('touchmove', e => { if (drag.el) { e.preventDefault(); const t = e.touches[0]; drag.move(t.clientX, t.clientY); }}, { passive: false });
+document.addEventListener('mouseup', () => drag.end());
+document.addEventListener('touchend', () => drag.end());
+
+function setupPoolDrag(el) {
+    function onDown(e) {
+        e.preventDefault();
+        const { x, y } = getClientXY(e);
+        const molKey = el.dataset.mol;
+        const challengeKey = el.dataset.challenge;
+        const clone = createMoleculeEl(molKey, challengeKey, ZONE_SCALE);
+        clone.style.position = 'fixed';
+        clone.style.zIndex = '1000';
+        const w = MOLECULES[molKey].w * ZONE_SCALE;
+        const h = MOLECULES[molKey].h * ZONE_SCALE + 16;
+        clone.style.left = (x - w/2) + 'px';
+        clone.style.top = (y - h/2) + 'px';
+        document.body.appendChild(clone);
+        drag.start(clone, x, y, w/2, h/2, challengeKey);
+    }
+    el.addEventListener('mousedown', onDown);
+    el.addEventListener('touchstart', onDown, { passive: false });
+}
+
+function setupZoneDrag(el) {
+    function onDown(e) {
+        e.preventDefault();
+        const { x, y } = getClientXY(e);
+        const rect = el.getBoundingClientRect();
+        el.style.position = 'fixed';
+        el.style.left = rect.left + 'px';
+        el.style.top = rect.top + 'px';
+        el.style.zIndex = '1000';
+        document.body.appendChild(el);
+        drag.start(el, x, y, x - rect.left, y - rect.top, el.dataset.challenge);
+    }
+    el.addEventListener('mousedown', onDown);
+    el.addEventListener('touchstart', onDown, { passive: false });
+}
+
+// ===== RECIPE & CHECK =====
+function updateRecipe(key) {
+    const ch = CHALLENGES[key];
+    const zone = document.getElementById(ch.zoneId);
+    const counts = {};
+    zone.querySelectorAll('.molecule').forEach(m => {
+        const t = m.dataset.mol;
+        counts[t] = (counts[t] || 0) + 1;
+    });
+
+    let html = '';
+    for (const [mk, needed] of Object.entries(ch.reactants)) {
+        const have = counts[mk] || 0;
+        const met = have === needed;
+        const over = have > needed;
+        const cls = met ? 'met' : over ? 'over' : '';
+        html += '<span class="recipe-item ' + cls + '">' + MOLECULES[mk].name + ': ' + have + '/' + needed + (met ? ' \u2713' : '') + '</span>';
+    }
+    for (const [mk, cnt] of Object.entries(counts)) {
+        if (!(mk in ch.reactants)) {
+            html += '<span class="recipe-item over">' + MOLECULES[mk].name + ': ' + cnt + ' (not needed)</span>';
+        }
+    }
+    document.getElementById(ch.recipeId).innerHTML = html;
+}
+
+function checkChallenge(key) {
+    const ch = CHALLENGES[key];
+    const zone = document.getElementById(ch.zoneId);
+    const counts = {};
+    zone.querySelectorAll('.molecule').forEach(m => {
+        const t = m.dataset.mol;
+        counts[t] = (counts[t] || 0) + 1;
+    });
+    for (const [mk, needed] of Object.entries(ch.reactants)) {
+        if ((counts[mk] || 0) !== needed) return false;
+    }
+    for (const mk of Object.keys(counts)) {
+        if (!(mk in ch.reactants)) return false;
+    }
+    return true;
+}
+
+// ===== REACTION ANIMATION =====
+function easeOutCubic(t) { return 1 - Math.pow(1-t, 3); }
+function easeInOutCubic(t) { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2; }
+
+function triggerReaction(key) {
+    const ch = CHALLENGES[key];
+    const area = document.getElementById(ch.areaId);
+    const zone = document.getElementById(ch.zoneId);
+    const areaRect = area.getBoundingClientRect();
+
+    area.classList.add('animating');
+
+    // Collect atoms from reactant molecules
+    const atoms = [];
+    const molEls = Array.from(zone.querySelectorAll('.molecule'));
+    for (const el of molEls) {
+        const mk = el.dataset.mol;
+        const ec = ELEM[mk];
+        if (!ec) continue;
+        const r = el.getBoundingClientRect();
+        const cx = r.left + r.width/2 - areaRect.left;
+        const cy = r.top + r.height/2 - areaRect.top;
+        for (const [element, count] of Object.entries(ec)) {
+            for (let i = 0; i < count; i++) {
+                atoms.push({
+                    el: element,
+                    sx: cx + (Math.random()-0.5) * r.width * 0.5,
+                    sy: cy + (Math.random()-0.5) * r.height * 0.5,
+                    mx: 30 + Math.random() * (areaRect.width - 60),
+                    my: 30 + Math.random() * (areaRect.height - 60),
+                    ex: 0, ey: 0,
+                });
+            }
+        }
+    }
+
+    // Calculate product layout
+    const prodLayout = [];
+    for (const [mk, cnt] of Object.entries(ch.products)) {
+        for (let i = 0; i < cnt; i++) prodLayout.push(mk);
+    }
+    const prodY = areaRect.height * 0.78;
+    let totalW = 0;
+    for (const mk of prodLayout) totalW += (MOLECULES[mk].w || 60) * ZONE_SCALE;
+    totalW += (prodLayout.length - 1) * 8;
+    let px = (areaRect.width - totalW) / 2;
+
+    const productAtomsByEl = {};
+    for (const mk of prodLayout) {
+        const mol = MOLECULES[mk];
+        const w = (mol.w || 60) * ZONE_SCALE;
+        const h = (mol.h || 50) * ZONE_SCALE;
+        const cx = px + w / 2;
+        const ec = ELEM[mk];
+        if (ec) {
+            for (const [element, count] of Object.entries(ec)) {
+                if (!productAtomsByEl[element]) productAtomsByEl[element] = [];
+                for (let i = 0; i < count; i++) {
+                    productAtomsByEl[element].push({
+                        x: cx + (Math.random()-0.5) * w * 0.4,
+                        y: prodY + (Math.random()-0.5) * h * 0.4,
+                    });
+                }
+            }
+        }
+        px += w + 8;
+    }
+
+    // Map atoms to product positions by element
+    for (const a of atoms) {
+        const targets = productAtomsByEl[a.el];
+        if (targets && targets.length > 0) {
+            const t = targets.shift();
+            a.ex = t.x; a.ey = t.y;
+        } else {
+            a.ex = areaRect.width / 2; a.ey = prodY;
+        }
+    }
+
+    // Create overlay canvas
+    const canvas = document.createElement('canvas');
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = areaRect.width * dpr;
+    canvas.height = areaRect.height * dpr;
+    canvas.style.cssText = 'position:absolute;top:0;left:0;width:' + areaRect.width + 'px;height:' + areaRect.height + 'px;z-index:50;pointer-events:none;';
+    area.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+
+    zone.style.opacity = '0';
+
+    const duration = 2200;
+    const startTime = performance.now();
+
+    function animate(now) {
+        const t = Math.min(1, (now - startTime) / duration);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.save();
+        ctx.scale(dpr, dpr);
+
+        for (const a of atoms) {
+            const def = ATOMS[a.el];
+            let x, y;
+            if (t < 0.3) {
+                const p = easeOutCubic(t / 0.3);
+                x = a.sx + (a.mx - a.sx) * p;
+                y = a.sy + (a.my - a.sy) * p;
+            } else if (t < 0.45) {
+                x = a.mx + Math.sin(t * 25 + a.sx) * 4;
+                y = a.my + Math.cos(t * 25 + a.sy) * 4;
+            } else {
+                const p = easeInOutCubic((t - 0.45) / 0.55);
+                x = a.mx + (a.ex - a.mx) * p;
+                y = a.my + (a.ey - a.my) * p;
+            }
+            ctx.beginPath();
+            ctx.arc(x, y, def.r * 0.85, 0, Math.PI * 2);
+            ctx.fillStyle = def.color;
+            ctx.fill();
+            ctx.strokeStyle = '#222';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+        ctx.restore();
+
+        if (t < 1) {
+            requestAnimationFrame(animate);
+        } else {
+            canvas.remove();
+            area.classList.remove('animating');
+            showProducts(key);
+        }
+    }
+    requestAnimationFrame(animate);
+}
+
+function showProducts(key) {
+    const ch = CHALLENGES[key];
+    const prodArea = document.getElementById(ch.productsId);
+    prodArea.innerHTML = '';
+    prodArea.classList.add('success');
+
+    for (const [mk, cnt] of Object.entries(ch.products)) {
+        for (let i = 0; i < cnt; i++) {
+            const div = createMoleculeEl(mk, key, ZONE_SCALE);
+            div.classList.add('nodrag');
+            prodArea.appendChild(div);
+        }
+    }
+
+    document.getElementById(ch.successId).classList.add('show');
+    const zone = document.getElementById(ch.zoneId);
+    zone.querySelectorAll('.molecule').forEach(m => m.classList.add('nodrag'));
+    zone.style.opacity = '0.4';
+}
+
+// ===== RESET =====
+function resetChallenge(key) {
+    const ch = CHALLENGES[key];
+    const pool = document.getElementById(ch.poolId);
+    const zone = document.getElementById(ch.zoneId);
+    const prodArea = document.getElementById(ch.productsId);
+    const successMsg = document.getElementById(ch.successId);
+
+    const zoneLabel = zone.querySelector('.reaction-zone-label');
+    const labelClone = zoneLabel ? zoneLabel.cloneNode(true) : null;
+
+    pool.innerHTML = '';
+    zone.innerHTML = '';
+    if (labelClone) zone.appendChild(labelClone);
+    zone.style.opacity = '';
+    prodArea.innerHTML = '';
+    prodArea.classList.remove('success');
+    successMsg.classList.remove('show');
+
+    for (const mk of ch.available) {
+        const el = createMoleculeEl(mk, key, 1);
+        el.dataset.template = 'true';
+        pool.appendChild(el);
+        setupPoolDrag(el);
+    }
+
+    updateRecipe(key);
+}
+
+// ===== INIT =====
+for (const key of Object.keys(CHALLENGES)) resetChallenge(key);
+</script>
+</body>
+</html>
