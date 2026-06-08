@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Islam Vocabulary</title>
+    <title>Islam Vocabulary Quiz</title>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Karla:wght@400;500&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -81,17 +81,33 @@
 </head>
 <body>
     <div class="header">
-        <h1>Islam Vocabulary</h1>
-        <p class="subtitle">32 Essential Terms</p>
+        <h1>Islam Vocabulary Quiz</h1>
+        <p class="subtitle">25 Questions &mdash; No Peeking!</p>
     </div>
-    <div class="nav-row"><a class="cta-link" href="islam-quiz.html">Take the 25-Question Quiz &rarr;</a></div>
-    <div class="legend" id="legend"></div>
-    <div class="controls">
-        <button onclick="flipAllCards()">Flip All Cards</button>
-        <button onclick="shuffleCards()">Shuffle Cards</button>
-        <button onclick="resetCards()">Reset Layout</button>
+    <div class="nav-row"><a class="back-link" href="islam-flashcards.html">&larr; Back to flashcards</a></div>
+    <div class="quiz-panel" id="quizPanel">
+        <div id="quizIntro">
+            <div class="quiz-title">Ready?</div>
+            <div class="quiz-desc">25 random questions &mdash; match each word to its definition (or a definition to its word). The flashcards aren't on this page, so it's all from memory. Scored at the end.</div>
+            <label class="emoji-toggle"><input type="checkbox" id="emojiToggle" checked> Include emojis as hints</label>
+            <div class="quiz-center"><button onclick="startQuiz()">Start Quiz</button></div>
+        </div>
+        <div id="quizPlay" style="display:none;">
+            <div class="quiz-meta"><span id="quizCounter">Question 1 of 25</span><span id="quizScore">Score: 0</span></div>
+            <div class="quiz-progress-wrap"><div class="quiz-progress-bar" id="quizBar"></div></div>
+            <div id="quizPrompt"></div>
+            <div class="quiz-options" id="quizOptions"></div>
+            <div class="quiz-next" id="quizNextWrap"></div>
+        </div>
+        <div id="quizResults" style="display:none;" class="quiz-center">
+            <div class="quiz-title">Quiz Complete</div>
+            <div class="score-big" id="scoreBig">0 / 25</div>
+            <div class="score-pct" id="scorePct">0%</div>
+            <div class="score-msg" id="scoreMsg"></div>
+            <button onclick="startQuiz()">Try Again</button>
+            <a class="cta-link" href="islam-flashcards.html" style="margin-left:0.5rem;">Back to flashcards</a>
+        </div>
     </div>
-    <div class="cards-container" id="cardsContainer"></div>
     <script>
         const sections = {
             "A": {
@@ -166,35 +182,87 @@
         ];
         const COUNT = vocabularyData.length;
 
-        function buildLegend() {
-            document.getElementById('legend').innerHTML = Object.keys(sections).map(k => {
-                const s = sections[k];
-                return `<div class="legend-item"><span class="legend-swatch" style="background:linear-gradient(135deg, ${s.c1}, ${s.c2})"></span>${s.name}</div>`;
+        const QUIZ_LEN = 25;
+        let quiz = { questions: [], idx: 0, score: 0, answered: false, emojis: true };
+        function shuffle(arr){ for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];} return arr; }
+        function buildQuiz(){
+            const order = shuffle(vocabularyData.map((_,i)=>i));
+            const answers = order.slice(0, Math.min(QUIZ_LEN, order.length));
+            quiz.questions = answers.map(ai => {
+                const promptIsWord = Math.random() < 0.5;
+                const pool = shuffle(vocabularyData.map((_,i)=>i).filter(i=>i!==ai)).slice(0,3);
+                const optIdx = shuffle([ai, ...pool]);
+                return { answerIdx: ai, promptIsWord, optIdx, correctPos: optIdx.indexOf(ai) };
+            });
+            quiz.idx=0; quiz.score=0; quiz.answered=false;
+        }
+        function startQuiz(){
+            quiz.emojis = document.getElementById('emojiToggle').checked;
+            buildQuiz();
+            document.getElementById('quizIntro').style.display='none';
+            document.getElementById('quizResults').style.display='none';
+            document.getElementById('quizPlay').style.display='block';
+            renderQuestion();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        function renderQuestion(){
+            const q = quiz.questions[quiz.idx];
+            const card = vocabularyData[q.answerIdx];
+            const sec = sections[card.section];
+            quiz.answered = false;
+            document.getElementById('quizCounter').textContent = `Question ${quiz.idx+1} of ${quiz.questions.length}`;
+            document.getElementById('quizScore').textContent = `Score: ${quiz.score}`;
+            document.getElementById('quizBar').style.width = `${(quiz.idx/quiz.questions.length)*100}%`;
+            const sv = `--c1:${sec.c1};--c2:${sec.c2};`;
+            let promptHTML;
+            if (q.promptIsWord){
+                const icon = quiz.emojis ? `<span class="qcard-icon">${card.icon}</span>` : '';
+                promptHTML = `<div class="qcard word" style="${sv}">${icon}<div class="qcard-term">${card.term}</div><div class="qcard-tag">Pick the matching definition</div></div>`;
+            } else {
+                promptHTML = `<div class="qcard def" style="${sv}"><div class="qcard-def">${card.definition}</div><div class="qcard-tag">Pick the matching word</div></div>`;
+            }
+            document.getElementById('quizPrompt').innerHTML = promptHTML;
+            document.getElementById('quizOptions').innerHTML = q.optIdx.map((oi,pos)=>{
+                const oc = vocabularyData[oi];
+                let label;
+                if (q.promptIsWord){ label = oc.definition; }
+                else { const ic = quiz.emojis ? `<span class="opt-icon">${oc.icon}</span>` : ''; label = `${ic}${oc.term}`; }
+                return `<button class="quiz-option" data-pos="${pos}" onclick="answer(${pos})">${label}</button>`;
             }).join('');
+            document.getElementById('quizNextWrap').innerHTML = '';
         }
-        function createCard(data, index) {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'card-wrapper'; wrapper.dataset.index = index;
-            const s = sections[data.section];
-            wrapper.innerHTML = `
-                <div class="card" style="--c1:${s.c1};--c2:${s.c2};">
-                    <div class="card-face card-front">
-                        <span class="card-icon">${data.icon}</span><span class="card-number">${index+1}/${COUNT}</span>
-                        <div class="term">${data.term}</div><div class="section-tag">${s.name}</div><span class="flip-hint">TAP TO FLIP</span>
-                    </div>
-                    <div class="card-face card-back">
-                        <span class="card-icon">${data.icon}</span><span class="card-number">${index+1}/${COUNT}</span>
-                        <div class="definition">${data.definition}</div><span class="flip-hint">TAP TO FLIP</span>
-                    </div>
-                </div>`;
-            wrapper.addEventListener('click', function(){ this.querySelector('.card').classList.toggle('flipped'); });
-            return wrapper;
+        function answer(pos){
+            if (quiz.answered) return; quiz.answered = true;
+            const q = quiz.questions[quiz.idx];
+            const btns = document.querySelectorAll('.quiz-option');
+            btns.forEach(b=>b.disabled=true);
+            btns[q.correctPos].classList.add('correct');
+            if (pos === q.correctPos){ quiz.score++; } else { btns[pos].classList.add('wrong'); }
+            document.getElementById('quizScore').textContent = `Score: ${quiz.score}`;
+            const last = quiz.idx === quiz.questions.length - 1;
+            document.getElementById('quizNextWrap').innerHTML = `<button onclick="nextQuestion()">${last ? 'See Results' : 'Next Question'}</button>`;
         }
-        function initializeCards(){ const c=document.getElementById('cardsContainer'); c.innerHTML=''; vocabularyData.forEach((d,i)=>c.appendChild(createCard(d,i))); }
-        function flipAllCards(){ document.querySelectorAll('.card').forEach(c=>c.classList.toggle('flipped')); }
-        function shuffleCards(){ const c=document.getElementById('cardsContainer'); const a=Array.from(c.children); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));c.appendChild(a[j]);} }
-        function resetCards(){ const c=document.getElementById('cardsContainer'); const a=Array.from(c.children); a.sort((x,y)=>parseInt(x.dataset.index)-parseInt(y.dataset.index)); a.forEach(card=>{c.appendChild(card);card.querySelector('.card').classList.remove('flipped');}); }
-        buildLegend(); initializeCards();
+        function nextQuestion(){ quiz.idx++; if (quiz.idx >= quiz.questions.length){ showResults(); } else { renderQuestion(); } }
+        function showResults(){
+            const total = quiz.questions.length;
+            const pct = Math.round((quiz.score/total)*100);
+            document.getElementById('quizPlay').style.display='none';
+            document.getElementById('quizResults').style.display='block';
+            document.getElementById('scoreBig').textContent = `${quiz.score} / ${total}`;
+            document.getElementById('scorePct').textContent = `${pct}%`;
+            let msg;
+            if (pct>=90) msg='Outstanding — you really know this!';
+            else if (pct>=70) msg='Great work — almost there.';
+            else if (pct>=50) msg='Good effort — keep revising the tricky ones.';
+            else msg='Keep practising — flip through the cards and try again.';
+            document.getElementById('scoreMsg').textContent = msg;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        function backToIntro(){
+            document.getElementById('quizResults').style.display='none';
+            document.getElementById('quizPlay').style.display='none';
+            document.getElementById('quizIntro').style.display='block';
+        }
 </script>
 </body>
 </html>
