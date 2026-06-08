@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Islam Vocabulary</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Karla:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --accent: #2EA56A;
+            --accent-dark: #157347;
+            --term: #0F5132;
+            --shadow: rgba(0, 0, 0, 0.15);
+        }
+        body {
+            font-family: 'Karla', sans-serif;
+            background: linear-gradient(135deg, #EAF7F0 0%, #CDEBD9 50%, #B6E0C8 100%);
+            min-height: 100vh; padding: 2rem; position: relative; overflow-x: hidden;
+        }
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-image:
+                radial-gradient(circle at 20% 80%, rgba(46,165,106,0.10) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(46,165,106,0.10) 0%, transparent 50%);
+            pointer-events: none; z-index: 0;
+        }
+        .header { text-align: center; margin-bottom: 1.5rem; position: relative; z-index: 1; }
+        h1 {
+            font-family: 'Cormorant Garamond', serif; font-size: 3.5rem; font-weight: 700;
+            color: var(--term); text-shadow: 2px 2px 0px rgba(46,165,106,0.10); letter-spacing: 1px; margin-bottom: 0.5rem;
+        }
+        .subtitle { font-size: 1.1rem; color: var(--accent-dark); font-weight: 500; letter-spacing: 2px; text-transform: uppercase; }
+        .legend {
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6rem 1.2rem;
+            max-width: 1000px; margin: 0 auto 1.5rem; position: relative; z-index: 1;
+        }
+        .legend-item { display: flex; align-items: center; gap: 0.45rem; font-size: 0.85rem; font-weight: 600; color: #555; }
+        .legend-swatch { width: 18px; height: 18px; border-radius: 5px; box-shadow: 0 1px 3px var(--shadow); }
+        .controls { text-align: center; margin-bottom: 2rem; position: relative; z-index: 1; }
+        button {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: white; border: none; padding: 0.8rem 2rem; font-size: 1rem; font-weight: 600;
+            border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px var(--shadow);
+            transition: all 0.3s ease; font-family: 'Karla', sans-serif; margin: 0 0.5rem;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--shadow); }
+        button:active { transform: translateY(0); }
+        .cards-container {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem; max-width: 1400px; margin: 0 auto; position: relative; z-index: 1;
+        }
+        .card-wrapper { perspective: 1000px; height: 200px; position: relative; }
+        .card {
+            width: 100%; height: 100%; position: relative; transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1); cursor: pointer;
+        }
+        .card-wrapper:hover .card { transform: translateY(-4px) rotateX(5deg); }
+        .card.flipped { transform: rotateY(180deg); }
+        .card-wrapper:hover .card.flipped { transform: rotateY(180deg) translateY(-4px) rotateX(5deg); }
+        .card-face {
+            position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+            border-radius: 16px; padding: 1.5rem; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+            box-shadow: 0 8px 30px var(--shadow); border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+        .card-front {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F2FAF6 100%);
+            border-left: 5px solid var(--c1);
+        }
+        .card-back {
+            background: linear-gradient(135deg, var(--c1) 0%, var(--c2) 100%);
+            transform: rotateY(180deg); color: white;
+        }
+        .term {
+            font-family: 'Cormorant Garamond', serif; font-size: 1.7rem; font-weight: 700;
+            color: var(--c2); margin-bottom: 0.4rem; letter-spacing: 0.5px;
+        }
+        .section-tag { font-size: 0.68rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--c1); opacity: 0.85; }
+        .card-back .section-tag { color: rgba(255,255,255,0.85); }
+        .definition { font-size: 0.92rem; line-height: 1.45; color: rgba(255, 255, 255, 0.97); font-weight: 400; }
+        .card-icon { position: absolute; top: 0.5rem; left: 0.7rem; font-size: 1.5rem; line-height: 1; }
+        .card-number {
+            position: absolute; top: 0.5rem; right: 0.75rem; font-size: 0.75rem; font-weight: 600;
+            color: var(--c2); opacity: 0.55;
+        }
+        .card-back .card-number { color: rgba(255,255,255,0.7); }
+        .flip-hint { position: absolute; bottom: 0.5rem; font-size: 0.7rem; opacity: 0.5; font-weight: 500; letter-spacing: 1px; }
+        .card-front .flip-hint { color: var(--c2); }
+        .card-back .flip-hint { color: rgba(255, 255, 255, 0.7); }
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .cards-container { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; }
+            .card-wrapper { height: 185px; }
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .card-wrapper { animation: fadeIn 0.5s ease-out; animation-fill-mode: both; }
+        .card-wrapper:nth-child(1) { animation-delay: 0.05s; }
+        .card-wrapper:nth-child(2) { animation-delay: 0.1s; }
+        .card-wrapper:nth-child(3) { animation-delay: 0.15s; }
+        .card-wrapper:nth-child(4) { animation-delay: 0.2s; }
+        .card-wrapper:nth-child(5) { animation-delay: 0.25s; }
+        .card-wrapper:nth-child(6) { animation-delay: 0.3s; }
+        .card-wrapper:nth-child(7) { animation-delay: 0.35s; }
+        .card-wrapper:nth-child(8) { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Islam Vocabulary</h1>
+        <p class="subtitle">32 Essential Terms</p>
+    </div>
+
+    <div class="legend" id="legend"></div>
+
+    <div class="controls">
+        <button onclick="flipAllCards()">Flip All Cards</button>
+        <button onclick="shuffleCards()">Shuffle Cards</button>
+        <button onclick="resetCards()">Reset Layout</button>
+    </div>
+
+    <div class="cards-container" id="cardsContainer"></div>
+
+    <script>
+        const sections = {
+            "A": {
+                        "name": "God & Core Beliefs",
+                        "c1": "#34A56A",
+                        "c2": "#157347"
+            },
+            "B": {
+                        "name": "The Five Pillars & Worship",
+                        "c1": "#4FB06A",
+                        "c2": "#2E7D32"
+            },
+            "C": {
+                        "name": "Muhammad & the Qur'an",
+                        "c1": "#B89020",
+                        "c2": "#8A6D12"
+            },
+            "D": {
+                        "name": "Pilgrimage & Holy Places",
+                        "c1": "#2BA3A3",
+                        "c2": "#136E6E"
+            },
+            "E": {
+                        "name": "Festivals",
+                        "c1": "#E8B84B",
+                        "c2": "#B5851B"
+            },
+            "F": {
+                        "name": "The Afterlife",
+                        "c1": "#3E8E62",
+                        "c2": "#0F5132"
+            },
+            "G": {
+                        "name": "Branches of Islam",
+                        "c1": "#86A886",
+                        "c2": "#4E6E4E"
+            }
+};
+        const vocabularyData = [
+            {"term": "ALLAH", "definition": "The Islamic name for God.", "section": "A", "icon": "☝️"},
+            {"term": "ARAFAT", "definition": "A plain near to Makkah where pilgrims gather to worship, pray and ask for forgiveness. This takes place on the ninth day of the Islamic month, the day before Eid ul Adha.", "section": "D", "icon": "⛰️"},
+            {"term": "FASTING", "definition": "Not eating or drinking. It refers especially to sawm, which is the 4th of the Five Pillars. During the month of Ramadan, Muslims fast from sunrise to sunset.", "section": "B", "icon": "⏳"},
+            {"term": "FIVE PILLARS", "definition": "Observed by Sunni Muslims, which support Islam by encouraging the development of good character, attitude and behaviour. These are shahadah, salah, zakah, sawm and hajj.", "section": "B", "icon": "🏛️"},
+            {"term": "HAJJ", "definition": "Annual pilgrimage to Makkah, which all Muslims must undertake at least once in their lives, unless prevented by problems over wealth or health. The 5th of the Five Pillars.", "section": "D", "icon": "🧳"},
+            {"term": "HEAVEN", "definition": "Referred to as Paradise; Allah's reward after death to those who have been faithful to him and who have repented of their sins.", "section": "F", "icon": "😇"},
+            {"term": "HELL", "definition": "It is a place of great suffering after death for those who have rejected the Qur'an's teachings and have led a wicked life. For some it will last forever.", "section": "F", "icon": "🔥"},
+            {"term": "ID-UL-ADHA", "definition": "Celebration of the Prophet Ibrahim's willingness to sacrifice his son for Allah. It comes at the end of the period of hajj.", "section": "E", "icon": "🐑"},
+            {"term": "ID-UL-FITR", "definition": "A celebration that comes at the end of Ramadan and marks the end of fasting.", "section": "E", "icon": "🎉"},
+            {"term": "ISLAM", "definition": "The name of the religion followed by Muslims. To surrender to the will of God. Peace.", "section": "A", "icon": "☪️"},
+            {"term": "JIHAD", "definition": "'To struggle'. It refers to the effort made to obey Allah.", "section": "C", "icon": "💪"},
+            {"term": "KA'ABA", "definition": "The black covered cube-shaped building in the centre of the grand mosque in Makkah. All Muslims face towards it when they pray.", "section": "D", "icon": "🕋"},
+            {"term": "MAKKAH", "definition": "The city where Muhammad was born. The spiritual centre of Islam, it is in Saudi Arabia.", "section": "D", "icon": "🏙️"},
+            {"term": "MINA", "definition": "Place to be visited on Hajj - stoning of pillars.", "section": "D", "icon": "⛺"},
+            {"term": "MOSQUE", "definition": "The Muslim place of worship.", "section": "B", "icon": "🕌"},
+            {"term": "MUSLIM", "definition": "One who has submitted to the will of Allah and has accepted Islam.", "section": "A", "icon": "🧎"},
+            {"term": "MUHAMMAD", "definition": "The last and greatest of the prophets of Allah. He received the Qur'an, and his Sunnah and Hadiths are also important sources of authority.", "section": "C", "icon": "🌟"},
+            {"term": "NIGHT OF POWER", "definition": "The name for the night on which Muhammad received the first revelations of the Qur'an.", "section": "C", "icon": "🌃"},
+            {"term": "ONENESS OF GOD", "definition": "Tawhid. It refers to the unity of Allah. Islam is a monotheistic religion.", "section": "A", "icon": "1️⃣"},
+            {"term": "PILGRIMAGE", "definition": "A journey made for religious reasons.", "section": "D", "icon": "🚶"},
+            {"term": "QUR'AN", "definition": "The Holy Book revealed to the Prophet Muhammad by the angel Jibril. Allah's final revelation to humankind.", "section": "C", "icon": "📖"},
+            {"term": "RAK'AHS", "definition": "Actions made during salah consisting of recitations, standing, bowing and prostration.", "section": "B", "icon": "🙇"},
+            {"term": "RAMADAN", "definition": "Month during which fasting from dawn to sunset is demanded (ninth month of the Islamic calendar).", "section": "E", "icon": "🌙"},
+            {"term": "RISALAH", "definition": "Prophethood. The Muslim belief that Allah sent many Prophets with messages for humanity, showing His goodness and mercy. The first prophet was Adam and the last Muhammad.", "section": "C", "icon": "📜"},
+            {"term": "SALAH", "definition": "Prayer to and worship of Allah, performed under the conditions set by the Prophet Muhammad - five times a day. The 2nd of the Five Pillars.", "section": "B", "icon": "🤲"},
+            {"term": "SAWM", "definition": "Fasting from dawn to dusk during Ramadan; sex and smoking are banned when the believer is engaged in this. The 4th of the Five Pillars.", "section": "B", "icon": "🌅"},
+            {"term": "SHAHADAH", "definition": "Muslim declaration of faith. It is a statement of faith in Allah as the only God and in Muhammad as Allah's prophet. The 1st of the Five Pillars for Sunni Muslims.", "section": "B", "icon": "🗣️"},
+            {"term": "SHI'A ISLAM", "definition": "Muslims who believe in the Imamate and the successorship of Ali.", "section": "G", "icon": "🔱"},
+            {"term": "SUNNI ISLAM", "definition": "Muslims who believe in the successorship of Abu Bakr, Umar, Uthman and Ali.", "section": "G", "icon": "🤝"},
+            {"term": "TAWHID", "definition": "The oneness and unity of Allah. Islam is a monotheistic religion.", "section": "A", "icon": "💠"},
+            {"term": "WUDU", "definition": "Ablution. Ritual washing performed before salah and also when purification is needed.", "section": "B", "icon": "💧"},
+            {"term": "ZAKAH", "definition": "The 3rd of the Five Pillars. It consists of the giving of alms to purify those who give it and the rest of their money.", "section": "B", "icon": "💰"}
+        ];
+        const COUNT = vocabularyData.length;
+
+        function buildLegend() {
+            const el = document.getElementById('legend');
+            el.innerHTML = Object.keys(sections).map(k => {
+                const s = sections[k];
+                return `<div class="legend-item">
+                    <span class="legend-swatch" style="background:linear-gradient(135deg, ${s.c1}, ${s.c2})"></span>
+                    ${s.name}
+                </div>`;
+            }).join('');
+        }
+
+        function createCard(data, index) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'card-wrapper';
+            wrapper.dataset.index = index;
+            const s = sections[data.section];
+            const style = `--c1:${s.c1};--c2:${s.c2};`;
+            wrapper.innerHTML = `
+                <div class="card" style="${style}">
+                    <div class="card-face card-front">
+                        <span class="card-icon">${data.icon}</span>
+                        <span class="card-number">${index + 1}/${COUNT}</span>
+                        <div class="term">${data.term}</div>
+                        <div class="section-tag">${s.name}</div>
+                        <span class="flip-hint">TAP TO FLIP</span>
+                    </div>
+                    <div class="card-face card-back">
+                        <span class="card-icon">${data.icon}</span>
+                        <span class="card-number">${index + 1}/${COUNT}</span>
+                        <div class="definition">${data.definition}</div>
+                        <span class="flip-hint">TAP TO FLIP</span>
+                    </div>
+                </div>
+            `;
+            wrapper.addEventListener('click', function() {
+                this.querySelector('.card').classList.toggle('flipped');
+            });
+            return wrapper;
+        }
+
+        function initializeCards() {
+            const container = document.getElementById('cardsContainer');
+            container.innerHTML = '';
+            vocabularyData.forEach((data, index) => container.appendChild(createCard(data, index)));
+        }
+        function flipAllCards() { document.querySelectorAll('.card').forEach(c => c.classList.toggle('flipped')); }
+        function shuffleCards() {
+            const container = document.getElementById('cardsContainer');
+            const cards = Array.from(container.children);
+            for (let i = cards.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); container.appendChild(cards[j]); }
+        }
+        function resetCards() {
+            const container = document.getElementById('cardsContainer');
+            const cards = Array.from(container.children);
+            cards.sort((a, b) => parseInt(a.dataset.index) - parseInt(b.dataset.index));
+            cards.forEach(card => { container.appendChild(card); card.querySelector('.card').classList.remove('flipped'); });
+        }
+        buildLegend();
+        initializeCards();
+    </script>
+</body>
+</html>
