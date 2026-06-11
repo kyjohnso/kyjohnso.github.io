@@ -93,6 +93,10 @@
     transition: border-color 0.15s, transform 0.1s;
   }
   .part:hover { border-color: var(--copper); transform: translateY(-1px); }
+  .part.armed {
+    border-style: solid; border-color: var(--copper); background: #FFF1E6;
+    box-shadow: 0 0 0 2px rgba(194, 98, 46, 0.25);
+  }
   .part svg { flex: 0 0 auto; }
   .part .pname { font-weight: 700; font-size: 0.92rem; }
   .part .phint { font-size: 0.72rem; color: var(--ink-soft); display: block; }
@@ -155,6 +159,12 @@
   .comp .hitbox { fill: transparent; stroke: none; }
   .comp text { font-family: 'Karla', sans-serif; font-size: 13px; font-weight: 700; fill: var(--ink-soft); user-select: none; pointer-events: none; }
   .comp .ibadge { fill: var(--copper); font-size: 12px; }
+  /* live current/voltage readout shown on every element (paper halo for legibility) */
+  .comp text.meas {
+    font-size: 11px; fill: var(--copper);
+    paint-order: stroke; stroke: var(--paper); stroke-width: 3px; stroke-linejoin: round;
+  }
+  .comp text.meas.sel { fill: var(--blue); }
 
   .flowpath {
     stroke: var(--amber); stroke-width: 3.5; fill: none; stroke-linecap: round;
@@ -269,7 +279,7 @@
         <button class="btn danger" id="btnClear">Clear board</button>
       </div>
       <svg id="board" viewBox="0 0 780 510" aria-label="Circuit building board"></svg>
-      <p class="hint-line">Drag parts from the tray · drag from a grid dot to draw wires · drag parts to move · click to inspect · click a switch to flip it · <b>D</b> duplicates · <b>R</b> flips a battery · <b>Delete</b> removes</p>
+      <p class="hint-line">Drag a part from the tray onto the board — or click a part, then click the board to place it · drag from a grid dot to draw wires · drag parts to move · click to inspect · click a switch to flip it · <b>D</b> duplicates · <b>R</b> flips a battery · <b>Delete</b> removes</p>
     </div>
 
     <div class="card inspector" id="inspector">
@@ -308,6 +318,11 @@ function edgeOccupied(a, b, ignoreId) {
   const key = edgeKey(a, b);
   return components.some(c => c.id !== ignoreId && edgeKey(c.a, c.b) === key);
 }
+// remove any part already sitting on this edge (so a new one replaces it)
+function clearEdge(a, b, ignoreId) {
+  const key = edgeKey(a, b);
+  components = components.filter(c => c.id === ignoreId || edgeKey(c.a, c.b) !== key);
+}
 
 function defaultsFor(type) {
   if (type === 'battery')  return { V: 6 };
@@ -325,11 +340,16 @@ function addComponent(type, a, b) {
 /* ============================================================
    CIRCUIT SOLVER  (modified nodal analysis)
    Wires & closed switches are tiny resistors; batteries are
-   ideal voltage sources with an extra current variable.
+   voltage sources with a small internal resistance and an extra
+   current variable.
    ============================================================ */
+// Small internal resistance per battery. Negligible for normal Ohm's-law
+// readings, but it lets two batteries in parallel share the current instead
+// of the (singular) ideal-source case where one carries everything.
+const BATTERY_R = 0.005;
 function elementResistance(c) {
-  if (c.type === 'wire') return 0.001;
-  if (c.type === 'switch') return c.closed ? 0.001 : null;  // open switch: no path
+  if (c.type === 'wire') return 1e-5;
+  if (c.type === 'switch') return c.closed ? 1e-5 : null;  // open switch: no path
   if (c.type === 'resistor' || c.type === 'bulb') return Math.max(0.1, c.R);
   return null; // battery handled separately
 }
@@ -389,10 +409,11 @@ function solveCircuit() {
   // tiny leak to "ground" so floating nets stay solvable
   for (let i = 0; i < n; i++) A[i][i] += 1e-9;
 
-  // battery stamps: Va - Vb = V
+  // battery stamps: Va - Vb = V - I·r_internal  (r_internal makes parallel
+  // batteries share the current; for one battery it's a negligible drop)
   batteries.forEach((bat, k) => {
     const i = idxOf(bat.a), j = idxOf(bat.b), row = n + k;
-    A[row][i] = 1;  A[row][j] = -1; rhs[row] = bat.V;
+    A[row][i] = 1;  A[row][j] = -1; A[row][row] = -BATTERY_R; rhs[row] = bat.V;
     A[i][row] = 1;  A[j][row] = -1;
   });
 
@@ -527,11 +548,34 @@ function drawComponent(g, c) {
     if (c.type === 'wire') f.setAttribute('opacity', '0.9');
   }
 
-  // current badge for selected element
-  if (c.id === selectedId && Math.abs(c._I || 0) > 1e-4 && !shortCircuit) {
-    const t = el('text', { x: horiz ? mx : mx - 38, y: horiz ? my - 26 : my + 5, 'text-anchor': 'middle', class: 'ibadge' }, grp);
-    t.textContent = fmt(Math.abs(c._I), 'A');
-    t.style.fill = 'var(--copper)';
+  // live current + voltage readout on every component carrying current (or with a
+  // meaningful voltage across it, e.g. an open switch holding the supply voltage).
+  // Wires are skipped — they'd repeat the same value on every segment and already
+  // show current through the animated flow.
+  if (!shortCircuit && c.type !== 'wire') {
+    const Iabs = Math.abs(c._I || 0), Vabs = Math.abs(c._Vd || 0);
+    const live = Iabs > 1e-4 || Vabs > 1e-3;
+    const lines = [];
+    if (c.type === 'switch') {
+      // always show BOTH on a switch (once it's in a live circuit) so the open ↔ closed
+      // flip reads clearly as "0 mA / full volts" ↔ "full current / 0 V"
+      if (live) lines.push(fmt(Iabs, 'A'), fmt(Vabs, 'V'));
+    } else {
+      if (Iabs > 1e-4) lines.push(fmt(Iabs, 'A'));
+      if (Vabs > 1e-3) lines.push(fmt(Vabs, 'V'));
+    }
+    if (lines.length) {
+      const lineH = 12;
+      const x = horiz ? mx : mx - 40;
+      const y = horiz ? my - 20 - lineH * (lines.length - 1)   // stacked block above the part
+                      : my + 4 - lineH * (lines.length - 1) / 2; // centred to the left
+      const t = el('text', { x, y, 'text-anchor': 'middle',
+        class: 'meas' + (c.id === selectedId ? ' sel' : '') }, grp);
+      lines.forEach((ln, i) => {
+        const ts = el('tspan', { x, dy: i === 0 ? 0 : lineH }, t);
+        ts.textContent = ln;
+      });
+    }
   }
 
   // generous invisible hit area (extra-large on touch screens)
@@ -709,29 +753,39 @@ function snapEdge(x, y) {
     ? { a: [hc, hr], b: [hc + 1, hr] }
     : { a: [vc, vr], b: [vc, vr + 1] };
 }
-function showSnap(edge, ok) {
+function showSnap(edge, mode) {   // mode: 'free' | 'replace'
   snapGhost.setAttribute('x1', px(edge.a[0])); snapGhost.setAttribute('y1', py(edge.a[1]));
   snapGhost.setAttribute('x2', px(edge.b[0])); snapGhost.setAttribute('y2', py(edge.b[1]));
-  snapGhost.setAttribute('stroke', ok ? 'var(--copper)' : 'var(--red)');
+  snapGhost.setAttribute('stroke', mode === 'replace' ? 'var(--amber)' : 'var(--copper)');
   snapGhost.setAttribute('visibility', 'visible');
 }
 function hideSnap() { if (snapGhost) snapGhost.setAttribute('visibility', 'hidden'); }
 
 let drag = null;   // {kind:'new'|'move', type, comp, ghostEl, moved}
+let pendingType = null;   // tray part "armed" for click-to-place (click a part, then click the board)
 const ghostDiv = document.createElement('div');
 ghostDiv.className = 'drag-ghost';
 ghostDiv.style.display = 'none';
 document.body.appendChild(ghostDiv);
 
-// new parts from tray
+function updateTrayArmed() {
+  document.querySelectorAll('#tray .part').forEach(p =>
+    p.classList.toggle('armed', p.dataset.type === pendingType));
+  board.style.cursor = pendingType ? 'copy' : '';
+}
+function armPart(type) {                       // toggle the click-to-place selection
+  pendingType = (pendingType === type) ? null : type;
+  updateTrayArmed();
+}
+
+// new parts from tray — drag onto the board, OR click to "arm" then click the board
 document.getElementById('tray').addEventListener('pointerdown', e => {
   const part = e.target.closest('.part');
   if (!part) return;
   e.preventDefault();
-  drag = { kind: 'new', type: part.dataset.type, moved: false };
-  ghostDiv.textContent = part.querySelector('.pname').textContent;
-  ghostDiv.style.display = 'block';
-  moveGhost(e.clientX, e.clientY);
+  drag = { kind: 'new', type: part.dataset.type, moved: false,
+           startX: e.clientX, startY: e.clientY,
+           label: part.querySelector('.pname').textContent };
 });
 
 // move existing parts / select / start drawing wire from empty board
@@ -741,13 +795,38 @@ function nearestNode(x, y) {
   const r = Math.max(0, Math.min(ROWS, Math.round((y - PAD) / CELL)));
   return [c, r];
 }
+// is this grid node a terminal of some part already on the board?
+function nodeHasPart(node, excludeIds = []) {
+  return components.some(c => !excludeIds.includes(c.id) &&
+    ((c.a[0] === node[0] && c.a[1] === node[1]) ||
+     (c.b[0] === node[0] && c.b[1] === node[1])));
+}
 board.addEventListener('pointerdown', e => {
+  // click-to-place: if a tray part is armed, a board click drops it there
+  if (pendingType) {
+    e.preventDefault();
+    const p = svgPoint(e.clientX, e.clientY);
+    if (p) {
+      const edge = snapEdge(p.x, p.y);
+      clearEdge(edge.a, edge.b, -1);          // replace whatever is already on this edge
+      const c = addComponent(pendingType, edge.a, edge.b);
+      selectedId = c.id;
+      pendingType = null;
+      updateTrayArmed();
+      solveCircuit();
+    }
+    return;
+  }
   const grp = e.target.closest('.comp');
   if (!grp) {
     e.preventDefault();
     selectedId = null;
     const p = svgPoint(e.clientX, e.clientY);
-    if (p) wireDraw = { node: nearestNode(p.x, p.y) };
+    if (p) {
+      const node = nearestNode(p.x, p.y);
+      // only start a wire from a node that already belongs to a part on the board
+      if (nodeHasPart(node)) wireDraw = { node, start: node, added: [] };
+    }
     render();
     return;
   }
@@ -768,7 +847,7 @@ window.addEventListener('pointermove', e => {
       else next[1] += t[1] > next[1] ? 1 : -1;
       const occ = components.find(c => edgeKey(c.a, c.b) === edgeKey(cur, next));
       if (occ && occ.type !== 'wire') break;   // don't draw over other parts
-      if (!occ) { addComponent('wire', cur, next); added = true; }
+      if (!occ) { wireDraw.added.push(addComponent('wire', cur, next).id); added = true; }
       cur = next;
     }
     wireDraw.node = cur;
@@ -776,43 +855,56 @@ window.addEventListener('pointermove', e => {
     return;
   }
   if (!drag) return;
-  if (drag.kind === 'move' && !drag.moved) {
+  if (!drag.moved) {
     const d = Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY);
-    if (d < 6) return;
+    if (d < 6) return;                          // within click tolerance — not a drag (yet)
     drag.moved = true;
-    ghostDiv.textContent = 'Move part';
+    ghostDiv.textContent = drag.kind === 'move' ? 'Move part' : drag.label;
     ghostDiv.style.display = 'block';
   }
-  drag.moved = true;
   moveGhost(e.clientX, e.clientY);
   const p = svgPoint(e.clientX, e.clientY);
   if (p && p.x > 0 && p.y > 0 && p.x < 780 && p.y < 510) {
     const edge = snapEdge(p.x, p.y);
-    const ok = !edgeOccupied(edge.a, edge.b, drag.kind === 'move' ? drag.comp.id : -1);
-    showSnap(edge, ok);
-    drag.edge = ok ? edge : null;
+    const occupied = edgeOccupied(edge.a, edge.b, drag.kind === 'move' ? drag.comp.id : -1);
+    showSnap(edge, occupied ? 'replace' : 'free');   // amber ghost = will replace what's there
+    drag.edge = edge;                                // every on-board edge is now placeable
   } else { hideSnap(); drag.edge = null; }
 });
 
 window.addEventListener('pointercancel', () => { sliderActive = false; });
 window.addEventListener('pointerup', e => {
   sliderActive = false;
-  if (wireDraw) { wireDraw = null; return; }
+  if (wireDraw) {
+    const w = wireDraw; wireDraw = null;
+    // a drawn wire must also END on a node that belonged to a part before this drag,
+    // so wires can only ever connect existing terminals — never dangle in empty space
+    if (w.added.length && !nodeHasPart(w.node, w.added)) {
+      components = components.filter(c => !w.added.includes(c.id));
+      solveCircuit();
+    }
+    return;
+  }
   if (!drag) return;
   ghostDiv.style.display = 'none';
   hideSnap();
   const d = drag; drag = null;
 
   if (d.kind === 'new') {
-    if (d.edge) {
+    if (d.moved && d.edge) {
+      clearEdge(d.edge.a, d.edge.b, -1);        // replace any part already on this edge
       const c = addComponent(d.type, d.edge.a, d.edge.b);
       selectedId = c.id;
+      pendingType = null; updateTrayArmed();    // a drag supersedes any armed part
       solveCircuit();
+    } else if (!d.moved) {
+      armPart(d.type);                          // a click arms the part for click-to-place
     }
     return;
   }
   // existing part
   if (d.moved && d.edge) {
+    clearEdge(d.edge.a, d.edge.b, d.comp.id);   // replace whatever it's dropped onto
     d.comp.a = d.edge.a; d.comp.b = d.edge.b;
     selectedId = d.comp.id;
     solveCircuit();
@@ -830,6 +922,7 @@ function moveGhost(x, y) { ghostDiv.style.left = x + 'px'; ghostDiv.style.top = 
 
 window.addEventListener('keydown', e => {
   if (/INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
+  if (e.key === 'Escape' && pendingType) { pendingType = null; updateTrayArmed(); return; }
   const sel = components.find(c => c.id === selectedId);
   if ((e.key === 'Delete' || e.key === 'Backspace') && sel) {
     components = components.filter(c => c.id !== selectedId);
