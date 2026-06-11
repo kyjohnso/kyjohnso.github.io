@@ -295,6 +295,7 @@ let components = [];   // {id, type, a:[c,r], b:[c,r], V, R, closed, _I, _Vd, _P
 let nextId = 1;
 let selectedId = null;
 let shortCircuit = false;
+let sliderActive = false;   // true while an inspector slider is being dragged (esp. touch)
 
 const px = c => PAD + c * CELL;
 const py = r => PAD + r * CELL;
@@ -597,9 +598,10 @@ function updateInspector() {
     delete inspBody.dataset.compId;
     return;
   }
-  // if the same component is shown and its slider is being used, refresh readouts only
-  if (inspBody.dataset.compId == c.id && inspBody.contains(document.activeElement)
-      && document.activeElement.type === 'range') {
+  // if the same component is shown and its slider is being dragged, refresh readouts
+  // only — never rebuild the slider element mid-drag, or touch dragging breaks.
+  if (inspBody.dataset.compId == c.id &&
+      (sliderActive || (inspBody.contains(document.activeElement) && document.activeElement.type === 'range'))) {
     const ro = inspBody.querySelector('.readouts');
     if (ro) ro.innerHTML = readoutsHTML(c);
     return;
@@ -627,6 +629,7 @@ function updateInspector() {
 
   const slider = inspBody.querySelector('input[type=range]');
   if (slider) {
+    slider.addEventListener('pointerdown', () => { sliderActive = true; });
     slider.addEventListener('input', () => {
       const prop = slider.dataset.prop;
       c[prop] = parseFloat(slider.value);
@@ -791,7 +794,9 @@ window.addEventListener('pointermove', e => {
   } else { hideSnap(); drag.edge = null; }
 });
 
+window.addEventListener('pointercancel', () => { sliderActive = false; });
 window.addEventListener('pointerup', e => {
+  sliderActive = false;
   if (wireDraw) { wireDraw = null; return; }
   if (!drag) return;
   ghostDiv.style.display = 'none';
