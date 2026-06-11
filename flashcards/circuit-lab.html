@@ -811,9 +811,9 @@ board.addEventListener('pointerdown', e => {
       clearEdge(edge.a, edge.b, -1);          // replace whatever is already on this edge
       const c = addComponent(pendingType, edge.a, edge.b);
       selectedId = c.id;
-      pendingType = null;
-      updateTrayArmed();
       solveCircuit();
+      // stay armed so several can be stamped in a row; click the tray part again
+      // (or press Esc) to put it down
     }
     return;
   }
