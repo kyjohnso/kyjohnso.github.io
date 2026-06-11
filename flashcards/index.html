@@ -44,8 +44,30 @@
         .subtitle {
             font-size: 1.2rem;
             color: #E67E22;
-            margin-bottom: 3rem;
+            margin-bottom: 1.5rem;
             font-weight: 500;
+        }
+
+        .surprise-btn {
+            display: inline-block;
+            margin-bottom: 3rem;
+            padding: 0.7rem 1.7rem;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: white;
+            background: linear-gradient(135deg, #FF9933 0%, #C44536 100%);
+            border: none;
+            border-radius: 999px;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(196, 69, 54, 0.3);
+            transition: all 0.25s ease;
+            cursor: pointer;
+        }
+
+        .surprise-btn:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 8px 25px rgba(196, 69, 54, 0.45);
         }
 
         .materials-list {
@@ -128,6 +150,7 @@
     <div class="container">
         <h1>Study Materials</h1>
         <p class="subtitle">Interactive Learning Resources</p>
+        <a href="#" id="surpriseMe" class="surprise-btn">🎲 Surprise me!</a>
 
         <div class="materials-list">
             <a href="graph-lab.html" class="material-card">
@@ -227,5 +250,16 @@
             <img src="flashcards-qr.png" alt="QR Code" class="qr-code">
         </div>
     </div>
+
+    <script>
+        // "Surprise me" — jump to a random study material (includes any added later)
+        document.getElementById('surpriseMe').addEventListener('click', function (e) {
+            e.preventDefault();
+            var cards = document.querySelectorAll('.materials-list .material-card');
+            if (!cards.length) return;
+            var pick = cards[Math.floor(Math.random() * cards.length)];
+            window.location.href = pick.getAttribute('href');
+        });
+    </script>
 </body>
 </html>
