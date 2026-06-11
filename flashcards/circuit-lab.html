@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Circuit Lab — Build &amp; Test Simple Circuits</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --paper: #F2F7FA;
+    --grid-line: #D5E4EC;
+    --ink: #1F3540;
+    --ink-soft: #5A7280;
+    --panel: #FFFFFF;
+    --copper: #C2622E;
+    --copper-soft: #E8C7AE;
+    --amber: #FFB02E;
+    --green: #2E8B6A;
+    --red: #D6493E;
+    --blue: #3A7CA5;
+    --shadow: rgba(31, 53, 64, 0.14);
+  }
+
+  body {
+    font-family: 'Karla', sans-serif;
+    color: var(--ink);
+    background: linear-gradient(135deg, #E8F1F6 0%, #F4F1E8 100%);
+    min-height: 100vh;
+    padding: 1.25rem;
+  }
+
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  header { text-align: center; margin-bottom: 1rem; }
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.7rem, 4vw, 2.4rem);
+    letter-spacing: 0.01em;
+  }
+  h1 .bolt { color: var(--amber); }
+  .subtitle { color: var(--ink-soft); margin-top: 0.25rem; }
+
+  .mode-tabs {
+    display: flex; justify-content: center; gap: 0.5rem; margin: 1rem 0 1.25rem;
+  }
+  .mode-tabs button {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem; font-weight: 500;
+    padding: 0.55rem 1.4rem;
+    border: 2px solid var(--ink); border-radius: 999px;
+    background: transparent; color: var(--ink);
+    cursor: pointer; transition: all 0.15s ease;
+  }
+  .mode-tabs button.active { background: var(--ink); color: #fff; box-shadow: 0 4px 10px var(--shadow); }
+  .mode-tabs button:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+
+  /* ---------------- BUILD MODE LAYOUT ---------------- */
+  .build-grid {
+    display: grid;
+    grid-template-columns: 150px 1fr 230px;
+    gap: 1rem;
+    align-items: start;
+  }
+  @media (max-width: 860px) {
+    .build-grid { grid-template-columns: 1fr; }
+    .tray { display: flex; flex-direction: row !important; flex-wrap: wrap; }
+  }
+
+  .card {
+    background: var(--panel);
+    border-radius: 16px;
+    box-shadow: 0 6px 18px var(--shadow);
+    padding: 1rem;
+  }
+
+  .tray { display: flex; flex-direction: column; gap: 0.6rem; }
+  .tray h2, .inspector h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.8rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--ink-soft); margin-bottom: 0.2rem;
+  }
+  .part {
+    display: flex; align-items: center; gap: 0.55rem;
+    padding: 0.5rem 0.6rem;
+    border: 2px dashed var(--grid-line);
+    border-radius: 12px;
+    background: var(--paper);
+    cursor: grab; user-select: none; touch-action: none;
+    transition: border-color 0.15s, transform 0.1s;
+  }
+  .part:hover { border-color: var(--copper); transform: translateY(-1px); }
+  .part svg { flex: 0 0 auto; }
+  .part .pname { font-weight: 700; font-size: 0.92rem; }
+  .part .phint { font-size: 0.72rem; color: var(--ink-soft); display: block; }
+
+  .canvas-card { padding: 0.75rem; }
+  .canvas-toolbar {
+    display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;
+    margin-bottom: 0.6rem;
+  }
+  .canvas-toolbar .spacer { flex: 1; }
+  .btn {
+    font-family: 'Karla', sans-serif; font-weight: 700; font-size: 0.85rem;
+    border: 2px solid var(--ink); border-radius: 999px;
+    background: #fff; color: var(--ink);
+    padding: 0.35rem 0.9rem; cursor: pointer; transition: all 0.15s;
+    touch-action: manipulation;
+  }
+  .btn:hover { background: var(--ink); color: #fff; }
+  .btn.danger { border-color: var(--red); color: var(--red); }
+  .btn.danger:hover { background: var(--red); color: #fff; }
+  .btn:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+
+  .status-banner {
+    flex: 1 1 100%;                /* own full-width row so the buttons never share it */
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+    min-height: 2.6rem;           /* reserve constant height so the board never shifts */
+    font-weight: 700; font-size: 0.9rem;
+    padding: 0.3rem 0.8rem; border-radius: 999px;
+  }
+  .status-off  { background: #E9EFF3; color: var(--ink-soft); }
+  .status-on   { background: #DDF2E9; color: var(--green); }
+  .status-short{ background: #FBE3E1; color: var(--red); animation: pulse 0.9s infinite; }
+  @keyframes pulse { 50% { opacity: 0.55; } }
+
+  #board { width: 100%; height: auto; display: block; border-radius: 12px;
+           background: var(--paper); touch-action: none; }
+
+  .hint-line { font-size: 0.8rem; color: var(--ink-soft); margin-top: 0.5rem; text-align: center; }
+
+  /* ---------------- INSPECTOR ---------------- */
+  .inspector .empty { color: var(--ink-soft); font-size: 0.9rem; line-height: 1.45; }
+  .inspector .comp-name {
+    font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 700;
+    margin: 0.25rem 0 0.6rem;
+  }
+  .slider-row { margin: 0.7rem 0; }
+  .slider-row label { font-weight: 700; font-size: 0.85rem; display: flex; justify-content: space-between; }
+  .slider-row label output { color: var(--copper); }
+  input[type=range] { width: 100%; accent-color: var(--copper); margin-top: 0.3rem; }
+  .readouts { margin-top: 0.8rem; border-top: 2px dashed var(--grid-line); padding-top: 0.7rem; }
+  .readouts .ro { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 0.15rem 0; }
+  .readouts .ro b { font-variant-numeric: tabular-nums; }
+  .insp-buttons { display: flex; gap: 0.5rem; margin-top: 0.9rem; flex-wrap: wrap; }
+
+  /* ---------------- SVG component styling ---------------- */
+  .comp { cursor: grab; }
+  .comp .body-stroke { stroke: var(--ink); stroke-width: 3; fill: none; stroke-linecap: round; }
+  .comp.selected .body-stroke { stroke: var(--blue); }
+  .comp .hitbox { fill: transparent; stroke: none; }
+  .comp text { font-family: 'Karla', sans-serif; font-size: 13px; font-weight: 700; fill: var(--ink-soft); user-select: none; pointer-events: none; }
+  .comp .ibadge { fill: var(--copper); font-size: 12px; }
+
+  .flowpath {
+    stroke: var(--amber); stroke-width: 3.5; fill: none; stroke-linecap: round;
+    stroke-dasharray: 6 10; pointer-events: none;
+    animation: flowF var(--dur, 1s) linear infinite;
+  }
+  .flowpath.rev { animation-name: flowR; }
+  @keyframes flowF { to { stroke-dashoffset: -16; } }
+  @keyframes flowR { to { stroke-dashoffset: 16; } }
+  @media (prefers-reduced-motion: reduce) {
+    .flowpath { animation: none; }
+    .status-short { animation: none; }
+  }
+
+  .node-dot { fill: var(--grid-line); }
+  .snap-ghost { stroke: var(--copper); stroke-width: 6; stroke-linecap: round; opacity: 0.45; pointer-events: none; }
+
+  .drag-ghost {
+    position: fixed; z-index: 50; pointer-events: none;
+    background: var(--panel); border: 2px solid var(--copper); border-radius: 10px;
+    padding: 0.3rem 0.6rem; font-weight: 700; font-size: 0.85rem;
+    box-shadow: 0 8px 18px var(--shadow);
+    transform: translate(-50%, -120%);
+  }
+
+  /* ---------------- TEST MODE ---------------- */
+  .quiz-card { max-width: 640px; margin: 0 auto; }
+  .quiz-progress { display: flex; gap: 0.35rem; justify-content: center; margin-bottom: 1rem; }
+  .quiz-progress .dot {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--grid-line);
+  }
+  .quiz-progress .dot.now { background: var(--ink); }
+  .quiz-progress .dot.right { background: var(--green); }
+  .quiz-progress .dot.wrong { background: var(--red); }
+
+  .qtext { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 500; line-height: 1.45; margin-bottom: 1rem; }
+  .opts { display: grid; gap: 0.6rem; }
+  .opt {
+    text-align: left; font-family: 'Karla', sans-serif; font-size: 1rem; font-weight: 500;
+    padding: 0.7rem 0.9rem; border: 2px solid var(--grid-line); border-radius: 12px;
+    background: var(--paper); cursor: pointer; transition: all 0.12s;
+    touch-action: manipulation;
+  }
+  .opt:hover:not(:disabled) { border-color: var(--ink); transform: translateX(3px); }
+  .opt:disabled { cursor: default; }
+  .opt.correct { border-color: var(--green); background: #DDF2E9; }
+  .opt.incorrect { border-color: var(--red); background: #FBE3E1; }
+  .explain {
+    margin-top: 0.9rem; padding: 0.75rem 0.9rem; border-radius: 12px;
+    background: #FFF6E3; border: 2px solid var(--amber);
+    font-size: 0.95rem; line-height: 1.5; display: none;
+  }
+  .quiz-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; }
+  .score-pill { font-weight: 700; color: var(--ink-soft); }
+
+  .result-screen { text-align: center; padding: 1rem 0; }
+  .result-screen .big { font-size: 3rem; }
+  .result-screen h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; margin: 0.5rem 0; }
+  .result-screen p { color: var(--ink-soft); margin-bottom: 1rem; }
+
+  footer { text-align: center; color: var(--ink-soft); font-size: 0.78rem; margin-top: 1.5rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1><span class="bolt">⚡</span> Circuit Lab</h1>
+    <p class="subtitle">Drag parts onto the board, turn the dials, and watch the current flow.</p>
+    <div class="mode-tabs" role="tablist">
+      <button id="tabBuild" class="active" role="tab">🔧 Build</button>
+      <button id="tabTest" role="tab">🎓 Test</button>
+    </div>
+  </header>
+
+  <!-- ================= TEST MODE ================= -->
+  <section id="testMode" style="display:none; margin-bottom: 1rem;">
+    <div class="card quiz-card" id="quizCard"></div>
+  </section>
+
+  <!-- ================= BUILD MODE ================= -->
+  <section id="buildMode" class="build-grid">
+    <div class="card tray" id="tray">
+      <h2>Parts tray</h2>
+      <div class="part" data-type="battery">
+        <svg width="38" height="24" viewBox="0 0 38 24"><line x1="2" y1="12" x2="13" y2="12" stroke="#1F3540" stroke-width="3"/><line x1="13" y1="3" x2="13" y2="21" stroke="#1F3540" stroke-width="3"/><line x1="20" y1="7" x2="20" y2="17" stroke="#1F3540" stroke-width="5"/><line x1="20" y1="12" x2="36" y2="12" stroke="#1F3540" stroke-width="3"/></svg>
+        <span><span class="pname">Battery</span><span class="phint">voltage source</span></span>
+      </div>
+      <div class="part" data-type="resistor">
+        <svg width="38" height="24" viewBox="0 0 38 24"><polyline points="2,12 8,12 11,5 16,19 21,5 26,19 29,12 36,12" fill="none" stroke="#1F3540" stroke-width="3" stroke-linejoin="round"/></svg>
+        <span><span class="pname">Resistor</span><span class="phint">slows current</span></span>
+      </div>
+      <div class="part" data-type="bulb">
+        <svg width="38" height="24" viewBox="0 0 38 24"><line x1="2" y1="12" x2="9" y2="12" stroke="#1F3540" stroke-width="3"/><circle cx="19" cy="12" r="9" fill="#FFF6E3" stroke="#1F3540" stroke-width="3"/><line x1="13" y1="6" x2="25" y2="18" stroke="#1F3540" stroke-width="2.5"/><line x1="25" y1="6" x2="13" y2="18" stroke="#1F3540" stroke-width="2.5"/><line x1="28" y1="12" x2="36" y2="12" stroke="#1F3540" stroke-width="3"/></svg>
+        <span><span class="pname">Bulb</span><span class="phint">lights up!</span></span>
+      </div>
+      <div class="part" data-type="switch">
+        <svg width="38" height="24" viewBox="0 0 38 24"><line x1="2" y1="14" x2="11" y2="14" stroke="#1F3540" stroke-width="3"/><line x1="11" y1="14" x2="26" y2="4" stroke="#1F3540" stroke-width="3"/><circle cx="11" cy="14" r="2.5" fill="#1F3540"/><circle cx="27" cy="14" r="2.5" fill="#1F3540"/><line x1="27" y1="14" x2="36" y2="14" stroke="#1F3540" stroke-width="3"/></svg>
+        <span><span class="pname">Switch</span><span class="phint">click to flip</span></span>
+      </div>
+      <div class="part" data-type="wire">
+        <svg width="38" height="24" viewBox="0 0 38 24"><line x1="2" y1="12" x2="36" y2="12" stroke="#C2622E" stroke-width="4" stroke-linecap="round"/></svg>
+        <span><span class="pname">Wire</span><span class="phint">connects parts</span></span>
+      </div>
+    </div>
+
+    <div class="card canvas-card">
+      <div class="canvas-toolbar">
+        <span id="statusBanner" class="status-banner status-off">No complete loop yet</span>
+        <span class="spacer"></span>
+        <button class="btn" id="btnExample">Load example</button>
+        <button class="btn danger" id="btnClear">Clear board</button>
+      </div>
+      <svg id="board" viewBox="0 0 780 510" aria-label="Circuit building board"></svg>
+      <p class="hint-line">Drag parts from the tray · drag from a grid dot to draw wires · drag parts to move · click to inspect · click a switch to flip it · <b>D</b> duplicates · <b>R</b> flips a battery · <b>Delete</b> removes</p>
+    </div>
+
+    <div class="card inspector" id="inspector">
+      <h2>Inspector</h2>
+      <div id="inspBody"><p class="empty">Select a part on the board to adjust its voltage or resistance and see live readings.</p></div>
+    </div>
+  </section>
+
+  <footer>Circuit Lab · a little tutoring tool for learning simple circuits</footer>
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+   GRID + STATE
+   ============================================================ */
+const CELL = 90, COLS = 8, ROWS = 5, PAD = 30;   // nodes: (COLS+1) x (ROWS+1)
+const TOUCH = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+const board = document.getElementById('board');
+const SVGNS = "http://www.w3.org/2000/svg";
+
+let components = [];   // {id, type, a:[c,r], b:[c,r], V, R, closed, _I, _Vd, _P}
+let nextId = 1;
+let selectedId = null;
+let shortCircuit = false;
+
+const px = c => PAD + c * CELL;
+const py = r => PAD + r * CELL;
+
+function edgeKey(a, b) {
+  const k1 = a[0] + ',' + a[1], k2 = b[0] + ',' + b[1];
+  return k1 < k2 ? k1 + '|' + k2 : k2 + '|' + k1;
+}
+function edgeOccupied(a, b, ignoreId) {
+  const key = edgeKey(a, b);
+  return components.some(c => c.id !== ignoreId && edgeKey(c.a, c.b) === key);
+}
+
+function defaultsFor(type) {
+  if (type === 'battery')  return { V: 6 };
+  if (type === 'resistor') return { R: 10 };
+  if (type === 'bulb')     return { R: 10 };
+  if (type === 'switch')   return { closed: false };
+  return {};
+}
+function addComponent(type, a, b) {
+  const c = Object.assign({ id: nextId++, type, a, b }, defaultsFor(type));
+  components.push(c);
+  return c;
+}
+
+/* ============================================================
+   CIRCUIT SOLVER  (modified nodal analysis)
+   Wires & closed switches are tiny resistors; batteries are
+   ideal voltage sources with an extra current variable.
+   ============================================================ */
+function elementResistance(c) {
+  if (c.type === 'wire') return 0.001;
+  if (c.type === 'switch') return c.closed ? 0.001 : null;  // open switch: no path
+  if (c.type === 'resistor' || c.type === 'bulb') return Math.max(0.1, c.R);
+  return null; // battery handled separately
+}
+
+function solveLinear(A, b) {
+  const n = b.length;
+  for (let col = 0; col < n; col++) {
+    let piv = col;
+    for (let r = col + 1; r < n; r++)
+      if (Math.abs(A[r][col]) > Math.abs(A[piv][col])) piv = r;
+    if (Math.abs(A[piv][col]) < 1e-14) continue;
+    [A[col], A[piv]] = [A[piv], A[col]];
+    [b[col], b[piv]] = [b[piv], b[col]];
+    for (let r = 0; r < n; r++) {
+      if (r === col) continue;
+      const f = A[r][col] / A[col][col];
+      if (f === 0) continue;
+      for (let k = col; k < n; k++) A[r][k] -= f * A[col][k];
+      b[r] -= f * b[col];
+    }
+  }
+  const x = new Array(n).fill(0);
+  for (let i = 0; i < n; i++)
+    x[i] = Math.abs(A[i][i]) > 1e-14 ? b[i] / A[i][i] : 0;
+  return x;
+}
+
+function solveCircuit() {
+  shortCircuit = false;
+  components.forEach(c => { c._I = 0; c._Vd = 0; c._P = 0; });
+
+  // collect nodes
+  const nodeIdx = new Map();
+  const idxOf = pt => {
+    const k = pt[0] + ',' + pt[1];
+    if (!nodeIdx.has(k)) nodeIdx.set(k, nodeIdx.size);
+    return nodeIdx.get(k);
+  };
+  components.forEach(c => { idxOf(c.a); idxOf(c.b); });
+
+  const n = nodeIdx.size;
+  const batteries = components.filter(c => c.type === 'battery');
+  const m = batteries.length;
+  if (n === 0 || m === 0) { render(); return; }
+
+  const N = n + m;
+  const A = Array.from({ length: N }, () => new Array(N).fill(0));
+  const rhs = new Array(N).fill(0);
+
+  // resistive stamps
+  components.forEach(c => {
+    const R = elementResistance(c);
+    if (R === null) return;
+    const g = 1 / R, i = idxOf(c.a), j = idxOf(c.b);
+    A[i][i] += g; A[j][j] += g; A[i][j] -= g; A[j][i] -= g;
+  });
+  // tiny leak to "ground" so floating nets stay solvable
+  for (let i = 0; i < n; i++) A[i][i] += 1e-9;
+
+  // battery stamps: Va - Vb = V
+  batteries.forEach((bat, k) => {
+    const i = idxOf(bat.a), j = idxOf(bat.b), row = n + k;
+    A[row][i] = 1;  A[row][j] = -1; rhs[row] = bat.V;
+    A[i][row] = 1;  A[j][row] = -1;
+  });
+
+  const x = solveLinear(A, rhs);
+
+  components.forEach(c => {
+    const Va = x[idxOf(c.a)], Vb = x[idxOf(c.b)];
+    c._Vd = Va - Vb;
+    const R = elementResistance(c);
+    if (R !== null) c._I = c._Vd / R;
+  });
+  batteries.forEach((bat, k) => { bat._I = -x[n + k]; });
+  components.forEach(c => {
+    c._P = Math.abs(c._Vd * c._I);
+    if (c.type === 'battery' && Math.abs(c._I) > 50) shortCircuit = true;
+  });
+
+  render();
+}
+
+/* ============================================================
+   RENDERING
+   ============================================================ */
+function el(name, attrs, parent) {
+  const e = document.createElementNS(SVGNS, name);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+
+function drawGrid(g) {
+  for (let r = 0; r <= ROWS; r++)
+    el('line', { x1: px(0), y1: py(r), x2: px(COLS), y2: py(r),
+                 stroke: 'var(--grid-line)', 'stroke-width': 1 }, g);
+  for (let c = 0; c <= COLS; c++)
+    el('line', { x1: px(c), y1: py(0), x2: px(c), y2: py(ROWS),
+                 stroke: 'var(--grid-line)', 'stroke-width': 1 }, g);
+  for (let r = 0; r <= ROWS; r++)
+    for (let c = 0; c <= COLS; c++)
+      el('circle', { cx: px(c), cy: py(r), r: 3.2, class: 'node-dot' }, g);
+}
+
+function fmt(v, unit) {
+  const a = Math.abs(v);
+  if (unit === 'A' && a < 1) return (v * 1000).toFixed(0) + ' mA';
+  return v.toFixed(a < 10 ? 2 : 1) + ' ' + unit;
+}
+
+function drawComponent(g, c) {
+  const x1 = px(c.a[0]), y1 = py(c.a[1]), x2 = px(c.b[0]), y2 = py(c.b[1]);
+  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+  const horiz = (y1 === y2);
+
+  const grp = el('g', { class: 'comp' + (c.id === selectedId ? ' selected' : ''), 'data-id': c.id }, g);
+  const angle = Math.round(Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI); // 0, 90, 180, -90
+  const ux = Math.sign(x2 - x1), uy = Math.sign(y2 - y1);
+  const sym = el('g', { transform: `translate(${mx},${my}) rotate(${angle})` }, grp);
+  const half = CELL / 2;
+  const conducting = Math.abs(c._I || 0) > 1e-4 && !shortCircuit;
+
+  if (c.type === 'wire') {
+    el('line', { x1: -half, y1: 0, x2: half, y2: 0, class: 'body-stroke', stroke: 'var(--copper)' }, sym)
+      .style.stroke = 'var(--copper)';
+  } else if (c.type === 'battery') {
+    el('line', { x1: -half, y1: 0, x2: -8, y2: 0, class: 'body-stroke' }, sym);
+    el('line', { x1: -8, y1: -16, x2: -8, y2: 16, class: 'body-stroke' }, sym);                  // + long plate (node a side)
+    el('line', { x1: 8, y1: -8, x2: 8, y2: 8, class: 'body-stroke', 'stroke-width': 6 }, sym);   // - short plate (node b side)
+    el('line', { x1: 8, y1: 0, x2: half, y2: 0, class: 'body-stroke' }, sym);
+  } else if (c.type === 'resistor') {
+    el('polyline', { points: `${-half},0 -28,0 -21,-10 -7,10 7,-10 21,10 28,0 ${half},0`, class: 'body-stroke', 'stroke-linejoin': 'round' }, sym);
+  } else if (c.type === 'bulb') {
+    const bright = shortCircuit ? 0 : Math.min(1, (c._P || 0) / 4);
+    const lit = bright > 0.02;
+    if (lit) {
+      // soft outer halo + warm inner glow, both scale with power
+      el('circle', { cx: 0, cy: 0, r: 26 + 18 * bright, fill: 'var(--amber)',
+                     opacity: (0.55 * Math.sqrt(bright)).toFixed(2), filter: 'url(#glow)' }, sym);
+      el('circle', { cx: 0, cy: 0, r: 17, fill: '#FFE9A8',
+                     opacity: (0.15 + 0.8 * bright).toFixed(2), filter: 'url(#glow)' }, sym);
+    }
+    el('line', { x1: -half, y1: 0, x2: -15, y2: 0, class: 'body-stroke' }, sym);
+    // glass: styled directly so the body-stroke CSS (fill: none) can't blank it
+    el('circle', { cx: 0, cy: 0, r: 15, stroke: 'var(--ink)', 'stroke-width': 3,
+                   fill: lit ? 'var(--amber)' : '#FFF6E3',
+                   'fill-opacity': lit ? (0.35 + 0.6 * bright).toFixed(2) : '1' }, sym);
+    // filament glows hot when lit
+    const fil = lit ? '#E2570F' : 'var(--ink)';
+    el('line', { x1: -9, y1: -9, x2: 9, y2: 9, stroke: fil, 'stroke-width': 2.5, 'stroke-linecap': 'round' }, sym);
+    el('line', { x1: 9, y1: -9, x2: -9, y2: 9, stroke: fil, 'stroke-width': 2.5, 'stroke-linecap': 'round' }, sym);
+    // little rays that grow with brightness
+    if (lit) {
+      for (let k = 0; k < 8; k++) {
+        const ang = k * Math.PI / 4 + Math.PI / 8;
+        const r1 = 20, r2 = 21 + 9 * bright;
+        el('line', { x1: (r1 * Math.cos(ang)).toFixed(1), y1: (r1 * Math.sin(ang)).toFixed(1),
+                     x2: (r2 * Math.cos(ang)).toFixed(1), y2: (r2 * Math.sin(ang)).toFixed(1),
+                     stroke: 'var(--amber)', 'stroke-width': 2.5, 'stroke-linecap': 'round',
+                     opacity: (0.35 + 0.55 * bright).toFixed(2) }, sym);
+      }
+    }
+    el('line', { x1: 15, y1: 0, x2: half, y2: 0, class: 'body-stroke' }, sym);
+  } else if (c.type === 'switch') {
+    el('line', { x1: -half, y1: 0, x2: -14, y2: 0, class: 'body-stroke' }, sym);
+    el('line', { x1: -14, y1: 0, x2: c.closed ? 14 : 10, y2: c.closed ? 0 : -20, class: 'body-stroke' }, sym);
+    el('circle', { cx: -14, cy: 0, r: 3.5, fill: 'var(--ink)' }, sym);
+    el('circle', { cx: 14, cy: 0, r: 3.5, fill: 'var(--ink)' }, sym);
+    el('line', { x1: 14, y1: 0, x2: half, y2: 0, class: 'body-stroke' }, sym);
+  }
+
+  // upright text labels (drawn outside the rotated group so flips/rotations stay readable)
+  const lblPos = horiz ? { x: mx, y: my + 30 } : { x: mx + 38, y: my + 5 };
+  if (c.type === 'battery') {
+    const plus = el('text', { x: x1 + ux * 18 + uy * 16, y: y1 + uy * 18 - ux * 16 + 5, 'text-anchor': 'middle' }, grp);
+    plus.textContent = '+';
+    plus.style.fontSize = '16px';
+    const lbl = el('text', { x: lblPos.x, y: lblPos.y + (horiz ? 4 : 0), 'text-anchor': 'middle' }, grp);
+    lbl.textContent = c.V.toFixed(1).replace(/\.0$/, '') + ' V';
+  } else if (c.type === 'resistor') {
+    const lbl = el('text', { x: lblPos.x, y: lblPos.y - (horiz ? 2 : 0), 'text-anchor': 'middle' }, grp);
+    lbl.textContent = c.R + ' Ω';
+  } else if (c.type === 'switch') {
+    const lbl = el('text', { x: lblPos.x, y: lblPos.y - (horiz ? 4 : 0), 'text-anchor': 'middle' }, grp);
+    lbl.textContent = c.closed ? 'closed' : 'open';
+  }
+
+  // animated current overlay (not on the battery symbol itself)
+  if (conducting && c.type !== 'battery' && c.type !== 'bulb') {
+    const f = el('line', { x1, y1, x2, y2, class: 'flowpath' + ((c._I || 0) < 0 ? ' rev' : '') }, grp);
+    const speed = Math.max(0.25, Math.min(3, 1.2 / Math.abs(c._I)));
+    f.style.setProperty('--dur', speed.toFixed(2) + 's');
+    if (c.type !== 'wire') f.setAttribute('opacity', '0.0'); // keep symbols clean; animate wires only
+    if (c.type === 'wire') f.setAttribute('opacity', '0.9');
+  }
+
+  // current badge for selected element
+  if (c.id === selectedId && Math.abs(c._I || 0) > 1e-4 && !shortCircuit) {
+    const t = el('text', { x: horiz ? mx : mx - 38, y: horiz ? my - 26 : my + 5, 'text-anchor': 'middle', class: 'ibadge' }, grp);
+    t.textContent = fmt(Math.abs(c._I), 'A');
+    t.style.fill = 'var(--copper)';
+  }
+
+  // generous invisible hit area (extra-large on touch screens)
+  const pad = TOUCH ? 26 : 14;
+  el('rect', {
+    x: Math.min(x1, x2) - pad, y: Math.min(y1, y2) - pad,
+    width: Math.abs(x2 - x1) + 2 * pad, height: Math.abs(y2 - y1) + 2 * pad,
+    class: 'hitbox'
+  }, grp);
+}
+
+let snapGhost = null;
+function render() {
+  board.innerHTML = '';
+  const defs = el('defs', {}, board);
+  const filt = el('filter', { id: 'glow', x: '-80%', y: '-80%', width: '260%', height: '260%' }, defs);
+  el('feGaussianBlur', { stdDeviation: 7 }, filt);
+
+  const gridLayer = el('g', {}, board);
+  drawGrid(gridLayer);
+  const compLayer = el('g', {}, board);
+  components.forEach(c => drawComponent(compLayer, c));
+  snapGhost = el('line', { class: 'snap-ghost', visibility: 'hidden' }, board);
+
+  updateStatus();
+  updateInspector();
+}
+
+function updateStatus() {
+  const s = document.getElementById('statusBanner');
+  const flowing = components.some(c => Math.abs(c._I || 0) > 1e-4);
+  if (shortCircuit) {
+    s.className = 'status-banner status-short';
+    s.textContent = '⚠️ Short circuit! Current has a path with almost no resistance.';
+  } else if (flowing) {
+    s.className = 'status-banner status-on';
+    s.textContent = '✅ Complete circuit — current is flowing!';
+  } else {
+    s.className = 'status-banner status-off';
+    s.textContent = components.length ? 'No current — is the loop complete and the switch closed?' : 'No complete loop yet';
+  }
+}
+
+/* ============================================================
+   INSPECTOR
+   ============================================================ */
+const inspBody = document.getElementById('inspBody');
+function readoutsHTML(c) {
+  let html = '';
+  if (!shortCircuit) {
+    html += roHTML('Voltage across', fmt(Math.abs(c._Vd || 0), 'V'));
+    html += roHTML('Current through', fmt(Math.abs(c._I || 0), 'A'));
+    if (c.type === 'bulb' || c.type === 'resistor')
+      html += roHTML('Power', (c._P || 0).toFixed(2) + ' W');
+  } else {
+    html += '<div class="ro" style="color:var(--red)"><b>Fix the short circuit to see readings.</b></div>';
+  }
+  return html;
+}
+function updateInspector() {
+  const c = components.find(k => k.id === selectedId);
+  if (!c) {
+    inspBody.innerHTML = '<p class="empty">Select a part on the board to adjust its voltage or resistance and see live readings.</p>';
+    delete inspBody.dataset.compId;
+    return;
+  }
+  // if the same component is shown and its slider is being used, refresh readouts only
+  if (inspBody.dataset.compId == c.id && inspBody.contains(document.activeElement)
+      && document.activeElement.type === 'range') {
+    const ro = inspBody.querySelector('.readouts');
+    if (ro) ro.innerHTML = readoutsHTML(c);
+    return;
+  }
+  inspBody.dataset.compId = c.id;
+  const names = { battery: '🔋 Battery', resistor: '〰️ Resistor', bulb: '💡 Bulb', switch: '🔀 Switch', wire: '➖ Wire' };
+  let html = `<div class="comp-name">${names[c.type]}</div>`;
+
+  if (c.type === 'battery') {
+    html += sliderHTML('Voltage', 'V', c.V, 1.5, 24, 1.5, ' V');
+  } else if (c.type === 'resistor') {
+    html += sliderHTML('Resistance', 'R', c.R, 1, 100, 1, ' Ω');
+  } else if (c.type === 'bulb') {
+    html += sliderHTML('Filament resistance', 'R', c.R, 2, 50, 1, ' Ω');
+  } else if (c.type === 'switch') {
+    html += `<button class="btn" id="swToggle">${c.closed ? 'Open the switch' : 'Close the switch'}</button>`;
+  }
+
+  html += '<div class="readouts">' + readoutsHTML(c) + '</div>';
+  html += '<div class="insp-buttons">'
+        + '<button class="btn" id="btnDup">⧉ Duplicate</button>'
+        + (c.type === 'battery' ? '<button class="btn" id="btnFlip">⇄ Flip + / −</button>' : '')
+        + '<button class="btn danger" id="btnDelete">🗑 Remove part</button></div>';
+  inspBody.innerHTML = html;
+
+  const slider = inspBody.querySelector('input[type=range]');
+  if (slider) {
+    slider.addEventListener('input', () => {
+      const prop = slider.dataset.prop;
+      c[prop] = parseFloat(slider.value);
+      inspBody.querySelector('output').textContent = c[prop] + (prop === 'V' ? ' V' : ' Ω');
+      solveCircuit();
+    });
+  }
+  const sw = inspBody.querySelector('#swToggle');
+  if (sw) sw.addEventListener('click', () => { c.closed = !c.closed; solveCircuit(); });
+  inspBody.querySelector('#btnDup').addEventListener('click', () => duplicateComp(c));
+  const flip = inspBody.querySelector('#btnFlip');
+  if (flip) flip.addEventListener('click', () => flipComp(c));
+  inspBody.querySelector('#btnDelete').addEventListener('click', () => {
+    components = components.filter(k => k.id !== c.id);
+    selectedId = null;
+    solveCircuit();
+  });
+}
+
+function flipComp(c) {
+  const t = c.a; c.a = c.b; c.b = t;
+  solveCircuit();
+}
+
+function duplicateComp(c) {
+  // place the copy on the nearest free edge, then it can be dragged into place
+  const mid = [(c.a[0] + c.b[0]) / 2, (c.a[1] + c.b[1]) / 2];
+  let best = null, bd = Infinity;
+  const tryEdge = (a, b) => {
+    if (edgeOccupied(a, b, -1)) return;
+    const m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+    const d = (m[0] - mid[0]) ** 2 + (m[1] - mid[1]) ** 2;
+    if (d < bd) { bd = d; best = { a, b }; }
+  };
+  for (let r = 0; r <= ROWS; r++) for (let cc = 0; cc < COLS; cc++) tryEdge([cc, r], [cc + 1, r]);
+  for (let cc = 0; cc <= COLS; cc++) for (let r = 0; r < ROWS; r++) tryEdge([cc, r], [cc, r + 1]);
+  if (!best) return;
+  const n = addComponent(c.type, best.a, best.b);
+  if (c.V !== undefined) n.V = c.V;
+  if (c.R !== undefined) n.R = c.R;
+  if (c.closed !== undefined) n.closed = c.closed;
+  selectedId = n.id;
+  solveCircuit();
+}
+function sliderHTML(label, prop, val, min, max, step, unit) {
+  return `<div class="slider-row">
+    <label>${label} <output>${val}${unit}</output></label>
+    <input type="range" data-prop="${prop}" min="${min}" max="${max}" step="${step}" value="${val}">
+  </div>`;
+}
+function roHTML(k, v) { return `<div class="ro"><span>${k}</span><b>${v}</b></div>`; }
+
+/* ============================================================
+   DRAG & DROP (pointer events — works with mouse and touch)
+   ============================================================ */
+function svgPoint(clientX, clientY) {
+  const pt = board.createSVGPoint();
+  pt.x = clientX; pt.y = clientY;
+  const m = board.getScreenCTM();
+  if (!m) return null;
+  const p = pt.matrixTransform(m.inverse());
+  return { x: p.x, y: p.y };
+}
+function snapEdge(x, y) {
+  const gx = x - PAD, gy = y - PAD;
+  // horizontal candidate
+  let hr = Math.max(0, Math.min(ROWS, Math.round(gy / CELL)));
+  let hc = Math.max(0, Math.min(COLS - 1, Math.floor(gx / CELL)));
+  const hMid = { x: (hc + 0.5) * CELL, y: hr * CELL };
+  // vertical candidate
+  let vc = Math.max(0, Math.min(COLS, Math.round(gx / CELL)));
+  let vr = Math.max(0, Math.min(ROWS - 1, Math.floor(gy / CELL)));
+  const vMid = { x: vc * CELL, y: (vr + 0.5) * CELL };
+  const dh = (gx - hMid.x) ** 2 + (gy - hMid.y) ** 2;
+  const dv = (gx - vMid.x) ** 2 + (gy - vMid.y) ** 2;
+  return dh <= dv
+    ? { a: [hc, hr], b: [hc + 1, hr] }
+    : { a: [vc, vr], b: [vc, vr + 1] };
+}
+function showSnap(edge, ok) {
+  snapGhost.setAttribute('x1', px(edge.a[0])); snapGhost.setAttribute('y1', py(edge.a[1]));
+  snapGhost.setAttribute('x2', px(edge.b[0])); snapGhost.setAttribute('y2', py(edge.b[1]));
+  snapGhost.setAttribute('stroke', ok ? 'var(--copper)' : 'var(--red)');
+  snapGhost.setAttribute('visibility', 'visible');
+}
+function hideSnap() { if (snapGhost) snapGhost.setAttribute('visibility', 'hidden'); }
+
+let drag = null;   // {kind:'new'|'move', type, comp, ghostEl, moved}
+const ghostDiv = document.createElement('div');
+ghostDiv.className = 'drag-ghost';
+ghostDiv.style.display = 'none';
+document.body.appendChild(ghostDiv);
+
+// new parts from tray
+document.getElementById('tray').addEventListener('pointerdown', e => {
+  const part = e.target.closest('.part');
+  if (!part) return;
+  e.preventDefault();
+  drag = { kind: 'new', type: part.dataset.type, moved: false };
+  ghostDiv.textContent = part.querySelector('.pname').textContent;
+  ghostDiv.style.display = 'block';
+  moveGhost(e.clientX, e.clientY);
+});
+
+// move existing parts / select / start drawing wire from empty board
+let wireDraw = null;   // {node:[c,r]}
+function nearestNode(x, y) {
+  const c = Math.max(0, Math.min(COLS, Math.round((x - PAD) / CELL)));
+  const r = Math.max(0, Math.min(ROWS, Math.round((y - PAD) / CELL)));
+  return [c, r];
+}
+board.addEventListener('pointerdown', e => {
+  const grp = e.target.closest('.comp');
+  if (!grp) {
+    e.preventDefault();
+    selectedId = null;
+    const p = svgPoint(e.clientX, e.clientY);
+    if (p) wireDraw = { node: nearestNode(p.x, p.y) };
+    render();
+    return;
+  }
+  e.preventDefault();
+  const comp = components.find(c => c.id === +grp.dataset.id);
+  drag = { kind: 'move', comp, moved: false, startX: e.clientX, startY: e.clientY };
+});
+
+window.addEventListener('pointermove', e => {
+  if (wireDraw) {
+    const p = svgPoint(e.clientX, e.clientY);
+    if (!p || p.x < 0 || p.y < 0 || p.x > 780 || p.y > 510) return;
+    const t = nearestNode(p.x, p.y);
+    let cur = wireDraw.node, added = false;
+    while (cur[0] !== t[0] || cur[1] !== t[1]) {
+      const next = cur.slice();
+      if (next[0] !== t[0]) next[0] += t[0] > next[0] ? 1 : -1;
+      else next[1] += t[1] > next[1] ? 1 : -1;
+      const occ = components.find(c => edgeKey(c.a, c.b) === edgeKey(cur, next));
+      if (occ && occ.type !== 'wire') break;   // don't draw over other parts
+      if (!occ) { addComponent('wire', cur, next); added = true; }
+      cur = next;
+    }
+    wireDraw.node = cur;
+    if (added) solveCircuit();
+    return;
+  }
+  if (!drag) return;
+  if (drag.kind === 'move' && !drag.moved) {
+    const d = Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY);
+    if (d < 6) return;
+    drag.moved = true;
+    ghostDiv.textContent = 'Move part';
+    ghostDiv.style.display = 'block';
+  }
+  drag.moved = true;
+  moveGhost(e.clientX, e.clientY);
+  const p = svgPoint(e.clientX, e.clientY);
+  if (p && p.x > 0 && p.y > 0 && p.x < 780 && p.y < 510) {
+    const edge = snapEdge(p.x, p.y);
+    const ok = !edgeOccupied(edge.a, edge.b, drag.kind === 'move' ? drag.comp.id : -1);
+    showSnap(edge, ok);
+    drag.edge = ok ? edge : null;
+  } else { hideSnap(); drag.edge = null; }
+});
+
+window.addEventListener('pointerup', e => {
+  if (wireDraw) { wireDraw = null; return; }
+  if (!drag) return;
+  ghostDiv.style.display = 'none';
+  hideSnap();
+  const d = drag; drag = null;
+
+  if (d.kind === 'new') {
+    if (d.edge) {
+      const c = addComponent(d.type, d.edge.a, d.edge.b);
+      selectedId = c.id;
+      solveCircuit();
+    }
+    return;
+  }
+  // existing part
+  if (d.moved && d.edge) {
+    d.comp.a = d.edge.a; d.comp.b = d.edge.b;
+    selectedId = d.comp.id;
+    solveCircuit();
+  } else if (!d.moved) {
+    // click: select; switches also toggle
+    selectedId = d.comp.id;
+    if (d.comp.type === 'switch') d.comp.closed = !d.comp.closed;
+    solveCircuit();
+  } else {
+    render();
+  }
+});
+
+function moveGhost(x, y) { ghostDiv.style.left = x + 'px'; ghostDiv.style.top = y + 'px'; }
+
+window.addEventListener('keydown', e => {
+  if (/INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
+  const sel = components.find(c => c.id === selectedId);
+  if ((e.key === 'Delete' || e.key === 'Backspace') && sel) {
+    components = components.filter(c => c.id !== selectedId);
+    selectedId = null;
+    solveCircuit();
+  } else if ((e.key === 'd' || e.key === 'D') && sel) {
+    duplicateComp(sel);
+  } else if ((e.key === 'r' || e.key === 'R') && sel) {
+    flipComp(sel);
+  }
+});
+
+/* ============================================================
+   TOOLBAR
+   ============================================================ */
+document.getElementById('btnClear').addEventListener('click', () => {
+  components = []; selectedId = null; solveCircuit();
+});
+document.getElementById('btnExample').addEventListener('click', () => {
+  components = []; selectedId = null; nextId = 1;
+  addComponent('battery', [1, 1], [1, 2]);          // + on top
+  addComponent('wire', [1, 1], [2, 1]);
+  addComponent('wire', [2, 1], [3, 1]);
+  addComponent('bulb', [3, 1], [4, 1]);
+  addComponent('wire', [4, 1], [5, 1]);
+  addComponent('wire', [5, 1], [5, 2]);
+  addComponent('switch', [4, 2], [5, 2]);
+  addComponent('wire', [3, 2], [4, 2]);
+  addComponent('resistor', [2, 2], [3, 2]);
+  addComponent('wire', [1, 2], [2, 2]);
+  solveCircuit();
+  document.getElementById('statusBanner').textContent = 'Click the switch to close the circuit!';
+});
+
+/* ============================================================
+   QUIZ — TEST MODE
+   ============================================================ */
+// nets: groups of nodes joined by wires / closed switches (for topology checks)
+function computeNets() {
+  const key = p => p[0] + ',' + p[1];
+  const parent = {};
+  components.forEach(c => { parent[key(c.a)] = parent[key(c.a)] || key(c.a);
+                            parent[key(c.b)] = parent[key(c.b)] || key(c.b); });
+  const find = k => { while (parent[k] !== k) { parent[k] = parent[parent[k]]; k = parent[k]; } return k; };
+  components.forEach(c => {
+    if (c.type === 'wire' || (c.type === 'switch' && c.closed)) {
+      const ra = find(key(c.a)), rb = find(key(c.b));
+      if (ra !== rb) parent[ra] = rb;
+    }
+  });
+  return p => find(key(p));
+}
+function netPair(c, net) { return [net(c.a), net(c.b)].sort().join('~'); }
+function litBulbs() { return components.filter(c => c.type === 'bulb' && (c._P || 0) > 0.05); }
+function sameCurrent(a, b) {
+  const ia = Math.abs(a._I || 0), ib = Math.abs(b._I || 0);
+  return ia > 1e-3 && ib > 1e-3 && Math.abs(ia - ib) / Math.max(ia, ib) < 0.02;
+}
+function sharesNet(a, b, net) {
+  const sa = [net(a.a), net(a.b)], sb = [net(b.a), net(b.b)];
+  return sa.some(x => sb.includes(x));
+}
+
+function buildChallenges() {
+  return [
+    {
+      challenge: true,
+      text: 'Build a complete circuit that lights up a bulb.',
+      hint: 'You need an unbroken loop: battery → bulb → back to the battery. Drag from the grid dots to draw wires. If you add a switch, remember to close it!',
+      explain: 'Current only flows around a complete loop — battery, bulb, and wires all connected with no gaps.',
+      check() {
+        if (shortCircuit) return { pass: false, msg: 'Careful — that\'s a short circuit! Make sure the current has to pass through the bulb.' };
+        if (litBulbs().length) return { pass: true, msg: 'The bulb is glowing — your loop is complete.' };
+        if (!components.some(c => c.type === 'bulb')) return { pass: false, msg: 'There\'s no bulb on the board yet. Drag one in from the tray.' };
+        if (!components.some(c => c.type === 'battery')) return { pass: false, msg: 'You need a battery to push the current.' };
+        return { pass: false, msg: 'No current is reaching the bulb. Check for gaps in the loop and any open switches.' };
+      }
+    },
+    {
+      challenge: true,
+      text: 'Build a circuit where between 15 and 25 mA flows through a CLOSED switch.',
+      hint: 'Ohm\'s law: I = V ÷ R. To get 20 mA from 1.5 V you need 75 Ω. Resistors in series add up — and click a part to see its exact current in the inspector.',
+      explain: 'I = V ÷ R, so a small voltage with a big resistance gives a small current. For example, 1.5 V ÷ 75 Ω = 0.020 A = 20 mA.',
+      check() {
+        if (shortCircuit) return { pass: false, msg: 'Short circuit! Add some resistance so the current has to work for it.' };
+        const sw = components.filter(c => c.type === 'switch' && c.closed);
+        if (!sw.length) return { pass: false, msg: 'You need a switch on the board — and it has to be closed (click it).' };
+        const hit = sw.find(s => Math.abs(s._I || 0) >= 0.014 && Math.abs(s._I || 0) <= 0.026);
+        if (hit) return { pass: true, msg: `Measured ${(Math.abs(hit._I) * 1000).toFixed(1)} mA through the switch — right in the zone.` };
+        const best = sw.reduce((a, s) => Math.abs(s._I || 0) > Math.abs(a._I || 0) ? s : a, sw[0]);
+        const mA = Math.abs(best._I || 0) * 1000;
+        if (mA < 0.1) return { pass: false, msg: 'No current is flowing through the switch yet. Is the loop complete?' };
+        return { pass: false, msg: `Currently ${mA.toFixed(1)} mA. ${mA > 25 ? 'Too much — add resistance or lower the voltage.' : 'Too little — reduce resistance or raise the voltage.'}` };
+      }
+    },
+    {
+      challenge: true,
+      text: 'Light TWO bulbs connected in PARALLEL (side-by-side branches between the same two junctions).',
+      hint: 'Both bulbs should bridge the same two junctions — like rungs of a ladder. Try the Duplicate button to copy your first bulb, then place it on the neighbouring edge and wire the ends together.',
+      explain: 'Parallel bulbs each get the full battery voltage and have their own loop — if one burns out, the other stays lit. That\'s how houses are wired.',
+      check() {
+        if (shortCircuit) return { pass: false, msg: 'Short circuit — check that every path from the battery passes through a bulb or resistor.' };
+        const lit = litBulbs();
+        if (lit.length < 2) return { pass: false, msg: lit.length === 1 ? 'One bulb is lit — now get a second one glowing.' : 'No bulbs are lit yet. Start with one working loop.' };
+        const net = computeNets();
+        for (let i = 0; i < lit.length; i++)
+          for (let j = i + 1; j < lit.length; j++)
+            if (netPair(lit[i], net) === netPair(lit[j], net))
+              return { pass: true, msg: 'Both bulbs share the same two junctions — a true parallel pair, both glowing.' };
+        return { pass: false, msg: 'Both bulbs are lit, but they\'re not in parallel — they need to connect between the same two junctions.' };
+      }
+    },
+    {
+      challenge: true,
+      text: 'Light TWO bulbs connected in SERIES (one after the other in a single loop).',
+      hint: 'Put both bulbs in the same single loop, so all the current flows through the first bulb and then the second. No branches!',
+      explain: 'In series, the same current passes through every part, and the bulbs share the battery voltage — so each glows dimmer than it would alone.',
+      check() {
+        if (shortCircuit) return { pass: false, msg: 'Short circuit — make sure the only path goes through the bulbs.' };
+        const lit = litBulbs();
+        if (lit.length < 2) return { pass: false, msg: lit.length === 1 ? 'One bulb is lit — add a second into the same loop.' : 'No bulbs are lit yet.' };
+        const net = computeNets();
+        for (let i = 0; i < lit.length; i++)
+          for (let j = i + 1; j < lit.length; j++) {
+            const a = lit[i], b = lit[j];
+            if (netPair(a, net) !== netPair(b, net) && sameCurrent(a, b) && sharesNet(a, b, net))
+              return { pass: true, msg: 'Same current through both bulbs in one loop — that\'s series.' };
+            if (netPair(a, net) === netPair(b, net))
+              return { pass: false, msg: 'Those two bulbs are in parallel, not series — put them one after the other in a single loop.' };
+          }
+        return { pass: false, msg: 'The bulbs aren\'t carrying the same current in one loop yet — remove any branch paths.' };
+      }
+    },
+    {
+      challenge: true,
+      text: 'Make a dimmer: put a resistor in SERIES with a lit bulb, so the same current flows through both.',
+      hint: 'Build a working bulb loop first, then break it and insert a resistor in the path. Slide the resistance up and watch the bulb fade.',
+      explain: 'A series resistor reduces the current for the whole loop (I = V ÷ R total), which dims the bulb — that\'s exactly how a dimmer works.',
+      check() {
+        if (shortCircuit) return { pass: false, msg: 'Short circuit — check your wiring.' };
+        const lit = litBulbs();
+        if (!lit.length) return { pass: false, msg: 'Get a bulb glowing first.' };
+        const res = components.filter(c => c.type === 'resistor');
+        if (!res.length) return { pass: false, msg: 'Now add a resistor into the loop.' };
+        const net = computeNets();
+        for (const b of lit) for (const r of res)
+          if (netPair(b, net) !== netPair(r, net) && sameCurrent(b, r))
+            return { pass: true, msg: 'Bulb and resistor share one current — a working dimmer. Try sliding the resistance!' };
+        return { pass: false, msg: 'The resistor isn\'t in series with the lit bulb yet — the same current must pass through both.' };
+      }
+    }
+  ];
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function makeOptions(correct, distractors, suffix) {
+  const set = [correct];
+  for (const d of distractors) {
+    if (set.length >= 4) break;
+    if (!set.includes(d) && d > 0) set.push(d);
+  }
+  let bump = 1;
+  while (set.length < 4) { const v = correct + bump; if (!set.includes(v)) set.push(v); bump++; }
+  const opts = shuffle(set.map(v => v + (suffix || '')));
+  return { options: opts, answer: opts.indexOf(correct + (suffix || '')) };
+}
+
+function buildQuestionBank() {
+  const bank = [];
+
+  // randomized Ohm's law: find I
+  {
+    const [V, R] = pick([[6, 2], [6, 3], [9, 3], [12, 3], [12, 4], [12, 6], [10, 5], [8, 4]]);
+    const I = V / R;
+    const o = makeOptions(I, [V * R, V + R, I * 2], ' A');
+    bank.push({ text: `A ${V} V battery is connected to a ${R} Ω resistor. Using Ohm's law (I = V ÷ R), how much current flows?`,
+      ...o, explain: `Ohm's law: I = V ÷ R = ${V} ÷ ${R} = ${I} A. More volts push more current; more ohms hold it back.` });
+  }
+  // randomized Ohm's law: find V
+  {
+    const I = pick([1, 2, 3]), R = pick([2, 3, 4, 5]);
+    const V = I * R;
+    const o = makeOptions(V, [I + R, R - I, V * 2], ' V');
+    bank.push({ text: `A current of ${I} A flows through a ${R} Ω resistor. What is the voltage across it? (V = I × R)`,
+      ...o, explain: `V = I × R = ${I} × ${R} = ${V} V.` });
+  }
+  // randomized series resistance
+  {
+    const R1 = pick([3, 4, 5, 6]), R2 = pick([2, 5, 7, 10]);
+    const o = makeOptions(R1 + R2, [Math.abs(R1 - R2), R1 * R2, Math.max(R1, R2)], ' Ω');
+    bank.push({ text: `Two resistors of ${R1} Ω and ${R2} Ω are connected in series (one after the other). What is the total resistance?`,
+      ...o, explain: `In series, resistances simply add up: ${R1} + ${R2} = ${R1 + R2} Ω. The current has to push through both, one after the other.` });
+  }
+
+  bank.push({
+    text: 'Which formula is Ohm\'s law?',
+    options: ['V = I × R', 'V = I + R', 'V = R ÷ I', 'I = V × R'],
+    answer: 0,
+    explain: 'Ohm\'s law is V = I × R. You can rearrange it: I = V ÷ R and R = V ÷ I.'
+  });
+  bank.push({
+    text: 'What happens when you open a switch in a simple circuit?',
+    options: ['The current stops flowing', 'The current speeds up', 'The bulb gets brighter', 'The battery charges up'],
+    answer: 0,
+    explain: 'An open switch breaks the loop. With a gap in the circuit, charges have no complete path, so the current stops.'
+  });
+  bank.push({
+    text: 'Three bulbs are in SERIES with one battery. One bulb burns out. What happens to the other two?',
+    options: ['They both go out', 'They stay lit, but dimmer', 'They get brighter', 'Only the nearest one goes out'],
+    answer: 0,
+    explain: 'In series there is only one path. A burned-out bulb breaks that single path, so all the bulbs go out — like old strings of holiday lights.'
+  });
+  bank.push({
+    text: 'Three bulbs are in PARALLEL with one battery. One bulb burns out. What happens to the other two?',
+    options: ['They stay lit', 'They both go out', 'They flicker on and off', 'They get much dimmer'],
+    answer: 0,
+    explain: 'In parallel, each bulb has its own loop back to the battery. Breaking one branch doesn\'t break the others — that\'s how the lights in your house are wired.'
+  });
+  bank.push({
+    text: 'You add a second resistor in series with a bulb. What happens to the bulb\'s brightness?',
+    options: ['It gets dimmer', 'It gets brighter', 'It stays exactly the same', 'It turns blue'],
+    answer: 0,
+    explain: 'More resistance in series means less current can flow (I = V ÷ R), and less current makes the bulb dimmer. Try it on the build board!'
+  });
+  bank.push({
+    text: 'Which unit measures electric current?',
+    options: ['Ampere (A)', 'Volt (V)', 'Ohm (Ω)', 'Watt (W)'],
+    answer: 0,
+    explain: 'Current is measured in amperes (amps). Volts measure the "push" (voltage), ohms measure resistance, and watts measure power.'
+  });
+  bank.push({
+    text: 'What does a battery do in a circuit?',
+    options: ['It provides the energy that pushes charges around the loop', 'It uses up the current', 'It stores light', 'It slows the current down'],
+    answer: 0,
+    explain: 'A battery converts chemical energy into electrical energy. Its voltage is the "push" that drives current around the circuit.'
+  });
+  bank.push({
+    text: 'Which of these is the best CONDUCTOR of electricity?',
+    options: ['Copper wire', 'Rubber band', 'Glass rod', 'Plastic ruler'],
+    answer: 0,
+    explain: 'Metals like copper let charges move easily — that\'s why wires are made of copper. Rubber, glass, and plastic are insulators.'
+  });
+  bank.push({
+    text: 'A wire is connected straight from one battery terminal to the other with nothing else in the loop. This is called…',
+    options: ['A short circuit — dangerous!', 'A parallel circuit', 'A perfect circuit', 'An open circuit'],
+    answer: 0,
+    explain: 'With almost no resistance, a huge current flows. That makes wires and batteries dangerously hot — it\'s called a short circuit.'
+  });
+  bank.push({
+    text: 'For current to flow, a circuit must be…',
+    options: ['A complete, unbroken loop', 'Made of at least two batteries', 'Longer than one metre', 'Connected to the ground'],
+    answer: 0,
+    explain: 'Charges need a complete path from one battery terminal, through the components, and back to the other terminal.'
+  });
+  bank.push({
+    text: 'If you keep the resistance the same but DOUBLE the battery voltage, the current will…',
+    options: ['Double', 'Stay the same', 'Halve', 'Stop'],
+    answer: 0,
+    explain: 'I = V ÷ R. Doubling V while R stays fixed doubles I. Try sliding the voltage up on the build board and watch the bulb!'
+  });
+  bank.push({
+    text: 'Conventional current is drawn flowing from…',
+    options: ['The + terminal to the − terminal', 'The − terminal to the + terminal', 'Both terminals at once', 'The middle of the battery'],
+    answer: 0,
+    explain: 'By convention, current is drawn from + to −. (Fun fact: the electrons actually drift the other way!)'
+  });
+
+  return bank;
+}
+
+const QUIZ_LEN = 8;
+let quiz = { qs: [], idx: 0, score: 0, results: [] };
+const quizCard = document.getElementById('quizCard');
+
+function startQuiz() {
+  const mc = shuffle(buildQuestionBank()).slice(0, 6);
+  const ch = shuffle(buildChallenges()).slice(0, 2);
+  quiz = { qs: mc.concat(ch), idx: 0, score: 0, results: [] };
+  renderQuestion();
+}
+
+function progressDots() {
+  let dots = '';
+  for (let i = 0; i < QUIZ_LEN; i++) {
+    let cls = 'dot';
+    if (i < quiz.results.length) cls += quiz.results[i] ? ' right' : ' wrong';
+    else if (i === quiz.idx) cls += ' now';
+    dots += `<span class="${cls}"></span>`;
+  }
+  return dots;
+}
+function showBoardForChallenge(show) {
+  document.getElementById('buildMode').style.display = show ? '' : 'none';
+  document.getElementById('btnExample').style.display = show ? 'none' : '';
+}
+function advanceQuiz() {
+  quiz.idx++;
+  if (quiz.idx < QUIZ_LEN) renderQuestion(); else renderResults();
+}
+
+function renderQuestion() {
+  const q = quiz.qs[quiz.idx];
+  if (q.challenge) { renderChallenge(q); return; }
+  showBoardForChallenge(false);
+  quizCard.innerHTML = `
+    <div class="quiz-progress">${progressDots()}</div>
+    <div class="qtext">Q${quiz.idx + 1}. ${q.text}</div>
+    <div class="opts">${q.options.map((o, i) => `<button class="opt" data-i="${i}">${o}</button>`).join('')}</div>
+    <div class="explain" id="explainBox"></div>
+    <div class="quiz-foot">
+      <span class="score-pill">Score: ${quiz.score} / ${quiz.results.length}</span>
+      <button class="btn" id="btnNext" style="display:none">Next →</button>
+    </div>`;
+
+  quizCard.querySelectorAll('.opt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const i = +btn.dataset.i;
+      const right = i === q.answer;
+      quiz.results.push(right);
+      if (right) quiz.score++;
+      quizCard.querySelectorAll('.opt').forEach((b, j) => {
+        b.disabled = true;
+        if (j === q.answer) b.classList.add('correct');
+        else if (j === i) b.classList.add('incorrect');
+      });
+      const ex = document.getElementById('explainBox');
+      ex.style.display = 'block';
+      ex.innerHTML = (right ? '✅ <b>Nice!</b> ' : '❌ <b>Not quite.</b> ') + q.explain;
+      quizCard.querySelector('.score-pill').textContent = `Score: ${quiz.score} / ${quiz.results.length}`;
+      const nextBtn = document.getElementById('btnNext');
+      nextBtn.style.display = 'inline-block';
+      nextBtn.textContent = quiz.idx + 1 < QUIZ_LEN ? 'Next →' : 'See results →';
+      nextBtn.focus();
+      nextBtn.addEventListener('click', advanceQuiz);
+    });
+  });
+}
+
+function renderChallenge(q) {
+  // fresh board for each challenge
+  components = []; selectedId = null;
+  solveCircuit();
+  showBoardForChallenge(true);
+  quizCard.innerHTML = `
+    <div class="quiz-progress">${progressDots()}</div>
+    <div class="qtext">Q${quiz.idx + 1}. 🛠️ <b>Build challenge:</b> ${q.text}</div>
+    <div class="opts" style="grid-template-columns: repeat(3, 1fr)">
+      <button class="btn" id="btnCheck" style="font-size:1rem">✔ Check my circuit</button>
+      <button class="btn" id="btnHint">💡 Hint</button>
+      <button class="btn" id="btnSkip">Skip →</button>
+    </div>
+    <div class="explain" id="explainBox"></div>
+    <div class="quiz-foot">
+      <span class="score-pill">Score: ${quiz.score} / ${quiz.results.length}</span>
+      <button class="btn" id="btnNext" style="display:none">Next →</button>
+    </div>`;
+
+  const ex = document.getElementById('explainBox');
+  const nextBtn = document.getElementById('btnNext');
+  let done = false;
+
+  document.getElementById('btnHint').addEventListener('click', () => {
+    if (done) return;
+    ex.style.display = 'block';
+    ex.innerHTML = '💡 ' + q.hint;
+  });
+  document.getElementById('btnCheck').addEventListener('click', () => {
+    if (done) return;
+    solveCircuit();
+    const res = q.check();
+    ex.style.display = 'block';
+    if (res.pass) {
+      done = true;
+      quiz.results.push(true); quiz.score++;
+      ex.innerHTML = '✅ <b>Challenge complete!</b> ' + res.msg + ' ' + q.explain;
+      quizCard.querySelector('.score-pill').textContent = `Score: ${quiz.score} / ${quiz.results.length}`;
+      nextBtn.style.display = 'inline-block';
+      nextBtn.textContent = quiz.idx + 1 < QUIZ_LEN ? 'Next →' : 'See results →';
+      nextBtn.focus();
+    } else {
+      ex.innerHTML = '🔧 ' + res.msg;
+    }
+  });
+  document.getElementById('btnSkip').addEventListener('click', () => {
+    if (done) return;
+    done = true;
+    quiz.results.push(false);
+    ex.style.display = 'block';
+    ex.innerHTML = '⏭ <b>Skipped.</b> ' + q.explain;
+    nextBtn.style.display = 'inline-block';
+    nextBtn.textContent = quiz.idx + 1 < QUIZ_LEN ? 'Next →' : 'See results →';
+  });
+  nextBtn.addEventListener('click', advanceQuiz);
+}
+
+function renderResults() {
+  showBoardForChallenge(false);
+  const pct = quiz.score / QUIZ_LEN;
+  let emoji = '💡', title = 'Bright spark!', msg = 'Brilliant — you really know your circuits.';
+  if (pct < 0.5)      { emoji = '🔋'; title = 'Charging up…'; msg = 'Good start! Play with the build board, then try the quiz again.'; }
+  else if (pct < 0.8) { emoji = '⚡'; title = 'Current rising!'; msg = 'Solid work — review the ones you missed and have another go.'; }
+  quizCard.innerHTML = `
+    <div class="result-screen">
+      <div class="big">${emoji}</div>
+      <h3>${title}</h3>
+      <p>You scored <b>${quiz.score} out of ${QUIZ_LEN}</b>. ${msg}</p>
+      <button class="btn" id="btnRetry">Try a new quiz</button>
+      <button class="btn" id="btnToBuild">Back to building</button>
+    </div>`;
+  document.getElementById('btnRetry').addEventListener('click', startQuiz);
+  document.getElementById('btnToBuild').addEventListener('click', () => setMode('build'));
+}
+
+/* ============================================================
+   MODE SWITCHING
+   ============================================================ */
+const tabBuild = document.getElementById('tabBuild');
+const tabTest = document.getElementById('tabTest');
+let boardStash = null;
+function setMode(mode) {
+  const build = mode === 'build';
+  document.getElementById('testMode').style.display = build ? 'none' : '';
+  tabBuild.classList.toggle('active', build);
+  tabTest.classList.toggle('active', !build);
+  if (!build) {
+    boardStash = { components, nextId, selectedId };   // keep the player's circuit safe
+    document.getElementById('buildMode').style.display = 'none';
+    startQuiz();
+  } else {
+    document.getElementById('buildMode').style.display = '';
+    document.getElementById('btnExample').style.display = '';
+    if (boardStash) {
+      components = boardStash.components;
+      nextId = boardStash.nextId;
+      selectedId = null;
+      boardStash = null;
+    }
+    solveCircuit();
+  }
+}
+tabBuild.addEventListener('click', () => setMode('build'));
+tabTest.addEventListener('click', () => setMode('test'));
+
+/* init */
+render();
+document.getElementById('btnExample').click();
+</script>
+</body>
+</html>

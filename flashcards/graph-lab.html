@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Graph Lab — y = mx + c</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root {
+    --paper:#F2F7FA; --grid-line:#D5E4EC; --grid-bold:#B6CDD8; --ink:#1F3540; --ink-soft:#5A7280;
+    --panel:#fff; --copper:#C2622E; --amber:#FFB02E; --green:#2E8B6A; --red:#D6493E;
+    --blue:#3A7CA5; --line:#3A7CA5; --rise:#2E8B6A; --run:#C2622E; --shadow:rgba(31,53,64,.14);
+  }
+  body { font-family:'Karla',sans-serif; color:var(--ink);
+    background:linear-gradient(135deg,#E8F1F6 0%,#F0F3EC 100%); min-height:100vh; padding:1.25rem; }
+  .wrap { max-width:1000px; margin:0 auto; }
+  header { text-align:center; margin-bottom:1rem; }
+  h1 { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(1.7rem,4vw,2.4rem); }
+  .subtitle { color:var(--ink-soft); margin-top:.25rem; }
+  .tabs { display:flex; justify-content:center; gap:.5rem; margin-top:.8rem; }
+  .tabs .btn { padding:.5rem 1.3rem; }
+  .grid { display:grid; grid-template-columns:1fr 280px; gap:1rem; align-items:start; }
+  @media (max-width:820px){ .grid{ grid-template-columns:1fr; } }
+  .card { background:var(--panel); border-radius:16px; box-shadow:0 6px 18px var(--shadow); padding:1rem; }
+  #graph { width:100%; height:auto; display:block; touch-action:none; cursor:grab; }
+
+  .btn { font-family:'Karla',sans-serif; font-weight:700; font-size:.85rem; border:2px solid var(--ink);
+    border-radius:999px; background:#fff; color:var(--ink); padding:.4rem 1rem; cursor:pointer;
+    transition:all .15s; touch-action:manipulation; }
+  .btn:hover { background:var(--ink); color:#fff; }
+  .btn.on { background:var(--ink); color:#fff; }
+
+  .eqbig { font-family:'Space Grotesk',sans-serif; font-size:clamp(1.5rem,4.5vw,2rem); font-weight:700; text-align:center; margin-bottom:.8rem; }
+  .eqbig .m { color:var(--run); } .eqbig .c { color:var(--rise); }
+  .panel-h { font-family:'Space Grotesk',sans-serif; font-size:.8rem; font-weight:700;
+    text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); margin:.2rem 0 .6rem; }
+  .slider-row { margin:.7rem 0; }
+  .slider-row label { font-weight:700; font-size:.9rem; display:flex; justify-content:space-between; align-items:baseline; }
+  .slider-row label small { color:var(--ink-soft); font-weight:400; }
+  .slider-row label output { font-family:'Space Grotesk',sans-serif; font-size:1.1rem; }
+  .slider-row.m output { color:var(--run); } .slider-row.c output { color:var(--rise); }
+  input[type=range] { width:100%; margin-top:.3rem; }
+  .slider-row.m input { accent-color:var(--run); } .slider-row.c input { accent-color:var(--rise); }
+
+  .facts { margin-top:.6rem; }
+  .ro { display:flex; justify-content:space-between; font-size:.9rem; padding:.2rem 0; border-top:1px dashed var(--grid-line); }
+  .ro:first-child{border-top:none;} .ro b{font-variant-numeric:tabular-nums;}
+  .ro .rise{color:var(--rise);} .ro .run{color:var(--run);}
+  .vtable { width:100%; border-collapse:collapse; margin-top:.7rem; font-variant-numeric:tabular-nums; }
+  .vtable th,.vtable td { border:1px solid var(--grid-line); padding:.25rem; text-align:center; font-size:.85rem; }
+  .vtable th { background:var(--paper); font-family:'Space Grotesk',sans-serif; }
+  .work { font-size:.8rem; color:var(--ink-soft); margin-top:.5rem; line-height:1.5; }
+  .work b{color:var(--ink);}
+
+  .toast { text-align:center; font-weight:700; padding:.5rem; border-radius:10px; margin-top:.6rem; min-height:1.2rem; }
+  .toast.ok{background:#DDF2E9;color:var(--green);} .toast.bad{background:#FBE3E1;color:var(--red);}
+  .toast.win{background:#FFF6E3;color:var(--copper);font-size:1.02rem;}
+  footer { text-align:center; color:var(--ink-soft); font-size:.78rem; margin-top:1rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>📈 Graph Lab</h1>
+    <p class="subtitle">Slide the gradient and intercept — or drag the line — and watch y = mx + c come alive.</p>
+    <div class="tabs">
+      <button class="btn on" id="tabExplore">Explore</button>
+      <button class="btn" id="tabChallenge">🎯 Match the line</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <svg id="graph" viewBox="0 0 520 520" aria-label="Coordinate grid"></svg>
+    </div>
+    <div class="card">
+      <div class="eqbig" id="eqBig"></div>
+      <div id="controls"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+  </div>
+  <footer>Graph Lab · part of the little tutoring tools family</footer>
+</div>
+
+<script>
+"use strict";
+const SVGNS="http://www.w3.org/2000/svg";
+const $=id=>document.getElementById(id);
+const RANGE=10, PADpx=20;               // grid from -10..10
+let m=1, c=0;                            // current line
+let mode='explore';
+let target=null;                         // {m,c} in challenge
+let revealed=false;
+
+const SIZE=520, ORIGIN=SIZE/2, UNIT=(SIZE-2*PADpx)/(2*RANGE);
+const gx=x=>ORIGIN + x*UNIT;
+const gy=y=>ORIGIN - y*UNIT;
+const ux=px=>(px-ORIGIN)/UNIT;
+const uy=py=>(ORIGIN-py)/UNIT;
+function el(name,attrs,parent){const e=document.createElementNS(SVGNS,name);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+const fmtM=v=>Number.isInteger(v)?v.toString():v.toFixed(1);
+
+function drawGraph(){
+  const svg=$('graph'); svg.innerHTML='';
+  // grid
+  const g=el('g',{},svg);
+  for(let i=-RANGE;i<=RANGE;i++){
+    el('line',{x1:gx(i),y1:gy(-RANGE),x2:gx(i),y2:gy(RANGE),stroke:i===0?'var(--ink)':'var(--grid-line)','stroke-width':i===0?2:1},g);
+    el('line',{x1:gx(-RANGE),y1:gy(i),x2:gx(RANGE),y2:gy(i),stroke:i===0?'var(--ink)':'var(--grid-line)','stroke-width':i===0?2:1},g);
+  }
+  // axis numbers (every 2)
+  for(let i=-RANGE;i<=RANGE;i+=2){ if(i===0)continue;
+    let t=el('text',{x:gx(i),y:gy(0)+14,'text-anchor':'middle','font-size':'10px',fill:'var(--ink-soft)'},svg); t.textContent=i;
+    t=el('text',{x:gx(0)-8,y:gy(i)+4,'text-anchor':'end','font-size':'10px',fill:'var(--ink-soft)'},svg); t.textContent=i;
+  }
+  el('text',{x:gx(RANGE)-2,y:gy(0)-6,'text-anchor':'end','font-size':'12px','font-weight':'700',fill:'var(--ink)'},svg).textContent='x';
+  el('text',{x:gx(0)+8,y:gy(RANGE)+12,'font-size':'12px','font-weight':'700',fill:'var(--ink)'},svg).textContent='y';
+
+  // target (ghost) line in challenge mode
+  if(mode==='challenge' && target){
+    drawLine(svg, target.m, target.c, revealed?'var(--amber)':'var(--ink-soft)', revealed?3:2.5, !revealed);
+    if(revealed){ const t=el('text',{x:gx(0)+6,y:gy(target.c)-6,'font-size':'11px','font-weight':'700',fill:'var(--amber)'},svg); t.textContent='target'; }
+  }
+
+  // gradient triangle (from intercept, run of 1 then 2 for clarity)
+  const run = m===0?2:(Math.abs(m)>=1?1:2);
+  const x0=0, y0=c, x1=run, y1=m*run+c;
+  if(mode==='explore' && Math.abs(y0)<=RANGE && Math.abs(y1)<=RANGE+2){
+    el('line',{x1:gx(x0),y1:gy(y0),x2:gx(x1),y2:gy(y0),stroke:'var(--run)','stroke-width':2.5,'stroke-dasharray':'5 4'},svg);
+    el('line',{x1:gx(x1),y1:gy(y0),x2:gx(x1),y2:gy(y1),stroke:'var(--rise)','stroke-width':2.5,'stroke-dasharray':'5 4'},svg);
+    let t=el('text',{x:(gx(x0)+gx(x1))/2,y:gy(y0)+15,'text-anchor':'middle','font-size':'11px','font-weight':'700',fill:'var(--run)'},svg); t.textContent='run '+run;
+    t=el('text',{x:gx(x1)+6,y:(gy(y0)+gy(y1))/2+4,'font-size':'11px','font-weight':'700',fill:'var(--rise)'},svg); t.textContent='rise '+fmtM(m*run);
+  }
+
+  // the line
+  drawLine(svg, m, c, 'var(--line)', 3.5, false);
+
+  // y-intercept dot
+  if(Math.abs(c)<=RANGE){
+    el('circle',{cx:gx(0),cy:gy(c),r:6,fill:'var(--rise)',stroke:'#fff','stroke-width':2},svg);
+    const t=el('text',{x:gx(0)+10,y:gy(c)-8,'font-size':'11px','font-weight':'700',fill:'var(--rise)'},svg); t.textContent='(0, '+fmtM(c)+')';
+  }
+  // drag handle on the line at x=3
+  const hx=4, hy=m*hx+c;
+  if(mode==='explore' && Math.abs(hy)<=RANGE){
+    el('circle',{cx:gx(hx),cy:gy(hy),r:8,fill:'var(--line)',stroke:'#fff','stroke-width':2,style:'cursor:grab'},svg).setAttribute('data-handle','slope');
+  }
+}
+
+function drawLine(svg, mm, cc, color, w, dashed){
+  // clip y=mm x + cc to the box
+  let pts=[];
+  for(const x of [-RANGE,RANGE]){ pts.push([x, mm*x+cc]); }
+  // if it exits top/bottom, clip
+  const clip=[];
+  pts.forEach(p=>{ clip.push(p); });
+  // simple: sample and clamp by computing intersections with box edges
+  const segs=[];
+  let a=[-RANGE, mm*-RANGE+cc], b=[RANGE, mm*RANGE+cc];
+  // Liang-Barsky-ish clamp on y
+  function clampPoint(P, Q){
+    let [x1,y1]=P,[x2,y2]=Q;
+    // clip against y in [-R,R]
+    for(const edge of [RANGE,-RANGE]){
+      // not a full clipper; rely on x-range and just clamp y visually by trimming
+    }
+    return [P,Q];
+  }
+  // Because line is a function of x over [-R,R], just clamp drawing by sampling endpoints within y-range:
+  const xs=[];
+  const yAtR = (mm*RANGE+cc), yAtnR=(mm*-RANGE+cc);
+  let P=[-RANGE,yAtnR], Q=[RANGE,yAtR];
+  // trim where |y|>RANGE
+  function trim(p1,p2){
+    let [X1,Y1]=p1,[X2,Y2]=p2;
+    const within=y=>y>=-RANGE&&y<=RANGE;
+    if(within(Y1)&&within(Y2))return [p1,p2];
+    // find x where y=±RANGE
+    const sols=[];
+    if(mm!==0){ for(const ye of [RANGE,-RANGE]){ const xe=(ye-cc)/mm; if(xe>=-RANGE&&xe<=RANGE)sols.push([xe,ye]); } }
+    const inside=[]; if(within(Y1))inside.push(p1); if(within(Y2))inside.push(p2);
+    const all=inside.concat(sols);
+    if(all.length>=2){ all.sort((u,v)=>u[0]-v[0]); return [all[0],all[all.length-1]]; }
+    return null;
+  }
+  const seg=trim(P,Q);
+  if(seg) el('line',{x1:gx(seg[0][0]),y1:gy(seg[0][1]),x2:gx(seg[1][0]),y2:gy(seg[1][1]),
+    stroke:color,'stroke-width':w,'stroke-linecap':'round',...(dashed?{'stroke-dasharray':'8 6'}:{})},svg);
+}
+
+function controlsExplore(){
+  $('controls').innerHTML=`
+    <div class="panel-h">Gradient and intercept</div>
+    <div class="slider-row m">
+      <label>m — gradient <output>${fmtM(m)}</output></label>
+      <input type="range" id="sM" min="-5" max="5" step="0.5" value="${m}">
+      <small style="color:var(--ink-soft)">how steep — rise ÷ run</small>
+    </div>
+    <div class="slider-row c">
+      <label>c — y-intercept <output>${fmtM(c)}</output></label>
+      <input type="range" id="sC" min="-10" max="10" step="1" value="${c}">
+      <small style="color:var(--ink-soft)">where it crosses the y-axis</small>
+    </div>
+    <div class="facts" id="facts"></div>`;
+  $('sM').addEventListener('input',e=>{ m=parseFloat(e.target.value); render(); });
+  $('sC').addEventListener('input',e=>{ c=parseFloat(e.target.value); render(); });
+}
+
+function facts(){
+  const f=$('facts'); if(!f)return;
+  const dir = m>0?'uphill ↗':m<0?'downhill ↘':'flat →';
+  let rows=`<div class="ro"><span>Gradient m</span><b class="run">${fmtM(m)}</b></div>
+    <div class="ro"><span>Direction</span><b>${dir}</b></div>
+    <div class="ro"><span>Crosses y-axis at</span><b class="rise">(0, ${fmtM(c)})</b></div>`;
+  // x-intercept
+  if(m!==0){ const xi=-c/m; rows+=`<div class="ro"><span>Crosses x-axis at</span><b>(${fmtM(xi)}, 0)</b></div>`; }
+  f.innerHTML=rows;
+  // value table
+  let tbl='<table class="vtable"><tr><th>x</th>';
+  const xsv=[-2,-1,0,1,2];
+  xsv.forEach(x=>tbl+=`<th>${x}</th>`); tbl+='</tr><tr><td><b>y</b></td>';
+  xsv.forEach(x=>tbl+=`<td>${fmtM(m*x+c)}</td>`); tbl+='</tr></table>';
+  f.innerHTML+=tbl;
+  const ex=2;
+  f.innerHTML+=`<div class="work">To find y when <b>x = ${ex}</b>:<br>y = m·x + c = ${fmtM(m)}×${ex} + ${fmtM(c)} = <b>${fmtM(m*ex+c)}</b></div>`;
+}
+
+/* ---- challenge ---- */
+function newChallenge(){
+  revealed=false;
+  const ms=[-3,-2,-1,-0.5,0.5,1,2,3];
+  target={ m:ms[Math.floor(Math.random()*ms.length)], c:Math.floor(Math.random()*15)-7 };
+  // start guess away from target
+  m=1; c=0;
+  controlsChallenge();
+  render();
+  flash('Move the sliders so the blue line lands exactly on the grey target line.','');
+}
+function controlsChallenge(){
+  $('controls').innerHTML=`
+    <div class="panel-h">Match the grey line</div>
+    <div class="slider-row m"><label>m — gradient <output>${fmtM(m)}</output></label>
+      <input type="range" id="sM" min="-5" max="5" step="0.5" value="${m}"></div>
+    <div class="slider-row c"><label>c — y-intercept <output>${fmtM(c)}</output></label>
+      <input type="range" id="sC" min="-10" max="10" step="1" value="${c}"></div>
+    <button class="btn" id="btnCheck" style="width:100%;margin-top:.4rem">✔ Check my line</button>
+    <button class="btn" id="btnNew" style="width:100%;margin-top:.4rem">↻ New target</button>`;
+  $('sM').addEventListener('input',e=>{ m=parseFloat(e.target.value); render(); });
+  $('sC').addEventListener('input',e=>{ c=parseFloat(e.target.value); render(); });
+  $('btnCheck').addEventListener('click',checkChallenge);
+  $('btnNew').addEventListener('click',newChallenge);
+}
+function checkChallenge(){
+  if(m===target.m && c===target.c){
+    revealed=true; render();
+    flash(`🎯 Perfect! The line was y = ${fmtM(target.m)}x ${target.c>=0?'+ '+target.c:'− '+Math.abs(target.c)}`,'win');
+  } else {
+    const mMsg = m===target.m?'gradient ✓':(Math.abs(m)<Math.abs(target.m)||Math.sign(m)!==Math.sign(target.m)?'gradient off':'gradient off');
+    const cMsg = c===target.c?'intercept ✓':(c<target.c?'intercept too low':'intercept too high');
+    flash(`Not yet — ${m===target.m?'gradient ✓':'check the steepness/direction'}; ${c===target.c?'intercept ✓':cMsg}.`,'bad');
+  }
+}
+
+function render(){
+  drawGraph();
+  $('eqBig').innerHTML = `y = <span class="m">${fmtM(m)}</span>x ${c>=0?'+ <span class="c">'+fmtM(c)+'</span>':'− <span class="c">'+fmtM(Math.abs(c))+'</span>'}`;
+  // keep slider outputs synced if present
+  const oM=document.querySelector('.slider-row.m output'), oC=document.querySelector('.slider-row.c output');
+  if(oM)oM.textContent=fmtM(m); if(oC)oC.textContent=fmtM(c);
+  if(mode==='explore') facts();
+}
+function flash(msg,cls){ const t=$('toast'); t.className='toast '+cls; t.textContent=msg; }
+
+/* ---- dragging the line ---- */
+function svgPt(clientX,clientY){ const pt=$('graph').createSVGPoint(); pt.x=clientX;pt.y=clientY;
+  const ctm=$('graph').getScreenCTM(); if(!ctm)return null; const p=pt.matrixTransform(ctm.inverse()); return [ux(p.x),uy(p.y)]; }
+let drag=null;
+$('graph').addEventListener('pointerdown',e=>{
+  const p=svgPt(e.clientX,e.clientY); if(!p)return;
+  const handle=e.target.getAttribute&&e.target.getAttribute('data-handle');
+  if(handle==='slope' && mode==='explore'){ drag='slope'; e.preventDefault(); return; }
+  // otherwise drag whole line (changes c) if near the line
+  const yOnLine=m*p[0]+c;
+  if(Math.abs(p[1]-yOnLine)<0.8){ drag='line'; e.preventDefault(); }
+});
+window.addEventListener('pointermove',e=>{
+  if(!drag)return;
+  const p=svgPt(e.clientX,e.clientY); if(!p)return;
+  if(drag==='line'){ c=Math.max(-10,Math.min(10,Math.round(p[1]-m*p[0]))); render(); }
+  else if(drag==='slope'){ // adjust m so line passes through pointer at that x, keep c
+    if(Math.abs(p[0])>0.5){ let nm=(p[1]-c)/p[0]; nm=Math.max(-5,Math.min(5,Math.round(nm*2)/2)); m=nm; render(); }
+  }
+});
+window.addEventListener('pointerup',()=>drag=null);
+
+/* ---- tabs ---- */
+$('tabExplore').addEventListener('click',()=>{ mode='explore'; $('tabExplore').classList.add('on'); $('tabChallenge').classList.remove('on');
+  target=null; m=1; c=2; controlsExplore(); render(); flash('',''); });
+$('tabChallenge').addEventListener('click',()=>{ mode='challenge'; $('tabChallenge').classList.add('on'); $('tabExplore').classList.remove('on'); newChallenge(); });
+
+/* init */
+m=1; c=2; controlsExplore(); render();
+</script>
+</body>
+</html>

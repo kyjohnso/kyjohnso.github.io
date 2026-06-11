@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Circle Lab — Draw, Cut &amp; Calculate Circles</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --paper: #F2F7FA;
+    --grid-line: #D5E4EC;
+    --ink: #1F3540;
+    --ink-soft: #5A7280;
+    --panel: #FFFFFF;
+    --copper: #C2622E;
+    --amber: #FFB02E;
+    --green: #2E8B6A;
+    --red: #D6493E;
+    --blue: #3A7CA5;
+    --shadow: rgba(31, 53, 64, 0.14);
+  }
+
+  body {
+    font-family: 'Karla', sans-serif;
+    color: var(--ink);
+    background: linear-gradient(135deg, #E8F1F6 0%, #F4F1E8 100%);
+    min-height: 100vh;
+    padding: 1.25rem;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  header { text-align: center; margin-bottom: 1.25rem; }
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.7rem, 4vw, 2.4rem);
+  }
+  h1 .ring { color: var(--blue); }
+  .subtitle { color: var(--ink-soft); margin-top: 0.25rem; }
+
+  .lab-grid {
+    display: grid;
+    grid-template-columns: 1fr 240px;
+    gap: 1rem;
+    align-items: start;
+  }
+  @media (max-width: 860px) { .lab-grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--panel);
+    border-radius: 16px;
+    box-shadow: 0 6px 18px var(--shadow);
+    padding: 1rem;
+  }
+  .canvas-card { padding: 0.75rem; }
+  .canvas-toolbar {
+    display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;
+    margin-bottom: 0.6rem;
+  }
+  .canvas-toolbar .spacer { flex: 1; }
+  .toggle-label { display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 700; font-size: 0.85rem; cursor: pointer; }
+  .toggle-label input { accent-color: var(--blue); width: 16px; height: 16px; }
+
+  .btn {
+    font-family: 'Karla', sans-serif; font-weight: 700; font-size: 0.85rem;
+    border: 2px solid var(--ink); border-radius: 999px;
+    background: #fff; color: var(--ink);
+    padding: 0.35rem 0.9rem; cursor: pointer; transition: all 0.15s;
+    touch-action: manipulation;
+  }
+  .btn:hover { background: var(--ink); color: #fff; }
+  .btn.danger { border-color: var(--red); color: var(--red); }
+  .btn.danger:hover { background: var(--red); color: #fff; }
+  .btn.seg.on { background: var(--ink); color: #fff; }
+  .btn:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+
+  #board { width: 100%; height: auto; display: block; border-radius: 12px;
+           background: var(--paper); touch-action: none; cursor: crosshair; }
+  .hint-line { font-size: 0.8rem; color: var(--ink-soft); margin-top: 0.5rem; text-align: center; }
+
+  /* ------- inspector ------- */
+  .inspector h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.8rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--ink-soft); margin-bottom: 0.2rem;
+  }
+  .inspector .empty { color: var(--ink-soft); font-size: 0.9rem; line-height: 1.45; }
+  .inspector .shape-name {
+    font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 700;
+    margin: 0.25rem 0 0.6rem; display: flex; align-items: center; gap: 0.45rem;
+  }
+  .chip { width: 16px; height: 16px; border-radius: 50%; display: inline-block; border: 2px solid var(--ink); }
+  .slider-row { margin: 0.7rem 0; }
+  .slider-row label { font-weight: 700; font-size: 0.85rem; display: flex; justify-content: space-between; }
+  .slider-row label output { color: var(--copper); }
+  input[type=range] { width: 100%; accent-color: var(--copper); margin-top: 0.3rem; }
+  .seg-row { display: flex; gap: 0.35rem; flex-wrap: wrap; margin: 0.5rem 0; }
+  .readouts { margin-top: 0.8rem; border-top: 2px dashed var(--grid-line); padding-top: 0.7rem; }
+  .readouts .ro { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 0.15rem 0; }
+  .readouts .ro b { font-variant-numeric: tabular-nums; }
+  .insp-buttons { display: flex; gap: 0.5rem; margin-top: 0.9rem; flex-wrap: wrap; }
+
+  /* ------- equations panel ------- */
+  .eq-card { margin-top: 1rem; }
+  .eq-card h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.8rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--ink-soft); margin-bottom: 0.6rem;
+  }
+  .eq-shape {
+    border: 2px solid var(--grid-line); border-radius: 12px;
+    padding: 0.6rem 0.8rem; margin-bottom: 0.6rem; cursor: pointer;
+    transition: border-color 0.12s;
+  }
+  .eq-shape:hover { border-color: var(--ink-soft); }
+  .eq-shape.selected { border-color: var(--blue); background: #F4FAFD; }
+  .eq-head { font-weight: 700; display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.25rem; }
+  .eq-head .op { font-family: 'Space Grotesk', sans-serif; }
+  .eqline { font-size: 0.95rem; padding: 0.1rem 0; font-variant-numeric: tabular-nums; }
+  .eqline .sym { color: var(--blue); font-weight: 700; }
+  .eqline .res { color: var(--copper); font-weight: 700; }
+  .eq-total {
+    border-top: 2px dashed var(--grid-line); margin-top: 0.6rem; padding-top: 0.6rem;
+  }
+  .eq-total .eqline { font-size: 1.02rem; }
+  .eq-fade-wrap { transition: opacity 0.35s; }
+  .eq-total.faded .eq-fade-wrap { opacity: 0.3; text-decoration: line-through; text-decoration-color: var(--red); text-decoration-thickness: 2px; }
+  .eq-actual {
+    margin-top: 0.6rem; padding: 0.6rem 0.8rem; border-radius: 12px;
+    background: #EAF6F0; border: 2px solid var(--green);
+  }
+  .eq-actual .sym { color: var(--green); }
+  .eq-actual .res { color: var(--green); }
+  .eq-issues {
+    margin-top: 0.6rem; padding: 0.75rem 0.9rem; border-radius: 12px;
+    background: #FFF6E3; border: 2px solid var(--amber);
+    font-size: 0.92rem; line-height: 1.55;
+  }
+  .eq-issues .sym { color: var(--blue); font-weight: 700; white-space: nowrap; }
+  .eq-note { font-size: 0.75rem; color: var(--ink-soft); margin-top: 0.5rem; }
+  .eq-warn { color: var(--red); font-weight: 700; }
+
+  /* ------- svg ------- */
+  .shape-outline { fill: none; stroke-width: 3; stroke-linejoin: round; }
+  .shape-outline.sub { stroke-dasharray: 7 6; }
+  .anno-text { font-family: 'Karla', sans-serif; font-size: 13px; font-weight: 700; fill: var(--ink-soft); pointer-events: none; user-select: none; }
+  .anno-line { stroke: var(--ink-soft); stroke-width: 1.6; }
+  .handle { stroke: #fff; stroke-width: 2; cursor: grab; }
+  .snap-dot { fill: var(--amber); stroke: var(--ink); stroke-width: 1.5; pointer-events: none; }
+  .preview { pointer-events: none; }
+
+  footer { text-align: center; color: var(--ink-soft); font-size: 0.78rem; margin-top: 1.5rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1><span class="ring">◯</span> Circle Lab</h1>
+    <p class="subtitle">Draw circles and arcs, cut pieces away, and see the area &amp; perimeter equations build themselves.</p>
+  </header>
+
+  <div class="lab-grid">
+    <div class="card canvas-card">
+      <div class="canvas-toolbar">
+        <button class="btn seg on" id="modeCircle">◯ Circle</button>
+        <button class="btn seg" id="modeLine">╱ Line</button>
+        <label class="toggle-label"><input type="checkbox" id="chkLabels" checked> Label circle parts</label>
+        <span class="spacer"></span>
+        <button class="btn" id="btnExample">Load example</button>
+        <button class="btn danger" id="btnClear">Clear</button>
+      </div>
+      <svg id="board" viewBox="0 0 800 512" aria-label="Circle drawing board"></svg>
+      <p class="hint-line">Click-drag to draw (◯ circles or ╱ lines) · drag shapes to move, the <b>◆</b> rim handle to resize · lines through circles label themselves as chords, diameters, or tangents · make Pie or Segment cuts in the inspector · centres and edges snap</p>
+    </div>
+
+    <div class="card inspector" id="inspector">
+      <h2>Inspector</h2>
+      <div id="inspBody"><p class="empty">Draw or select a shape to change its radius, turn it into a semicircle or arc, or make it a cut-out.</p></div>
+    </div>
+  </div>
+
+  <div class="card eq-card">
+    <h2>The maths — live</h2>
+    <div id="eqPanel"></div>
+  </div>
+
+  <footer>Circle Lab · a little tutoring tool for circle geometry</footer>
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+   SETUP & STATE  (coordinates in "units"; 1 unit = U pixels)
+   ============================================================ */
+const U = 32, W = 24, H = 15, PAD = 16;       // board is W x H units
+const VBW = W * U + 2 * PAD, VBH = H * U + 2 * PAD;   // 800 x 512
+const TOUCH = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+const board = document.getElementById('board');
+const SVGNS = "http://www.w3.org/2000/svg";
+
+const COLORS = ['#3A7CA5', '#2E8B6A', '#C2622E', '#7B5EA7', '#C44536', '#2E6F8B', '#B0813B'];
+let shapes = [];      // {id, cx, cy, r, start, sweep, op:'add'|'sub', kind:'sector'|'segment'}
+let lines = [];       // {id, x1, y1, x2, y2}  (teaching lines: chords / diameters / tangents)
+let nextId = 1;
+let selectedId = null;
+let selectedLineId = null;
+let drawMode = 'circle';
+let showLabels = true;
+
+const X = x => PAD + x * U;
+const Y = y => PAD + y * U;
+const toUnits = (px, py) => [(px - PAD) / U, (py - PAD) / U];
+const fr = v => (Math.round(v * 100) / 100).toString().replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1');
+const f2 = v => v.toFixed(2);
+function letterOf(s) { return 'ABCDEFGHJK'[shapes.indexOf(s)] || '?'; }
+function colorOf(s) { return COLORS[shapes.indexOf(s) % COLORS.length]; }
+
+/* ============================================================
+   GEOMETRY
+   ============================================================ */
+function ptPx(s, ang) {
+  const a = ang * Math.PI / 180;
+  return [X(s.cx + s.r * Math.cos(a)), Y(s.cy - s.r * Math.sin(a))];
+}
+function ptU(s, ang) {
+  const a = ang * Math.PI / 180;
+  return [s.cx + s.r * Math.cos(a), s.cy - s.r * Math.sin(a)];
+}
+function isSegment(s) { return s.kind === 'segment' && s.sweep < 360; }
+function shapePathPx(s) {
+  // full circles handled with <circle>; this is for sweep < 360
+  const c = [X(s.cx), Y(s.cy)], rp = s.r * U;
+  const p0 = ptPx(s, s.start), p1 = ptPx(s, s.start + s.sweep);
+  const large = s.sweep > 180 ? 1 : 0;
+  if (isSegment(s))
+    return `M ${p0[0].toFixed(1)} ${p0[1].toFixed(1)} A ${rp} ${rp} 0 ${large} 0 ${p1[0].toFixed(1)} ${p1[1].toFixed(1)} Z`;
+  return `M ${c[0]} ${c[1]} L ${p0[0].toFixed(1)} ${p0[1].toFixed(1)} A ${rp} ${rp} 0 ${large} 0 ${p1[0].toFixed(1)} ${p1[1].toFixed(1)} Z`;
+}
+function arcPathPx(s, radPx, a0, a1) {
+  const c = [X(s.cx), Y(s.cy)];
+  const p = a => [c[0] + radPx * Math.cos(a * Math.PI / 180), c[1] - radPx * Math.sin(a * Math.PI / 180)];
+  const q0 = p(a0), q1 = p(a1);
+  const large = (a1 - a0) > 180 ? 1 : 0;
+  return `M ${q0[0].toFixed(1)} ${q0[1].toFixed(1)} A ${radPx} ${radPx} 0 ${large} 0 ${q1[0].toFixed(1)} ${q1[1].toFixed(1)}`;
+}
+function chordLen(s) { return 2 * s.r * Math.sin(s.sweep * Math.PI / 360); }
+function shapeArea(s) {
+  if (s.sweep >= 360) return Math.PI * s.r * s.r;
+  if (isSegment(s)) { const th = s.sweep * Math.PI / 180; return 0.5 * s.r * s.r * (th - Math.sin(th)); }
+  return (s.sweep / 360) * Math.PI * s.r * s.r;
+}
+function shapeArc(s)  { return (s.sweep / 360) * 2 * Math.PI * s.r; }
+function shapePerim(s){
+  if (s.sweep >= 360) return 2 * Math.PI * s.r;
+  if (isSegment(s)) return shapeArc(s) + chordLen(s);
+  return shapeArc(s) + 2 * s.r;
+}
+function typeName(s) {
+  if (s.sweep >= 360) return 'full circle';
+  if (isSegment(s)) return s.sweep === 180 ? 'segment (θ = 180° — a semicircle!)' : `segment (θ = ${s.sweep}°)`;
+  if (s.sweep === 180) return 'semicircle';
+  if (s.sweep === 90) return 'quarter circle';
+  return `sector (θ = ${s.sweep}°)`;
+}
+function angleIn(s, ang) {
+  if (s.sweep >= 360) return true;
+  const d = ((ang - s.start) % 360 + 360) % 360;
+  return d <= s.sweep;
+}
+// signed distance from a point to the chord line, positive toward the arc side
+function chordDist(s, x, y) {
+  const p0 = ptU(s, s.start), p1 = ptU(s, s.start + s.sweep);
+  const ex = p1[0] - p0[0], ey = p1[1] - p0[1];
+  const L = Math.hypot(ex, ey) || 1e-9;
+  const cr = (ex * (y - p0[1]) - ey * (x - p0[0])) / L;
+  const m = ptU(s, s.start + s.sweep / 2);
+  const mr = (ex * (m[1] - p0[1]) - ey * (m[0] - p0[0])) / L;
+  return mr < 0 ? -cr : cr;
+}
+function inShapeRegion(s, x, y) {
+  const d = Math.hypot(x - s.cx, y - s.cy);
+  if (d > s.r) return false;
+  if (s.sweep >= 360) return true;
+  if (isSegment(s)) return chordDist(s, x, y) >= 0;
+  const ang = Math.atan2(-(y - s.cy), x - s.cx) * 180 / Math.PI;
+  return angleIn(s, ang);
+}
+function hitShape(x, y) {
+  let best = null;
+  for (const s of shapes) {
+    const d = Math.hypot(x - s.cx, y - s.cy);
+    if (d > s.r + 0.2) continue;
+    const ang = Math.atan2(-(y - s.cy), x - s.cx) * 180 / Math.PI;
+    if (inShapeRegion(s, x, y) || (Math.abs(d - s.r) < 0.25 && angleIn(s, ang)) || d < 0.3) {
+      if (!best || s.r < best.r) best = s;      // prefer the smaller (inner) shape
+    }
+  }
+  return best;
+}
+
+/* ------- line geometry ------- */
+function distToSeg(x, y, L) {
+  const dx = L.x2 - L.x1, dy = L.y2 - L.y1;
+  const len2 = dx * dx + dy * dy || 1e-9;
+  let t = ((x - L.x1) * dx + (y - L.y1) * dy) / len2;
+  t = Math.max(0, Math.min(1, t));
+  return Math.hypot(x - (L.x1 + t * dx), y - (L.y1 + t * dy));
+}
+function hitLine(x, y) {
+  let best = null, bd = 0.25;
+  for (const L of lines) { const d = distToSeg(x, y, L); if (d < bd) { bd = d; best = L; } }
+  return best;
+}
+function lineLen(L) { return Math.hypot(L.x2 - L.x1, L.y2 - L.y1); }
+function lineCircleHits(L, s) {
+  const px = L.x1 - s.cx, py = L.y1 - s.cy, dx = L.x2 - L.x1, dy = L.y2 - L.y1;
+  const a = dx * dx + dy * dy, b = 2 * (px * dx + py * dy), c = px * px + py * py - s.r * s.r;
+  if (a < 1e-12) return [];
+  const disc = b * b - 4 * a * c;
+  if (disc < 0) return [];
+  const sq = Math.sqrt(disc);
+  const out = [];
+  for (const t of [(-b - sq) / (2 * a), (-b + sq) / (2 * a)])
+    if (t >= -0.002 && t <= 1.002) out.push([L.x1 + t * dx, L.y1 + t * dy]);
+  if (out.length === 2 && Math.hypot(out[0][0] - out[1][0], out[0][1] - out[1][1]) < 0.04) out.pop();
+  return out;
+}
+function centerDistToLine(L, s) {   // perpendicular distance to the infinite line
+  const dx = L.x2 - L.x1, dy = L.y2 - L.y1;
+  const len = Math.hypot(dx, dy) || 1e-9;
+  return Math.abs(dx * (s.cy - L.y1) - dy * (s.cx - L.x1)) / len;
+}
+function classifyLine(L, s) {       // how does this line relate to this circle?
+  const hits = lineCircleHits(L, s);
+  const dC = centerDistToLine(L, s);
+  if (hits.length === 2) {
+    const len = Math.hypot(hits[0][0] - hits[1][0], hits[0][1] - hits[1][1]);
+    return dC < 0.07 ? { kind: 'diameter', hits, len, dC } : { kind: 'chord', hits, len, dC };
+  }
+  if (hits.length === 1 && Math.abs(dC - s.r) < 0.08) return { kind: 'tangent', hits, dC };
+  return null;
+}
+function lineIsVertical(L) { return Math.abs(L.x2 - L.x1) < 1e-3; }
+function sideOfLine(L, x, y) {      // 'above' = smaller screen y (or left, for vertical lines)
+  if (lineIsVertical(L)) return x < L.x1 ? 'above' : 'below';
+  const t = (x - L.x1) / (L.x2 - L.x1);
+  const ly = L.y1 + t * (L.y2 - L.y1);
+  return y < ly ? 'above' : 'below';
+}
+function cutShapeWithLine(s, L, removeSide) {   // turn a full circle into the kept segment
+  const hits = lineCircleHits(L, s);
+  if (hits.length < 2) return;
+  const angOf = h => {
+    const a = Math.atan2(-(h[1] - s.cy), h[0] - s.cx) * 180 / Math.PI;
+    return (a % 360 + 360) % 360;
+  };
+  const a1 = angOf(hits[0]), a2 = angOf(hits[1]);
+  const keep = removeSide === 'above' ? 'below' : 'above';
+  for (const c of [{ start: a1, sweep: ((a2 - a1) % 360 + 360) % 360 },
+                   { start: a2, sweep: ((a1 - a2) % 360 + 360) % 360 }]) {
+    const m = ptU({ cx: s.cx, cy: s.cy, r: s.r }, c.start + c.sweep / 2);   // this candidate's arc midpoint
+    if (sideOfLine(L, m[0], m[1]) === keep) {
+      s.kind = 'segment';
+      s.start = Math.round(c.start) % 360;
+      s.sweep = Math.max(15, Math.min(345, Math.round(c.sweep)));
+      render();
+      return;
+    }
+  }
+}
+
+/* ============================================================
+   SNAPPING — centres, circle edges, half-unit grid
+   ============================================================ */
+function snapPoint(x, y, excludeId) {
+  let best = null;
+  const cand = (px, py, kind, prio, d) => {
+    if (!best || prio < best.prio || (prio === best.prio && d < best.d))
+      best = { x: px, y: py, kind, prio, d };
+  };
+  for (const s of shapes) {
+    if (s.id === excludeId) continue;
+    const d = Math.hypot(x - s.cx, y - s.cy);
+    if (d < 0.45) cand(s.cx, s.cy, 'center', 1, d);
+    if (d > 0.001 && Math.abs(d - s.r) < 0.35) {
+      cand(s.cx + (x - s.cx) / d * s.r, s.cy + (y - s.cy) / d * s.r, 'edge', 2, Math.abs(d - s.r));
+    }
+  }
+  const gx = Math.round(x * 2) / 2, gy = Math.round(y * 2) / 2;
+  const gd = Math.hypot(x - gx, y - gy);
+  if (gd < 0.28) cand(gx, gy, 'grid', 3, gd);
+  return best || { x, y, kind: null };
+}
+
+/* ============================================================
+   RENDERING
+   ============================================================ */
+function el(name, attrs, parent) {
+  const e = document.createElementNS(SVGNS, name);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function maskShapeEl(s, fill, parent) {
+  if (s.sweep >= 360)
+    return el('circle', { cx: X(s.cx), cy: Y(s.cy), r: s.r * U, fill }, parent);
+  return el('path', { d: shapePathPx(s), fill }, parent);
+}
+
+let previewLayer = null, snapLayer = null;
+function render() {
+  board.innerHTML = '';
+  const defs = el('defs', {}, board);
+  const mask = el('mask', { id: 'regionMask' }, defs);
+  el('rect', { x: 0, y: 0, width: VBW, height: VBH, fill: 'black' }, mask);
+  shapes.filter(s => s.op === 'add').forEach(s => maskShapeEl(s, 'white', mask));
+  shapes.filter(s => s.op === 'sub').forEach(s => maskShapeEl(s, 'black', mask));
+
+  // grid
+  const grid = el('g', {}, board);
+  for (let gy = 0; gy <= H; gy++)
+    el('line', { x1: X(0), y1: Y(gy), x2: X(W), y2: Y(gy), stroke: 'var(--grid-line)', 'stroke-width': 1 }, grid);
+  for (let gx = 0; gx <= W; gx++)
+    el('line', { x1: X(gx), y1: Y(0), x2: X(gx), y2: Y(H), stroke: 'var(--grid-line)', 'stroke-width': 1 }, grid);
+
+  // filled composite region (adds minus subtracts)
+  el('rect', { x: 0, y: 0, width: VBW, height: VBH, fill: 'var(--blue)', opacity: 0.22, mask: 'url(#regionMask)', 'pointer-events': 'none' }, board);
+
+  // outlines
+  const linesG = el('g', {}, board);
+  shapes.forEach(s => {
+    const col = s.op === 'sub' ? 'var(--red)' : colorOf(s);
+    const cls = 'shape-outline' + (s.op === 'sub' ? ' sub' : '');
+    if (s.sweep >= 360)
+      el('circle', { cx: X(s.cx), cy: Y(s.cy), r: s.r * U, class: cls, stroke: col }, linesG);
+    else
+      el('path', { d: shapePathPx(s), class: cls, stroke: col }, linesG);
+  });
+
+  // teaching lines + their relationship to each circle
+  const lineLayer = el('g', {}, board);
+  lines.forEach(L => {
+    el('line', { x1: X(L.x1), y1: Y(L.y1), x2: X(L.x2), y2: Y(L.y2),
+                 stroke: L.id === selectedLineId ? 'var(--blue)' : 'var(--ink)',
+                 'stroke-width': 3, 'stroke-linecap': 'round' }, lineLayer);
+    if (showLabels) {
+      shapes.forEach(s => {
+        const cls = classifyLine(L, s);
+        if (!cls) return;
+        cls.hits.forEach(h =>
+          el('circle', { cx: X(h[0]), cy: Y(h[1]), r: 4.5, fill: '#fff', stroke: colorOf(s), 'stroke-width': 2.5 }, lineLayer));
+        // label offset perpendicular to the line
+        const dx = L.x2 - L.x1, dy = L.y2 - L.y1, len = Math.hypot(dx, dy) || 1e-9;
+        const nx = -dy / len, ny = dx / len;
+        if (cls.kind === 'tangent') {
+          const h = cls.hits[0];
+          annoText(X(h[0]) + nx * 0 + 14, Y(h[1]) + ny * 0 - 10, 'tangent', lineLayer);
+        } else {
+          const mid = [(cls.hits[0][0] + cls.hits[1][0]) / 2, (cls.hits[0][1] + cls.hits[1][1]) / 2];
+          const txt = cls.kind === 'diameter' ? 'diameter = ' + fr(cls.len) : 'chord = ' + f2(cls.len);
+          annoText(X(mid[0]) + nx * 16, Y(mid[1]) + ny * 16 + 4, txt, lineLayer);
+        }
+      });
+    }
+  });
+  // endpoint handles for the selected line
+  const selL = lines.find(l => l.id === selectedLineId);
+  if (selL) {
+    const hs = TOUCH ? 9 : 6.5;
+    [['l1', selL.x1, selL.y1], ['l2', selL.x2, selL.y2]].forEach(([k, lx, ly]) =>
+      el('rect', { x: X(lx) - hs, y: Y(ly) - hs, width: 2 * hs, height: 2 * hs,
+                   fill: 'var(--blue)', class: 'handle', 'data-handle': k }, lineLayer));
+  }
+
+  // annotations + handles for selected shape
+  const sel = shapes.find(s => s.id === selectedId);
+  if (sel) drawAnnotations(sel);
+
+  previewLayer = el('g', { class: 'preview' }, board);
+  snapLayer = el('g', {}, board);
+
+  updateInspector();
+  updateEquations();
+}
+
+function annoText(x, y, str, parent, anchor) {
+  const t = el('text', { x, y, class: 'anno-text', 'text-anchor': anchor || 'middle' }, parent);
+  t.textContent = str;
+  return t;
+}
+
+function drawAnnotations(s) {
+  const g = el('g', {}, board);
+  const cx = X(s.cx), cy = Y(s.cy);
+  const letter = letterOf(s), col = colorOf(s);
+
+  if (showLabels) {
+    // centre
+    el('circle', { cx, cy, r: 3.5, fill: 'var(--ink)' }, g);
+    annoText(cx, cy + 18, 'centre', g);
+
+    // radius line + label (placed away from the rim handle)
+    const rAng = s.sweep >= 360 ? 130 : s.start + s.sweep * 0.25;
+    const rp = ptPx(s, rAng);
+    el('line', { x1: cx, y1: cy, x2: rp[0], y2: rp[1], class: 'anno-line' }, g);
+    const midR = [(cx + rp[0]) / 2, (cy + rp[1]) / 2];
+    annoText(midR[0], midR[1] - 8, 'r = ' + fr(s.r), g);
+
+    // diameter (full circles only)
+    if (s.sweep >= 360) {
+      el('line', { x1: cx - s.r * U, y1: cy, x2: cx + s.r * U, y2: cy, class: 'anno-line', 'stroke-dasharray': '5 5' }, g);
+      annoText(cx + s.r * U * 0.55, cy - 8, 'd = ' + fr(2 * s.r), g);
+    }
+
+    // arc / circumference label just outside the rim
+    const aAng = s.sweep >= 360 ? 90 : s.start + s.sweep / 2;
+    const ap = [cx + (s.r * U + 16) * Math.cos(aAng * Math.PI / 180), cy - (s.r * U + 16) * Math.sin(aAng * Math.PI / 180)];
+    annoText(ap[0], ap[1] + 4, s.sweep >= 360 ? 'circumference = ' + f2(shapeArc(s)) : 'arc = ' + f2(shapeArc(s)), g);
+
+    // central angle marker for sectors & segments
+    if (s.sweep < 360) {
+      el('path', { d: arcPathPx(s, 0.8 * U, s.start, s.start + s.sweep), fill: 'none', class: 'anno-line' }, g);
+      const tAng = s.start + s.sweep / 2;
+      const tp = [cx + 1.5 * U * Math.cos(tAng * Math.PI / 180), cy - 1.5 * U * Math.sin(tAng * Math.PI / 180)];
+      annoText(tp[0], tp[1] + 4, 'θ = ' + s.sweep + '°', g);
+    }
+
+    // segments: dashed construction radii + chord label + area labels
+    if (isSegment(s)) {
+      const p0 = ptPx(s, s.start), p1 = ptPx(s, s.start + s.sweep);
+      el('line', { x1: cx, y1: cy, x2: p0[0], y2: p0[1], class: 'anno-line', 'stroke-dasharray': '4 5' }, g);
+      el('line', { x1: cx, y1: cy, x2: p1[0], y2: p1[1], class: 'anno-line', 'stroke-dasharray': '4 5' }, g);
+      const m = [(p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2];
+      // offset the chord label away from the arc side
+      const am = ptPx(s, s.start + s.sweep / 2);
+      const off = [m[0] - am[0], m[1] - am[1]];
+      const ol = Math.hypot(off[0], off[1]) || 1;
+      annoText(m[0] + off[0] / ol * 16, m[1] + off[1] / ol * 16 + 4, 'chord = ' + f2(chordLen(s)), g);
+      // segment area, inside the region between chord and arc
+      annoText((am[0] + m[0]) / 2, (am[1] + m[1]) / 2 + 4, 'segment area = ' + f2(shapeArea(s)), g);
+      // matching sector area, between the centre and the chord
+      const secA = (s.sweep / 360) * Math.PI * s.r * s.r;
+      annoText((cx + m[0]) / 2, (cy + m[1]) / 2 + 18, 'sector area = ' + f2(secA), g);
+    } else if (s.sweep < 360) {
+      // pie slices: label the sector area inside the slice
+      const aAngM = (s.start + s.sweep / 2) * Math.PI / 180;
+      annoText(cx + 0.55 * s.r * U * Math.cos(aAngM), cy - 0.55 * s.r * U * Math.sin(aAngM) + 4,
+               'sector area = ' + f2(shapeArea(s)), g);
+    }
+  }
+
+  // handles: centre (move) + rim diamond (resize)
+  const hs = TOUCH ? 9 : 6.5;
+  el('circle', { cx, cy, r: hs, fill: col, class: 'handle', 'data-handle': 'center' }, g);
+  const hAng = s.sweep >= 360 ? 0 : s.start + s.sweep / 2;
+  const hp = ptPx(s, hAng);
+  el('rect', { x: hp[0] - hs, y: hp[1] - hs, width: 2 * hs, height: 2 * hs,
+               transform: `rotate(45 ${hp[0]} ${hp[1]})`,
+               fill: col, class: 'handle', 'data-handle': 'rim' }, g);
+}
+
+function showSnapDot(p) {
+  snapLayer.innerHTML = '';
+  if (p && p.kind) el('circle', { cx: X(p.x), cy: Y(p.y), r: 5.5, class: 'snap-dot' }, snapLayer);
+}
+
+/* ============================================================
+   INSPECTOR
+   ============================================================ */
+const inspBody = document.getElementById('inspBody');
+function readoutsHTML(s) {
+  let h = '';
+  h += `<div class="ro"><span>Area</span><b>${f2(shapeArea(s))} units²</b></div>`;
+  h += `<div class="ro"><span>Perimeter</span><b>${f2(shapePerim(s))} units</b></div>`;
+  h += `<div class="ro"><span>${s.sweep >= 360 ? 'Circumference' : 'Arc length'}</span><b>${f2(shapeArc(s))} units</b></div>`;
+  if (isSegment(s)) {
+    h += `<div class="ro"><span>Chord</span><b>${f2(chordLen(s))} units</b></div>`;
+    const th = s.sweep * Math.PI / 180;
+    h += `<div class="ro"><span>Matching sector</span><b>${f2((s.sweep / 360) * Math.PI * s.r * s.r)} units²</b></div>`;
+    h += `<div class="ro"><span>Triangle (centre–chord)</span><b>${f2(Math.abs(0.5 * s.r * s.r * Math.sin(th)))} units²</b></div>`;
+  }
+  if (s.sweep >= 360) h += `<div class="ro"><span>Diameter</span><b>${fr(2 * s.r)} units</b></div>`;
+  return h;
+}
+function updateInspector() {
+  const L = lines.find(l => l.id === selectedLineId);
+  if (L) {
+    let html = `<div class="shape-name">📏 Line</div>`;
+    html += `<div class="readouts"><div class="ro"><span>Length</span><b>${f2(lineLen(L))} units</b></div></div>`;
+    let rel = '';
+    const cuttable = [];
+    shapes.forEach(s => {
+      const cls = classifyLine(L, s);
+      if (!cls) return;
+      const Lt = letterOf(s), r = fr(s.r);
+      if (cls.kind === 'diameter')
+        rel += `<div class="eqline" style="font-size:.86rem">Through the centre of <b>${Lt}</b>: <span class="sym">diameter = 2r</span> = 2 × ${r} = <span class="res">${fr(2 * s.r)}</span></div>`;
+      else if (cls.kind === 'chord')
+        rel += `<div class="eqline" style="font-size:.86rem">Chord of <b>${Lt}</b>: <span class="sym">2√(r² − d²)</span> = 2 × √(${r}² − ${fr(cls.dC)}²) = <span class="res">${f2(cls.len)}</span><br><span style="color:var(--ink-soft);font-size:.78rem">d = ${fr(cls.dC)} (distance from centre to the line)</span></div>`;
+      else
+        rel += `<div class="eqline" style="font-size:.86rem">Tangent to <b>${Lt}</b> — touches at exactly one point (d = r)</div>`;
+      if (cls.kind !== 'tangent') {
+        if (s.sweep >= 360) {
+          const vert = lineIsVertical(L);
+          rel += `<div class="seg-row" style="margin:0.25rem 0 0.5rem">
+            <button class="btn" data-cutshape="${s.id}" data-cutside="above">✂ ${Lt}: cut ${vert ? 'left' : 'above'}</button>
+            <button class="btn" data-cutshape="${s.id}" data-cutside="below">✂ ${Lt}: cut ${vert ? 'right' : 'below'}</button>
+          </div>`;
+          cuttable.push(s.id);
+        } else {
+          rel += `<div class="eqline" style="font-size:.74rem;color:var(--ink-soft)">(${Lt} is already an arc — set it to Full in its inspector to cut along this line)</div>`;
+        }
+      }
+    });
+    if (rel) html += `<div class="readouts">${rel}</div>`;
+    html += `<div class="insp-buttons"><button class="btn danger" id="btnDelLine">🗑 Remove line</button></div>`;
+    inspBody.innerHTML = html;
+    delete inspBody.dataset.shapeId;
+    inspBody.querySelectorAll('[data-cutshape]').forEach(b =>
+      b.addEventListener('click', () => {
+        const s = shapes.find(k => k.id === +b.dataset.cutshape);
+        if (s) cutShapeWithLine(s, L, b.dataset.cutside);
+      }));
+    inspBody.querySelector('#btnDelLine').addEventListener('click', () => {
+      lines = lines.filter(k => k.id !== L.id);
+      selectedLineId = null;
+      render();
+    });
+    return;
+  }
+  const s = shapes.find(k => k.id === selectedId);
+  if (!s) {
+    inspBody.innerHTML = '<p class="empty">Draw or select a shape to change its radius, turn it into a semicircle or arc, or make it a cut-out.</p>';
+    delete inspBody.dataset.shapeId;
+    return;
+  }
+  if (inspBody.dataset.shapeId == s.id && inspBody.contains(document.activeElement)
+      && document.activeElement.type === 'range') {
+    const ro = inspBody.querySelector('.readouts');
+    if (ro) ro.innerHTML = readoutsHTML(s);
+    return;
+  }
+  inspBody.dataset.shapeId = s.id;
+
+  let html = `<div class="shape-name"><span class="chip" style="background:${colorOf(s)}"></span> ${letterOf(s)} — ${typeName(s)}</div>`;
+
+  html += `<div class="slider-row">
+    <label>Radius <output>${fr(s.r)} units</output></label>
+    <input type="range" data-prop="r" min="0.5" max="8" step="0.25" value="${s.r}">
+  </div>`;
+  html += `<div class="seg-row">
+    <button class="btn seg${s.sweep >= 360 ? ' on' : ''}" data-sweep="360">Full</button>
+    <button class="btn seg${s.sweep === 180 ? ' on' : ''}" data-sweep="180">Half</button>
+    <button class="btn seg${s.sweep === 90 ? ' on' : ''}" data-sweep="90">Quarter</button>
+  </div>`;
+  html += `<div class="slider-row">
+    <label>Angle θ <output>${s.sweep}°</output></label>
+    <input type="range" data-prop="sweep" min="15" max="360" step="15" value="${s.sweep}">
+  </div>`;
+  if (s.sweep < 360) html += `<div class="slider-row">
+    <label>Rotate <output>${s.start}°</output></label>
+    <input type="range" data-prop="start" min="0" max="345" step="15" value="${s.start}">
+  </div>`;
+  if (s.sweep < 360) html += `<div class="seg-row">
+    <button class="btn seg${!isSegment(s) ? ' on' : ''}" data-kind="sector">◔ Pie (sector)</button>
+    <button class="btn seg${isSegment(s) ? ' on' : ''}" data-kind="segment">◖ Segment</button>
+  </div>`;
+  html += `<div class="seg-row">
+    <button class="btn seg${s.op === 'add' ? ' on' : ''}" data-op="add">Solid +</button>
+    <button class="btn seg${s.op === 'sub' ? ' on' : ''}" data-op="sub">Cut out −</button>
+  </div>`;
+  html += '<div class="readouts">' + readoutsHTML(s) + '</div>';
+  html += `<div class="insp-buttons">
+    <button class="btn" id="btnDup">⧉ Duplicate</button>
+    <button class="btn danger" id="btnDelete">🗑 Remove</button>
+  </div>`;
+  inspBody.innerHTML = html;
+
+  inspBody.querySelectorAll('input[type=range]').forEach(sl => {
+    sl.addEventListener('input', () => {
+      const prop = sl.dataset.prop;
+      s[prop] = parseFloat(sl.value);
+      const out = sl.closest('.slider-row').querySelector('output');
+      out.textContent = prop === 'r' ? fr(s.r) + ' units' : s[prop] + '°';
+      render();
+    });
+  });
+  inspBody.querySelectorAll('[data-sweep]').forEach(b =>
+    b.addEventListener('click', () => { s.sweep = +b.dataset.sweep; render(); }));
+  inspBody.querySelectorAll('[data-kind]').forEach(b =>
+    b.addEventListener('click', () => { s.kind = b.dataset.kind; render(); }));
+  inspBody.querySelectorAll('[data-op]').forEach(b =>
+    b.addEventListener('click', () => { s.op = b.dataset.op; render(); }));
+  inspBody.querySelector('#btnDup').addEventListener('click', () => duplicateShape(s));
+  inspBody.querySelector('#btnDelete').addEventListener('click', () => {
+    shapes = shapes.filter(k => k.id !== s.id);
+    selectedId = null;
+    render();
+  });
+}
+function duplicateShape(s) {
+  const n = Object.assign({}, s, { id: nextId++, cx: Math.min(W - 0.5, s.cx + 1), cy: Math.min(H - 0.5, s.cy + 1) });
+  shapes.push(n);
+  selectedId = n.id;
+  render();
+}
+
+/* ============================================================
+   EQUATIONS PANEL
+   ============================================================ */
+function areaEq(s) {
+  const r = fr(s.r);
+  if (s.sweep >= 360)  return { sym: 'A = πr²',              sub: `π × ${r}²` };
+  if (isSegment(s)) {
+    const th = s.sweep * Math.PI / 180;
+    return { sym: 'A = ½r²(θ − sin θ)', sub: `½ × ${r}² × (${f2(th)} − ${f2(Math.sin(th))})`,
+             note: `θ in radians: ${s.sweep}° = ${f2(th)} rad, and sin ${s.sweep}° = ${f2(Math.sin(th))}` };
+  }
+  if (s.sweep === 180) return { sym: 'A = ½ πr²',            sub: `½ × π × ${r}²` };
+  if (s.sweep === 90)  return { sym: 'A = ¼ πr²',            sub: `¼ × π × ${r}²` };
+  return { sym: 'A = (θ⁄360) × πr²', sub: `(${s.sweep}⁄360) × π × ${r}²` };
+}
+function perimEq(s) {
+  const r = fr(s.r);
+  if (s.sweep >= 360)  return { sym: 'P = 2πr',                    sub: `2 × π × ${r}` };
+  if (isSegment(s))
+    return { sym: 'P = arc + chord', sub: `(${s.sweep}⁄360) × 2 × π × ${r} + 2 × ${r} × sin(${s.sweep / 2}°)` };
+  if (s.sweep === 180) return { sym: 'P = πr + 2r',                sub: `π × ${r} + 2 × ${r}` };
+  if (s.sweep === 90)  return { sym: 'P = ½ πr + 2r',              sub: `½ × π × ${r} + 2 × ${r}` };
+  return { sym: 'P = (θ⁄360) × 2πr + 2r', sub: `(${s.sweep}⁄360) × 2 × π × ${r} + 2 × ${r}` };
+}
+/* ============================================================
+   LAYOUT ANALYSIS — do the simple totals actually hold?
+   (numerical point-sampling; tolerant of tangent/inscribed cases)
+   ============================================================ */
+function insideBy(s, x, y, m) {           // strictly inside, by margin m
+  const d = Math.hypot(x - s.cx, y - s.cy);
+  if (d > s.r - m) return false;
+  if (s.sweep >= 360) return true;
+  if (isSegment(s)) return chordDist(s, x, y) >= m;
+  const ang = Math.atan2(-(y - s.cy), x - s.cx) * 180 / Math.PI;
+  const rel = ((ang - s.start) % 360 + 360) % 360;
+  if (rel > s.sweep) return false;
+  const a1 = rel * Math.PI / 180, a2 = (s.sweep - rel) * Math.PI / 180;
+  if (d * Math.sin(Math.min(a1, Math.PI / 2)) < m) return false;   // near first straight edge
+  if (d * Math.sin(Math.min(a2, Math.PI / 2)) < m) return false;   // near second straight edge
+  return true;
+}
+function insideLoose(s, x, y, m) {        // inside, allowing margin m outside
+  const d = Math.hypot(x - s.cx, y - s.cy);
+  if (d > s.r + m) return false;
+  if (s.sweep >= 360) return true;
+  if (isSegment(s)) return chordDist(s, x, y) >= -m;
+  const ang = Math.atan2(-(y - s.cy), x - s.cx) * 180 / Math.PI;
+  const rel = ((ang - s.start) % 360 + 360) % 360;
+  const slack = (m / Math.max(d, 0.001)) * 180 / Math.PI;
+  return rel <= s.sweep + slack || rel >= 360 - slack;
+}
+function samplePoints(s, inset, step, cb) {
+  for (let x = s.cx - s.r; x <= s.cx + s.r; x += step)
+    for (let y = s.cy - s.r; y <= s.cy + s.r; y += step)
+      if (insideBy(s, x, y, inset) && cb(x, y) === false) return;
+}
+function analyseLayout() {
+  const adds = shapes.filter(s => s.op === 'add');
+  const subs = shapes.filter(s => s.op === 'sub');
+  const issues = [];
+  const eps = 0.08, step = 0.18;
+
+  for (const sub of subs) {                       // every cut-out wholly inside the solid region
+    let out = false;
+    samplePoints(sub, eps, step, (x, y) => {
+      if (!adds.some(a => insideLoose(a, x, y, eps))) { out = true; return false; }
+    });
+    if (out) issues.push(`cut-out <b>${letterOf(sub)}</b> isn't completely inside a solid shape`);
+  }
+  const pairOverlap = (a, b) => {                 // shapes of the same kind mustn't overlap
+    if (Math.hypot(a.cx - b.cx, a.cy - b.cy) >= a.r + b.r) return false;
+    let ov = false;
+    samplePoints(a, eps, step, (x, y) => {
+      if (insideBy(b, x, y, eps)) { ov = true; return false; }
+    });
+    return ov;
+  };
+  for (let i = 0; i < adds.length; i++)
+    for (let j = i + 1; j < adds.length; j++)
+      if (pairOverlap(adds[i], adds[j]))
+        issues.push(`solid shapes <b>${letterOf(adds[i])}</b> and <b>${letterOf(adds[j])}</b> overlap`);
+  for (let i = 0; i < subs.length; i++)
+    for (let j = i + 1; j < subs.length; j++)
+      if (pairOverlap(subs[i], subs[j]))
+        issues.push(`cut-outs <b>${letterOf(subs[i])}</b> and <b>${letterOf(subs[j])}</b> overlap`);
+  return issues;
+}
+
+/* ============================================================
+   TRUE COMPOSITE REGION — works for ANY arrangement
+   The shaded region = (inside at least one solid) AND (inside no cut-out).
+   From that single membership test we measure the real area and the real
+   boundary length, so overlaps and partial cuts are handled correctly.
+   ============================================================ */
+function inRegion(x, y) {
+  let inSolid = false;
+  for (const s of shapes)
+    if (s.op === 'add' && inShapeRegion(s, x, y)) { inSolid = true; break; }
+  if (!inSolid) return false;
+  for (const s of shapes)
+    if (s.op === 'sub' && inShapeRegion(s, x, y)) return false;
+  return true;
+}
+// March along every shape's edges; keep only the bits that truly separate
+// inside-the-region from outside-the-region (probe a hair to each side).
+function compositePerimeter() {
+  const eps = 0.02, target = 0.03;   // probe offset & marching step (units)
+  let total = 0;
+  for (const s of shapes) {
+    // --- curved arc(s) ---
+    const a0 = s.sweep >= 360 ? 0 : s.start;
+    const a1 = s.sweep >= 360 ? 360 : s.start + s.sweep;
+    const arcUnits = ((a1 - a0) * Math.PI / 180) * s.r;
+    const aSteps = Math.max(8, Math.ceil(arcUnits / target));
+    const dA = (a1 - a0) / aSteps;
+    const dLarc = s.r * Math.abs(dA) * Math.PI / 180;
+    for (let i = 0; i < aSteps; i++) {
+      const rad = (a0 + (i + 0.5) * dA) * Math.PI / 180;
+      const px = s.cx + s.r * Math.cos(rad), py = s.cy - s.r * Math.sin(rad);
+      const nx = Math.cos(rad), ny = -Math.sin(rad);          // outward radial
+      if (inRegion(px - eps * nx, py - eps * ny) !== inRegion(px + eps * nx, py + eps * ny))
+        total += dLarc;
+    }
+    // --- straight edges (chord for a segment, two radii for a sector) ---
+    if (s.sweep < 360) {
+      const e0 = ptU(s, s.start), e1 = ptU(s, s.start + s.sweep);
+      const edges = isSegment(s) ? [[e0, e1]] : [[[s.cx, s.cy], e0], [[s.cx, s.cy], e1]];
+      for (const [A, B] of edges) {
+        const ex = B[0] - A[0], ey = B[1] - A[1], len = Math.hypot(ex, ey);
+        if (len < 1e-9) continue;
+        const ux = ex / len, uy = ey / len, nx = -uy, ny = ux;   // unit & perpendicular
+        const eSteps = Math.max(4, Math.ceil(len / target)), dl = len / eSteps;
+        for (let i = 0; i < eSteps; i++) {
+          const t = (i + 0.5) * dl, px = A[0] + ux * t, py = A[1] + uy * t;
+          if (inRegion(px + eps * nx, py + eps * ny) !== inRegion(px - eps * nx, py - eps * ny))
+            total += dl;
+        }
+      }
+    }
+  }
+  return total;
+}
+// Area by fine grid sampling over the shapes' bounding box.
+function compositeArea() {
+  if (!shapes.length) return 0;
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  for (const s of shapes) {
+    minX = Math.min(minX, s.cx - s.r); maxX = Math.max(maxX, s.cx + s.r);
+    minY = Math.min(minY, s.cy - s.r); maxY = Math.max(maxY, s.cy + s.r);
+  }
+  const step = 0.04;
+  let count = 0;
+  for (let x = minX; x <= maxX; x += step)
+    for (let y = minY; y <= maxY; y += step)
+      if (inRegion(x, y)) count++;
+  return count * step * step;
+}
+
+function updateEquations() {
+  const panel = document.getElementById('eqPanel');
+  if (!shapes.length) {
+    panel.innerHTML = '<p class="empty" style="color:var(--ink-soft)">Draw a circle on the board and its area and perimeter equations will appear here, worked out step by step.</p>';
+    return;
+  }
+  let html = '';
+  shapes.forEach(s => {
+    const ae = areaEq(s), pe = perimEq(s);
+    const L = letterOf(s);
+    let segDecomp = '';
+    if (isSegment(s)) {
+      const th = s.sweep * Math.PI / 180;
+      const sec = (s.sweep / 360) * Math.PI * s.r * s.r;
+      const tri = 0.5 * s.r * s.r * Math.sin(th);
+      segDecomp = `<div class="eqline" style="font-size:.83rem">where it comes from: <span class="sym">segment = sector ${tri >= 0 ? '−' : '+'} triangle</span> = (${s.sweep}⁄360)πr² ${tri >= 0 ? '−' : '+'} ½r²·|sin θ| = ${f2(sec)} ${tri >= 0 ? '−' : '+'} ${f2(Math.abs(tri))} = <span class="res">${f2(sec - tri)}</span>${s.sweep > 180 ? ' <span style="color:var(--ink-soft)">(past 180° the triangle sits inside the kept piece, so it adds)</span>' : ''}</div>`;
+    }
+    html += `<div class="eq-shape${s.id === selectedId ? ' selected' : ''}" data-id="${s.id}">
+      <div class="eq-head"><span class="chip" style="background:${colorOf(s)}"></span>
+        ${L} — ${typeName(s)}, r = ${fr(s.r)}
+        <span class="op" style="color:${s.op === 'sub' ? 'var(--red)' : 'var(--green)'}">${s.op === 'sub' ? '− cut out' : '+ solid'}</span></div>
+      <div class="eqline"><span class="sym">${ae.sym}</span> = ${ae.sub} = <span class="res">${f2(shapeArea(s))} units²</span></div>
+      ${ae.note ? `<div class="eqline" style="font-size:.78rem;color:var(--ink-soft)">${ae.note}</div>` : ''}
+      ${segDecomp}
+      <div class="eqline"><span class="sym">${pe.sym}</span> = ${pe.sub} = <span class="res">${f2(shapePerim(s))} units</span></div>
+    </div>`;
+  });
+
+  if (shapes.length >= 2 || shapes.some(s => s.op === 'sub')) {
+    const issues = analyseLayout();
+    const valid = issues.length === 0;
+    const totalA = shapes.reduce((t, s) => t + (s.op === 'sub' ? -1 : 1) * shapeArea(s), 0);
+    const totalP = shapes.reduce((t, s) => t + shapePerim(s), 0);
+    const symA = shapes.map((s, i) => (i === 0 ? '' : (s.op === 'sub' ? ' − ' : ' + ')) + (i === 0 && s.op === 'sub' ? '−' : '') + 'A<sub>' + letterOf(s) + '</sub>').join('');
+    const numA = shapes.map((s, i) => (i === 0 ? (s.op === 'sub' ? '−' : '') : (s.op === 'sub' ? ' − ' : ' + ')) + f2(shapeArea(s))).join('');
+    const symP = shapes.map((s, i) => (i === 0 ? '' : ' + ') + 'P<sub>' + letterOf(s) + '</sub>').join('');
+    const numP = shapes.map((s, i) => (i === 0 ? '' : ' + ') + f2(shapePerim(s))).join('');
+    html += `<div class="eq-total${valid ? '' : ' faded'}">
+      <div class="eq-fade-wrap">
+      <div class="eqline"><span class="sym">Total area</span> = ${symA} = ${numA} = <span class="res">${f2(totalA)} units²</span>${valid && totalA < 0 ? ' <span class="eq-warn">— you\'ve cut away more than you drew!</span>' : ''}</div>
+      <div class="eqline"><span class="sym">Total boundary</span> = ${symP} = ${numP} = <span class="res">${f2(totalP)} units</span></div>
+      </div>`;
+    if (valid) {
+      html += `<div class="eq-note">Cut-outs (−) are subtracted from the area but their edges still count as boundary — like the rim of a hole in a donut.</div>`;
+    } else {
+      const trueA = compositeArea(), trueP = compositePerimeter();
+      html += `<div class="eq-actual">
+        <div class="eqline"><span class="sym">Actual area of the shaded region</span> ≈ <span class="res">${f2(trueA)} units²</span></div>
+        <div class="eqline"><span class="sym">Actual boundary length</span> ≈ <span class="res">${f2(trueP)} units</span></div>
+        <div class="eq-note" style="color:var(--ink-soft)">Measured directly from the region you drew — these stay correct no matter how the shapes overlap. Only the shared outer edge is counted, so overlapping rims aren't double-counted.</div>
+      </div>`;
+      html += `<div class="eq-issues">
+        <b>⚠ The simple add-and-subtract totals (struck through above) don't apply here:</b> ${issues.join('; ')}.
+        <br><br>Adding and subtracting whole shapes only works when every cut-out sits completely inside the solid region and shapes don't overlap each other. When shapes <i>partially</i> overlap, the simple sums double-count the shared region's area and the buried bits of each rim — that's why the actual values above are smaller. To get them by hand you work out the overlapping piece itself:
+        the lens where two circles cross is made of two <b>circular segments</b>, each with area <span class="sym">A = ½r²(θ − sin θ)</span> (θ in radians), and then the general rule
+        <span class="sym">A(X ∪ Y) = A(X) + A(Y) − A(X ∩ Y)</span> (called <b>inclusion–exclusion</b>) puts the pieces together without double-counting. The boundary follows the same idea: each rim only counts where it's actually exposed.
+        Move the shapes so the cut-outs sit inside and nothing overlaps, and the simple equations will match again.
+      </div>`;
+    }
+    html += `</div>`;
+  }
+  panel.innerHTML = html;
+  panel.querySelectorAll('.eq-shape').forEach(div =>
+    div.addEventListener('click', () => { selectedId = +div.dataset.id; selectedLineId = null; render(); }));
+}
+
+/* ============================================================
+   POINTER INTERACTIONS — draw, move, resize, with snapping
+   ============================================================ */
+function svgPoint(clientX, clientY) {
+  const pt = board.createSVGPoint();
+  pt.x = clientX; pt.y = clientY;
+  const m = board.getScreenCTM();
+  if (!m) return null;
+  const p = pt.matrixTransform(m.inverse());
+  return toUnits(p.x, p.y);
+}
+const clampX = v => Math.max(0, Math.min(W, v));
+const clampY = v => Math.max(0, Math.min(H, v));
+
+let act = null;   // {mode:'draw'|'move'|'resize', ...}
+
+board.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  const p = svgPoint(e.clientX, e.clientY);
+  if (!p) return;
+  const [x, y] = p;
+
+  // handles first (shape centre/rim, or line endpoints)
+  const h = e.target.closest('[data-handle]');
+  const sel = shapes.find(s => s.id === selectedId);
+  const selL = lines.find(l => l.id === selectedLineId);
+  if (h) {
+    if ((h.dataset.handle === 'l1' || h.dataset.handle === 'l2') && selL) {
+      act = { mode: 'lineEnd', L: selL, end: h.dataset.handle === 'l1' ? 1 : 2 };
+      return;
+    }
+    if (sel) {
+      act = h.dataset.handle === 'rim'
+        ? { mode: 'resize', s: sel }
+        : { mode: 'move', s: sel, ox: x - sel.cx, oy: y - sel.cy };
+      return;
+    }
+  }
+
+  if (drawMode === 'line') {
+    // in line mode, a click starts a line anywhere; a stationary click selects a nearby line
+    selectedId = null;
+    const sp = snapPoint(x, y, -1);
+    act = { mode: 'drawLine', x1: sp.x, y1: sp.y, x2: sp.x, y2: sp.y, maybeSelect: hitLine(x, y) };
+    render();
+    showSnapDot(sp);
+    return;
+  }
+
+  const nearL = hitLine(x, y);
+  if (nearL) {
+    selectedLineId = nearL.id; selectedId = null;
+    render();
+    return;
+  }
+  const hitS = hitShape(x, y);
+  if (hitS) {
+    selectedId = hitS.id; selectedLineId = null;
+    act = { mode: 'move', s: hitS, ox: x - hitS.cx, oy: y - hitS.cy, click: true };
+    render();
+    return;
+  }
+  // empty space → start drawing a new circle
+  selectedId = null; selectedLineId = null;
+  const sp = snapPoint(x, y, -1);
+  act = { mode: 'draw', cx: clampX(sp.x), cy: clampY(sp.y), r: 0 };
+  render();
+  showSnapDot(sp);
+});
+
+window.addEventListener('pointermove', e => {
+  if (!act) return;
+  const p = svgPoint(e.clientX, e.clientY);
+  if (!p) return;
+  const [x, y] = p;
+
+  if (act.mode === 'draw') {
+    const sp = snapPoint(x, y, -1);
+    act.r = Math.hypot(sp.x - act.cx, sp.y - act.cy);
+    if (!sp.kind) act.r = Math.round(act.r * 4) / 4;
+    act.r = Math.min(8, act.r);
+    previewLayer.innerHTML = '';
+    if (act.r > 0.1) {
+      el('circle', { cx: X(act.cx), cy: Y(act.cy), r: act.r * U, fill: 'var(--blue)', opacity: 0.12 }, previewLayer);
+      el('circle', { cx: X(act.cx), cy: Y(act.cy), r: act.r * U, fill: 'none', stroke: 'var(--blue)', 'stroke-width': 2.5, 'stroke-dasharray': '6 6' }, previewLayer);
+      el('line', { x1: X(act.cx), y1: Y(act.cy), x2: X(sp.x), y2: Y(sp.y), class: 'anno-line' }, previewLayer);
+      annoText((X(act.cx) + X(sp.x)) / 2, (Y(act.cy) + Y(sp.y)) / 2 - 8, 'r = ' + fr(act.r), previewLayer);
+    }
+    showSnapDot(sp);
+  } else if (act.mode === 'move') {
+    act.click = false;
+    const sp = snapPoint(x - act.ox, y - act.oy, act.s.id);
+    act.s.cx = clampX(sp.kind ? sp.x : Math.round((x - act.ox) * 4) / 4);
+    act.s.cy = clampY(sp.kind ? sp.y : Math.round((y - act.oy) * 4) / 4);
+    render();
+    showSnapDot(sp);
+  } else if (act.mode === 'resize') {
+    const sp = snapPoint(x, y, act.s.id);
+    let r = Math.hypot(sp.x - act.s.cx, sp.y - act.s.cy);
+    if (!sp.kind) r = Math.round(r * 4) / 4;
+    act.s.r = Math.max(0.5, Math.min(8, r));
+    render();
+    showSnapDot(sp);
+  } else if (act.mode === 'drawLine') {
+    const sp = snapPoint(x, y, -1);
+    act.x2 = sp.kind ? sp.x : Math.round(clampX(x) * 4) / 4;
+    act.y2 = sp.kind ? sp.y : Math.round(clampY(y) * 4) / 4;
+    previewLayer.innerHTML = '';
+    if (lineLen(act) > 0.2) {
+      el('line', { x1: X(act.x1), y1: Y(act.y1), x2: X(act.x2), y2: Y(act.y2),
+                   stroke: 'var(--blue)', 'stroke-width': 3, 'stroke-dasharray': '6 6', 'stroke-linecap': 'round' }, previewLayer);
+      annoText((X(act.x1) + X(act.x2)) / 2, (Y(act.y1) + Y(act.y2)) / 2 - 10, fr(lineLen(act)), previewLayer);
+    }
+    showSnapDot(sp);
+  } else if (act.mode === 'lineEnd') {
+    const sp = snapPoint(x, y, -1);
+    act.L['x' + act.end] = clampX(sp.kind ? sp.x : Math.round(x * 4) / 4);
+    act.L['y' + act.end] = clampY(sp.kind ? sp.y : Math.round(y * 4) / 4);
+    render();
+    showSnapDot(sp);
+  }
+});
+
+window.addEventListener('pointerup', () => {
+  if (!act) return;
+  const a = act; act = null;
+  showSnapDot(null);
+  if (a.mode === 'draw') {
+    previewLayer.innerHTML = '';
+    if (a.r >= 0.4) {
+      const s = { id: nextId++, cx: a.cx, cy: a.cy, r: a.r, start: 0, sweep: 360, op: 'add', kind: 'sector' };
+      shapes.push(s);
+      selectedId = s.id;
+    }
+    render();
+  } else if (a.mode === 'drawLine') {
+    previewLayer.innerHTML = '';
+    if (lineLen(a) >= 0.5) {
+      const L = { id: nextId++, x1: a.x1, y1: a.y1, x2: a.x2, y2: a.y2 };
+      lines.push(L);
+      selectedLineId = L.id;
+    } else if (a.maybeSelect) {
+      selectedLineId = a.maybeSelect.id;
+    }
+    render();
+  } else {
+    render();
+  }
+});
+
+window.addEventListener('keydown', e => {
+  if (/INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
+  const sel = shapes.find(s => s.id === selectedId);
+  const selL = lines.find(l => l.id === selectedLineId);
+  if (e.key === 'Delete' || e.key === 'Backspace') {
+    if (sel) { shapes = shapes.filter(s => s.id !== selectedId); selectedId = null; render(); }
+    else if (selL) { lines = lines.filter(l => l.id !== selectedLineId); selectedLineId = null; render(); }
+  } else if ((e.key === 'd' || e.key === 'D')) {
+    if (sel) duplicateShape(sel);
+    else if (selL) {
+      const n = { id: nextId++, x1: selL.x1 + 0.75, y1: selL.y1 + 0.75, x2: selL.x2 + 0.75, y2: selL.y2 + 0.75 };
+      lines.push(n); selectedLineId = n.id; render();
+    }
+  }
+});
+
+/* ============================================================
+   TOOLBAR
+   ============================================================ */
+const modeCircleBtn = document.getElementById('modeCircle');
+const modeLineBtn = document.getElementById('modeLine');
+function setDrawMode(m) {
+  drawMode = m;
+  modeCircleBtn.classList.toggle('on', m === 'circle');
+  modeLineBtn.classList.toggle('on', m === 'line');
+}
+modeCircleBtn.addEventListener('click', () => setDrawMode('circle'));
+modeLineBtn.addEventListener('click', () => setDrawMode('line'));
+
+document.getElementById('chkLabels').addEventListener('change', e => {
+  showLabels = e.target.checked;
+  render();
+});
+document.getElementById('btnClear').addEventListener('click', () => {
+  shapes = []; lines = []; selectedId = null; selectedLineId = null; render();
+});
+document.getElementById('btnExample').addEventListener('click', () => {
+  // a circle of radius 2.5 inscribed in a semicircle of radius 5:
+  // it touches the flat edge AND the arc — and the equations show big minus small.
+  // the line is a chord of the big semicircle AND a diameter of the small circle.
+  shapes = []; lines = []; nextId = 1;
+  shapes.push({ id: nextId++, cx: 12, cy: 9.5, r: 5, start: 0, sweep: 180, op: 'add', kind: 'sector' });
+  shapes.push({ id: nextId++, cx: 12, cy: 7,   r: 2.5, start: 0, sweep: 360, op: 'sub', kind: 'sector' });
+  lines.push({ id: nextId++, x1: 7, y1: 7, x2: 17, y2: 7 });
+  selectedId = 2; selectedLineId = null;
+  render();
+});
+
+/* init */
+render();
+document.getElementById('btnExample').click();
+</script>
+</body>
+</html>

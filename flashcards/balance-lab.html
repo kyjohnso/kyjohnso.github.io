@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Balance Lab — Solving Equations</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --paper:#F2F7FA; --grid-line:#D5E4EC; --ink:#1F3540; --ink-soft:#5A7280;
+    --panel:#fff; --copper:#C2622E; --amber:#FFB02E; --green:#2E8B6A;
+    --red:#D6493E; --blue:#3A7CA5; --shadow:rgba(31,53,64,.14);
+  }
+  body { font-family:'Karla',sans-serif; color:var(--ink);
+    background:linear-gradient(135deg,#E8F1F6 0%,#F4F1E8 100%); min-height:100vh; padding:1.25rem; }
+  .wrap { max-width:880px; margin:0 auto; }
+  header { text-align:center; margin-bottom:1rem; }
+  h1 { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(1.7rem,4vw,2.4rem); }
+  h1 .ic { color:var(--amber); }
+  .subtitle { color:var(--ink-soft); margin-top:.25rem; }
+  .card { background:var(--panel); border-radius:16px; box-shadow:0 6px 18px var(--shadow); padding:1rem; margin-bottom:1rem; }
+  .toolbar { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; justify-content:center; }
+  .btn { font-family:'Karla',sans-serif; font-weight:700; font-size:.85rem; border:2px solid var(--ink);
+    border-radius:999px; background:#fff; color:var(--ink); padding:.4rem 1rem; cursor:pointer;
+    transition:all .15s; touch-action:manipulation; }
+  .btn:hover { background:var(--ink); color:#fff; }
+  .btn.on { background:var(--ink); color:#fff; }
+  .btn:focus-visible { outline:3px solid var(--amber); outline-offset:2px; }
+  .lvl { font-size:.8rem; padding:.3rem .7rem; }
+
+  .eqbig { font-family:'Space Grotesk',sans-serif; font-size:clamp(1.6rem,5vw,2.3rem); font-weight:700;
+    text-align:center; margin:.4rem 0 1rem; letter-spacing:.02em; }
+  .eqbig .x { color:var(--copper); }
+  .eqbig .solved { color:var(--green); }
+
+  #scaleWrap { width:100%; }
+  #scale { width:100%; height:auto; display:block; }
+
+  .moves h2, .trace h2 { font-family:'Space Grotesk',sans-serif; font-size:.8rem; font-weight:700;
+    text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); margin-bottom:.6rem; }
+  .move-row { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; margin-bottom:.6rem; }
+  .move-row label { font-weight:700; font-size:.9rem; }
+  .move-row input { width:64px; font-family:'Karla',sans-serif; font-size:1rem; font-weight:700;
+    text-align:center; border:2px solid var(--grid-line); border-radius:8px; padding:.3rem; color:var(--ink); }
+  .move-row input:focus { outline:none; border-color:var(--blue); }
+
+  .trace { margin-top:.4rem; }
+  .trace-line { font-family:'Space Grotesk',sans-serif; font-size:1.05rem; padding:.25rem 0;
+    display:flex; justify-content:space-between; align-items:baseline; gap:1rem; }
+  .trace-line .op { color:var(--blue); font-size:.82rem; font-family:'Karla',sans-serif; font-weight:700; }
+  .trace-line.now { color:var(--ink); }
+  .trace-line.past { color:var(--ink-soft); }
+
+  .toast { text-align:center; font-weight:700; padding:.5rem; border-radius:10px; margin-top:.5rem; min-height:1.2rem; }
+  .toast.ok { background:#DDF2E9; color:var(--green); }
+  .toast.bad { background:#FBE3E1; color:var(--red); }
+  .toast.win { background:#FFF6E3; color:var(--copper); font-size:1.05rem; }
+
+  .legend { display:flex; gap:1rem; justify-content:center; font-size:.8rem; color:var(--ink-soft); margin-top:.4rem; flex-wrap:wrap; }
+  .legend span { display:inline-flex; align-items:center; gap:.35rem; }
+  .swatch { width:14px; height:14px; border-radius:3px; border:2px solid var(--ink); }
+  footer { text-align:center; color:var(--ink-soft); font-size:.78rem; margin-top:.5rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1><span class="ic">⚖️</span> Balance Lab</h1>
+    <p class="subtitle">Keep the scales balanced: whatever you do to one side, do to the other — until x is on its own.</p>
+  </header>
+
+  <div class="card">
+    <div class="toolbar">
+      <span style="font-weight:700;font-size:.8rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.1em">Difficulty</span>
+      <button class="btn lvl on" data-lvl="1">One-step</button>
+      <button class="btn lvl" data-lvl="2">Two-step</button>
+      <button class="btn lvl" data-lvl="3">x on both sides</button>
+      <button class="btn" id="btnNew" style="margin-left:auto">↻ New equation</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="eqbig" id="eqBig"></div>
+    <div id="scaleWrap"><svg id="scale" viewBox="0 0 760 300" aria-label="Balance scale"></svg></div>
+    <div class="legend">
+      <span><span class="swatch" style="background:var(--copper)"></span> x (the unknown)</span>
+      <span><span class="swatch" style="background:var(--amber)"></span> +1 unit</span>
+      <span><span class="swatch" style="background:var(--red)"></span> −1 unit</span>
+    </div>
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <div class="card moves">
+    <h2>Do the same to both sides</h2>
+    <div class="move-row">
+      <button class="btn" data-op="sub-n">− <span class="opn">3</span> from both sides</button>
+      <button class="btn" data-op="add-n">+ <span class="opn">3</span> to both sides</button>
+      <label>value <input id="valN" type="number" value="3" min="-20" max="20"></label>
+    </div>
+    <div class="move-row">
+      <button class="btn" data-op="sub-x">remove <span class="opx">1</span>x from both sides</button>
+      <label><input id="valX" type="number" value="1" min="-9" max="9"></label>
+      <button class="btn" data-op="div">÷ both sides by <span class="opd">2</span></button>
+      <label><input id="valD" type="number" value="2" min="1" max="12"></label>
+    </div>
+    <button class="btn" id="btnUndo">↩ Undo last step</button>
+  </div>
+
+  <div class="card trace">
+    <h2>Your working</h2>
+    <div id="trace"></div>
+  </div>
+
+  <footer>Balance Lab · part of the little tutoring tools family</footer>
+</div>
+
+<script>
+"use strict";
+/* equation: L.x · x + L.n  =  R.x · x + R.n  ; we know the true solution `sol` */
+let L, R, sol, level = 1, history = [], solved = false;
+const SVGNS = "http://www.w3.org/2000/svg";
+const $ = id => document.getElementById(id);
+
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b];}return a||1;}
+function randint(a,b){return a+Math.floor(Math.random()*(b-a+1));}
+
+function newEquation() {
+  solved = false; history = [];
+  const s = randint(2, 9); sol = s;
+  if (level === 1) {
+    // ax = b  or  x + b = c
+    if (Math.random() < 0.5) { const a = randint(2,6); L = {x:a, n:0}; R = {x:0, n:a*s}; }
+    else { const b = randint(1,9); L = {x:1, n:b}; R = {x:0, n:s+b}; }
+  } else if (level === 2) {
+    const a = randint(2,5), b = randint(-6,9);
+    L = {x:a, n:b}; R = {x:0, n:a*s+b};
+  } else {
+    let a, d;
+    do { a = randint(2,6); d = randint(1,4); } while (a === d);
+    const b = randint(-5,6);
+    const rn = a*s + b - d*s;   // ensures a*s+b = d*s+rn
+    L = {x:a, n:b}; R = {x:d, n:rn};
+  }
+  pushTrace('start');
+  render();
+  $('toast').className = 'toast'; $('toast').textContent = '';
+}
+
+function snapshot(){ return {L:{...L}, R:{...R}}; }
+function pushTrace(op){ history.push({L:{...L}, R:{...R}, op}); }
+
+function term(side) {
+  const parts = [];
+  if (side.x !== 0) parts.push((side.x === 1 ? '' : side.x === -1 ? '−' : (side.x<0?'−'+Math.abs(side.x):side.x)) + 'x');
+  if (side.n !== 0 || parts.length === 0) {
+    if (parts.length === 0) parts.push((side.n<0?'−':'')+Math.abs(side.n));
+    else parts.push((side.n<0?' − ':' + ')+Math.abs(side.n));
+  }
+  return parts.join('');
+}
+function eqString(l, r){ return term(l) + ' = ' + term(r); }
+
+function checkSolved() {
+  // solved when one side is exactly "x" and the other is a pure number
+  const oneXleft = L.x === 1 && L.n === 0 && R.x === 0;
+  const oneXright = R.x === 1 && R.n === 0 && L.x === 0;
+  return oneXleft || oneXright;
+}
+
+function render() {
+  const eq = $('eqBig');
+  solved = checkSolved();
+  if (solved) {
+    const val = (L.x === 1 ? R.n : L.n);
+    eq.innerHTML = `<span class="x">x</span> = <span class="solved">${val}</span>`;
+  } else {
+    eq.innerHTML = eqString(L,R).replace(/x/g, '<span class="x">x</span>');
+  }
+  drawScale();
+  drawTrace();
+}
+
+/* ---- scale drawing ---- */
+function blocksFor(side) {
+  // returns array of {type:'x'|'pos'|'neg', count}
+  return { x: side.x, n: side.n };
+}
+function drawPan(g, cx, topY, side) {
+  const bw = 30, bh = 30, gap = 5, perRow = 5, startX = cx - (perRow*(bw+gap)-gap)/2;
+  let placed = 0;
+  const place = (fill, label, stroke) => {
+    const col = placed % perRow, row = Math.floor(placed / perRow);
+    const x = startX + col*(bw+gap), y = topY - row*(bh+gap);
+    el('rect', {x, y:y-bh, width:bw, height:bh, rx:5, fill, stroke:stroke||'var(--ink)', 'stroke-width':2}, g);
+    const t = el('text', {x:x+bw/2, y:y-bh/2+5, 'text-anchor':'middle', 'font-size':'14px', 'font-weight':'700',
+      'font-family':'Space Grotesk', fill:'#fff'}, g);
+    t.textContent = label;
+    placed++;
+  };
+  const ax = Math.abs(side.x), an = Math.abs(side.n);
+  for (let i=0;i<ax;i++) place('var(--copper)', side.x<0?'−x':'x');
+  for (let i=0;i<an;i++) place(side.n<0?'var(--red)':'var(--amber)', side.n<0?'−1':'1');
+  if (ax===0 && an===0) { const t=el('text',{x:cx,y:topY-15,'text-anchor':'middle','font-size':'18px',fill:'var(--ink-soft)'},g); t.textContent='0'; }
+}
+
+function el(name, attrs, parent){ const e=document.createElementNS(SVGNS,name); for(const k in attrs) e.setAttribute(k,attrs[k]); if(parent)parent.appendChild(e); return e; }
+
+function drawScale() {
+  const svg = $('scale'); svg.innerHTML = '';
+  const cxL = 200, cxR = 560, pivotX = 380, pivotY = 90, beamLen = 360;
+  // beam stays level (legal moves keep both sides equal); tiny settle wobble handled via CSS-free static
+  const beam = el('g', {}, svg);
+  el('line', {x1:pivotX-beamLen/2, y1:pivotY, x2:pivotX+beamLen/2, y2:pivotY, stroke:'var(--ink)', 'stroke-width':6, 'stroke-linecap':'round'}, beam);
+  // pivot
+  el('polygon', {points:`${pivotX-22},250 ${pivotX+22},250 ${pivotX},${pivotY+6}`, fill:'var(--ink)'}, svg);
+  el('rect', {x:pivotX-50, y:250, width:100, height:12, rx:4, fill:'var(--ink)'}, svg);
+  // hangers
+  [cxL, cxR].forEach(cx => el('line', {x1:cx, y1:pivotY, x2:cx, y2:pivotY+50, stroke:'var(--ink-soft)', 'stroke-width':2}, svg));
+  // pans
+  [cxL, cxR].forEach(cx => {
+    el('path', {d:`M ${cx-60} ${pivotY+50} Q ${cx} ${pivotY+90} ${cx+60} ${pivotY+50}`, fill:'none', stroke:'var(--ink)', 'stroke-width':3}, svg);
+    el('line', {x1:cx-60, y1:pivotY+50, x2:cx+60, y2:pivotY+50, stroke:'var(--ink)', 'stroke-width':2}, svg);
+  });
+  const gL = el('g', {}, svg), gR = el('g', {}, svg);
+  drawPan(gL, cxL, pivotY+48, L);
+  drawPan(gR, cxR, pivotY+48, R);
+}
+
+function drawTrace() {
+  const t = $('trace'); t.innerHTML = '';
+  history.forEach((h, i) => {
+    const last = i === history.length - 1;
+    const line = document.createElement('div');
+    line.className = 'trace-line ' + (last ? 'now' : 'past');
+    const eqTxt = (h.L.x===1&&h.L.n===0&&h.R.x===0) ? 'x = ' + h.R.n
+                : (h.R.x===1&&h.R.n===0&&h.L.x===0) ? 'x = ' + h.L.n
+                : eqString(h.L, h.R);
+    line.innerHTML = `<span>${eqTxt.replace(/x/g,'<i style="color:var(--copper);font-style:normal">x</i>')}</span><span class="op">${h.op==='start'?'':h.op}</span>`;
+    t.appendChild(line);
+  });
+}
+
+/* ---- operations (always both sides) ---- */
+function applyOp(kind) {
+  if (solved) { flash('Already solved! Try a new equation.', 'ok'); return; }
+  const n = parseInt($('valN').value)||0, xv = parseInt($('valX').value)||0, d = parseInt($('valD').value)||1;
+  let op = '';
+  if (kind === 'add-n') { L.n += n; R.n += n; op = `+ ${n} to both sides`; }
+  else if (kind === 'sub-n') { L.n -= n; R.n -= n; op = `− ${n} from both sides`; }
+  else if (kind === 'sub-x') { L.x -= xv; R.x -= xv; op = `remove ${xv}x from both sides`; }
+  else if (kind === 'div') {
+    if (d === 0) { flash("Can't divide by zero!", 'bad'); return; }
+    if (L.x % d !== 0 || L.n % d !== 0 || R.x % d !== 0 || R.n % d !== 0) {
+      flash(`Both sides must divide evenly by ${d} — try isolating the x term first.`, 'bad'); return;
+    }
+    L.x/=d; L.n/=d; R.x/=d; R.n/=d; op = `÷ both sides by ${d}`;
+  }
+  pushTrace(op);
+  render();
+  if (checkSolved()) {
+    const val = (L.x===1?R.n:L.n);
+    flash(`🎉 Solved in ${history.length-1} step${history.length-1===1?'':'s'}: x = ${val}`, 'win');
+  } else {
+    flash('Still balanced ✓', 'ok');
+  }
+}
+function flash(msg, cls){ const t=$('toast'); t.className='toast '+cls; t.textContent=msg; }
+
+/* ---- wiring ---- */
+document.querySelectorAll('[data-op]').forEach(b => b.addEventListener('click', () => applyOp(b.dataset.op)));
+document.querySelectorAll('[data-lvl]').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('[data-lvl]').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); level = +b.dataset.lvl; newEquation();
+}));
+$('btnNew').addEventListener('click', newEquation);
+$('btnUndo').addEventListener('click', () => {
+  if (history.length > 1) { history.pop(); const h=history[history.length-1]; L={...h.L}; R={...h.R}; solved=false; render(); flash('Undid one step', 'ok'); }
+});
+const sync = () => {
+  $('valN').oninput = () => document.querySelectorAll('.opn').forEach(s=>s.textContent=$('valN').value);
+  $('valX').oninput = () => document.querySelectorAll('.opx').forEach(s=>s.textContent=$('valX').value);
+  $('valD').oninput = () => document.querySelectorAll('.opd').forEach(s=>s.textContent=$('valD').value);
+};
+sync();
+newEquation();
+</script>
+</body>
+</html>
