@@ -107,6 +107,11 @@
     margin-bottom: 0.6rem;
   }
   .canvas-toolbar .spacer { flex: 1; }
+  .toggle-label {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    font-weight: 700; font-size: 0.85rem; color: var(--ink); cursor: pointer;
+  }
+  .toggle-label input { accent-color: var(--copper); width: 16px; height: 16px; }
   .btn {
     font-family: 'Karla', sans-serif; font-weight: 700; font-size: 0.85rem;
     border: 2px solid var(--ink); border-radius: 999px;
@@ -274,6 +279,7 @@
     <div class="card canvas-card">
       <div class="canvas-toolbar">
         <span id="statusBanner" class="status-banner status-off">No complete loop yet</span>
+        <label class="toggle-label"><input type="checkbox" id="chkMeters" checked> Show V &amp; I on parts</label>
         <span class="spacer"></span>
         <button class="btn" id="btnExample">Load example</button>
         <button class="btn danger" id="btnClear">Clear board</button>
@@ -306,6 +312,7 @@ let nextId = 1;
 let selectedId = null;
 let shortCircuit = false;
 let sliderActive = false;   // true while an inspector slider is being dragged (esp. touch)
+let showMeters = true;      // toolbar toggle: show V & I on every part (always, even when 0)
 
 const px = c => PAD + c * CELL;
 const py = r => PAD + r * CELL;
@@ -552,30 +559,21 @@ function drawComponent(g, c) {
   // meaningful voltage across it, e.g. an open switch holding the supply voltage).
   // Wires are skipped — they'd repeat the same value on every segment and already
   // show current through the animated flow.
-  if (!shortCircuit && c.type !== 'wire') {
-    const Iabs = Math.abs(c._I || 0), Vabs = Math.abs(c._Vd || 0);
-    const live = Iabs > 1e-4 || Vabs > 1e-3;
-    const lines = [];
-    if (c.type === 'switch') {
-      // always show BOTH on a switch (once it's in a live circuit) so the open ↔ closed
-      // flip reads clearly as "0 mA / full volts" ↔ "full current / 0 V"
-      if (live) lines.push(fmt(Iabs, 'A'), fmt(Vabs, 'V'));
-    } else {
-      if (Iabs > 1e-4) lines.push(fmt(Iabs, 'A'));
-      if (Vabs > 1e-3) lines.push(fmt(Vabs, 'V'));
-    }
-    if (lines.length) {
-      const lineH = 12;
-      const x = horiz ? mx : mx - 40;
-      const y = horiz ? my - 20 - lineH * (lines.length - 1)   // stacked block above the part
-                      : my + 4 - lineH * (lines.length - 1) / 2; // centred to the left
-      const t = el('text', { x, y, 'text-anchor': 'middle',
-        class: 'meas' + (c.id === selectedId ? ' sel' : '') }, grp);
-      lines.forEach((ln, i) => {
-        const ts = el('tspan', { x, dy: i === 0 ? 0 : lineH }, t);
-        ts.textContent = ln;
-      });
-    }
+  if (showMeters && !shortCircuit && c.type !== 'wire') {
+    // both values, always shown (even when 0) so e.g. a switch reads
+    // "0 mA / full volts" open and "full current / 0 V" closed. Wires are
+    // skipped — they'd repeat the same value on every segment.
+    const lines = [fmt(Math.abs(c._I || 0), 'A'), fmt(Math.abs(c._Vd || 0), 'V')];
+    const lineH = 12;
+    const x = horiz ? mx : mx - 40;
+    const y = horiz ? my - 20 - lineH * (lines.length - 1)     // stacked block above the part
+                    : my + 4 - lineH * (lines.length - 1) / 2; // centred to the left
+    const t = el('text', { x, y, 'text-anchor': 'middle',
+      class: 'meas' + (c.id === selectedId ? ' sel' : '') }, grp);
+    lines.forEach((ln, i) => {
+      const ts = el('tspan', { x, dy: i === 0 ? 0 : lineH }, t);
+      ts.textContent = ln;
+    });
   }
 
   // generous invisible hit area (extra-large on touch screens)
@@ -938,6 +936,10 @@ window.addEventListener('keydown', e => {
 /* ============================================================
    TOOLBAR
    ============================================================ */
+document.getElementById('chkMeters').addEventListener('change', e => {
+  showMeters = e.target.checked;
+  render();
+});
 document.getElementById('btnClear').addEventListener('click', () => {
   components = []; selectedId = null; solveCircuit();
 });
