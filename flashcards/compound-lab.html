@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compound Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{ --paper:#F2F7FA; --grid-line:#D5E4EC; --ink:#1F3540; --ink-soft:#5A7280; --panel:#fff;
+    --copper:#C2622E; --amber:#FFB02E; --green:#2E8B6A; --red:#D6493E; --blue:#3A7CA5; --purple:#7B5EA7; --shadow:rgba(31,53,64,.14); }
+  body{ font-family:'Karla',sans-serif; color:var(--ink); background:linear-gradient(135deg,#E8F1F6,#F4F1E8); min-height:100vh; padding:1.25rem; }
+  .wrap{ max-width:920px; margin:0 auto; }
+  header{ text-align:center; margin-bottom:1rem; }
+  h1{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(1.7rem,4vw,2.4rem); }
+  .subtitle{ color:var(--ink-soft); margin-top:.25rem; }
+  .tabs{ display:flex; justify-content:center; gap:.5rem; margin-top:.8rem; flex-wrap:wrap; }
+  .card{ background:var(--panel); border-radius:16px; box-shadow:0 6px 18px var(--shadow); padding:1rem; margin-bottom:1rem; }
+  .btn{ font-family:'Karla',sans-serif; font-weight:700; font-size:.85rem; border:2px solid var(--ink); border-radius:999px;
+    background:#fff; color:var(--ink); padding:.45rem 1rem; cursor:pointer; transition:all .15s; touch-action:manipulation; }
+  .btn:hover{ background:var(--ink); color:#fff; } .btn.on{ background:var(--ink); color:#fff; }
+  .btn:focus-visible{ outline:3px solid var(--amber); outline-offset:2px; }
+  .tool-tabs{ display:flex; gap:.4rem; flex-wrap:wrap; justify-content:center; margin-bottom:1rem; }
+  .tool-tabs .btn{ font-size:.78rem; padding:.35rem .8rem; }
+  .panel-h{ font-family:'Space Grotesk',sans-serif; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); margin-bottom:.6rem; }
+  .compound-row{ display:flex; gap:.4rem; flex-wrap:wrap; justify-content:center; margin-bottom:.8rem; }
+  .compound-row .btn{ font-size:.85rem; padding:.35rem .8rem; }
+  .compound-row .btn sub{ font-size:.65em; }
+  .grid{ display:grid; grid-template-columns:1fr 280px; gap:1rem; align-items:start; }
+  @media (max-width:760px){ .grid{ grid-template-columns:1fr; } }
+  #mol{ width:100%; height:auto; display:block; background:var(--paper); border-radius:12px; }
+  .fdisp{ font-family:'Space Grotesk',sans-serif; font-size:2rem; font-weight:700; text-align:center; margin:.3rem 0; }
+  .fdisp sub{ font-size:.6em; color:var(--copper); }
+  .fname{ text-align:center; color:var(--ink-soft); font-weight:700; margin-bottom:.6rem; }
+  .ro{ display:flex; justify-content:space-between; font-size:.93rem; padding:.22rem 0; border-top:1px dashed var(--grid-line); align-items:center; }
+  .ro:first-child{ border-top:none; }
+  .dotk{ width:14px; height:14px; border-radius:50%; border:2px solid var(--ink); display:inline-block; margin-right:.4rem; vertical-align:-2px; }
+  .work{ font-size:.86rem; color:var(--ink-soft); line-height:1.6; margin-top:.7rem; background:var(--paper); border-radius:10px; padding:.7rem .9rem; }
+  .work b{ color:var(--ink); }
+  .tag{ display:inline-block; font-size:.78rem; font-weight:700; padding:.18rem .6rem; border-radius:999px; }
+  .tag.el{ background:#DDEAF2; color:var(--blue); } .tag.cmp{ background:#DDF2E9; color:var(--green); }
+  /* classifier */
+  #boxStage{ width:100%; max-width:430px; height:auto; display:block; margin:0 auto .8rem; background:var(--paper); border-radius:12px; border:2px solid var(--grid-line); }
+  .classify-btns{ display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap; }
+  .classify-btns .btn{ font-size:1rem; padding:.6rem 1.4rem; }
+  .verdict{ text-align:center; font-weight:700; padding:.6rem; border-radius:10px; margin-top:.7rem; min-height:1.4rem; }
+  .verdict.ok{ background:#DDF2E9; color:var(--green); } .verdict.bad{ background:#FBE3E1; color:var(--red); }
+  .streak{ text-align:center; color:var(--ink-soft); font-weight:700; margin-top:.4rem; }
+  /* quiz */
+  .quiz-card{ max-width:600px; margin:0 auto; }
+  .qprog{ display:flex; gap:.3rem; justify-content:center; margin-bottom:1rem; }
+  .qprog .dot{ width:11px; height:11px; border-radius:50%; background:var(--grid-line); }
+  .qprog .dot.now{ background:var(--ink); } .qprog .dot.right{ background:var(--green); } .qprog .dot.wrong{ background:var(--red); }
+  .qtext{ font-family:'Space Grotesk',sans-serif; font-size:1.2rem; font-weight:500; text-align:center; margin-bottom:1rem; }
+  .qtext sub{ font-size:.65em; }
+  .opts{ display:grid; grid-template-columns:1fr 1fr; gap:.6rem; }
+  .opt{ font-family:'Space Grotesk',sans-serif; font-size:1.02rem; font-weight:700; padding:.8rem; border:2px solid var(--grid-line); border-radius:12px; background:var(--paper); cursor:pointer; transition:all .12s; touch-action:manipulation; }
+  .opt sub{ font-size:.65em; }
+  .opt:hover:not(:disabled){ border-color:var(--ink); } .opt:disabled{ cursor:default; }
+  .opt.correct{ border-color:var(--green); background:#DDF2E9; } .opt.incorrect{ border-color:var(--red); background:#FBE3E1; }
+  .explain{ margin-top:.9rem; padding:.75rem .9rem; border-radius:12px; background:#FFF6E3; border:2px solid var(--amber); font-size:.95rem; line-height:1.5; display:none; }
+  .quiz-foot{ display:flex; justify-content:space-between; align-items:center; margin-top:1rem; } .score-pill{ font-weight:700; color:var(--ink-soft); }
+  .result-screen{ text-align:center; padding:1rem 0; } .result-screen .big{ font-size:3rem; } .result-screen h3{ font-family:'Space Grotesk',sans-serif; font-size:1.5rem; margin:.5rem 0; }
+  footer{ text-align:center; color:var(--ink-soft); font-size:.78rem; margin-top:.5rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🧬 Compound Lab</h1>
+    <p class="subtitle">Read chemical formulae, count the atoms, and learn to spot elements, compounds and mixtures.</p>
+    <div class="tabs"><button class="btn on" id="tabPlay">Explore</button><button class="btn" id="tabQuiz">🎓 Review quiz</button></div>
+  </header>
+
+  <section id="playMode">
+    <div class="card">
+      <div class="tool-tabs" id="toolTabs">
+        <button class="btn on" data-tool="formula">Read a formula</button>
+        <button class="btn" data-tool="classify">Element, compound or mixture?</button>
+      </div>
+      <div id="toolBody"></div>
+    </div>
+  </section>
+
+  <section id="quizMode" style="display:none"><div class="card quiz-card" id="quizCard"></div></section>
+  <footer>Compound Lab · part of the little tutoring tools family</footer>
+</div>
+
+<script>
+"use strict";
+const SVGNS="http://www.w3.org/2000/svg";
+const $=id=>document.getElementById(id);
+function el(n,a,p){const e=document.createElementNS(SVGNS,n);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e;}
+let tool='formula';
+
+const ATOM_COLOR={H:'#E9EEF2',O:'#D6493E',C:'#3A3F46',N:'#3A7CA5',Cl:'#2E8B6A',Na:'#7B5EA7',Ca:'#FFB02E',S:'#D8B83A',Mg:'#7AA05A'};
+const ATOM_R={H:11,O:15,C:15,N:15,Cl:16,Na:17,Ca:18,S:16,Mg:16};
+const ENAME={H:'hydrogen',O:'oxygen',C:'carbon',N:'nitrogen',Cl:'chlorine',Na:'sodium',Ca:'calcium',S:'sulfur',Mg:'magnesium'};
+
+/* parts: [element, count]; layout: list of [element, x, y] atom placements + bonds [i,j] */
+const COMPOUNDS=[
+ {f:'H2O', name:'water', parts:[['H',2],['O',1]], kind:'compound',
+  atoms:[['O',0,0],['H',-34,24],['H',34,24]], bonds:[[0,1],[0,2]],
+  note:'Two hydrogen atoms bonded to one oxygen atom. Hydrogen burns and oxygen feeds fires — yet bonded together they make water, which puts fires out!'},
+ {f:'CO2', name:'carbon dioxide', parts:[['C',1],['O',2]], kind:'compound',
+  atoms:[['C',0,0],['O',-44,0],['O',44,0]], bonds:[[0,1],[0,2]],
+  note:'The gas you breathe out, and the fizz in fizzy drinks. "Di-" means two — two oxygens.'},
+ {f:'O2', name:'oxygen (the element!)', parts:[['O',2]], kind:'element',
+  atoms:[['O',-18,0],['O',18,0]], bonds:[[0,1]],
+  note:'Careful — this is a molecule but NOT a compound. Both atoms are the same element, so O₂ is just the element oxygen.'},
+ {f:'NaCl', name:'sodium chloride (table salt)', parts:[['Na',1],['Cl',1]], kind:'compound',
+  atoms:[['Na',-20,0],['Cl',22,0]], bonds:[[0,1]],
+  note:'Sodium is a metal that explodes in water; chlorine is a poisonous gas. Chemically bonded, they make the salt on your chips. Compounds have completely different properties from their elements.'},
+ {f:'CH4', name:'methane (natural gas)', parts:[['C',1],['H',4]], kind:'compound',
+  atoms:[['C',0,0],['H',0,-38],['H',38,0],['H',0,38],['H',-38,0]], bonds:[[0,1],[0,2],[0,3],[0,4]],
+  note:'The gas burned in boilers and hobs: one carbon with four hydrogens.'},
+ {f:'NH3', name:'ammonia', parts:[['N',1],['H',3]], kind:'compound',
+  atoms:[['N',0,-6],['H',-34,22],['H',0,34],['H',34,22]], bonds:[[0,1],[0,2],[0,3]],
+  note:'Sharp-smelling gas used to make fertilisers.'},
+ {f:'HCl', name:'hydrogen chloride', parts:[['H',1],['Cl',1]], kind:'compound',
+  atoms:[['H',-22,0],['Cl',16,0]], bonds:[[0,1]],
+  note:'Dissolved in water this becomes hydrochloric acid — the acid in your stomach.'},
+ {f:'MgO', name:'magnesium oxide', parts:[['Mg',1],['O',1]], kind:'compound',
+  atoms:[['Mg',-20,0],['O',20,0]], bonds:[[0,1]],
+  note:'Made when magnesium burns in oxygen with a blinding white flame.'},
+ {f:'CaCO3', name:'calcium carbonate', parts:[['Ca',1],['C',1],['O',3]], kind:'compound',
+  atoms:[['Ca',-58,0],['C',8,0],['O',8,-40],['O',42,24],['O',-26,24]], bonds:[[1,2],[1,3],[1,4]],
+  note:'Chalk, limestone, marble and seashells are all calcium carbonate. The ₃ belongs only to the O just before it.'},
+];
+let current=COMPOUNDS[0];
+
+function fmtFormula(f){ return f.replace(/(\d+)/g,'<sub>$1</sub>'); }
+
+function renderFormula(){
+  $('toolBody').innerHTML=`
+    <div class="compound-row" id="cRow"></div>
+    <div class="grid">
+      <div><svg id="mol" viewBox="-130 -90 260 190" aria-label="Molecule diagram"></svg></div>
+      <div>
+        <div class="fdisp" id="fDisp"></div>
+        <div class="fname" id="fName"></div>
+        <div id="counts"></div>
+        <div class="work" id="fWork"></div>
+      </div>
+    </div>`;
+  const row=$('cRow');
+  COMPOUNDS.forEach(c=>{
+    const b=document.createElement('button'); b.className='btn'+(c===current?' on':''); b.innerHTML=fmtFormula(c.f);
+    b.addEventListener('click',()=>{ current=c; renderFormula(); });
+    row.appendChild(b);
+  });
+  drawMol(); showCounts();
+}
+function drawMol(){
+  const svg=$('mol'); svg.innerHTML='';
+  current.bonds.forEach(([i,j])=>{
+    const a=current.atoms[i], b=current.atoms[j];
+    el('line',{x1:a[1],y1:a[2],x2:b[1],y2:b[2],stroke:'var(--ink-soft)','stroke-width':4},svg);
+  });
+  current.atoms.forEach(([sym,x,y])=>{
+    el('circle',{cx:x,cy:y,r:ATOM_R[sym],fill:ATOM_COLOR[sym],stroke:'var(--ink)','stroke-width':2},svg);
+    const t=el('text',{x,y:y+4,'text-anchor':'middle','font-family':'Space Grotesk','font-weight':'700','font-size':'11px',
+      fill:(sym==='H'||sym==='Ca'||sym==='S')?'var(--ink)':'#fff'},svg);
+    t.textContent=sym;
+  });
+  el('text',{x:0,y:88,'text-anchor':'middle','font-size':'11px',fill:'var(--ink-soft)'},svg).textContent =
+    current.kind==='compound'?'different elements, chemically bonded':'same element — atoms identical';
+}
+function showCounts(){
+  $('fDisp').innerHTML=fmtFormula(current.f);
+  $('fName').innerHTML=`${current.name} <span class="tag ${current.kind==='compound'?'cmp':'el'}">${current.kind}</span>`;
+  const total=current.parts.reduce((s,[,n])=>s+n,0);
+  $('counts').innerHTML = current.parts.map(([sym,n])=>
+    `<div class="ro"><span><span class="dotk" style="background:${ATOM_COLOR[sym]}"></span>${ENAME[sym]} (${sym})</span><b>× ${n}</b></div>`).join('')
+    + `<div class="ro"><span><b>total atoms</b></span><b>${total}</b></div>`;
+  const subNote = /\d/.test(current.f)
+    ? `The little number (subscript) counts <b>only the atom just before it</b>: in ${fmtFormula(current.f)}, `+
+      current.parts.filter(([,n])=>n>1).map(([s,n])=>`the ${n} belongs to ${s}`).join(' and ')+'.'
+    : `No little numbers means one of each atom.`;
+  $('fWork').innerHTML=`${subNote}<br><br>${current.note}`;
+}
+
+/* ---------- classifier game ---------- */
+const KINDCOLORS=['#3A7CA5','#D6493E','#FFB02E','#2E8B6A','#7B5EA7'];
+let box=null, streak=0;
+function renderClassify(){
+  $('toolBody').innerHTML=`
+    <div class="panel-h" style="text-align:center">What's in the box?</div>
+    <svg id="boxStage" viewBox="0 0 300 200"></svg>
+    <div class="classify-btns">
+      <button class="btn" data-ans="element">Element</button>
+      <button class="btn" data-ans="compound">Compound</button>
+      <button class="btn" data-ans="mixture">Mixture</button>
+    </div>
+    <div class="verdict" id="verdict"></div>
+    <div class="streak" id="streak"></div>`;
+  document.querySelectorAll('[data-ans]').forEach(b=>b.addEventListener('click',()=>judge(b.dataset.ans)));
+  newBox();
+}
+function rnd(a,b){return a+Math.random()*(b-a);}
+function placeMolecules(svg, molMaker, count, placed){
+  // scatter without heavy overlap
+  for(let i=0;i<count;i++){
+    let x,y,tries=0;
+    do{ x=rnd(30,270); y=rnd(28,172); tries++; }while(tries<40 && placed.some(p=>Math.hypot(p[0]-x,p[1]-y)<36));
+    placed.push([x,y]); molMaker(svg,x,y);
+  }
+}
+function atomC(svg,x,y,col,r){ el('circle',{cx:x,cy:y,r:r||9,fill:col,stroke:'var(--ink)','stroke-width':1.8},svg); }
+const BOXTYPES=[
+ {ans:'element', desc:'single atoms, all identical — one element (like helium)',
+  draw:(svg)=>{ const c=KINDCOLORS[0]; const placed=[]; placeMolecules(svg,(s,x,y)=>atomC(s,x,y,c),12,placed); }},
+ {ans:'element', desc:'molecules of two identical atoms — still one element (like oxygen, O₂)',
+  draw:(svg)=>{ const c=KINDCOLORS[1]; const placed=[]; placeMolecules(svg,(s,x,y)=>{el('line',{x1:x-8,y1:y,x2:x+8,y2:y,stroke:'var(--ink-soft)','stroke-width':3},s);atomC(s,x-8,y,c);atomC(s,x+8,y,c);},8,placed); }},
+ {ans:'compound', desc:'every molecule is identical and contains different atoms bonded together — a compound (like water)',
+  draw:(svg)=>{ const c1=KINDCOLORS[1],c2=KINDCOLORS[0]; const placed=[];
+    placeMolecules(svg,(s,x,y)=>{el('line',{x1:x,y1:y,x2:x-11,y2:y+11,stroke:'var(--ink-soft)','stroke-width':3},s);el('line',{x1:x,y1:y,x2:x+11,y2:y+11,stroke:'var(--ink-soft)','stroke-width':3},s);atomC(s,x,y,c1,10);atomC(s,x-11,y+11,c2,7);atomC(s,x+11,y+11,c2,7);},8,placed); }},
+ {ans:'mixture', desc:'two different kinds of atoms NOT bonded together — a mixture of elements',
+  draw:(svg)=>{ const placed=[]; placeMolecules(svg,(s,x,y)=>atomC(s,x,y,KINDCOLORS[3]),7,placed);
+    placeMolecules(svg,(s,x,y)=>atomC(s,x,y,KINDCOLORS[4],11),6,placed); }},
+ {ans:'mixture', desc:'element molecules AND compound molecules together, not bonded to each other — a mixture (like air)',
+  draw:(svg)=>{ const placed=[];
+    placeMolecules(svg,(s,x,y)=>{el('line',{x1:x-8,y1:y,x2:x+8,y2:y,stroke:'var(--ink-soft)','stroke-width':3},s);atomC(s,x-8,y,KINDCOLORS[0]);atomC(s,x+8,y,KINDCOLORS[0]);},5,placed);
+    placeMolecules(svg,(s,x,y)=>{el('line',{x1:x-12,y1:y,x2:x+12,y2:y,stroke:'var(--ink-soft)','stroke-width':3},s);atomC(s,x,y,KINDCOLORS[2],9);atomC(s,x-12,y,KINDCOLORS[1],8);atomC(s,x+12,y,KINDCOLORS[1],8);},5,placed); }},
+];
+let lastIdx=-1;
+function newBox(){
+  let i; do{ i=Math.floor(Math.random()*BOXTYPES.length); }while(i===lastIdx);
+  lastIdx=i; box=BOXTYPES[i];
+  const svg=$('boxStage'); svg.innerHTML=''; box.draw(svg);
+  $('verdict').className='verdict'; $('verdict').textContent='';
+  $('streak').textContent=streak>0?`Streak: ${streak} 🔥`:'';
+}
+function judge(ans){
+  const v=$('verdict');
+  if(ans===box.ans){ streak++; v.className='verdict ok'; v.innerHTML=`✓ Correct — ${box.desc}.`; setTimeout(newBox,1900); }
+  else { streak=0; v.className='verdict bad'; v.innerHTML=`✗ Not quite — this one is a <b>${box.ans}</b>: ${box.desc}.`; setTimeout(newBox,2600); }
+  $('streak').textContent=streak>0?`Streak: ${streak} 🔥`:'';
+}
+
+document.querySelectorAll('#toolTabs .btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#toolTabs .btn').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  tool=b.dataset.tool; if(tool==='formula')renderFormula(); else renderClassify();
+}));
+
+/* ---------- QUIZ ---------- */
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function mc(text,correct,distract,explain){const opts=shuffle([correct,...distract]);return{text,opts,answer:opts.indexOf(correct),explain};}
+function buildBank(){
+  const Q=[];
+  Q.push(mc('A compound is…','two or more different elements chemically bonded',
+    ['any two substances stirred together','a single element in its pure form','a mixture of elements without bonding'],
+    'Compound = different elements chemically bonded. Stirring things together only makes a mixture.'));
+  Q.push(mc('How many atoms are in one molecule of H<sub>2</sub>O?','3',['2','1','4'],'2 hydrogens + 1 oxygen = 3 atoms.'));
+  Q.push(mc('How many oxygen atoms are in CO<sub>2</sub>?','2',['1','3','0'],'The ₂ after the O means two oxygen atoms.'));
+  Q.push(mc('How many atoms in total are in CaCO<sub>3</sub>?','5',['3','4','6'],'1 calcium + 1 carbon + 3 oxygens = 5 atoms.'));
+  Q.push(mc('Which of these is a compound?','carbon dioxide',['oxygen','air','iron'],'CO₂ contains two different elements bonded. Oxygen and iron are elements; air is a mixture.'));
+  Q.push(mc('Which of these is a mixture?','air',['water','table salt','carbon dioxide'],'Air is nitrogen, oxygen, CO₂ and more — together but not bonded. The others are compounds.'));
+  Q.push(mc('O<sub>2</sub> is…','an element (both atoms are the same)',['a compound','a mixture','an alloy'],'A molecule of two identical atoms is still just one element.'));
+  Q.push(mc('In CH<sub>4</sub>, the small 4 tells you…','there are 4 hydrogen atoms',['there are 4 carbon atoms','there are 4 molecules','the mass is 4'],'A subscript counts only the atom immediately before it.'));
+  Q.push(mc('Compared with the elements that make it, a compound has…','completely different properties',['exactly the same properties','the average of their properties','no properties'],'E.g. explosive sodium + toxic chlorine → edible salt. Compounds behave like new substances.'));
+  Q.push(mc('Which is easy to separate back into its parts?','a mixture',['a compound','an element','a molecule'],'Mixtures aren\'t bonded, so filtering/evaporating works. Splitting a compound needs a chemical reaction.'));
+  Q.push(mc('The formula for water is…','H<sub>2</sub>O',['HO<sub>2</sub>','H<sub>2</sub>O<sub>2</sub>','HO'],'Water is two hydrogens bonded to one oxygen: H₂O.'));
+  Q.push(mc('Sodium chloride (NaCl) contains…','sodium and chlorine',['sodium and carbon','nitrogen and chlorine','sodium and calcium'],'Na = sodium, Cl = chlorine. Watch out: Na is sodium (Latin natrium), not nitrogen!'));
+  Q.push(mc('How many atoms are in one molecule of CO<sub>2</sub>?','3',['2','1','4'],'1 carbon + 2 oxygen = 3 atoms.'));
+  Q.push(mc('How many atoms are in one unit of NaCl?','2',['1','3','4'],'1 sodium + 1 chlorine = 2 atoms.'));
+  Q.push(mc('How many atoms are in one molecule of NH<sub>3</sub>?','4',['3','2','5'],'1 nitrogen + 3 hydrogen = 4 atoms.'));
+  Q.push(mc('How many atoms are in one molecule of CH<sub>4</sub>?','5',['4','2','6'],'1 carbon + 4 hydrogen = 5 atoms.'));
+  Q.push(mc('How many atoms are in one unit of MgO?','2',['1','3','4'],'1 magnesium + 1 oxygen = 2 atoms.'));
+  Q.push(mc('How many hydrogen atoms are in H<sub>2</sub>O?','2',['1','3','4'],'The little 2 after H means two hydrogen atoms.'));
+  Q.push(mc('How many oxygen atoms are in CaCO<sub>3</sub>?','3',['1','2','6'],'The 3 after the O means three oxygen atoms.'));
+  Q.push(mc('Which of these is an element?','oxygen',['water','table salt','carbon dioxide'],'Oxygen is one type of atom. The others are compounds.'));
+  Q.push(mc('Which of these is a compound?','water',['oxygen','hydrogen','helium'],'Water (H₂O) is different elements bonded together. The others are elements.'));
+  Q.push(mc('Which of these is a mixture?','air',['water','table salt','carbon dioxide'],'Air is several gases together but not bonded — a mixture.'));
+  Q.push(mc('Water is made from which elements?','hydrogen and oxygen',['hydrogen and carbon','oxygen and nitrogen','sodium and oxygen'],'H₂O is hydrogen and oxygen bonded together.'));
+  Q.push(mc('Carbon dioxide is made from which elements?','carbon and oxygen',['carbon and hydrogen','calcium and oxygen','nitrogen and oxygen'],'CO₂ is carbon and oxygen bonded together.'));
+  Q.push(mc('A mixture can be separated by…','physical methods like filtering',['only a chemical reaction','it cannot be separated','only by burning'],'Mixtures aren\'t bonded, so filtering or evaporating separates them.'));
+  Q.push(mc('A compound can only be separated by…','a chemical reaction',['filtering','stirring','evaporation'],'The atoms are chemically bonded, so a reaction is needed to split them.'));
+  Q.push(mc('In the formula CaCO<sub>3</sub>, the small 3 applies to…','only the oxygen atoms',['all the atoms','only calcium','carbon and oxygen'],'A subscript counts only the atom immediately before it — here, oxygen.'));
+  Q.push(mc('The formula for carbon dioxide is…','CO<sub>2</sub>',['CO','C<sub>2</sub>O','CaCO<sub>3</sub>'],'One carbon and two oxygens: CO₂.'));
+  Q.push(mc('The formula for methane is…','CH<sub>4</sub>',['CH','C<sub>4</sub>H','CO<sub>2</sub>'],'One carbon and four hydrogens: CH₄.'));
+  Q.push(mc('When elements bond into a compound, the new substance…','has different properties from the elements',['has the same properties','has no properties at all','stays a mixture'],'E.g. sodium + chlorine → salt, which is nothing like either element.'));
+  Q.push(mc('O<sub>2</sub> contains how many oxygen atoms?','2',['1','3','6'],'O₂ is a molecule of two oxygen atoms — still the element oxygen.'));
+  Q.push(mc('Table salt (NaCl) is an example of a…','compound',['element','mixture','metal'],'Sodium and chlorine are chemically bonded, so it is a compound.'));
+  Q.push(mc('Air is an example of a…','mixture',['compound','element','molecule'],'Air is nitrogen, oxygen and other gases mixed but not bonded.'));
+  Q.push(mc('Two or more substances simply mixed, not bonded, is a…','mixture',['compound','element','molecule'],'No chemical bonds form in a mixture.'));
+  return shuffle(Q);
+}
+const QLEN=8; let quiz=null;
+function startQuiz(){ quiz={qs:buildBank().slice(0,QLEN),idx:0,score:0,results:[]}; renderQ(); }
+function renderQ(){
+  const q=quiz.qs[quiz.idx], c=$('quizCard');
+  let dots=''; for(let i=0;i<QLEN;i++){let cl='dot';if(i<quiz.results.length)cl+=quiz.results[i]?' right':' wrong';else if(i===quiz.idx)cl+=' now';dots+=`<span class="${cl}"></span>`;}
+  c.innerHTML=`<div class="qprog">${dots}</div><div class="qtext">${q.text}</div>
+    <div class="opts">${q.opts.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join('')}</div>
+    <div class="explain" id="ex"></div>
+    <div class="quiz-foot"><span class="score-pill">Score: ${quiz.score}/${quiz.results.length}</span><button class="btn" id="nx" style="display:none">Next →</button></div>`;
+  c.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{
+    const i=+b.dataset.i, right=i===q.answer; quiz.results.push(right); if(right)quiz.score++;
+    c.querySelectorAll('.opt').forEach((x,j)=>{x.disabled=true;if(j===q.answer)x.classList.add('correct');else if(j===i)x.classList.add('incorrect');});
+    const ex=$('ex'); ex.style.display='block'; ex.innerHTML=(right?'✅ ':'❌ ')+q.explain;
+    c.querySelector('.score-pill').textContent=`Score: ${quiz.score}/${quiz.results.length}`;
+    const nx=$('nx'); nx.style.display='inline-block'; nx.textContent=quiz.idx+1<QLEN?'Next →':'Results →';
+    nx.onclick=()=>{ quiz.idx++; if(quiz.idx<QLEN)renderQ(); else results(); };
+  }));
+}
+function results(){
+  const pct=quiz.score/QLEN; let e='🧬',t='Compound champion!';
+  if(pct<0.5){e='⚗️';t='Keep bonding with it!';} else if(pct<0.8){e='🔬';t='Nice work!';}
+  $('quizCard').innerHTML=`<div class="result-screen"><div class="big">${e}</div><h3>${t}</h3>
+    <p style="color:var(--ink-soft)">You scored ${quiz.score} out of ${QLEN}.</p>
+    <button class="btn" id="rt">Try again</button> <button class="btn" id="bk">Back to explore</button></div>`;
+  $('rt').onclick=startQuiz; $('bk').onclick=()=>setMode('play');
+}
+function setMode(m){
+  $('playMode').style.display=m==='play'?'':'none'; $('quizMode').style.display=m==='play'?'none':'';
+  $('tabPlay').classList.toggle('on',m==='play'); $('tabQuiz').classList.toggle('on',m!=='play');
+  if(m!=='play') startQuiz();
+}
+$('tabPlay').onclick=()=>setMode('play'); $('tabQuiz').onclick=()=>setMode('quiz');
+
+renderFormula();
+</script>
+</body>
+</html>

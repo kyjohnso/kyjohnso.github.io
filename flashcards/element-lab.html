@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Element Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{ --paper:#F2F7FA; --grid-line:#D5E4EC; --ink:#1F3540; --ink-soft:#5A7280; --panel:#fff;
+    --copper:#C2622E; --amber:#FFB02E; --green:#2E8B6A; --red:#D6493E; --blue:#3A7CA5; --purple:#7B5EA7; --shadow:rgba(31,53,64,.14);
+    --metal:#9FBED1; --metalloid:#C9B97E; --nonmetal:#F0B66E; --noble:#C9A8D8; }
+  body{ font-family:'Karla',sans-serif; color:var(--ink); background:linear-gradient(135deg,#EAF2F7,#F4EFEA); min-height:100vh; padding:1.25rem; }
+  .wrap{ max-width:1000px; margin:0 auto; }
+  header{ text-align:center; margin-bottom:1rem; }
+  h1{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(1.7rem,4vw,2.4rem); }
+  .subtitle{ color:var(--ink-soft); margin-top:.25rem; }
+  .tabs{ display:flex; justify-content:center; gap:.5rem; margin-top:.8rem; flex-wrap:wrap; }
+  .card{ background:var(--panel); border-radius:16px; box-shadow:0 6px 18px var(--shadow); padding:1rem; margin-bottom:1rem; }
+  .btn{ font-family:'Karla',sans-serif; font-weight:700; font-size:.85rem; border:2px solid var(--ink); border-radius:999px;
+    background:#fff; color:var(--ink); padding:.45rem 1rem; cursor:pointer; transition:all .15s; touch-action:manipulation; }
+  .btn:hover{ background:var(--ink); color:#fff; } .btn.on{ background:var(--ink); color:#fff; }
+  .btn:focus-visible{ outline:3px solid var(--amber); outline-offset:2px; }
+  .hl-tabs{ display:flex; gap:.4rem; flex-wrap:wrap; justify-content:center; margin-bottom:.8rem; }
+  .hl-tabs .btn{ font-size:.75rem; padding:.3rem .7rem; }
+  .pt-scroll{ overflow-x:auto; padding-bottom:.4rem; }
+  .ptable{ display:grid; grid-template-columns:repeat(18, minmax(34px,1fr)); gap:3px; min-width:680px; }
+  .cell{ aspect-ratio:1; border:2px solid var(--ink); border-radius:6px; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; cursor:pointer; transition:transform .1s, opacity .2s; background:var(--paper);
+    touch-action:manipulation; user-select:none; }
+  .cell:hover{ transform:scale(1.08); z-index:2; }
+  .cell.sel{ outline:3px solid var(--ink); outline-offset:1px; }
+  .cell .z{ font-size:.5rem; color:var(--ink-soft); line-height:1; }
+  .cell .sym{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(.7rem,1.6vw,.95rem); line-height:1.1; }
+  .cell.dim{ opacity:.22; }
+  .cell.metal{ background:var(--metal); } .cell.metalloid{ background:var(--metalloid); }
+  .cell.nonmetal{ background:var(--nonmetal); } .cell.noble{ background:var(--noble); }
+  .gap{ border:none; background:none; cursor:default; }
+  .gnum{ border:none; background:none; cursor:default; align-items:center; justify-content:flex-end; aspect-ratio:auto; padding-bottom:2px; }
+  .gnum span{ font-size:.62rem; font-weight:700; color:var(--ink-soft); }
+  .legend{ display:flex; gap:.9rem; justify-content:center; flex-wrap:wrap; font-size:.78rem; color:var(--ink-soft); margin-top:.6rem; }
+  .legend span{ display:inline-flex; align-items:center; gap:.3rem; }
+  .sw{ width:13px; height:13px; border-radius:3px; border:2px solid var(--ink); display:inline-block; }
+  .famous{ margin-top:.8rem; text-align:center; }
+  .famous .panel-h{ margin-bottom:.4rem; }
+  .famous-row{ display:flex; gap:6px; justify-content:center; flex-wrap:wrap; }
+  .famous-row .cell{ width:52px; aspect-ratio:1; }
+
+  .panel-h{ font-family:'Space Grotesk',sans-serif; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); }
+  .detail{ display:flex; gap:1rem; align-items:flex-start; flex-wrap:wrap; }
+  .badge{ width:96px; height:96px; border-radius:14px; border:3px solid var(--ink); display:flex; flex-direction:column;
+    align-items:center; justify-content:center; flex:0 0 auto; }
+  .badge .z{ font-size:.72rem; font-weight:700; color:var(--ink); align-self:flex-start; margin:4px 0 0 8px; }
+  .badge .sym{ font-family:'Space Grotesk',sans-serif; font-size:2rem; font-weight:700; margin-top:-4px; }
+  .dname{ font-family:'Space Grotesk',sans-serif; font-size:1.25rem; font-weight:700; }
+  .ro{ display:flex; justify-content:space-between; gap:1.5rem; font-size:.92rem; padding:.2rem 0; border-top:1px dashed var(--grid-line); }
+  .ro:first-child{ border-top:none; }
+  .dright{ flex:1; min-width:230px; }
+  .use{ font-size:.88rem; color:var(--ink-soft); margin-top:.5rem; line-height:1.5; }
+  /* quiz */
+  .quiz-card{ max-width:600px; margin:0 auto; }
+  .qprog{ display:flex; gap:.3rem; justify-content:center; margin-bottom:1rem; }
+  .qprog .dot{ width:11px; height:11px; border-radius:50%; background:var(--grid-line); }
+  .qprog .dot.now{ background:var(--ink); } .qprog .dot.right{ background:var(--green); } .qprog .dot.wrong{ background:var(--red); }
+  .qtext{ font-family:'Space Grotesk',sans-serif; font-size:1.2rem; font-weight:500; text-align:center; margin-bottom:1rem; }
+  .opts{ display:grid; grid-template-columns:1fr 1fr; gap:.6rem; }
+  .opt{ font-family:'Space Grotesk',sans-serif; font-size:1.05rem; font-weight:700; padding:.8rem; border:2px solid var(--grid-line); border-radius:12px; background:var(--paper); cursor:pointer; transition:all .12s; touch-action:manipulation; }
+  .opt:hover:not(:disabled){ border-color:var(--ink); } .opt:disabled{ cursor:default; }
+  .opt.correct{ border-color:var(--green); background:#DDF2E9; } .opt.incorrect{ border-color:var(--red); background:#FBE3E1; }
+  .explain{ margin-top:.9rem; padding:.75rem .9rem; border-radius:12px; background:#FFF6E3; border:2px solid var(--amber); font-size:.95rem; line-height:1.5; display:none; }
+  .quiz-foot{ display:flex; justify-content:space-between; align-items:center; margin-top:1rem; } .score-pill{ font-weight:700; color:var(--ink-soft); }
+  .result-screen{ text-align:center; padding:1rem 0; } .result-screen .big{ font-size:3rem; } .result-screen h3{ font-family:'Space Grotesk',sans-serif; font-size:1.5rem; margin:.5rem 0; }
+  footer{ text-align:center; color:var(--ink-soft); font-size:.78rem; margin-top:.5rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🧪 Element Lab</h1>
+    <p class="subtitle">The periodic table — every element is one kind of atom. Tap one to meet it.</p>
+    <div class="tabs"><button class="btn on" id="tabPlay">Explore</button><button class="btn" id="tabQuiz">🎓 Review quiz</button></div>
+  </header>
+
+  <section id="playMode">
+    <div class="card">
+      <div class="hl-tabs" id="hlTabs">
+        <button class="btn on" data-hl="all">Everything</button>
+        <button class="btn" data-hl="metal">Metals</button>
+        <button class="btn" data-hl="nonmetal">Non-metals</button>
+        <button class="btn" data-hl="g1">Group 1 · alkali metals</button>
+        <button class="btn" data-hl="g7">Group 7 · halogens</button>
+        <button class="btn" data-hl="g0">Group 0 · noble gases</button>
+        <button class="btn" data-hl="trans">Transition metals</button>
+      </div>
+      <div class="pt-scroll"><div class="ptable" id="ptable"></div></div>
+      <div class="legend">
+        <span><span class="sw" style="background:var(--metal)"></span> metal</span>
+        <span><span class="sw" style="background:var(--metalloid)"></span> metalloid</span>
+        <span><span class="sw" style="background:var(--nonmetal)"></span> non-metal</span>
+        <span><span class="sw" style="background:var(--noble)"></span> noble gas</span>
+      </div>
+      <div class="famous">
+        <div class="panel-h">Famous heavyweights from further down the table</div>
+        <div class="famous-row" id="famousRow"></div>
+      </div>
+    </div>
+    <div class="card"><div class="detail" id="detail"></div></div>
+  </section>
+
+  <section id="quizMode" style="display:none"><div class="card quiz-card" id="quizCard"></div></section>
+  <footer>Element Lab · part of the little tutoring tools family</footer>
+</div>
+
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+/* [Z, symbol, name, type, ukGroup(1-7,0 or 'T'), period, state, use]
+   type: m=metal, md=metalloid, n=nonmetal, g=noble gas */
+const EL=[
+[1,'H','Hydrogen','n',1,1,'gas','The lightest element — most of the universe is made of it.'],
+[2,'He','Helium','g',0,1,'gas','Party balloons and airships — lighter than air and never reacts.'],
+[3,'Li','Lithium','m',1,2,'solid','Rechargeable batteries in phones and laptops.'],
+[4,'Be','Beryllium','m',2,2,'solid','Strong, light metal used in aerospace.'],
+[5,'B','Boron','md',3,2,'solid','In heat-proof glass (borosilicate).'],
+[6,'C','Carbon','n',4,2,'solid','Diamonds, pencil "lead" (graphite) — and the basis of all life.'],
+[7,'N','Nitrogen','n',5,2,'gas','About 78% of the air you breathe.'],
+[8,'O','Oxygen','n',6,2,'gas','The gas your body needs — about 21% of air.'],
+[9,'F','Fluorine','n',7,2,'gas','In toothpaste (as fluoride) to protect teeth.'],
+[10,'Ne','Neon','g',0,2,'gas','Glowing orange-red signs.'],
+[11,'Na','Sodium','m',1,3,'solid','Half of table salt (sodium chloride). Fizzes violently in water!'],
+[12,'Mg','Magnesium','m',2,3,'solid','Burns with a brilliant white light — sparklers and flares.'],
+[13,'Al','Aluminium','m',3,3,'solid','Drinks cans, foil, aeroplanes — light and doesn\'t rust.'],
+[14,'Si','Silicon','md',4,3,'solid','Computer chips — "Silicon Valley" is named after it.'],
+[15,'P','Phosphorus','n',5,3,'solid','Match heads and fertilisers.'],
+[16,'S','Sulfur','n',6,3,'solid','Yellow solid that smells of rotten eggs in compounds.'],
+[17,'Cl','Chlorine','n',7,3,'gas','Keeps swimming pools clean; the other half of table salt.'],
+[18,'Ar','Argon','g',0,3,'gas','Fills light bulbs so the filament doesn\'t burn away.'],
+[19,'K','Potassium','m',1,4,'solid','In bananas — and even more reactive than sodium.'],
+[20,'Ca','Calcium','m',2,4,'solid','Bones, teeth, chalk and limestone.'],
+[21,'Sc','Scandium','m','T',4,'solid','Rare metal that strengthens aluminium alloys.'],
+[22,'Ti','Titanium','m','T',4,'solid','Super-strong, light — replacement hips and racing bikes.'],
+[23,'V','Vanadium','m','T',4,'solid','Toughens steel for tools and springs.'],
+[24,'Cr','Chromium','m','T',4,'solid','Shiny "chrome" plating on taps and cars.'],
+[25,'Mn','Manganese','m','T',4,'solid','Hardens steel — railway tracks.'],
+[26,'Fe','Iron','m','T',4,'solid','Steel, bridges, and the red colour of your blood.'],
+[27,'Co','Cobalt','m','T',4,'solid','Brilliant blue glass and pigments.'],
+[28,'Ni','Nickel','m','T',4,'solid','Coins and stainless steel.'],
+[29,'Cu','Copper','m','T',4,'solid','Electrical wires and water pipes — superb conductor.'],
+[30,'Zn','Zinc','m','T',4,'solid','Galvanising — a protective coat that stops steel rusting.'],
+[31,'Ga','Gallium','m',3,4,'solid','Melts in your hand (30°C)! Used in LEDs.'],
+[32,'Ge','Germanium','md',4,4,'solid','Early transistors and fibre optics.'],
+[33,'As','Arsenic','md',5,4,'solid','Famous poison; tiny amounts in some semiconductors.'],
+[34,'Se','Selenium','n',6,4,'solid','Photocopiers and anti-dandruff shampoo.'],
+[35,'Br','Bromine','n',7,4,'liquid','One of only two liquid elements at room temperature.'],
+[36,'Kr','Krypton','g',0,4,'gas','High-speed photography flashes (not Superman\'s home).'],
+];
+const FAMOUS=[
+[47,'Ag','Silver','m','T',5,'solid','Jewellery, mirrors and the best electrical conductor of all.'],
+[50,'Sn','Tin','m',4,5,'solid','"Tin cans" are steel coated with tin.'],
+[53,'I','Iodine','n',7,5,'solid','Antiseptic; added to table salt for healthy thyroids.'],
+[79,'Au','Gold','m','T',6,'solid','Jewellery and electronics — never tarnishes.'],
+[80,'Hg','Mercury','m','T',6,'liquid','The other liquid element — old-fashioned thermometers.'],
+[82,'Pb','Lead','m',4,6,'solid','Heavy, soft metal — church roofs and old water pipes.'],
+];
+const TYPE_CLASS={m:'metal',md:'metalloid',n:'nonmetal',g:'noble'};
+const TYPE_NAME={m:'metal',md:'metalloid (a bit of both)',n:'non-metal',g:'noble gas (non-metal)'};
+// 18-column grid position for each element
+function gridCol(e){
+  const [Z,, ,type,grp,period]=e;
+  if(period===1) return Z===1?1:18;
+  if(period===2||period===3){ const idx=(Z-(period===2?3:11)); return idx<2?idx+1:idx+11; } // 1,2 then 13..18
+  if(period===4 && Z<=36) return Z-18; // 19->1 ... 36->18
+  return null;
+}
+let selected=EL[10]; // sodium by default
+let hl='all';
+
+function matches(e){
+  const [Z,sym,name,type,grp]=e;
+  if(hl==='all')return true;
+  if(hl==='metal')return type==='m';
+  if(hl==='nonmetal')return type==='n'||type==='md'||type==='g';
+  if(hl==='g1')return grp===1 && Z!==1;       // H sits in group 1's column but isn't an alkali metal
+  if(hl==='g7')return grp===7;
+  if(hl==='g0')return grp===0;
+  if(hl==='trans')return grp==='T';
+  return true;
+}
+function buildTable(){
+  const t=$('ptable'); t.innerHTML='';
+  // UK group number header row: groups 1,2 then 3..7,0 over columns 13..18
+  const ukByCol={1:'1',2:'2',13:'3',14:'4',15:'5',16:'6',17:'7',18:'0'};
+  for(let col=1;col<=18;col++){
+    const d=document.createElement('div'); d.className='cell gnum';
+    d.innerHTML=ukByCol[col]?`<span>${ukByCol[col]}</span>`:'';
+    t.appendChild(d);
+  }
+  // 4 periods x 18 cols
+  const grid={};
+  EL.forEach(e=>{ const c=gridCol(e); if(c) grid[`${e[5]},${c}`]=e; });
+  for(let p=1;p<=4;p++) for(let c=1;c<=18;c++){
+    const e=grid[`${p},${c}`];
+    const d=document.createElement('div');
+    if(!e){ d.className='cell gap'; t.appendChild(d); continue; }
+    d.className='cell '+TYPE_CLASS[e[3]]+(matches(e)?'':' dim')+(e===selected?' sel':'');
+    d.innerHTML=`<span class="z">${e[0]}</span><span class="sym">${e[1]}</span>`;
+    d.addEventListener('click',()=>{ selected=e; buildTable(); buildFamous(); showDetail(); });
+    t.appendChild(d);
+  }
+}
+function buildFamous(){
+  const r=$('famousRow'); r.innerHTML='';
+  FAMOUS.forEach(e=>{
+    const d=document.createElement('div');
+    d.className='cell '+TYPE_CLASS[e[3]]+(matches(e)?'':' dim')+(e===selected?' sel':'');
+    d.innerHTML=`<span class="z">${e[0]}</span><span class="sym">${e[1]}</span>`;
+    d.addEventListener('click',()=>{ selected=e; buildTable(); buildFamous(); showDetail(); });
+    r.appendChild(d);
+  });
+}
+function showDetail(){
+  const [Z,sym,name,type,grp,period,state,use]=selected;
+  const grpName = grp===1&&Z!==1?'Group 1 — the alkali metals':grp===7?'Group 7 — the halogens':grp===0?'Group 0 — the noble gases':grp==='T'?'Transition metals':grp===1?'(sits above Group 1, but is a non-metal)':'Group '+grp;
+  $('detail').innerHTML=`
+    <div class="badge" style="background:var(--${TYPE_CLASS[type]})"><span class="z">${Z}</span><span class="sym">${sym}</span></div>
+    <div class="dright">
+      <div class="dname">${name}</div>
+      <div class="ro"><span>Atomic number (protons)</span><b>${Z}</b></div>
+      <div class="ro"><span>Type</span><b>${TYPE_NAME[type]}</b></div>
+      <div class="ro"><span>Group</span><b>${grpName}</b></div>
+      <div class="ro"><span>Period (row)</span><b>${period}</b></div>
+      <div class="ro"><span>State at room temp</span><b>${state}</b></div>
+      <div class="use">💡 ${use}</div>
+    </div>`;
+}
+document.querySelectorAll('#hlTabs .btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#hlTabs .btn').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  hl=b.dataset.hl; buildTable(); buildFamous();
+}));
+
+/* ---------- QUIZ ---------- */
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function mc(text,correct,distract,explain){const opts=shuffle([correct,...distract]);return{text,opts,answer:opts.indexOf(correct),explain};}
+const ALL=EL.concat(FAMOUS);
+function buildBank(){
+  const Q=[]; const seen=new Set();
+  function add(o){ if(o && !seen.has(o.text)){ seen.add(o.text); Q.push(o); } }
+  // symbol -> name (mix of tricky and common)
+  shuffle(ALL.filter(e=>['Na','K','Fe','Cu','Pb','Ag','Au','Hg','Sn','C','Ca','Cl','N','O','Mg','He','Li','Al','Si','Zn','Ni','I','H','Ne'].includes(e[1]))).slice(0,8).forEach(e=>{
+    const others=shuffle(ALL.filter(x=>x!==e)).slice(0,3).map(x=>x[2]);
+    add(mc(`Which element has the symbol ${e[1]}?`, e[2], others,
+      `${e[1]} = ${e[2]}.${['Na','K','Fe','Cu','Pb','Ag','Au','Hg','Sn'].includes(e[1])?' (The symbol comes from its Latin name.)':''}`));
+  });
+  // name -> symbol
+  shuffle(ALL).slice(0,7).forEach(e=>{ const others=shuffle(ALL.filter(x=>x!==e)).slice(0,3).map(x=>x[1]);
+    add(mc(`What is the chemical symbol for ${e[2].toLowerCase()}?`, e[1], others, `${e[2]} = ${e[1]}. Symbols are 1–2 letters; only the first is a capital.`)); });
+  // metal
+  shuffle(ALL.filter(e=>e[3]==='m')).slice(0,3).forEach(m=>{ const ns=shuffle(ALL.filter(e=>e[3]==='n'||e[3]==='g')).slice(0,3).map(e=>e[2]);
+    add(mc('Which of these is a metal?', m[2], ns, `${m[2]} is a metal — most elements are. Metals sit on the left and middle of the table.`)); });
+  // non-metal
+  shuffle(ALL.filter(e=>e[3]==='n')).slice(0,3).forEach(n=>{ const ms=shuffle(ALL.filter(e=>e[3]==='m')).slice(0,3).map(e=>e[2]);
+    add(mc('Which of these is a non-metal?', n[2], ms, `${n[2]} is a non-metal — they sit on the right of the table.`)); });
+  // groups
+  add(mc('Group 0 elements (helium, neon, argon) are called…','the noble gases',['the halogens','the alkali metals','the transition metals'],'Group 0 = noble gases: unreactive gases that almost never form compounds.'));
+  add(mc('Group 7 elements (fluorine, chlorine, bromine) are called…','the halogens',['the noble gases','the alkali metals','the metalloids'],'Group 7 = the halogens — reactive non-metals.'));
+  add(mc('Group 1 elements (lithium, sodium, potassium) are called…','the alkali metals',['the halogens','the noble gases','the transition metals'],'Group 1 = alkali metals — soft, very reactive metals that fizz in water.'));
+  add(mc('The modern periodic table is ordered by…','atomic number (protons)',['mass of a sample','alphabetical order','date of discovery'],'Elements are arranged in order of atomic number — the number of protons.'));
+  add(mc('A row of the periodic table is called a…','period',['group','column','family'],'Rows are periods; columns are groups. Elements in a group behave similarly.'));
+  add(mc('A column of the periodic table is called a…','group',['period','row','shell'],'Columns are groups; elements in a group have similar properties.'));
+  add(mc('Elements in the same group have similar…','chemical properties',['atomic numbers','names','colours'],'A group is a column — its elements react in similar ways.'));
+  add(mc('Which two elements are liquid at room temperature?','bromine and mercury',['oxygen and nitrogen','iron and copper','chlorine and helium'],'Only bromine (a non-metal) and mercury (a metal) are liquids at room temperature.'));
+  add(mc('An element is made of only one type of…','atom',['compound','mixture','molecule'],'An element contains just one kind of atom — that\'s the definition.'));
+  add(mc('Where are most metals found on the periodic table?','the left and middle',['the top right only','the far right','scattered randomly'],'Metals occupy the left and middle; non-metals are on the right.'));
+  add(mc('Where are non-metals found on the periodic table?','the right-hand side',['the far left','the middle','the bottom row'],'Non-metals (and noble gases) sit on the right of the table.'));
+  add(mc('Which group is the most unreactive?','Group 0 (noble gases)',['Group 1','Group 7','the transition metals'],'Noble gases have full outer shells, so they almost never react.'));
+  add(mc('Which group reacts violently with water?','Group 1 (alkali metals)',['Group 0','the transition metals','the metalloids'],'Alkali metals like sodium and potassium fizz and react vigorously with water.'));
+  add(mc('Iron, copper and zinc are examples of…','transition metals',['noble gases','halogens','alkali metals'],'The block in the middle of the table is the transition metals.'));
+  add(mc('What does an element\'s atomic number tell you?','the number of protons',['the number of neutrons','the mass of a sample','the group number'],'Atomic number = number of protons in each atom.'));
+  add(mc('Most of the known elements are…','metals',['non-metals','gases','liquids'],'The majority of elements are metals — they fill the left and middle of the table.'));
+  add(mc('The symbol Au for gold comes from its name in which language?','Latin (aurum)',['Greek','German','French'],'Several metals use Latin-based symbols: Au (aurum) for gold, Fe (ferrum) for iron.'));
+  return shuffle(Q);
+}
+const QLEN=8; let quiz=null;
+function startQuiz(){ quiz={qs:buildBank().slice(0,QLEN),idx:0,score:0,results:[]}; renderQ(); }
+function renderQ(){
+  const q=quiz.qs[quiz.idx], c=$('quizCard');
+  let dots=''; for(let i=0;i<QLEN;i++){let cl='dot';if(i<quiz.results.length)cl+=quiz.results[i]?' right':' wrong';else if(i===quiz.idx)cl+=' now';dots+=`<span class="${cl}"></span>`;}
+  c.innerHTML=`<div class="qprog">${dots}</div><div class="qtext">${q.text}</div>
+    <div class="opts">${q.opts.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join('')}</div>
+    <div class="explain" id="ex"></div>
+    <div class="quiz-foot"><span class="score-pill">Score: ${quiz.score}/${quiz.results.length}</span><button class="btn" id="nx" style="display:none">Next →</button></div>`;
+  c.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{
+    const i=+b.dataset.i, right=i===q.answer; quiz.results.push(right); if(right)quiz.score++;
+    c.querySelectorAll('.opt').forEach((x,j)=>{x.disabled=true;if(j===q.answer)x.classList.add('correct');else if(j===i)x.classList.add('incorrect');});
+    const ex=$('ex'); ex.style.display='block'; ex.innerHTML=(right?'✅ ':'❌ ')+q.explain;
+    c.querySelector('.score-pill').textContent=`Score: ${quiz.score}/${quiz.results.length}`;
+    const nx=$('nx'); nx.style.display='inline-block'; nx.textContent=quiz.idx+1<QLEN?'Next →':'Results →';
+    nx.onclick=()=>{ quiz.idx++; if(quiz.idx<QLEN)renderQ(); else results(); };
+  }));
+}
+function results(){
+  const pct=quiz.score/QLEN; let e='🧪',t='Element expert!';
+  if(pct<0.5){e='⚗️';t='Keep exploring the table!';} else if(pct<0.8){e='🔬';t='Nice work!';}
+  $('quizCard').innerHTML=`<div class="result-screen"><div class="big">${e}</div><h3>${t}</h3>
+    <p style="color:var(--ink-soft)">You scored ${quiz.score} out of ${QLEN}.</p>
+    <button class="btn" id="rt">Try again</button> <button class="btn" id="bk">Back to the table</button></div>`;
+  $('rt').onclick=startQuiz; $('bk').onclick=()=>setMode('play');
+}
+function setMode(m){
+  $('playMode').style.display=m==='play'?'':'none'; $('quizMode').style.display=m==='play'?'none':'';
+  $('tabPlay').classList.toggle('on',m==='play'); $('tabQuiz').classList.toggle('on',m!=='play');
+  if(m!=='play') startQuiz();
+}
+$('tabPlay').onclick=()=>setMode('play'); $('tabQuiz').onclick=()=>setMode('quiz');
+
+buildTable(); buildFamous(); showDetail();
+</script>
+</body>
+</html>

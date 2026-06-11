@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acid Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{ --paper:#F2F7FA; --grid-line:#D5E4EC; --ink:#1F3540; --ink-soft:#5A7280; --panel:#fff;
+    --copper:#C2622E; --amber:#FFB02E; --green:#2E8B6A; --red:#D6493E; --blue:#3A7CA5; --purple:#7B5EA7; --shadow:rgba(31,53,64,.14); }
+  body{ font-family:'Karla',sans-serif; color:var(--ink); background:linear-gradient(135deg,#EAF2F7,#F2F4EA); min-height:100vh; padding:1.25rem; }
+  .wrap{ max-width:920px; margin:0 auto; }
+  header{ text-align:center; margin-bottom:1rem; }
+  h1{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(1.7rem,4vw,2.4rem); }
+  .subtitle{ color:var(--ink-soft); margin-top:.25rem; }
+  .tabs{ display:flex; justify-content:center; gap:.5rem; margin-top:.8rem; flex-wrap:wrap; }
+  .card{ background:var(--panel); border-radius:16px; box-shadow:0 6px 18px var(--shadow); padding:1rem; margin-bottom:1rem; }
+  .btn{ font-family:'Karla',sans-serif; font-weight:700; font-size:.85rem; border:2px solid var(--ink); border-radius:999px;
+    background:#fff; color:var(--ink); padding:.45rem 1rem; cursor:pointer; transition:all .15s; touch-action:manipulation; }
+  .btn:hover{ background:var(--ink); color:#fff; } .btn.on{ background:var(--ink); color:#fff; }
+  .btn:focus-visible{ outline:3px solid var(--amber); outline-offset:2px; }
+  .tool-tabs{ display:flex; gap:.4rem; flex-wrap:wrap; justify-content:center; margin-bottom:1rem; }
+  .tool-tabs .btn{ font-size:.78rem; padding:.35rem .8rem; }
+  .panel-h{ font-family:'Space Grotesk',sans-serif; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); margin-bottom:.6rem; }
+
+  /* pH scale */
+  .ph-strip{ display:flex; border:2px solid var(--ink); border-radius:10px; overflow:hidden; }
+  .ph-cell{ flex:1; aspect-ratio:1/1.15; display:flex; align-items:center; justify-content:center; cursor:pointer;
+    font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(.6rem,1.8vw,.95rem); color:#fff;
+    border-right:1px solid rgba(255,255,255,.4); transition:transform .1s; touch-action:manipulation; user-select:none; }
+  .ph-cell:last-child{ border-right:none; }
+  .ph-cell:hover{ transform:scale(1.12); z-index:2; }
+  .ph-cell.sel{ outline:3px solid var(--ink); outline-offset:-3px; }
+  .ph-axis{ display:flex; justify-content:space-between; font-size:.72rem; font-weight:700; color:var(--ink-soft); margin-top:.25rem; padding:0 .2rem; }
+  .ph-detail{ display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem; align-items:start; }
+  @media (max-width:680px){ .ph-detail{ grid-template-columns:1fr; } }
+  .big-ph{ font-family:'Space Grotesk',sans-serif; font-size:2.4rem; font-weight:700; text-align:center; }
+  .classif{ text-align:center; font-weight:700; font-size:1.05rem; margin:.2rem 0 .6rem; }
+  .ro{ display:flex; justify-content:space-between; font-size:.92rem; padding:.25rem 0; border-top:1px dashed var(--grid-line); align-items:center; }
+  .ro:first-child{ border-top:none; }
+  .chip{ display:inline-block; width:48px; height:18px; border-radius:5px; border:2px solid var(--ink); }
+  .examples{ font-size:.88rem; color:var(--ink-soft); line-height:1.6; }
+  .examples b{ color:var(--ink); }
+  .work{ font-size:.86rem; color:var(--ink-soft); line-height:1.6; margin-top:.7rem; background:var(--paper); border-radius:10px; padding:.7rem .9rem; }
+  .work b{ color:var(--ink); }
+
+  /* neutralisation */
+  .neut-grid{ display:grid; grid-template-columns:1fr 280px; gap:1rem; align-items:start; }
+  @media (max-width:720px){ .neut-grid{ grid-template-columns:1fr; } }
+  #beaker{ width:100%; max-width:320px; height:auto; display:block; margin:0 auto; }
+  .drop-btns{ display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap; margin-top:.6rem; }
+  .drop-btns .btn{ font-size:.95rem; padding:.55rem 1.1rem; }
+  .eqline{ font-family:'Space Grotesk',sans-serif; font-size:.95rem; font-weight:700; text-align:center; margin-top:.7rem; line-height:1.6; }
+  .eqline .hl{ color:var(--green); }
+  .neut-status{ text-align:center; font-weight:700; padding:.5rem; border-radius:10px; margin-top:.6rem; }
+  .neut-status.ok{ background:#DDF2E9; color:var(--green); }
+  /* quiz */
+  .quiz-card{ max-width:600px; margin:0 auto; }
+  .qprog{ display:flex; gap:.3rem; justify-content:center; margin-bottom:1rem; }
+  .qprog .dot{ width:11px; height:11px; border-radius:50%; background:var(--grid-line); }
+  .qprog .dot.now{ background:var(--ink); } .qprog .dot.right{ background:var(--green); } .qprog .dot.wrong{ background:var(--red); }
+  .qtext{ font-family:'Space Grotesk',sans-serif; font-size:1.2rem; font-weight:500; text-align:center; margin-bottom:1rem; }
+  .opts{ display:grid; grid-template-columns:1fr 1fr; gap:.6rem; }
+  .opt{ font-family:'Space Grotesk',sans-serif; font-size:1.02rem; font-weight:700; padding:.8rem; border:2px solid var(--grid-line); border-radius:12px; background:var(--paper); cursor:pointer; transition:all .12s; touch-action:manipulation; }
+  .opt:hover:not(:disabled){ border-color:var(--ink); } .opt:disabled{ cursor:default; }
+  .opt.correct{ border-color:var(--green); background:#DDF2E9; } .opt.incorrect{ border-color:var(--red); background:#FBE3E1; }
+  .explain{ margin-top:.9rem; padding:.75rem .9rem; border-radius:12px; background:#FFF6E3; border:2px solid var(--amber); font-size:.95rem; line-height:1.5; display:none; }
+  .quiz-foot{ display:flex; justify-content:space-between; align-items:center; margin-top:1rem; } .score-pill{ font-weight:700; color:var(--ink-soft); }
+  .result-screen{ text-align:center; padding:1rem 0; } .result-screen .big{ font-size:3rem; } .result-screen h3{ font-family:'Space Grotesk',sans-serif; font-size:1.5rem; margin:.5rem 0; }
+  footer{ text-align:center; color:var(--ink-soft); font-size:.78rem; margin-top:.5rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🧫 Acid Lab</h1>
+    <p class="subtitle">The pH scale, indicators, and how acids and alkalis cancel each other out.</p>
+    <div class="tabs"><button class="btn on" id="tabPlay">Explore</button><button class="btn" id="tabQuiz">🎓 Review quiz</button></div>
+  </header>
+
+  <section id="playMode">
+    <div class="card">
+      <div class="tool-tabs" id="toolTabs">
+        <button class="btn on" data-tool="scale">The pH scale</button>
+        <button class="btn" data-tool="neut">Neutralisation</button>
+      </div>
+      <div id="toolBody"></div>
+    </div>
+  </section>
+
+  <section id="quizMode" style="display:none"><div class="card quiz-card" id="quizCard"></div></section>
+  <footer>Acid Lab · part of the little tutoring tools family</footer>
+</div>
+
+<script>
+"use strict";
+const SVGNS="http://www.w3.org/2000/svg";
+const $=id=>document.getElementById(id);
+function el(n,a,p){const e=document.createElementNS(SVGNS,n);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e;}
+let tool='scale';
+
+/* universal indicator colours, pH 0..14 */
+function uiColor(ph){
+  if(ph<=1)return '#C8312B';
+  if(ph<=2)return '#D6493E';
+  if(ph<=3)return '#E07B39';
+  if(ph<=4)return '#EFA03A';
+  if(ph<=5)return '#E5C13E';
+  if(ph<=6)return '#B9C23F';
+  if(ph===7)return '#2E8B6A';
+  if(ph<=8)return '#3E9C8B';
+  if(ph<=9)return '#3A7CA5';
+  if(ph<=10)return '#2F5E8F';
+  if(ph<=11)return '#3F4E97';
+  if(ph<=12)return '#5C4A9E';
+  if(ph<=13)return '#7B5EA7';
+  return '#5E3F86';
+}
+function classify(ph){
+  if(ph<=2)return 'strong acid';
+  if(ph<7)return 'weak acid';
+  if(ph===7)return 'neutral';
+  if(ph<=11)return 'weak alkali';
+  return 'strong alkali';
+}
+function litmus(ph){
+  if(ph<7)return ['turns red','stays red'];      // [blue litmus, red litmus]
+  if(ph===7)return ['stays blue','stays red'];
+  return ['stays blue','turns blue'];
+}
+const EXAMPLES={0:'battery acid',1:'stomach acid',2:'lemon juice',3:'vinegar',4:'tomato juice',5:'black coffee',6:'milk',7:'pure water',8:'sea water',9:'baking soda',10:'soap',11:'household ammonia',12:'soapy water (strong)',13:'bleach',14:'oven cleaner'};
+let ph=7;
+
+function renderScale(){
+  let strip='';
+  for(let p=0;p<=14;p++) strip+=`<div class="ph-cell${p===ph?' sel':''}" data-ph="${p}" style="background:${uiColor(p)}">${p}</div>`;
+  $('toolBody').innerHTML=`
+    <div class="panel-h">Tap a pH value</div>
+    <div class="ph-strip">${strip}</div>
+    <div class="ph-axis"><span>← more acidic</span><span>neutral</span><span>more alkaline →</span></div>
+    <div class="ph-detail">
+      <div>
+        <div class="big-ph" id="bigPh"></div>
+        <div class="classif" id="classif"></div>
+        <div class="examples" id="examples"></div>
+      </div>
+      <div>
+        <div class="ro"><span>Universal indicator</span><b><span class="chip" id="uiChip"></span></b></div>
+        <div class="ro"><span>Blue litmus paper</span><b id="litB"></b></div>
+        <div class="ro"><span>Red litmus paper</span><b id="litR"></b></div>
+        <div class="work" id="phWork"></div>
+      </div>
+    </div>`;
+  document.querySelectorAll('.ph-cell').forEach(c=>c.addEventListener('click',()=>{ ph=+c.dataset.ph; renderScale(); }));
+  updateScale();
+}
+function updateScale(){
+  $('bigPh').textContent='pH '+ph;
+  $('bigPh').style.color=uiColor(ph);
+  $('classif').textContent=classify(ph);
+  $('examples').innerHTML=`Everyday example: <b>${EXAMPLES[ph]}</b>.`;
+  $('uiChip').style.background=uiColor(ph);
+  const [lb,lr]=litmus(ph);
+  $('litB').textContent=lb; $('litR').textContent=lr;
+  $('phWork').innerHTML = ph<7
+    ? `Acids have pH <b>below 7</b>. The lower the number, the stronger the acid — pH ${ph} is a ${classify(ph)}.`
+    : ph===7
+    ? `pH 7 is <b>neutral</b> — neither acid nor alkali. Pure water sits exactly here, and universal indicator shows green.`
+    : `Alkalis have pH <b>above 7</b>. The higher the number, the stronger the alkali — pH ${ph} is a ${classify(ph)}.`;
+}
+
+/* ---------- neutralisation ---------- */
+let net=-6;  // pH = 7 + net; start as strong acid pH 1
+let drops=0;
+function renderNeut(){
+  $('toolBody').innerHTML=`
+    <div class="neut-grid">
+      <div>
+        <svg id="beaker" viewBox="0 0 220 240" aria-label="Beaker"></svg>
+        <div class="drop-btns">
+          <button class="btn" id="addAlk">💧 Add alkali drop</button>
+          <button class="btn" id="addAcid">💧 Add acid drop</button>
+          <button class="btn" id="reset">↻ Start again (acid, pH 1)</button>
+        </div>
+      </div>
+      <div>
+        <div class="big-ph" id="nPh"></div>
+        <div class="classif" id="nClass"></div>
+        <div class="neut-status" id="nStatus"></div>
+        <div class="eqline">acid + alkali → <span class="hl">salt + water</span></div>
+        <div class="eqline" style="font-size:.82rem;color:var(--ink-soft)">hydrochloric acid + sodium hydroxide<br>→ sodium chloride + water</div>
+        <div class="work">This is <b>neutralisation</b>: the alkali cancels out the acid. Each drop of alkali nudges the pH up towards 7 — go past 7 and the mixture turns alkaline instead. It's how indigestion tablets calm excess stomach acid, and how farmers treat acidic soil with lime.</div>
+      </div>
+    </div>`;
+  $('addAlk').onclick=()=>{ net=Math.min(7,net+1); drops++; drawNeut(); };
+  $('addAcid').onclick=()=>{ net=Math.max(-6,net-1); drops++; drawNeut(); };
+  $('reset').onclick=()=>{ net=-6; drops=0; drawNeut(); };
+  drawNeut();
+}
+function drawNeut(){
+  const p=7+net;
+  const svg=$('beaker'); svg.innerHTML='';
+  // beaker outline
+  el('path',{d:'M 50 30 L 50 200 Q 50 215 65 215 L 155 215 Q 170 215 170 200 L 170 30',fill:'none',stroke:'var(--ink)','stroke-width':4,'stroke-linecap':'round'},svg);
+  el('line',{x1:42,y1:30,x2:58,y2:30,stroke:'var(--ink)','stroke-width':4,'stroke-linecap':'round'},svg);
+  el('line',{x1:162,y1:30,x2:178,y2:30,stroke:'var(--ink)','stroke-width':4,'stroke-linecap':'round'},svg);
+  // liquid
+  el('path',{d:'M 53 95 L 53 200 Q 53 212 65 212 L 155 212 Q 167 212 167 200 L 167 95 Z',fill:uiColor(p),opacity:.85},svg);
+  el('ellipse',{cx:110,cy:95,rx:57,ry:8,fill:uiColor(p)},svg);
+  el('ellipse',{cx:110,cy:95,rx:57,ry:8,fill:'#fff',opacity:.25},svg);
+  // graduations
+  [120,150,180].forEach(y=>el('line',{x1:155,y1:y,x2:167,y2:y,stroke:'rgba(31,53,64,.4)','stroke-width':2},svg));
+  // label
+  const t=el('text',{x:110,y:160,'text-anchor':'middle','font-family':'Space Grotesk','font-weight':'700','font-size':'26px',fill:'#fff'},svg);
+  t.textContent='pH '+p;
+  $('nPh').textContent='pH '+p; $('nPh').style.color=uiColor(p);
+  $('nClass').textContent=classify(p)+(drops?` · ${drops} drop${drops===1?'':'s'} added`:'');
+  const s=$('nStatus');
+  if(p===7){ s.className='neut-status ok'; s.textContent='🎯 Neutral! The acid has been exactly neutralised.'; }
+  else { s.className='neut-status'; s.textContent = p<7?'Still acidic — add more alkali.':'Oops, overshot! Now it\'s alkaline — add acid to bring it back.'; }
+}
+
+document.querySelectorAll('#toolTabs .btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#toolTabs .btn').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  tool=b.dataset.tool; if(tool==='scale')renderScale(); else renderNeut();
+}));
+
+/* ---------- QUIZ ---------- */
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function mc(text,correct,distract,explain){const opts=shuffle([correct,...distract]);return{text,opts,answer:opts.indexOf(correct),explain};}
+function buildBank(){
+  const Q=[];
+  Q.push(mc('What pH is neutral?','7',['0','14','10'],'pH 7 is neutral — pure water. Below 7 is acidic, above 7 is alkaline.'));
+  Q.push(mc('A substance with pH 2 is a…','strong acid',['weak acid','strong alkali','neutral substance'],'Low pH = acid; pH 1–2 is strongly acidic, like stomach acid or lemon juice.'));
+  Q.push(mc('A substance with pH 13 is a…','strong alkali',['weak alkali','strong acid','neutral substance'],'High pH = alkali; pH 13–14 is strongly alkaline, like bleach or oven cleaner.'));
+  Q.push(mc('What colour is universal indicator in a neutral solution?','green',['red','purple','yellow'],'Green at pH 7. Red/orange = acid, blue/purple = alkali.'));
+  Q.push(mc('What colour does universal indicator turn in a strong acid?','red',['green','blue','purple'],'Strong acids (pH 0–2) turn universal indicator red.'));
+  Q.push(mc('Blue litmus paper in an acid…','turns red',['turns blue','stays blue','turns green'],'Acids turn blue litmus red. Alkalis turn red litmus blue.'));
+  Q.push(mc('Red litmus paper in an alkali…','turns blue',['turns red','stays red','turns yellow'],'Alkalis turn red litmus blue.'));
+  Q.push(mc('acid + alkali → ?','salt + water',['salt + hydrogen','water + carbon dioxide','just water'],'Neutralisation always makes a salt and water.'));
+  Q.push(mc('What is neutralisation used for?','indigestion tablets cancelling stomach acid',['making drinks fizzy','rusting iron faster','making water boil'],'Antacid tablets are mild alkalis that neutralise excess stomach acid. Farmers also lime acidic soil.'));
+  Q.push(mc('Which is most likely alkaline?','soap',['lemon juice','vinegar','cola'],'Soap is around pH 10. Lemon juice, vinegar and cola are all acids.'));
+  Q.push(mc('You add alkali to acid until the pH reaches exactly 7. The mixture is now…','neutral',['a stronger acid','a stronger alkali','frozen'],'At pH 7 the acid is exactly neutralised — neither acid nor alkali remains in excess.'));
+  Q.push(mc('Pure water has a pH of…','7',['1','10','0'],'Pure water is neutral: pH 7.'));
+  Q.push(mc('What pH is a strong acid?','1',['7','13','9'],'Strong acids have a very low pH, around 0–2.'));
+  Q.push(mc('What pH is a strong alkali?','13',['1','7','5'],'Strong alkalis have a very high pH, around 13–14.'));
+  Q.push(mc('Lemon juice is…','an acid',['an alkali','neutral','a salt'],'Lemon juice has a low pH (around 2) — it is acidic.'));
+  Q.push(mc('Soap is…','an alkali',['an acid','neutral','a salt'],'Soap has a high pH (around 9–10) — it is alkaline.'));
+  Q.push(mc('Universal indicator turns ___ in a strong alkali.','purple',['red','green','orange'],'Strong alkalis (pH 13–14) turn universal indicator purple.'));
+  Q.push(mc('Universal indicator turns ___ in a weak acid.','orange',['blue','purple','green'],'Weak acids (around pH 4–6) turn it orange/yellow.'));
+  Q.push(mc('Red litmus paper in an acid…','stays red',['turns blue','turns green','turns yellow'],'Acids leave red litmus red; only alkalis turn it blue.'));
+  Q.push(mc('Blue litmus paper in an alkali…','stays blue',['turns red','turns green','turns purple'],'Alkalis leave blue litmus blue; only acids turn it red.'));
+  Q.push(mc('A substance with pH 4 is…','acidic',['alkaline','neutral','a salt'],'Any pH below 7 is acidic.'));
+  Q.push(mc('A substance with pH 9 is…','alkaline',['acidic','neutral','pure water'],'Any pH above 7 is alkaline.'));
+  Q.push(mc('What is made when an acid is neutralised by an alkali?','a salt and water',['just salt','just water','hydrogen gas'],'Neutralisation: acid + alkali → salt + water.'));
+  Q.push(mc('Antacid tablets work by…','neutralising stomach acid',['adding more acid','removing all water','cooling the stomach'],'Antacids are mild alkalis that neutralise excess stomach acid.'));
+  Q.push(mc('Farmers add lime to acidic soil to…','raise the pH (neutralise it)',['make it more acidic','remove the water','add salt'],'Lime is alkaline, so it neutralises acidic soil.'));
+  Q.push(mc('The pH scale runs from…','0 to 14',['1 to 10','0 to 100','1 to 7'],'The pH scale goes from 0 (most acidic) to 14 (most alkaline).'));
+  Q.push(mc('Which is more acidic: pH 2 or pH 5?','pH 2',['pH 5','they are equal','cannot tell'],'The lower the pH, the more acidic — so pH 2 is more acidic.'));
+  Q.push(mc('Which is more alkaline: pH 9 or pH 12?','pH 12',['pH 9','they are equal','cannot tell'],'The higher the pH, the more alkaline — so pH 12 is more alkaline.'));
+  Q.push(mc('Vinegar is…','an acid',['an alkali','neutral','a salt'],'Vinegar (around pH 3) is acidic.'));
+  Q.push(mc('A neutral substance has a pH of…','7',['0','14','10'],'pH 7 is neutral — neither acid nor alkali.'));
+  Q.push(mc('You add alkali to an acid until it reaches pH 7. The acid has been…','neutralised',['made stronger','turned alkaline','frozen'],'At pH 7 the acid is exactly neutralised.'));
+  Q.push(mc('Universal indicator is green at a pH of…','7',['1','13','4'],'Green means neutral, pH 7.'));
+  Q.push(mc('Bleach (pH 13) is…','a strong alkali',['a strong acid','neutral','a weak acid'],'A pH of 13 is strongly alkaline.'));
+  Q.push(mc('Which household item is acidic?','vinegar',['soap','baking soda','oven cleaner'],'Vinegar is acidic; the others are alkaline.'));
+  return shuffle(Q);
+}
+const QLEN=8; let quiz=null;
+function startQuiz(){ quiz={qs:buildBank().slice(0,QLEN),idx:0,score:0,results:[]}; renderQ(); }
+function renderQ(){
+  const q=quiz.qs[quiz.idx], c=$('quizCard');
+  let dots=''; for(let i=0;i<QLEN;i++){let cl='dot';if(i<quiz.results.length)cl+=quiz.results[i]?' right':' wrong';else if(i===quiz.idx)cl+=' now';dots+=`<span class="${cl}"></span>`;}
+  c.innerHTML=`<div class="qprog">${dots}</div><div class="qtext">${q.text}</div>
+    <div class="opts">${q.opts.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join('')}</div>
+    <div class="explain" id="ex"></div>
+    <div class="quiz-foot"><span class="score-pill">Score: ${quiz.score}/${quiz.results.length}</span><button class="btn" id="nx" style="display:none">Next →</button></div>`;
+  c.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{
+    const i=+b.dataset.i, right=i===q.answer; quiz.results.push(right); if(right)quiz.score++;
+    c.querySelectorAll('.opt').forEach((x,j)=>{x.disabled=true;if(j===q.answer)x.classList.add('correct');else if(j===i)x.classList.add('incorrect');});
+    const ex=$('ex'); ex.style.display='block'; ex.innerHTML=(right?'✅ ':'❌ ')+q.explain;
+    c.querySelector('.score-pill').textContent=`Score: ${quiz.score}/${quiz.results.length}`;
+    const nx=$('nx'); nx.style.display='inline-block'; nx.textContent=quiz.idx+1<QLEN?'Next →':'Results →';
+    nx.onclick=()=>{ quiz.idx++; if(quiz.idx<QLEN)renderQ(); else results(); };
+  }));
+}
+function results(){
+  const pct=quiz.score/QLEN; let e='🧫',t='pH perfect!';
+  if(pct<0.5){e='⚗️';t='Keep testing!';} else if(pct<0.8){e='🔬';t='Nice work!';}
+  $('quizCard').innerHTML=`<div class="result-screen"><div class="big">${e}</div><h3>${t}</h3>
+    <p style="color:var(--ink-soft)">You scored ${quiz.score} out of ${QLEN}.</p>
+    <button class="btn" id="rt">Try again</button> <button class="btn" id="bk">Back to explore</button></div>`;
+  $('rt').onclick=startQuiz; $('bk').onclick=()=>setMode('play');
+}
+function setMode(m){
+  $('playMode').style.display=m==='play'?'':'none'; $('quizMode').style.display=m==='play'?'none':'';
+  $('tabPlay').classList.toggle('on',m==='play'); $('tabQuiz').classList.toggle('on',m!=='play');
+  if(m!=='play') startQuiz();
+}
+$('tabPlay').onclick=()=>setMode('play'); $('tabQuiz').onclick=()=>setMode('quiz');
+
+renderScale();
+</script>
+</body>
+</html>

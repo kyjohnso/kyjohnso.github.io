@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pythagoras Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{ --paper:#F2F7FA; --grid-line:#D5E4EC; --ink:#1F3540; --ink-soft:#5A7280; --panel:#fff;
+    --copper:#C2622E; --amber:#FFB02E; --green:#2E8B6A; --red:#D6493E; --blue:#3A7CA5; --shadow:rgba(31,53,64,.14); }
+  body{ font-family:'Karla',sans-serif; color:var(--ink); background:linear-gradient(135deg,#E8F1F6,#F4F1E8); min-height:100vh; padding:1.25rem; }
+  .wrap{ max-width:920px; margin:0 auto; }
+  header{ text-align:center; margin-bottom:1rem; }
+  h1{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(1.7rem,4vw,2.4rem); }
+  .subtitle{ color:var(--ink-soft); margin-top:.25rem; }
+  .tabs{ display:flex; justify-content:center; gap:.5rem; margin-top:.8rem; flex-wrap:wrap; }
+  .card{ background:var(--panel); border-radius:16px; box-shadow:0 6px 18px var(--shadow); padding:1rem; margin-bottom:1rem; }
+  .btn{ font-family:'Karla',sans-serif; font-weight:700; font-size:.85rem; border:2px solid var(--ink); border-radius:999px;
+    background:#fff; color:var(--ink); padding:.45rem 1rem; cursor:pointer; transition:all .15s; touch-action:manipulation; }
+  .btn:hover{ background:var(--ink); color:#fff; } .btn.on{ background:var(--ink); color:#fff; }
+  .btn:focus-visible{ outline:3px solid var(--amber); outline-offset:2px; }
+  .tool-tabs{ display:flex; gap:.4rem; flex-wrap:wrap; justify-content:center; margin-bottom:1rem; }
+  .tool-tabs .btn{ font-size:.78rem; padding:.35rem .75rem; }
+  .grid{ display:grid; grid-template-columns:1fr 280px; gap:1rem; align-items:start; }
+  @media (max-width:780px){ .grid{ grid-template-columns:1fr; } }
+  #stage{ width:100%; height:auto; display:block; background:var(--paper); border-radius:12px; touch-action:none; }
+  .panel-h{ font-family:'Space Grotesk',sans-serif; font-size:.8rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); margin-bottom:.6rem; }
+  .eq{ font-family:'Space Grotesk',sans-serif; font-size:1.25rem; font-weight:700; text-align:center; margin:.4rem 0; }
+  .eq .a{ color:var(--blue); } .eq .b{ color:var(--copper); } .eq .c{ color:var(--green); }
+  .ro{ display:flex; justify-content:space-between; font-size:.95rem; padding:.25rem 0; border-top:1px dashed var(--grid-line); } .ro:first-child{border-top:none;} .ro b{font-variant-numeric:tabular-nums;}
+  .work{ font-size:.88rem; color:var(--ink-soft); line-height:1.6; margin-top:.7rem; background:var(--paper); border-radius:10px; padding:.7rem .9rem; } .work b{color:var(--ink);} .work .sym{color:var(--blue);font-weight:700;}
+  .hint{ font-size:.8rem; color:var(--ink-soft); text-align:center; margin-top:.5rem; }
+  .inrow{ display:flex; gap:.6rem; align-items:center; flex-wrap:wrap; justify-content:center; margin-bottom:.6rem; }
+  .inrow label{ font-weight:700; } .inrow input{ width:78px; text-align:center; font-family:'Space Grotesk',sans-serif; font-size:1.15rem; font-weight:700; border:2px solid var(--grid-line); border-radius:8px; padding:.3rem; color:var(--ink); }
+  .inrow input:focus{ outline:none; border-color:var(--blue); }
+  .verdict{ text-align:center; font-family:'Space Grotesk',sans-serif; font-size:1.15rem; font-weight:700; padding:.6rem; border-radius:10px; margin-top:.6rem; }
+  .verdict.yes{ background:#DDF2E9; color:var(--green); } .verdict.no{ background:#FBE3E1; color:var(--red); }
+  /* quiz */
+  .quiz-card{ max-width:620px; margin:0 auto; }
+  .qprog{ display:flex; gap:.3rem; justify-content:center; margin-bottom:1rem; }
+  .qprog .dot{ width:11px; height:11px; border-radius:50%; background:var(--grid-line); }
+  .qprog .dot.now{ background:var(--ink); } .qprog .dot.right{ background:var(--green); } .qprog .dot.wrong{ background:var(--red); }
+  .qtext{ font-family:'Space Grotesk',sans-serif; font-size:1.15rem; font-weight:500; text-align:center; margin-bottom:.8rem; }
+  #qStage{ width:100%; max-width:320px; height:auto; display:block; margin:0 auto 1rem; background:var(--paper); border-radius:12px; }
+  .opts{ display:grid; grid-template-columns:1fr 1fr; gap:.6rem; }
+  .opt{ font-family:'Space Grotesk',sans-serif; font-size:1.05rem; font-weight:700; padding:.8rem; border:2px solid var(--grid-line); border-radius:12px; background:var(--paper); cursor:pointer; transition:all .12s; touch-action:manipulation; }
+  .opt:hover:not(:disabled){ border-color:var(--ink); } .opt:disabled{ cursor:default; }
+  .opt.correct{ border-color:var(--green); background:#DDF2E9; } .opt.incorrect{ border-color:var(--red); background:#FBE3E1; }
+  .explain{ margin-top:.9rem; padding:.75rem .9rem; border-radius:12px; background:#FFF6E3; border:2px solid var(--amber); font-size:.95rem; line-height:1.5; display:none; }
+  .quiz-foot{ display:flex; justify-content:space-between; align-items:center; margin-top:1rem; } .score-pill{ font-weight:700; color:var(--ink-soft); }
+  .result-screen{ text-align:center; padding:1rem 0; } .result-screen .big{ font-size:3rem; } .result-screen h3{ font-family:'Space Grotesk',sans-serif; font-size:1.5rem; margin:.5rem 0; }
+  footer{ text-align:center; color:var(--ink-soft); font-size:.78rem; margin-top:.5rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>📐 Pythagoras Lab</h1>
+    <p class="subtitle">a² + b² = c². See why, with a real square built on every side.</p>
+    <div class="tabs"><button class="btn on" id="tabPlay">Explore</button><button class="btn" id="tabQuiz">🎓 Review quiz</button></div>
+  </header>
+
+  <section id="playMode">
+    <div class="card">
+      <div class="tool-tabs" id="toolTabs">
+        <button class="btn on" data-tool="explore">Explore the squares</button>
+        <button class="btn" data-tool="hyp">Find the hypotenuse</button>
+        <button class="btn" data-tool="short">Find a short side</button>
+        <button class="btn" data-tool="check">Is it right-angled?</button>
+      </div>
+      <div class="grid">
+        <div><svg id="stage" viewBox="0 0 460 460" aria-label="Right-angled triangle"></svg>
+          <div class="hint" id="hint"></div></div>
+        <div><div class="panel-h">a² + b² = c²</div><div id="side"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="quizMode" style="display:none"><div class="card quiz-card" id="quizCard"></div></section>
+  <footer>Pythagoras Lab · part of the little tutoring tools family</footer>
+</div>
+
+<script>
+"use strict";
+const SVGNS="http://www.w3.org/2000/svg";
+const $=id=>document.getElementById(id);
+function el(n,a,p){const e=document.createElementNS(SVGNS,n);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e;}
+let tool='explore';
+let a=3, b=4;        // legs
+
+// draw right triangle with right angle at bottom-left, leg a vertical, leg b horizontal
+function drawTri(svg, a, b, opts){
+  opts=opts||{}; svg.innerHTML='';
+  const c=Math.sqrt(a*a+b*b);
+  const unit=Math.min(26, 130/Math.max(a,b,1));
+  const ox=190, oy=300;                       // right-angle corner
+  const A=[ox, oy-a*unit];                     // top (vertical leg = a)
+  const B=[ox+b*unit, oy];                     // right (horizontal leg = b)
+  if(opts.squares!==false){
+    // square on a (left of vertical leg)
+    el('rect',{x:ox-a*unit,y:oy-a*unit,width:a*unit,height:a*unit,fill:'rgba(58,124,165,.16)',stroke:'var(--blue)','stroke-width':2},svg);
+    el('text',{x:ox-a*unit/2,y:oy-a*unit/2+5,'text-anchor':'middle','font-family':'Space Grotesk','font-weight':'700','font-size':'13px',fill:'var(--blue)'},svg).textContent=`a²=${(+(a*a).toFixed(1))}`;
+    // square on b (below horizontal leg)
+    el('rect',{x:ox,y:oy,width:b*unit,height:b*unit,fill:'rgba(194,98,46,.16)',stroke:'var(--copper)','stroke-width':2},svg);
+    el('text',{x:ox+b*unit/2,y:oy+b*unit/2+5,'text-anchor':'middle','font-family':'Space Grotesk','font-weight':'700','font-size':'13px',fill:'var(--copper)'},svg).textContent=`b²=${(+(b*b).toFixed(1))}`;
+    // square on hypotenuse, built outward (away from the right angle)
+    const hx=B[0]-A[0], hy=B[1]-A[1];          // vector A->B along hypotenuse
+    const px=hy, py=-hx;                        // perpendicular (rotate -90) points up-right, away from triangle
+    const sq=[A,B,[B[0]+px,B[1]+py],[A[0]+px,A[1]+py]];
+    el('polygon',{points:sq.map(p=>p.map(v=>v.toFixed(1)).join(',')).join(' '),fill:'rgba(46,139,106,.16)',stroke:'var(--green)','stroke-width':2},svg);
+    const cx=(A[0]+B[0]+px)/2, cy=(A[1]+B[1]+py)/2;
+    el('text',{x:cx,y:cy+5,'text-anchor':'middle','font-family':'Space Grotesk','font-weight':'700','font-size':'13px',fill:'var(--green)'},svg).textContent=`c²=${(+(c*c).toFixed(1))}`;
+  }
+  // triangle
+  el('polygon',{points:`${ox},${oy} ${A[0]},${A[1]} ${B[0]},${B[1]}`,fill:'rgba(31,53,64,.07)',stroke:'var(--ink)','stroke-width':3,'stroke-linejoin':'round'},svg);
+  el('rect',{x:ox,y:oy-13,width:13,height:13,fill:'none',stroke:'var(--ink)','stroke-width':2},svg);
+  // labels
+  el('text',{x:ox-12,y:(oy+A[1])/2+4,'text-anchor':'end','font-weight':'700','font-size':'15px',fill:'var(--blue)'},svg).textContent=opts.aL||('a = '+a);
+  el('text',{x:(ox+B[0])/2,y:oy+18,'text-anchor':'middle','font-weight':'700','font-size':'15px',fill:'var(--copper)'},svg).textContent=opts.bL||('b = '+b);
+  el('text',{x:(A[0]+B[0])/2+12,y:(A[1]+B[1])/2-6,'text-anchor':'middle','font-weight':'700','font-size':'15px',fill:'var(--green)'},svg).textContent=opts.cL||('c = '+(+c.toFixed(2)));
+  // drag handles (explore only)
+  if(opts.drag){
+    const ha=el('circle',{cx:A[0],cy:A[1],r:9,fill:'var(--blue)',stroke:'#fff','stroke-width':2,style:'cursor:grab'},svg); ha.dataset.h='a';
+    const hb=el('circle',{cx:B[0],cy:B[1],r:9,fill:'var(--copper)',stroke:'#fff','stroke-width':2,style:'cursor:grab'},svg); hb.dataset.h='b';
+    ha._meta={ox,oy,unit}; hb._meta={ox,oy,unit};
+  }
+  return {ox,oy,unit,c};
+}
+
+/* ---------- explore ---------- */
+function renderExplore(){
+  $('hint').textContent='Drag the blue or orange corner to change the legs.';
+  const meta=drawTri($('stage'),a,b,{drag:true});
+  const c=Math.sqrt(a*a+b*b);
+  $('side').innerHTML=`
+    <div class="eq"><span class="a">${a}²</span> + <span class="b">${b}²</span> = <span class="c">c²</span></div>
+    <div class="ro"><span>a² (blue square)</span><b>${a*a}</b></div>
+    <div class="ro"><span>b² (orange square)</span><b>${b*b}</b></div>
+    <div class="ro"><span>a² + b²</span><b>${a*a+b*b}</b></div>
+    <div class="ro"><span>c² (green square)</span><b>${a*a+b*b}</b></div>
+    <div class="ro"><span>c = √(a²+b²)</span><b>${+c.toFixed(3)}</b></div>
+    <div class="work">The green square on the longest side has <b>exactly the same area</b> as the blue and orange squares added together. That's Pythagoras' theorem: <span class="sym">a² + b² = c²</span>.</div>`;
+}
+
+/* ---------- find hypotenuse ---------- */
+function renderHyp(){
+  $('hint').textContent='';
+  $('side').innerHTML=`
+    <div class="inrow"><label>a <input id="iA" type="number" value="${a}" min="1" max="30"></label>
+      <label>b <input id="iB" type="number" value="${b}" min="1" max="30"></label></div>
+    <div id="hypOut"></div>`;
+  const upd=()=>{ a=Math.max(1,parseFloat($('iA').value)||1); b=Math.max(1,parseFloat($('iB').value)||1);
+    drawTri($('stage'),a,b,{cL:'c = ?'});
+    const c2=a*a+b*b, c=Math.sqrt(c2);
+    $('hypOut').innerHTML=`<div class="eq"><span class="c">c</span> = √(<span class="a">${a}²</span> + <span class="b">${b}²</span>)</div>
+      <div class="work">Square the two short sides: ${a}² = ${a*a}, ${b}² = ${b*b}.<br>Add them: ${a*a} + ${b*b} = <b>${c2}</b>.<br>Square-root to get c: <span class="sym">√${c2} = ${+c.toFixed(3)}</span>${Number.isInteger(c)?' (a whole number!)':''}.</div>
+      <div class="verdict yes">c = ${+c.toFixed(3)}</div>`; };
+  $('iA').addEventListener('input',upd); $('iB').addEventListener('input',upd); upd();
+}
+
+/* ---------- find short side ---------- */
+let hypC=5, legA=3;
+function renderShort(){
+  $('hint').textContent='';
+  $('side').innerHTML=`
+    <div class="inrow"><label>c (hyp) <input id="iC" type="number" value="${hypC}" min="2" max="40"></label>
+      <label>a <input id="iA" type="number" value="${legA}" min="1" max="39"></label></div>
+    <div id="shortOut"></div>`;
+  const upd=()=>{ hypC=Math.max(2,parseFloat($('iC').value)||2); legA=Math.max(1,parseFloat($('iA').value)||1);
+    if(legA>=hypC){ $('shortOut').innerHTML=`<div class="verdict no">The hypotenuse must be the longest side — make c bigger than a.</div>`; drawTri($('stage'),legA,1,{squares:false,aL:'a',bL:'b=?',cL:'c'}); return; }
+    const b2=hypC*hypC-legA*legA, bb=Math.sqrt(b2);
+    drawTri($('stage'),legA,bb,{cL:'c = '+hypC, bL:'b = ?'});
+    $('shortOut').innerHTML=`<div class="eq"><span class="b">b</span> = √(<span class="c">${hypC}²</span> − <span class="a">${legA}²</span>)</div>
+      <div class="work">When you know the hypotenuse, you <b>subtract</b>: b² = c² − a².<br>${hypC}² = ${hypC*hypC}, ${legA}² = ${legA*legA}.<br>Subtract: ${hypC*hypC} − ${legA*legA} = <b>${b2}</b>.<br>Square-root: <span class="sym">√${b2} = ${+bb.toFixed(3)}</span>.</div>
+      <div class="verdict yes">b = ${+bb.toFixed(3)}</div>`; };
+  $('iC').addEventListener('input',upd); $('iA').addEventListener('input',upd); upd();
+}
+
+/* ---------- is it right-angled? ---------- */
+let ck=[3,4,5];
+function renderCheck(){
+  $('hint').textContent='';
+  $('side').innerHTML=`
+    <div class="inrow"><input id="c1" type="number" value="${ck[0]}" min="1" max="40" style="width:60px">
+      <input id="c2" type="number" value="${ck[1]}" min="1" max="40" style="width:60px">
+      <input id="c3" type="number" value="${ck[2]}" min="1" max="40" style="width:60px"></div>
+    <div id="ckOut"></div>`;
+  const upd=()=>{ ck=[parseFloat($('c1').value)||1,parseFloat($('c2').value)||1,parseFloat($('c3').value)||1];
+    const s=[...ck].sort((x,y)=>x-y); const [p,q,r]=s;
+    const lhs=p*p+q*q, rhs=r*r, right=Math.abs(lhs-rhs)<1e-9;
+    drawTri($('stage'),p,q,{squares:false,aL:'',bL:'',cL:''});
+    $('ckOut').innerHTML=`<div class="work">Sort the sides; the longest (${r}) would be the hypotenuse.<br>Check if the two shorter squares add up to the longest square:<br>${p}² + ${q}² = ${p*p} + ${q*q} = <b>${lhs}</b>, and ${r}² = <b>${rhs}</b>.</div>
+      <div class="verdict ${right?'yes':'no'}">${right?'✓ Right-angled! '+lhs+' = '+rhs:'✗ Not right-angled — '+lhs+' ≠ '+rhs}</div>`; };
+  ['c1','c2','c3'].forEach(id=>$(id).addEventListener('input',upd)); upd();
+}
+
+document.querySelectorAll('#toolTabs .btn').forEach(btn=>btn.addEventListener('click',()=>{
+  document.querySelectorAll('#toolTabs .btn').forEach(x=>x.classList.remove('on')); btn.classList.add('on');
+  tool=btn.dataset.tool;
+  if(tool==='explore'){a=3;b=4;renderExplore();} else if(tool==='hyp'){a=3;b=4;renderHyp();}
+  else if(tool==='short')renderShort(); else renderCheck();
+}));
+
+/* dragging in explore */
+function svgPt(cx,cy){ const pt=$('stage').createSVGPoint(); pt.x=cx;pt.y=cy; const m=$('stage').getScreenCTM(); if(!m)return null; const p=pt.matrixTransform(m.inverse()); return [p.x,p.y]; }
+let drag=null;
+$('stage').addEventListener('pointerdown',e=>{ if(tool!=='explore')return; const h=e.target.dataset&&e.target.dataset.h; if(h){drag={h,meta:e.target._meta};e.preventDefault();} });
+window.addEventListener('pointermove',e=>{
+  if(!drag)return; const p=svgPt(e.clientX,e.clientY); if(!p)return; const {ox,oy,unit}=drag.meta;
+  if(drag.h==='a'){ a=Math.max(1,Math.min(10,Math.round((oy-p[1])/unit))); }
+  else { b=Math.max(1,Math.min(10,Math.round((p[0]-ox)/unit))); }
+  renderExplore();
+});
+window.addEventListener('pointerup',()=>drag=null);
+
+/* ---------- QUIZ ---------- */
+function shuffle(arr){arr=arr.slice();for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
+const TRIPLES=[[3,4,5],[6,8,10],[5,12,13],[8,15,17],[9,12,15],[7,24,25],[20,21,29],[10,24,26],[9,40,41],[12,16,20],[15,20,25],[12,35,37],[16,30,34],[5,12,13],[18,24,30],[14,48,50]];
+function mc(text,correct,distract,explain){const opts=shuffle([correct,...distract]);return{text,opts,answer:opts.indexOf(correct),explain};}
+function buildBank(){
+  const Q=[]; const seen=new Set();
+  function add(o){ if(o && !seen.has(o.text)){ seen.add(o.text); Q.push(o); } }
+  const pick=()=>TRIPLES[Math.floor(Math.random()*TRIPLES.length)];
+  const NONRIGHT=[[4,5,7],[5,6,8],[6,7,10],[3,5,7],[7,8,12],[4,6,8],[5,7,9],[6,8,11]];
+  let guard=0;
+  while(Q.length<32 && guard++<600){
+    // find hypotenuse
+    {const [x,y,z]=pick(); add(mc(`A right triangle has short sides ${x} and ${y}. Find the hypotenuse.`, z+'',
+      [(x+y)+'',(z+1)+'',(z-1)+''], `${x}² + ${y}² = ${x*x} + ${y*y} = ${z*z}. √${z*z} = ${z}.`));}
+    // find short side
+    {const [x,y,z]=pick(); add(mc(`A right triangle has hypotenuse ${z} and one short side ${x}. Find the other short side.`, y+'',
+      [(z-x)+'',(z+x)+'',(y+1)+''], `b² = c² − a² = ${z*z} − ${x*x} = ${y*y}. √${y*y} = ${y}.`));}
+    {const [x,y,z]=pick(); add(mc(`A right triangle has hypotenuse ${z} and one short side ${y}. Find the other short side.`, x+'',
+      [(z-y)+'',(z+y)+'',(x+1)+''], `a² = c² − b² = ${z*z} − ${y*y} = ${x*x}. √${x*x} = ${x}.`));}
+    // is right-angled? (yes)
+    {const [x,y,z]=pick(); add(mc(`Is a triangle with sides ${x}, ${y}, ${z} right-angled?`, 'Yes',
+      ['No','Only if it\'s isosceles','Cannot tell'], `${x}² + ${y}² = ${x*x+y*y} = ${z}² = ${z*z}, so yes.`));}
+    // is right-angled? (no)
+    {const [x,y,z]=NONRIGHT[Math.floor(Math.random()*NONRIGHT.length)]; add(mc(`Is a triangle with sides ${x}, ${y}, ${z} right-angled?`, 'No',
+      ['Yes','Only roughly','Cannot tell'], `${x}² + ${y}² = ${x*x+y*y}, but ${z}² = ${z*z}. ${x*x+y*y} ≠ ${z*z}, so no.`));}
+    // value of a square step
+    {const [x,y,z]=pick(); add(mc(`First step to find the hypotenuse of a triangle with short sides ${x} and ${y}: what is ${x}² + ${y}²?`, (x*x+y*y)+'',
+      [(x+y)+'',(x*y)+'',(z+'')], `${x}² + ${y}² = ${x*x} + ${y*y} = ${x*x+y*y}. (Then square-root for the hypotenuse.)`));}
+  }
+  // fixed conceptual questions (always useful)
+  add(mc('In a right-angled triangle, the hypotenuse is…','the longest side, opposite the right angle',
+    ['the shortest side','any of the three sides','always the bottom side'],'The hypotenuse is always opposite the right angle and is the longest side.'));
+  add(mc('Short sides 1 and 1. The hypotenuse is closest to…','1.41',['2','1','1.7'],'1²+1²=2, √2 ≈ 1.41.'));
+  add(mc('To find a SHORT side when you know the hypotenuse, you…','subtract the squares',['add the squares','multiply the sides','halve the hypotenuse'],'b² = c² − a²: subtract, because the hypotenuse is the biggest square.'));
+  add(mc('To find the HYPOTENUSE from the two short sides, you…','add the squares then square-root',['subtract the squares','add the sides','multiply the sides'],'c = √(a² + b²): add the squares of the short sides, then square-root.'));
+  add(mc('Pythagoras\' theorem only works in which kind of triangle?','right-angled triangles',['all triangles','isosceles triangles','equilateral triangles'],'a² + b² = c² only holds when the triangle has a 90° angle.'));
+  add(mc('Short sides 3 and 4 give a hypotenuse of…','5',['7','6','12'],'3²+4² = 9+16 = 25, √25 = 5 — the classic 3-4-5 triangle.'));
+  return shuffle(Q);
+}
+const QLEN=8; let quiz=null;
+function startQuiz(){ quiz={qs:buildBank().slice(0,QLEN),idx:0,score:0,results:[]}; renderQ(); }
+function renderQ(){
+  const q=quiz.qs[quiz.idx], c=$('quizCard');
+  let dots=''; for(let i=0;i<QLEN;i++){let cl='dot';if(i<quiz.results.length)cl+=quiz.results[i]?' right':' wrong';else if(i===quiz.idx)cl+=' now';dots+=`<span class="${cl}"></span>`;}
+  c.innerHTML=`<div class="qprog">${dots}</div><div class="qtext">${q.text}</div>
+    <div class="opts">${q.opts.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join('')}</div>
+    <div class="explain" id="ex"></div>
+    <div class="quiz-foot"><span class="score-pill">Score: ${quiz.score}/${quiz.results.length}</span><button class="btn" id="nx" style="display:none">Next →</button></div>`;
+  c.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{
+    const i=+b.dataset.i, right=i===q.answer; quiz.results.push(right); if(right)quiz.score++;
+    c.querySelectorAll('.opt').forEach((x,j)=>{x.disabled=true;if(j===q.answer)x.classList.add('correct');else if(j===i)x.classList.add('incorrect');});
+    const ex=$('ex'); ex.style.display='block'; ex.innerHTML=(right?'✅ ':'❌ ')+q.explain;
+    c.querySelector('.score-pill').textContent=`Score: ${quiz.score}/${quiz.results.length}`;
+    const nx=$('nx'); nx.style.display='inline-block'; nx.textContent=quiz.idx+1<QLEN?'Next →':'Results →';
+    nx.onclick=()=>{ quiz.idx++; if(quiz.idx<QLEN)renderQ(); else results(); };
+  }));
+}
+function results(){
+  const pct=quiz.score/QLEN; let e='📐',t='Theorem triumph!';
+  if(pct<0.5){e='📏';t='Keep at it!';} else if(pct<0.8){e='✏️';t='Well done!';}
+  $('quizCard').innerHTML=`<div class="result-screen"><div class="big">${e}</div><h3>${t}</h3>
+    <p style="color:var(--ink-soft)">You scored ${quiz.score} out of ${QLEN}.</p>
+    <button class="btn" id="rt">Try again</button> <button class="btn" id="bk">Back to explore</button></div>`;
+  $('rt').onclick=startQuiz; $('bk').onclick=()=>setMode('play');
+}
+function setMode(m){
+  $('playMode').style.display=m==='play'?'':'none'; $('quizMode').style.display=m==='play'?'none':'';
+  $('tabPlay').classList.toggle('on',m==='play'); $('tabQuiz').classList.toggle('on',m!=='play');
+  if(m!=='play') startQuiz(); else renderExplore();
+}
+$('tabPlay').onclick=()=>setMode('play'); $('tabQuiz').onclick=()=>setMode('quiz');
+
+renderExplore();
+</script>
+</body>
+</html>

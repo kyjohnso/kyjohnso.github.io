@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ecosystem Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{ --paper:#F2F7FA; --grid-line:#D5E4EC; --ink:#1F3540; --ink-soft:#5A7280; --panel:#fff;
+    --copper:#C2622E; --amber:#FFB02E; --green:#2E8B6A; --red:#D6493E; --blue:#3A7CA5; --purple:#7B5EA7; --shadow:rgba(31,53,64,.14); }
+  body{ font-family:'Karla',sans-serif; color:var(--ink); background:linear-gradient(135deg,#EAF4EE,#F4F1E8); min-height:100vh; padding:1.25rem; }
+  .wrap{ max-width:920px; margin:0 auto; }
+  header{ text-align:center; margin-bottom:1rem; }
+  h1{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(1.6rem,4vw,2.3rem); }
+  .subtitle{ color:var(--ink-soft); margin-top:.25rem; }
+  .tabs{ display:flex; justify-content:center; gap:.5rem; margin-top:.8rem; flex-wrap:wrap; }
+  .card{ background:var(--panel); border-radius:16px; box-shadow:0 6px 18px var(--shadow); padding:1rem; margin-bottom:1rem; }
+  .btn{ font-family:'Karla',sans-serif; font-weight:700; font-size:.85rem; border:2px solid var(--ink); border-radius:999px;
+    background:#fff; color:var(--ink); padding:.45rem 1rem; cursor:pointer; transition:all .15s; touch-action:manipulation; }
+  .btn:hover{ background:var(--ink); color:#fff; } .btn.on{ background:var(--ink); color:#fff; }
+  .btn:focus-visible{ outline:3px solid var(--amber); outline-offset:2px; }
+  .tool-tabs{ display:flex; gap:.4rem; flex-wrap:wrap; justify-content:center; margin-bottom:1rem; }
+  .tool-tabs .btn{ font-size:.78rem; padding:.35rem .8rem; }
+  .panel-h{ font-family:'Space Grotesk',sans-serif; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); margin-bottom:.6rem; }
+
+  /* food chain */
+  .chain-pick{ display:flex; gap:.4rem; flex-wrap:wrap; justify-content:center; margin-bottom:1rem; }
+  .chain-pick .btn{ font-size:.8rem; padding:.35rem .8rem; }
+  #chain{ width:100%; height:auto; display:block; }
+  .levels{ margin-top:.8rem; }
+  .lvl-row{ display:flex; align-items:center; gap:.7rem; font-size:.9rem; padding:.35rem 0; border-top:1px dashed var(--grid-line); }
+  .lvl-row:first-child{ border-top:none; }
+  .lvl-row .ico{ font-size:1.5rem; } .lvl-row .role{ font-weight:700; } .lvl-row .role small{ display:block; color:var(--ink-soft); font-weight:400; }
+  .lvl-row .en{ margin-left:auto; font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--amber); }
+  .work{ font-size:.85rem; color:var(--ink-soft); line-height:1.6; margin-top:.7rem; background:var(--paper); border-radius:10px; padding:.7rem .9rem; } .work b{color:var(--ink);}
+
+  /* simulator */
+  .sim-grid{ display:grid; grid-template-columns:1fr 250px; gap:1rem; align-items:start; }
+  @media (max-width:760px){ .sim-grid{ grid-template-columns:1fr; } }
+  #sim{ width:100%; height:auto; display:block; background:var(--paper); border-radius:12px; }
+  .pop-row{ display:flex; align-items:center; gap:.5rem; margin:.5rem 0; }
+  .pop-row .ico{ font-size:1.3rem; width:28px; text-align:center; }
+  .pop-bar-track{ flex:1; height:18px; background:var(--grid-line); border-radius:9px; overflow:hidden; }
+  .pop-bar{ height:100%; border-radius:9px; transition:width .4s; }
+  .pop-row .num{ font-family:'Space Grotesk',sans-serif; font-weight:700; width:34px; text-align:right; font-size:.9rem; }
+  .sim-btns{ display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.7rem; justify-content:center; }
+  .scenario{ text-align:center; font-size:.9rem; padding:.6rem; border-radius:10px; background:var(--paper); margin-top:.6rem; line-height:1.5; }
+  .scenario b{ color:var(--copper); }
+  /* quiz */
+  .quiz-card{ max-width:600px; margin:0 auto; }
+  .qprog{ display:flex; gap:.3rem; justify-content:center; margin-bottom:1rem; }
+  .qprog .dot{ width:11px; height:11px; border-radius:50%; background:var(--grid-line); }
+  .qprog .dot.now{ background:var(--ink); } .qprog .dot.right{ background:var(--green); } .qprog .dot.wrong{ background:var(--red); }
+  .qtext{ font-family:'Space Grotesk',sans-serif; font-size:1.15rem; font-weight:500; text-align:center; margin-bottom:1rem; }
+  .opts{ display:grid; grid-template-columns:1fr 1fr; gap:.6rem; }
+  .opt{ font-family:'Space Grotesk',sans-serif; font-size:.98rem; font-weight:700; padding:.8rem; border:2px solid var(--grid-line); border-radius:12px; background:var(--paper); cursor:pointer; transition:all .12s; touch-action:manipulation; }
+  .opt:hover:not(:disabled){ border-color:var(--ink); } .opt:disabled{ cursor:default; }
+  .opt.correct{ border-color:var(--green); background:#DDF2E9; } .opt.incorrect{ border-color:var(--red); background:#FBE3E1; }
+  .explain{ margin-top:.9rem; padding:.75rem .9rem; border-radius:12px; background:#FFF6E3; border:2px solid var(--amber); font-size:.95rem; line-height:1.5; display:none; }
+  .quiz-foot{ display:flex; justify-content:space-between; align-items:center; margin-top:1rem; } .score-pill{ font-weight:700; color:var(--ink-soft); }
+  .result-screen{ text-align:center; padding:1rem 0; } .result-screen .big{ font-size:3rem; } .result-screen h3{ font-family:'Space Grotesk',sans-serif; font-size:1.5rem; margin:.5rem 0; }
+  footer{ text-align:center; color:var(--ink-soft); font-size:.78rem; margin-top:.5rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🦊 Ecosystem Lab</h1>
+    <p class="subtitle">Food chains, energy flow, and how every living thing depends on the others.</p>
+    <div class="tabs"><button class="btn on" id="tabPlay">Explore</button><button class="btn" id="tabQuiz">🎓 Review quiz</button></div>
+  </header>
+
+  <section id="playMode">
+    <div class="card">
+      <div class="tool-tabs" id="toolTabs">
+        <button class="btn on" data-tool="chain">Food chain &amp; energy</button>
+        <button class="btn" data-tool="sim">What if a species vanishes?</button>
+      </div>
+      <div id="toolBody"></div>
+    </div>
+  </section>
+
+  <section id="quizMode" style="display:none"><div class="card quiz-card" id="quizCard"></div></section>
+  <footer>Ecosystem Lab · part of the little tutoring tools family</footer>
+</div>
+
+<script>
+"use strict";
+const SVGNS="http://www.w3.org/2000/svg";
+const $=id=>document.getElementById(id);
+function el(n,a,p){const e=document.createElementNS(SVGNS,n);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e;}
+let tool='chain';
+
+/* food chains: each link = [emoji, name, roleLabel] ; energy halves-ish each step (show 100/10/1...) */
+const CHAINS={
+  meadow:[['🌱','Grass','Producer'],['🦗','Grasshopper','Primary consumer (herbivore)'],['🐸','Frog','Secondary consumer'],['🦅','Hawk','Tertiary consumer (top predator)']],
+  ocean:[['🌿','Algae','Producer'],['🦐','Shrimp','Primary consumer'],['🐟','Fish','Secondary consumer'],['🦭','Seal','Tertiary consumer'],['🦈','Shark','Top predator']],
+  woodland:[['🌳','Oak leaves','Producer'],['🐛','Caterpillar','Primary consumer'],['🐦','Bird','Secondary consumer'],['🦊','Fox','Top predator']],
+  garden:[['🌹','Rose','Producer'],['🐌','Slug','Primary consumer'],['🦔','Hedgehog','Secondary consumer']],
+};
+let chainKey='meadow';
+function renderChain(){
+  $('toolBody').innerHTML=`
+    <div class="chain-pick" id="chainPick"></div>
+    <svg id="chain" viewBox="0 0 ${CHAINS[chainKey].length*150} 170" aria-label="Food chain"></svg>
+    <div class="levels" id="levels"></div>
+    <div class="work" id="cWork"></div>`;
+  const pick=$('chainPick');
+  Object.keys(CHAINS).forEach(k=>{ const b=document.createElement('button'); b.className='btn'+(k===chainKey?' on':'');
+    b.textContent={meadow:'🌾 Meadow',ocean:'🌊 Ocean',woodland:'🌳 Woodland',garden:'🌹 Garden'}[k];
+    b.addEventListener('click',()=>{ chainKey=k; renderChain(); }); pick.appendChild(b); });
+  drawChain(); showLevels();
+}
+function drawChain(){
+  const chain=CHAINS[chainKey]; const svg=$('chain'); svg.innerHTML='';
+  svg.setAttribute('viewBox',`0 0 ${chain.length*150} 170`);
+  chain.forEach((link,i)=>{
+    const x=75+i*150, y=70;
+    el('circle',{cx:x,cy:y,r:40,fill:i===0?'#DDF2E9':'#EAF2F7',stroke:'var(--ink)','stroke-width':2.5},svg);
+    const t=el('text',{x,y:y+14,'text-anchor':'middle','font-size':'40px'},svg); t.textContent=link[0];
+    const nm=el('text',{x,y:135,'text-anchor':'middle','font-family':'Space Grotesk','font-weight':'700','font-size':'14px',fill:'var(--ink)'},svg); nm.textContent=link[1];
+    if(i<chain.length-1){
+      el('line',{x1:x+44,y1:y,x2:x+106,y2:y,stroke:'var(--green)','stroke-width':3},svg);
+      el('polygon',{points:`${x+106},${y-6} ${x+118},${y} ${x+106},${y+6}`,fill:'var(--green)'},svg);
+      const e=el('text',{x:x+81,y:y-12,'text-anchor':'middle','font-size':'10px','font-weight':'700',fill:'var(--ink-soft)'},svg); e.textContent='energy';
+    }
+  });
+}
+function showLevels(){
+  const chain=CHAINS[chainKey];
+  $('levels').innerHTML=chain.map((link,i)=>{
+    const energy=100/Math.pow(10,i);
+    const eStr = energy>=1 ? energy : energy>=0.1 ? energy.toFixed(1) : energy.toFixed(2);
+    return `<div class="lvl-row"><span class="ico">${link[0]}</span>
+      <span class="role">${link[1]}<small>${link[2]}</small></span>
+      <span class="en">${eStr}% energy</span></div>`;
+  }).join('');
+  $('cWork').innerHTML=`The <b>arrows point in the direction the energy flows</b> — from the food to the eater. It all starts with the <b>producer</b> (a green plant), which captures light energy by photosynthesis. Animals that eat plants are <b>herbivores (primary consumers)</b>; animals that eat them are <b>carnivores (secondary/tertiary consumers)</b>. At each step only about <b>10% of the energy passes on</b> — the rest is used for moving, staying warm, or lost as waste. That's why food chains rarely have more than four or five links: there isn't enough energy left.`;
+}
+
+/* ---------- simulator: grass → rabbit → fox ---------- */
+let pop, removed=null;
+function resetSim(){ pop={grass:80,rabbit:50,fox:20}; removed=null; }
+resetSim();
+function renderSim(){
+  $('toolBody').innerHTML=`
+    <div class="sim-grid">
+      <div><svg id="sim" viewBox="0 0 360 240" aria-label="Population scene"></svg></div>
+      <div>
+        <div class="panel-h">Populations now</div>
+        <div class="pop-row"><span class="ico">🌱</span><div class="pop-bar-track"><div class="pop-bar" id="bGrass" style="background:var(--green)"></div></div><span class="num" id="nGrass"></span></div>
+        <div class="pop-row"><span class="ico">🐰</span><div class="pop-bar-track"><div class="pop-bar" id="bRabbit" style="background:var(--copper)"></div></div><span class="num" id="nRabbit"></span></div>
+        <div class="pop-row"><span class="ico">🦊</span><div class="pop-bar-track"><div class="pop-bar" id="bFox" style="background:var(--red)"></div></div><span class="num" id="nFox"></span></div>
+        <div class="scenario" id="scenario"></div>
+      </div>
+    </div>
+    <div class="panel-h" style="text-align:center;margin-top:.6rem">Remove a species and watch what happens</div>
+    <div class="sim-btns">
+      <button class="btn" data-rm="grass">🌱 Remove grass</button>
+      <button class="btn" data-rm="rabbit">🐰 Remove rabbits</button>
+      <button class="btn" data-rm="fox">🦊 Remove foxes</button>
+      <button class="btn" id="simReset">↻ Reset</button>
+    </div>
+    <div class="work">In a food chain everything is connected, so removing one species sends ripples up and down the chain. Fewer predators → more prey at first → but then the prey eat all their food. More plants eaten → less food for everyone above. This is <b>interdependence</b>: each species depends on the others to stay in balance.</div>`;
+  document.querySelectorAll('[data-rm]').forEach(b=>b.addEventListener('click',()=>applyRemoval(b.dataset.rm)));
+  $('simReset').addEventListener('click',()=>{ resetSim(); renderSim(); });
+  drawSim(); updateBars();
+}
+function applyRemoval(sp){
+  resetSim(); removed=sp;
+  if(sp==='fox'){ pop.fox=0; pop.rabbit=95; pop.grass=20; }       // no predator: rabbits boom, eat grass down
+  else if(sp==='rabbit'){ pop.rabbit=0; pop.grass=100; pop.fox=4; } // no prey: grass thrives, foxes starve
+  else if(sp==='grass'){ pop.grass=0; pop.rabbit=6; pop.fox=3; }    // no producer: whole chain collapses
+  renderSimAfter(sp);
+}
+function renderSimAfter(sp){
+  renderSim();
+  const msg={
+    fox:'With <b>no foxes</b>, nothing hunts the rabbits — so rabbits boom. But all those rabbits eat the grass faster than it can regrow, so the grass crashes. Eventually the rabbits run out of food too.',
+    rabbit:'With <b>no rabbits</b>, the foxes lose their main food and their numbers fall (they starve or leave). Meanwhile the grass grows thick because nothing is eating it.',
+    grass:'Remove the <b>producer</b> and the whole chain collapses — with no grass, the rabbits have nothing to eat, and with no rabbits the foxes starve too. Producers are the foundation of every food chain.'
+  }[sp];
+  $('scenario').innerHTML=msg;
+}
+function drawSim(){
+  const svg=$('sim'); svg.innerHTML='';
+  el('rect',{x:0,y:175,width:360,height:65,fill:'#A9C58A'},svg);
+  el('rect',{x:0,y:0,width:360,height:175,fill:'#CDE7F5'},svg);
+  // grass tufts scale with grass pop
+  const gN=Math.round(pop.grass/100*14);
+  for(let i=0;i<gN;i++){ const x=15+i*24; el('path',{d:`M ${x} 200 L ${x-4} 178 M ${x} 200 L ${x} 174 M ${x} 200 L ${x+4} 178`,stroke:'var(--green)','stroke-width':2.5,fill:'none'},svg); }
+  // rabbits
+  const rN=Math.round(pop.rabbit/100*8);
+  for(let i=0;i<rN;i++){ const x=30+i*40, y=160; el('text',{x,y,'font-size':'20px'},svg).textContent='🐰'; }
+  // foxes
+  const fN=Math.round(pop.fox/100*5);
+  for(let i=0;i<fN;i++){ const x=40+i*70, y=130; el('text',{x,y,'font-size':'24px'},svg).textContent='🦊'; }
+  if(pop.grass===0){ el('text',{x:180,y:120,'text-anchor':'middle','font-size':'13px','font-weight':'700',fill:'var(--red)'},svg).textContent='no producers — chain collapses'; }
+}
+function updateBars(){
+  $('bGrass').style.width=pop.grass+'%'; $('nGrass').textContent=pop.grass;
+  $('bRabbit').style.width=pop.rabbit+'%'; $('nRabbit').textContent=pop.rabbit;
+  $('bFox').style.width=Math.min(100,pop.fox)+'%'; $('nFox').textContent=pop.fox;
+  if(!removed) $('scenario').innerHTML='A balanced food chain: grass feeds rabbits, rabbits feed foxes. Tap a button below to disturb it.';
+}
+
+document.querySelectorAll('#toolTabs .btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#toolTabs .btn').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  tool=b.dataset.tool; if(tool==='chain')renderChain(); else { resetSim(); renderSim(); }
+}));
+
+/* ---------- QUIZ ---------- */
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function mc(text,correct,distract,explain){const opts=shuffle([correct,...distract]);return{text,opts,answer:opts.indexOf(correct),explain};}
+function buildBank(){
+  const Q=[];
+  Q.push(mc('In a food chain, the arrows show…','the direction energy flows',['who is biggest','which animal is fastest','the order of size'],'Arrows point from food to eater — the direction energy is transferred.'));
+  Q.push(mc('A green plant in a food chain is called a…','producer',['consumer','predator','decomposer'],'Producers make their own food by photosynthesis and start every food chain.'));
+  Q.push(mc('An animal that eats plants is a…','herbivore (primary consumer)',['producer','top predator','carnivore'],'Plant-eaters are herbivores, the primary consumers.'));
+  Q.push(mc('Roughly how much energy passes to the next level?','about 10%',['about 90%','100%','about 50%'],'Only ~10% transfers; the rest is used for movement, warmth or lost as waste.'));
+  Q.push(mc('Why are food chains usually only 4–5 links long?','energy runs out along the chain',['animals get bored','there are no big animals','plants die'],'So little energy passes each step that there isn\'t enough to support more levels.'));
+  Q.push(mc('In grass → rabbit → fox, what happens if foxes are removed?','rabbits increase, then grass falls',['everything dies at once','nothing changes','grass increases forever'],'No predator → rabbits boom → they overeat the grass, which then crashes.'));
+  Q.push(mc('In grass → rabbit → fox, what happens if rabbits are removed?','foxes go hungry and grass grows thick',['foxes increase','grass disappears','foxes turn into herbivores'],'Foxes lose their food source; uneaten grass flourishes.'));
+  Q.push(mc('What is the top predator in grass → rabbit → fox?','fox',['grass','rabbit','none'],'The fox is at the top — nothing in this chain eats it.'));
+  Q.push(mc('All the living things depending on each other to survive shows…','interdependence',['independence','photosynthesis','digestion'],'Interdependence: each species relies on others in its ecosystem.'));
+  Q.push(mc('Where does the energy in a food chain originally come from?','the Sun',['the soil','the predators','the water'],'Producers capture light energy from the Sun by photosynthesis.'));
+  Q.push(mc('A secondary consumer is an animal that eats…','primary consumers (herbivores)',['producers','the Sun','only plants'],'Secondary consumers eat the herbivores that ate the plants.'));
+  Q.push(mc('Remove the producer (the plant) and…','the whole chain collapses',['only the plant is affected','predators increase','nothing changes'],'Producers feed everything above them, so losing them collapses the chain.'));
+  Q.push(mc('In a food chain, the arrows show…','the direction energy flows',['which animal is biggest','which is fastest','the order of size'],'Arrows point from the food to the eater.'));
+  Q.push(mc('A green plant in a food chain is called a…','producer',['consumer','predator','decomposer'],'Producers make their own food by photosynthesis.'));
+  Q.push(mc('An animal that eats only plants is a…','herbivore',['carnivore','producer','predator'],'Plant-eaters are herbivores (primary consumers).'));
+  Q.push(mc('An animal that eats other animals is a…','carnivore',['herbivore','producer','decomposer'],'Meat-eaters are carnivores.'));
+  Q.push(mc('Where does the energy in a food chain originally come from?','the Sun',['the soil','the predators','the water'],'Producers capture light energy from the Sun.'));
+  Q.push(mc('About how much energy passes to the next level?','about 10%',['about 90%','100%','about 50%'],'Only ~10% transfers; the rest is used or lost.'));
+  Q.push(mc('Why are most food chains only 4–5 links long?','energy runs out along the chain',['animals get bored','plants die','predators are rare'],'So little energy passes each step that higher levels can\'t be supported.'));
+  Q.push(mc('A secondary consumer eats…','primary consumers (herbivores)',['producers','the Sun','only plants'],'Secondary consumers eat the herbivores.'));
+  Q.push(mc('The animal at the top, with nothing eating it, is the…','top predator',['producer','herbivore','decomposer'],'The top predator sits at the end of the chain.'));
+  Q.push(mc('In grass → rabbit → fox, the producer is…','grass',['rabbit','fox','the Sun'],'Grass is the green plant that makes its own food.'));
+  Q.push(mc('In grass → rabbit → fox, removing the foxes makes rabbits…','increase at first',['vanish','stay exactly the same','turn into foxes'],'No predator means rabbits boom — until they overeat the grass.'));
+  Q.push(mc('In grass → rabbit → fox, removing the rabbits makes foxes…','decrease (go hungry)',['increase','stay the same','eat grass'],'The foxes lose their food source and their numbers fall.'));
+  Q.push(mc('Removing the producer from a food chain causes…','the whole chain to collapse',['only the plant to be affected','predators to increase','nothing to change'],'Everything above depends on the producer for energy.'));
+  Q.push(mc('All living things depending on each other is called…','interdependence',['independence','photosynthesis','digestion'],'Each species relies on others to stay in balance.'));
+  Q.push(mc('A food web is…','many food chains linked together',['a single food chain','a kind of animal','a type of habitat'],'Real ecosystems link many chains into a web.'));
+  Q.push(mc('Producers make their food by…','photosynthesis',['respiration','eating plants','hunting'],'Green plants photosynthesise to make glucose.'));
+  Q.push(mc('What always comes first in a food chain?','a producer',['a predator','a herbivore','a carnivore'],'Every food chain starts with a producer.'));
+  Q.push(mc('Energy is lost between levels mainly as…','heat, movement and waste',['sound','light','minerals'],'Animals use energy to move and stay warm, and lose some as waste.'));
+  Q.push(mc('A rabbit in grass → rabbit → fox is a…','primary consumer',['producer','top predator','secondary consumer'],'It eats the producer (grass), so it is the primary consumer.'));
+  Q.push(mc('A fox in grass → rabbit → fox is a…','secondary consumer (predator)',['producer','primary consumer','herbivore'],'It eats the rabbit, so it is a secondary consumer.'));
+  Q.push(mc('If rabbits suddenly increase a lot, the grass will…','decrease',['increase','stay the same','turn into trees'],'More rabbits eat more grass, so the grass falls.'));
+  Q.push(mc('Decomposers such as fungi help by…','breaking down dead material',['hunting live prey','producing oxygen only','making soil acidic'],'Decomposers recycle nutrients from dead plants and animals.'));
+  return shuffle(Q);
+}
+const QLEN=8; let quiz=null;
+function startQuiz(){ quiz={qs:buildBank().slice(0,QLEN),idx:0,score:0,results:[]}; renderQ(); }
+function renderQ(){
+  const q=quiz.qs[quiz.idx], c=$('quizCard');
+  let dots=''; for(let i=0;i<QLEN;i++){let cl='dot';if(i<quiz.results.length)cl+=quiz.results[i]?' right':' wrong';else if(i===quiz.idx)cl+=' now';dots+=`<span class="${cl}"></span>`;}
+  c.innerHTML=`<div class="qprog">${dots}</div><div class="qtext">${q.text}</div>
+    <div class="opts">${q.opts.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join('')}</div>
+    <div class="explain" id="ex"></div>
+    <div class="quiz-foot"><span class="score-pill">Score: ${quiz.score}/${quiz.results.length}</span><button class="btn" id="nx" style="display:none">Next →</button></div>`;
+  c.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{
+    const i=+b.dataset.i, right=i===q.answer; quiz.results.push(right); if(right)quiz.score++;
+    c.querySelectorAll('.opt').forEach((x,j)=>{x.disabled=true;if(j===q.answer)x.classList.add('correct');else if(j===i)x.classList.add('incorrect');});
+    const ex=$('ex'); ex.style.display='block'; ex.innerHTML=(right?'✅ ':'❌ ')+q.explain;
+    c.querySelector('.score-pill').textContent=`Score: ${quiz.score}/${quiz.results.length}`;
+    const nx=$('nx'); nx.style.display='inline-block'; nx.textContent=quiz.idx+1<QLEN?'Next →':'Results →';
+    nx.onclick=()=>{ quiz.idx++; if(quiz.idx<QLEN)renderQ(); else results(); };
+  }));
+}
+function results(){
+  const pct=quiz.score/QLEN; let e='🦊',t='Ecosystem expert!';
+  if(pct<0.5){e='🌱';t='Keep exploring the web!';} else if(pct<0.8){e='🦅';t='Nice work!';}
+  $('quizCard').innerHTML=`<div class="result-screen"><div class="big">${e}</div><h3>${t}</h3>
+    <p style="color:var(--ink-soft)">You scored ${quiz.score} out of ${QLEN}.</p>
+    <button class="btn" id="rt">Try again</button> <button class="btn" id="bk">Back to explore</button></div>`;
+  $('rt').onclick=startQuiz; $('bk').onclick=()=>setMode('play');
+}
+function setMode(m){
+  $('playMode').style.display=m==='play'?'':'none'; $('quizMode').style.display=m==='play'?'none':'';
+  $('tabPlay').classList.toggle('on',m==='play'); $('tabQuiz').classList.toggle('on',m!=='play');
+  if(m!=='play') startQuiz();
+}
+$('tabPlay').onclick=()=>setMode('play'); $('tabQuiz').onclick=()=>setMode('quiz');
+
+renderChain();
+</script>
+</body>
+</html>

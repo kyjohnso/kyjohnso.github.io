@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fraction Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{ --paper:#F2F7FA; --grid-line:#D5E4EC; --ink:#1F3540; --ink-soft:#5A7280; --panel:#fff;
+    --copper:#C2622E; --amber:#FFB02E; --green:#2E8B6A; --red:#D6493E; --blue:#3A7CA5; --shadow:rgba(31,53,64,.14); }
+  body{ font-family:'Karla',sans-serif; color:var(--ink); background:linear-gradient(135deg,#E8F1F6,#F4F1E8); min-height:100vh; padding:1.25rem; }
+  .wrap{ max-width:880px; margin:0 auto; }
+  header{ text-align:center; margin-bottom:1rem; }
+  h1{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(1.7rem,4vw,2.4rem); }
+  .subtitle{ color:var(--ink-soft); margin-top:.25rem; }
+  .tabs{ display:flex; justify-content:center; gap:.5rem; margin-top:.8rem; flex-wrap:wrap; }
+  .card{ background:var(--panel); border-radius:16px; box-shadow:0 6px 18px var(--shadow); padding:1rem; margin-bottom:1rem; }
+  .btn{ font-family:'Karla',sans-serif; font-weight:700; font-size:.85rem; border:2px solid var(--ink); border-radius:999px;
+    background:#fff; color:var(--ink); padding:.45rem 1rem; cursor:pointer; transition:all .15s; touch-action:manipulation; }
+  .btn:hover{ background:var(--ink); color:#fff; } .btn.on{ background:var(--ink); color:#fff; }
+  .btn:focus-visible{ outline:3px solid var(--amber); outline-offset:2px; }
+  .op-tabs{ display:flex; gap:.4rem; flex-wrap:wrap; justify-content:center; margin-bottom:1rem; }
+  .op-tabs .btn{ font-size:.8rem; padding:.35rem .8rem; }
+
+  .frac-inputs{ display:flex; align-items:center; justify-content:center; gap:1rem; flex-wrap:wrap; margin-bottom:1rem; }
+  .fbox{ display:inline-flex; flex-direction:column; align-items:center; }
+  .fbox input{ width:62px; text-align:center; font-family:'Space Grotesk',sans-serif; font-size:1.4rem; font-weight:700;
+    border:2px solid var(--grid-line); border-radius:8px; padding:.25rem; color:var(--ink); }
+  .fbox input:focus{ outline:none; border-color:var(--blue); }
+  .fbox .bar{ width:62px; height:3px; background:var(--ink); margin:4px 0; }
+  .op-sym{ font-family:'Space Grotesk',sans-serif; font-size:2rem; font-weight:700; color:var(--copper); }
+
+  .viz{ display:flex; flex-direction:column; gap:.8rem; align-items:center; }
+  .bar-set{ width:100%; max-width:560px; }
+  .bar-label{ font-weight:700; font-size:.9rem; margin-bottom:.2rem; color:var(--ink-soft); }
+  .fbar{ display:flex; width:100%; height:42px; border:2px solid var(--ink); border-radius:8px; overflow:hidden; }
+  .fcell{ flex:1; border-right:1px solid var(--ink); transition:background .2s; }
+  .fcell:last-child{ border-right:none; }
+  .fcell.fill{ background:var(--blue); } .fcell.fill2{ background:var(--amber); } .fcell.fillr{ background:var(--green); }
+
+  .result{ text-align:center; margin-top:1rem; }
+  .result .ans{ font-family:'Space Grotesk',sans-serif; font-size:1.8rem; font-weight:700; color:var(--green); }
+  . frac-disp{ display:inline-flex; flex-direction:column; }
+  .work{ font-size:.9rem; color:var(--ink-soft); line-height:1.6; margin-top:.6rem; text-align:left;
+    background:var(--paper); border-radius:10px; padding:.7rem .9rem; }
+  .work b{ color:var(--ink); } .work .sym{ color:var(--blue); font-weight:700; }
+
+  /* quiz */
+  .quiz-card{ max-width:600px; margin:0 auto; }
+  .qprog{ display:flex; gap:.3rem; justify-content:center; margin-bottom:1rem; }
+  .qprog .dot{ width:11px; height:11px; border-radius:50%; background:var(--grid-line); }
+  .qprog .dot.now{ background:var(--ink); } .qprog .dot.right{ background:var(--green); } .qprog .dot.wrong{ background:var(--red); }
+  .qtext{ font-family:'Space Grotesk',sans-serif; font-size:1.3rem; font-weight:500; text-align:center; margin-bottom:1rem; }
+  .opts{ display:grid; grid-template-columns:1fr 1fr; gap:.6rem; }
+  .opt{ font-family:'Space Grotesk',sans-serif; font-size:1.1rem; font-weight:700; padding:.8rem; border:2px solid var(--grid-line);
+    border-radius:12px; background:var(--paper); cursor:pointer; transition:all .12s; touch-action:manipulation; }
+  .opt:hover:not(:disabled){ border-color:var(--ink); } .opt:disabled{ cursor:default; }
+  .opt.correct{ border-color:var(--green); background:#DDF2E9; } .opt.incorrect{ border-color:var(--red); background:#FBE3E1; }
+  .explain{ margin-top:.9rem; padding:.75rem .9rem; border-radius:12px; background:#FFF6E3; border:2px solid var(--amber);
+    font-size:.95rem; line-height:1.5; display:none; }
+  .quiz-foot{ display:flex; justify-content:space-between; align-items:center; margin-top:1rem; }
+  .score-pill{ font-weight:700; color:var(--ink-soft); }
+  .result-screen{ text-align:center; padding:1rem 0; } .result-screen .big{ font-size:3rem; }
+  .result-screen h3{ font-family:'Space Grotesk',sans-serif; font-size:1.5rem; margin:.5rem 0; }
+  footer{ text-align:center; color:var(--ink-soft); font-size:.78rem; margin-top:.5rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🍕 Fraction Lab</h1>
+    <p class="subtitle">See fractions as bars, then add, subtract, multiply, divide and simplify them.</p>
+    <div class="tabs">
+      <button class="btn on" id="tabPlay">Explore</button>
+      <button class="btn" id="tabQuiz">🎓 Review quiz</button>
+    </div>
+  </header>
+
+  <section id="playMode">
+    <div class="card">
+      <div class="op-tabs" id="opTabs">
+        <button class="btn on" data-op="add">＋ Add</button>
+        <button class="btn" data-op="sub">− Subtract</button>
+        <button class="btn" data-op="mul">× Multiply</button>
+        <button class="btn" data-op="div">÷ Divide</button>
+        <button class="btn" data-op="simp">Simplify</button>
+        <button class="btn" data-op="equiv">Equivalent</button>
+        <button class="btn" data-op="mixed">Mixed ↔ Improper</button>
+      </div>
+      <div class="frac-inputs" id="fracInputs"></div>
+      <div class="viz" id="viz"></div>
+      <div class="result" id="result"></div>
+    </div>
+  </section>
+
+  <section id="quizMode" style="display:none">
+    <div class="card quiz-card" id="quizCard"></div>
+  </section>
+  <footer>Fraction Lab · part of the little tutoring tools family</footer>
+</div>
+
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b];}return a||1;}
+function simp(n,d){const g=gcd(n,d);return [n/g,d/g];}
+let op='add', n1=1,d1=2,n2=1,d2=3, eqMul=2;
+
+function inputsHTML(){
+  if(op==='simp'){ n1=6;d1=8; return fbox('n1',n1)+frac()+fbox('d1',d1); }
+  if(op==='equiv'){ n1=1;d1=2; eqMul=3; return fbox('n1',n1)+frac()+fbox('d1',d1)+`<span class="op-sym">×</span>`+fbox('eq',eqMul); }
+  if(op==='mixed'){ n1=7;d1=3; return fbox('n1',n1)+frac()+fbox('d1',d1); }
+  const sym={add:'＋',sub:'−',mul:'×',div:'÷'}[op];
+  return fbox('n1',n1)+frac()+fbox('d1',d1)+`<span class="op-sym">${sym}</span>`+fbox('n2',n2)+frac('2')+fbox('d2',d2);
+}
+function fbox(id,v){ return `<div class="fbox"><input id="i_${id}" type="number" value="${v}" min="1" max="20"></div>`; }
+function frac(which){ return `<div class="fbox"><div style="font-size:1.3rem">&nbsp;</div></div>`; }
+// simpler: render numerator over denominator visually
+function renderInputs(){
+  const c=$('fracInputs'); c.innerHTML='';
+  const mk=(label,id,v)=>{ const w=document.createElement('div'); w.className='fbox';
+    w.innerHTML=`<input id="i_${id}" type="number" value="${v}" min="${id==='d1'||id==='d2'?1:0}" max="30">`; return w; };
+  const stack=(numId,numV,denId,denV)=>{ const w=document.createElement('div'); w.className='fbox';
+    const ni=document.createElement('input'); ni.id='i_'+numId; ni.type='number'; ni.value=numV; ni.min=0; ni.max=40;
+    const bar=document.createElement('div'); bar.className='bar';
+    const di=document.createElement('input'); di.id='i_'+denId; di.type='number'; di.value=denV; di.min=1; di.max=40;
+    w.append(ni,bar,di); return w; };
+  const sym=t=>{ const s=document.createElement('span'); s.className='op-sym'; s.textContent=t; return s; };
+
+  c.append(stack('n1',n1,'d1',d1));
+  if(op==='simp'){ /* nothing else */ }
+  else if(op==='equiv'){
+    // show the multiplier as a fraction n/n (= 1) so it's clear the value can't change
+    c.append(sym('×'));
+    const w=document.createElement('div'); w.className='fbox';
+    const top=document.createElement('input'); top.id='i_eq'; top.type='number'; top.value=eqMul; top.min=1; top.max=20;
+    const bar=document.createElement('div'); bar.className='bar';
+    const bot=document.createElement('input'); bot.id='i_eq2'; bot.type='number'; bot.value=eqMul; bot.readOnly=true; bot.tabIndex=-1;
+    w.append(top,bar,bot); c.append(w);
+  }
+  else if(op==='mixed'){ /* nothing else */ }
+  else { c.append(sym({add:'＋',sub:'−',mul:'×',div:'÷'}[op]), stack('n2',n2,'d2',d2)); }
+
+  c.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',readInputs));
+}
+function readInputs(){
+  const g=id=>{ const e=$('i_'+id); return e?Math.max(0,parseInt(e.value)||0):0; };
+  n1=g('n1'); d1=Math.max(1,g('d1')); n2=g('n2'); d2=Math.max(1,g('d2')); eqMul=Math.max(1,g('eq')||eqMul);
+  const eqBot=$('i_eq2'); if(eqBot) eqBot.value=eqMul;   // keep the n/n denominator mirroring the top
+  compute();
+}
+
+function barSet(label,num,den,cls){
+  if(den<1||den>40) return '';
+  let cells=''; for(let i=0;i<den;i++) cells+=`<div class="fcell ${i<num?cls:''}"></div>`;
+  return `<div class="bar-set"><div class="bar-label">${label}</div><div class="fbar">${cells}</div></div>`;
+}
+
+function compute(){
+  const viz=$('viz'), res=$('result');
+  let an,ad,work='',vizHTML='';
+  if(op==='simp'){
+    const [sn,sd]=simp(n1,d1); const g=gcd(n1,d1);
+    vizHTML = barSet(`${n1}/${d1}`, n1,d1,'fill') + barSet(`simplified: ${sn}/${sd}`, sn,sd,'fillr');
+    work = `Find the highest common factor of ${n1} and ${d1}: <b>HCF = ${g}</b>.<br>Divide top and bottom by ${g}: <span class="sym">${n1}÷${g} = ${sn}</span>, <span class="sym">${d1}÷${g} = ${sd}</span>.`;
+    res.innerHTML = `<div class="ans">${n1}/${d1} = ${sn}/${sd}</div><div class="work">${work}</div>`;
+    viz.innerHTML=vizHTML; return;
+  }
+  if(op==='equiv'){
+    const en=n1*eqMul, ed=d1*eqMul;
+    vizHTML = barSet(`${n1}/${d1}`, n1,d1,'fill') + barSet(`${en}/${ed} (same amount!)`, en,ed,'fillr');
+    work = `Multiplying by ${eqMul}/${eqMul} is just multiplying by <b>1</b>, so the value can't change — only how it's written:<br>`+
+           `<span class="sym">${n1}/${d1} × ${eqMul}/${eqMul} = (${n1}×${eqMul})/(${d1}×${eqMul}) = ${en}/${ed}</span>.<br>`+
+           `The shaded amount stays the same — that's what "equivalent" means.`;
+    res.innerHTML = `<div class="ans">${n1}/${d1} × ${eqMul}/${eqMul} = ${en}/${ed}</div><div class="work">${work}</div>`;
+    viz.innerHTML=vizHTML; return;
+  }
+  if(op==='mixed'){
+    const whole=Math.floor(n1/d1), rem=n1%d1;
+    work = `How many whole ${d1}/${d1}s fit into ${n1}/${d1}? <b>${n1} ÷ ${d1} = ${whole} remainder ${rem}</b>.<br>So ${n1}/${d1} = <b>${whole} and ${rem}/${d1}</b>.<br>Back again: ${whole} × ${d1} + ${rem} = ${n1}, over ${d1}.`;
+    vizHTML = barSet(`improper ${n1}/${d1}`, n1,d1,'fill');
+    res.innerHTML = `<div class="ans">${n1}/${d1} = ${whole}${rem?' '+rem+'/'+d1:''}</div><div class="work">${work}</div>`;
+    viz.innerHTML=vizHTML; return;
+  }
+  // arithmetic
+  if(op==='add'||op==='sub'){
+    const lcd = d1*d2/gcd(d1,d2);
+    const a1=n1*(lcd/d1), a2=n2*(lcd/d2);
+    an = op==='add'? a1+a2 : a1-a2; ad=lcd;
+    work = `Common denominator = LCM of ${d1} and ${d2} = <b>${lcd}</b>.<br>`+
+           `<span class="sym">${n1}/${d1} = ${a1}/${lcd}</span>, <span class="sym">${n2}/${d2} = ${a2}/${lcd}</span>.<br>`+
+           `${op==='add'?'Add':'Subtract'} the numerators: ${a1} ${op==='add'?'+':'−'} ${a2} = ${an}, over ${lcd}.`;
+  } else if(op==='mul'){
+    an=n1*n2; ad=d1*d2;
+    work = `Multiply straight across: <span class="sym">${n1}×${n2} = ${an}</span> on top, <span class="sym">${d1}×${d2} = ${ad}</span> on the bottom.`;
+  } else { // div
+    an=n1*d2; ad=d1*n2;
+    work = `Dividing means multiply by the reciprocal — flip the second fraction:<br><span class="sym">${n1}/${d1} ÷ ${n2}/${d2} = ${n1}/${d1} × ${d2}/${n2}</span> = ${an}/${ad}.`;
+  }
+  let dispN=an, dispD=ad, extra='';
+  if(ad!==0){ const [sn,sd]=simp(an,ad); if(sn!==an){ extra=` = ${sn}/${sd}`; dispN=sn; dispD=sd; } }
+  vizHTML = barSet(`${n1}/${d1}`, n1,d1,'fill') + barSet(`${n2}/${d2}`, n2,d2,'fill2')
+          + (dispD>0&&dispD<=40? barSet(`answer ${dispN}/${dispD}`, dispN,dispD,'fillr'):'');
+  res.innerHTML = `<div class="ans">${an}/${ad}${extra}</div><div class="work">${work}${extra?'<br>Then simplify: '+an+'/'+ad+extra+'.':''}</div>`;
+  viz.innerHTML=vizHTML;
+}
+
+document.querySelectorAll('#opTabs .btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#opTabs .btn').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  op=b.dataset.op;
+  // sensible defaults per op
+  if(op==='simp'){n1=6;d1=8;} else if(op==='equiv'){n1=1;d1=2;eqMul=3;} else if(op==='mixed'){n1=7;d1=3;}
+  else {n1=1;d1=2;n2=1;d2=3;}
+  renderInputs(); compute();
+}));
+
+/* ---------- QUIZ ---------- */
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function fracStr(n,d){return n+'/'+d;}
+function buildBank(){
+  const Q=[];
+  // add
+  {const d=[3,4,6][Math.floor(Math.random()*3)]; const a=1+Math.floor(Math.random()*(d-1)), b=1+Math.floor(Math.random()*(d-1));
+   const [sn,sd]=simp(a+b,d); Q.push(mc(`${a}/${d} + ${b}/${d} = ?`, fracStr(sn,sd),
+     [fracStr(a+b,d*2),fracStr(a*b,d),fracStr(a+b+1,d)], `Same denominator, so add the tops: ${a}+${b}=${a+b}, over ${d}${sn!==a+b?`, which simplifies to ${sn}/${sd}`:''}.`));}
+  // sub diff denom
+  {const a=1,b=1,d1=2,d2=4; Q.push(mc(`1/2 − 1/4 = ?`, '1/4',['1/2','2/6','1/3'],`Common denominator 4: 1/2 = 2/4. Then 2/4 − 1/4 = 1/4.`));}
+  // multiply
+  {const a=2,b=3,c=3,e=4; const [sn,sd]=simp(a*c,b*e); Q.push(mc(`2/3 × 3/4 = ?`, fracStr(sn,sd),['5/7','6/7','2/4'],`Multiply across: 2×3=6 over 3×4=12, = 6/12 = 1/2.`));}
+  // divide
+  Q.push(mc(`1/2 ÷ 1/4 = ?`, '2',['1/8','1/2','4'],`Flip the second and multiply: 1/2 × 4/1 = 4/2 = 2.`));
+  // simplify
+  Q.push(mc(`Simplify 8/12`, '2/3',['4/6','3/4','8/12'],`HCF of 8 and 12 is 4. 8÷4=2, 12÷4=3, so 2/3.`));
+  // equivalent
+  Q.push(mc(`Which is equivalent to 3/5?`, '6/10',['3/10','5/3','9/10'],`Multiply top and bottom by 2: 3×2=6, 5×2=10.`));
+  // mixed to improper
+  Q.push(mc(`Write 2 1/3 as an improper fraction`, '7/3',['6/3','2/3','5/3'],`2 wholes = 6/3, plus 1/3 = 7/3. (2×3+1 over 3.)`));
+  // improper to mixed
+  Q.push(mc(`Write 11/4 as a mixed number`, '2 3/4',['1 3/4','3 1/4','2 1/4'],`11 ÷ 4 = 2 remainder 3, so 2 and 3/4.`));
+  // fraction of quantity
+  Q.push(mc(`What is 3/4 of 20?`, '15',['12','16','5'],`20 ÷ 4 = 5 (that's one quarter), then × 3 = 15.`));
+  // simplify 2
+  Q.push(mc(`Simplify 10/15`, '2/3',['5/10','1/3','10/15'],`HCF of 10 and 15 is 5. 10÷5=2, 15÷5=3.`));
+  Q.push(mc('1/3 + 1/3 = ?','2/3',['1/6','2/6','1/3'],'Same denominator: add tops, 1+1=2 over 3 → 2/3.'));
+  Q.push(mc('2/5 + 1/5 = ?','3/5',['3/10','2/5','3/25'],'Same denominator: 2+1=3 over 5 → 3/5.'));
+  Q.push(mc('5/8 − 3/8 = ?','1/4',['2/8 only','1/8','8/8'],'5−3=2 over 8 = 2/8, which simplifies to 1/4.'));
+  Q.push(mc('3/4 − 1/2 = ?','1/4',['2/2','1/2','2/4 only'],'1/2 = 2/4, so 3/4 − 2/4 = 1/4.'));
+  Q.push(mc('1/4 + 1/2 = ?','3/4',['2/6','1/3','2/4'],'1/2 = 2/4, so 1/4 + 2/4 = 3/4.'));
+  Q.push(mc('5/6 − 1/3 = ?','1/2',['4/3','1/3','2/6 only'],'1/3 = 2/6, so 5/6 − 2/6 = 3/6 = 1/2.'));
+  Q.push(mc('1/3 × 1/2 = ?','1/6',['2/5','1/5','2/6'],'Multiply across: 1×1=1 over 3×2=6 → 1/6.'));
+  Q.push(mc('3/5 × 2/3 = ?','2/5',['6/8','5/8','6/5'],'Multiply across: 6/15, which simplifies to 2/5.'));
+  Q.push(mc('2/3 ÷ 1/3 = ?','2',['1/2','1/9','6'],'Flip and multiply: 2/3 × 3/1 = 6/3 = 2.'));
+  Q.push(mc('3/4 ÷ 1/2 = ?','1 1/2',['3/8','2/3','1/4'],'3/4 × 2/1 = 6/4 = 3/2 = 1 1/2.'));
+  Q.push(mc('Simplify 6/9','2/3',['3/4','1/3','6/9'],'HCF of 6 and 9 is 3: 6÷3=2, 9÷3=3.'));
+  Q.push(mc('Simplify 9/12','3/4',['3/5','9/12','2/3'],'HCF of 9 and 12 is 3: 9÷3=3, 12÷3=4.'));
+  Q.push(mc('Simplify 4/8','1/2',['2/8 only','1/4','4/8'],'HCF of 4 and 8 is 4: 4÷4=1, 8÷4=2.'));
+  Q.push(mc('Simplify 12/16','3/4',['6/8 only','2/3','12/16'],'HCF of 12 and 16 is 4: 12÷4=3, 16÷4=4.'));
+  Q.push(mc('Which is equivalent to 1/3?','2/6',['1/6','3/1','2/3'],'Multiply top and bottom by 2: 1×2=2, 3×2=6.'));
+  Q.push(mc('Which is equivalent to 2/5?','4/10',['2/10','5/2','4/5'],'Multiply top and bottom by 2: 2×2=4, 5×2=10.'));
+  Q.push(mc('Write 3 1/2 as an improper fraction','7/2',['6/2','3/2','5/2'],'3 wholes = 6/2, plus 1/2 = 7/2. (3×2+1 over 2.)'));
+  Q.push(mc('Write 1 3/4 as an improper fraction','7/4',['4/4','3/4','5/4'],'1 whole = 4/4, plus 3/4 = 7/4. (1×4+3 over 4.)'));
+  Q.push(mc('Write 9/2 as a mixed number','4 1/2',['3 1/2','4 1/4','2 1/2'],'9 ÷ 2 = 4 remainder 1, so 4 and 1/2.'));
+  Q.push(mc('Write 7/3 as a mixed number','2 1/3',['1 1/3','3 1/3','2 2/3'],'7 ÷ 3 = 2 remainder 1, so 2 and 1/3.'));
+  Q.push(mc('What is 1/2 of 18?','9',['6','12','4'],'18 ÷ 2 = 9.'));
+  Q.push(mc('What is 2/3 of 12?','8',['6','4','9'],'12 ÷ 3 = 4 (one third), then × 2 = 8.'));
+  Q.push(mc('What is 3/5 of 25?','15',['10','5','20'],'25 ÷ 5 = 5 (one fifth), then × 3 = 15.'));
+  Q.push(mc('Which is bigger: 2/3 or 3/5?','2/3',['3/5','they are equal','cannot tell'],'2/3 ≈ 0.67, 3/5 = 0.6, so 2/3 is bigger.'));
+  return shuffle(Q);
+}
+function mc(text,correct,distract,explain){
+  const uniq=[correct]; distract.forEach(d=>{ if(!uniq.includes(d)) uniq.push(d); });
+  const opts=shuffle(uniq); return {text,opts,answer:opts.indexOf(correct),explain};
+}
+const QLEN=8; let quiz=null;
+function startQuiz(){ quiz={qs:buildBank().slice(0,QLEN),idx:0,score:0,results:[]}; renderQ(); }
+function renderQ(){
+  const q=quiz.qs[quiz.idx], c=$('quizCard');
+  let dots=''; for(let i=0;i<QLEN;i++){let cl='dot';if(i<quiz.results.length)cl+=quiz.results[i]?' right':' wrong';else if(i===quiz.idx)cl+=' now';dots+=`<span class="${cl}"></span>`;}
+  c.innerHTML=`<div class="qprog">${dots}</div><div class="qtext">${q.text}</div>
+    <div class="opts">${q.opts.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join('')}</div>
+    <div class="explain" id="ex"></div>
+    <div class="quiz-foot"><span class="score-pill">Score: ${quiz.score}/${quiz.results.length}</span>
+    <button class="btn" id="nx" style="display:none">Next →</button></div>`;
+  c.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{
+    const i=+b.dataset.i, right=i===q.answer; quiz.results.push(right); if(right)quiz.score++;
+    c.querySelectorAll('.opt').forEach((x,j)=>{x.disabled=true;if(j===q.answer)x.classList.add('correct');else if(j===i)x.classList.add('incorrect');});
+    const ex=$('ex'); ex.style.display='block'; ex.innerHTML=(right?'✅ ':'❌ ')+q.explain;
+    c.querySelector('.score-pill').textContent=`Score: ${quiz.score}/${quiz.results.length}`;
+    const nx=$('nx'); nx.style.display='inline-block'; nx.textContent=quiz.idx+1<QLEN?'Next →':'Results →';
+    nx.onclick=()=>{ quiz.idx++; if(quiz.idx<QLEN)renderQ(); else results(); };
+  }));
+}
+function results(){
+  const pct=quiz.score/QLEN; let e='🍰',t='Fraction master!';
+  if(pct<0.5){e='🧩';t='Keep slicing!';} else if(pct<0.8){e='🍕';t='Nicely done!';}
+  $('quizCard').innerHTML=`<div class="result-screen"><div class="big">${e}</div><h3>${t}</h3>
+    <p style="color:var(--ink-soft)">You scored ${quiz.score} out of ${QLEN}.</p>
+    <button class="btn" id="rt">Try again</button> <button class="btn" id="bk">Back to explore</button></div>`;
+  $('rt').onclick=startQuiz; $('bk').onclick=()=>setMode('play');
+}
+function setMode(m){
+  $('playMode').style.display=m==='play'?'':'none';
+  $('quizMode').style.display=m==='play'?'none':'';
+  $('tabPlay').classList.toggle('on',m==='play'); $('tabQuiz').classList.toggle('on',m!=='play');
+  if(m!=='play') startQuiz();
+}
+$('tabPlay').onclick=()=>setMode('play'); $('tabQuiz').onclick=()=>setMode('quiz');
+
+renderInputs(); compute();
+</script>
+</body>
+</html>

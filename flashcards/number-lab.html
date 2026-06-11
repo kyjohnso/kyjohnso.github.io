@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Number Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{ --paper:#F2F7FA; --grid-line:#D5E4EC; --ink:#1F3540; --ink-soft:#5A7280; --panel:#fff;
+    --copper:#C2622E; --amber:#FFB02E; --green:#2E8B6A; --red:#D6493E; --blue:#3A7CA5; --shadow:rgba(31,53,64,.14); }
+  body{ font-family:'Karla',sans-serif; color:var(--ink); background:linear-gradient(135deg,#EAF2F7,#F4EFEA); min-height:100vh; padding:1.25rem; }
+  .wrap{ max-width:880px; margin:0 auto; }
+  header{ text-align:center; margin-bottom:1rem; }
+  h1{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(1.7rem,4vw,2.4rem); }
+  .subtitle{ color:var(--ink-soft); margin-top:.25rem; }
+  .tabs{ display:flex; justify-content:center; gap:.5rem; margin-top:.8rem; flex-wrap:wrap; }
+  .card{ background:var(--panel); border-radius:16px; box-shadow:0 6px 18px var(--shadow); padding:1.1rem; margin-bottom:1rem; }
+  .btn{ font-family:'Karla',sans-serif; font-weight:700; font-size:.85rem; border:2px solid var(--ink); border-radius:999px;
+    background:#fff; color:var(--ink); padding:.45rem 1rem; cursor:pointer; transition:all .15s; touch-action:manipulation; }
+  .btn:hover{ background:var(--ink); color:#fff; } .btn.on{ background:var(--ink); color:#fff; }
+  .btn:focus-visible{ outline:3px solid var(--amber); outline-offset:2px; }
+  .tool-tabs{ display:flex; gap:.4rem; flex-wrap:wrap; justify-content:center; margin-bottom:1rem; }
+  .tool-tabs .btn{ font-size:.8rem; padding:.35rem .8rem; }
+  .panel-h{ font-family:'Space Grotesk',sans-serif; font-size:.8rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); margin-bottom:.6rem; }
+
+  /* FDP */
+  .fdp-trio{ display:flex; justify-content:space-around; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem; }
+  .fdp-cell{ text-align:center; min-width:120px; }
+  .fdp-cell .lbl{ font-size:.75rem; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); font-weight:700; margin-bottom:.3rem; }
+  .fdp-cell .val{ font-family:'Space Grotesk',sans-serif; font-size:1.7rem; font-weight:700; }
+  .fdp-cell.f .val{ color:var(--copper); } .fdp-cell.d .val{ color:var(--blue); } .fdp-cell.p .val{ color:var(--green); }
+  .pct-bar{ width:100%; height:38px; border:2px solid var(--ink); border-radius:8px; overflow:hidden; background:var(--paper); position:relative; }
+  .pct-fill{ height:100%; background:var(--blue); transition:width .25s; }
+  .pct-bar .tick{ position:absolute; top:0; height:100%; border-left:1px dashed var(--grid-line); }
+  .slider-row{ margin:.9rem 0; } .slider-row label{ font-weight:700; font-size:.9rem; display:flex; justify-content:space-between; }
+  input[type=range]{ width:100%; accent-color:var(--blue); margin-top:.3rem; }
+  .preset-row{ display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.6rem; }
+  .preset-row .btn{ font-size:.78rem; padding:.3rem .7rem; }
+
+  /* rounding */
+  .round-display{ font-family:'Space Grotesk',sans-serif; font-size:2rem; font-weight:700; text-align:center; margin:.6rem 0; letter-spacing:.04em; }
+  .round-display .keep{ color:var(--ink); } .round-display .cut{ color:var(--grid-line); }
+  .round-display .focus{ color:var(--copper); text-decoration:underline; }
+  .round-result{ text-align:center; font-size:1.5rem; font-weight:700; color:var(--green); font-family:'Space Grotesk',sans-serif; }
+
+  .work{ font-size:.9rem; color:var(--ink-soft); line-height:1.6; margin-top:.7rem; background:var(--paper); border-radius:10px; padding:.7rem .9rem; }
+  .work b{ color:var(--ink); } .work .sym{ color:var(--blue); font-weight:700; }
+  .inrow{ display:flex; gap:.6rem; align-items:center; flex-wrap:wrap; justify-content:center; margin-bottom:.6rem; }
+  .inrow input{ width:90px; text-align:center; font-family:'Space Grotesk',sans-serif; font-size:1.2rem; font-weight:700;
+    border:2px solid var(--grid-line); border-radius:8px; padding:.3rem; color:var(--ink); }
+  .inrow input:focus{ outline:none; border-color:var(--blue); } .inrow .x{ font-weight:700; color:var(--ink-soft); }
+
+  /* quiz (shared) */
+  .quiz-card{ max-width:600px; margin:0 auto; }
+  .qprog{ display:flex; gap:.3rem; justify-content:center; margin-bottom:1rem; }
+  .qprog .dot{ width:11px; height:11px; border-radius:50%; background:var(--grid-line); }
+  .qprog .dot.now{ background:var(--ink); } .qprog .dot.right{ background:var(--green); } .qprog .dot.wrong{ background:var(--red); }
+  .qtext{ font-family:'Space Grotesk',sans-serif; font-size:1.25rem; font-weight:500; text-align:center; margin-bottom:1rem; }
+  .opts{ display:grid; grid-template-columns:1fr 1fr; gap:.6rem; }
+  .opt{ font-family:'Space Grotesk',sans-serif; font-size:1.05rem; font-weight:700; padding:.8rem; border:2px solid var(--grid-line);
+    border-radius:12px; background:var(--paper); cursor:pointer; transition:all .12s; touch-action:manipulation; }
+  .opt:hover:not(:disabled){ border-color:var(--ink); } .opt:disabled{ cursor:default; }
+  .opt.correct{ border-color:var(--green); background:#DDF2E9; } .opt.incorrect{ border-color:var(--red); background:#FBE3E1; }
+  .explain{ margin-top:.9rem; padding:.75rem .9rem; border-radius:12px; background:#FFF6E3; border:2px solid var(--amber); font-size:.95rem; line-height:1.5; display:none; }
+  .quiz-foot{ display:flex; justify-content:space-between; align-items:center; margin-top:1rem; } .score-pill{ font-weight:700; color:var(--ink-soft); }
+  .result-screen{ text-align:center; padding:1rem 0; } .result-screen .big{ font-size:3rem; } .result-screen h3{ font-family:'Space Grotesk',sans-serif; font-size:1.5rem; margin:.5rem 0; }
+  footer{ text-align:center; color:var(--ink-soft); font-size:.78rem; margin-top:.5rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🔢 Number Lab</h1>
+    <p class="subtitle">Fractions, decimals, percentages, rounding and proportion — see how they connect.</p>
+    <div class="tabs"><button class="btn on" id="tabPlay">Explore</button><button class="btn" id="tabQuiz">🎓 Review quiz</button></div>
+  </header>
+
+  <section id="playMode">
+    <div class="card">
+      <div class="tool-tabs" id="toolTabs">
+        <button class="btn on" data-tool="fdp">Fraction ↔ Decimal ↔ %</button>
+        <button class="btn" data-tool="round">Rounding</button>
+        <button class="btn" data-tool="pct">% of a quantity</button>
+      </div>
+      <div id="toolBody"></div>
+    </div>
+  </section>
+
+  <section id="quizMode" style="display:none"><div class="card quiz-card" id="quizCard"></div></section>
+  <footer>Number Lab · part of the little tutoring tools family</footer>
+</div>
+
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b];}return a||1;}
+let tool='fdp';
+
+/* ---------- FDP ---------- */
+let fdpPct=50;
+function renderFDP(){
+  const b=$('toolBody');
+  b.innerHTML=`
+    <div class="panel-h">Drag to set the amount — all three update together</div>
+    <div class="fdp-trio">
+      <div class="fdp-cell f"><div class="lbl">Fraction</div><div class="val" id="fF"></div></div>
+      <div class="fdp-cell d"><div class="lbl">Decimal</div><div class="val" id="fD"></div></div>
+      <div class="fdp-cell p"><div class="lbl">Percentage</div><div class="val" id="fP"></div></div>
+    </div>
+    <div class="pct-bar"><div class="pct-fill" id="fBar"></div></div>
+    <div class="slider-row"><label>amount <output id="fOut"></output></label>
+      <input type="range" id="fSlide" min="0" max="100" step="1" value="${fdpPct}"></div>
+    <div class="preset-row"><span style="font-size:.72rem;color:var(--ink-soft);font-weight:700;width:100%">Common ones worth knowing:</span>
+      ${[[1,2],[1,4],[3,4],[1,5],[1,10],[1,3],[2,3],[1,100]].map(([n,d])=>`<button class="btn" data-fp="${n*100/d}">${n}/${d}</button>`).join('')}</div>
+    <div class="work" id="fWork"></div>`;
+  $('fSlide').addEventListener('input',e=>{ fdpPct=+e.target.value; updateFDP(); });
+  b.querySelectorAll('[data-fp]').forEach(x=>x.addEventListener('click',()=>{ fdpPct=Math.round(+x.dataset.fp); $('fSlide').value=fdpPct; updateFDP(); }));
+  updateFDP();
+}
+function updateFDP(){
+  const pct=fdpPct, dec=pct/100;
+  const g=gcd(pct,100); const fn=pct/g, fd=100/g;
+  $('fF').innerHTML = pct===0?'0':`${fn}/${fd}`;
+  $('fD').textContent = (dec).toString();
+  $('fP').textContent = pct+'%';
+  $('fBar').style.width = pct+'%';
+  $('fOut').textContent = pct+'%';
+  $('fWork').innerHTML = `Percentage means "out of 100", so ${pct}% = <span class="sym">${pct}/100</span>.<br>`+
+    `As a decimal, divide by 100: <span class="sym">${pct} ÷ 100 = ${dec}</span>.<br>`+
+    `As a fraction, simplify ${pct}/100 by dividing top and bottom by their HCF (${g}): <b>${pct===0?'0':fn+'/'+fd}</b>.`;
+}
+
+/* ---------- ROUNDING ---------- */
+let rNum=3.14159, rMode='dp', rN=2;
+function renderRound(){
+  const b=$('toolBody');
+  b.innerHTML=`
+    <div class="panel-h">Round a number</div>
+    <div class="inrow"><label style="font-weight:700">Number <input id="rIn" type="number" step="any" value="${rNum}"></label></div>
+    <div class="tool-tabs" style="margin-bottom:.6rem">
+      <button class="btn ${rMode==='dp'?'on':''}" data-rm="dp">Decimal places</button>
+      <button class="btn ${rMode==='sf'?'on':''}" data-rm="sf">Significant figures</button>
+      <button class="btn ${rMode==='int'?'on':''}" data-rm="int">Nearest 10/100/...</button>
+    </div>
+    <div class="slider-row"><label><span id="rLabel"></span> <output id="rOut"></output></label>
+      <input type="range" id="rSlide" min="${rMode==='int'?0:1}" max="${rMode==='int'?3:4}" step="1" value="${rN}"></div>
+    <div class="round-display" id="rDisp"></div>
+    <div class="round-result" id="rRes"></div>
+    <div class="work" id="rWork"></div>`;
+  $('rIn').addEventListener('input',e=>{ rNum=parseFloat(e.target.value); updateRound(); });
+  b.querySelectorAll('[data-rm]').forEach(x=>x.addEventListener('click',()=>{ rMode=x.dataset.rm; rN=rMode==='int'?1:2; renderRound(); }));
+  $('rSlide').addEventListener('input',e=>{ rN=+e.target.value; updateRound(); });
+  updateRound();
+}
+function updateRound(){
+  if(isNaN(rNum)){ $('rRes').textContent='enter a number'; return; }
+  let result, label, work;
+  if(rMode==='dp'){
+    label='decimal places'; result=rNum.toFixed(rN);
+    const next = Math.abs(rNum*Math.pow(10,rN+1))%10|0;
+    work=`Look at the digit in the ${ordinal(rN+1)} decimal place. If it's 5 or more, round up; if 4 or less, round down.<br>${rNum} to ${rN} d.p. = <b>${result}</b>.`;
+  } else if(rMode==='sf'){
+    label='significant figures'; result=sigFig(rNum,rN);
+    work=`The first significant figure is the first non-zero digit. Count ${rN} of them, then look at the next digit to decide rounding.<br>${rNum} to ${rN} s.f. = <b>${result}</b>.`;
+  } else {
+    label='power of ten'; const places=[1,10,100,1000]; const p=places[rN];
+    result=(Math.round(rNum/p)*p).toString();
+    work=`Round to the nearest ${p}. Look at the digit just below ${p}: 5 or more rounds up.<br>${rNum} to nearest ${p} = <b>${result}</b>.`;
+  }
+  $('rLabel').textContent=label; $('rOut').textContent = rMode==='int'?[1,10,100,1000][rN]:rN;
+  $('rRes').textContent=result;
+  $('rDisp').innerHTML = `<span class="keep">${rNum}</span>`;
+  $('rWork').innerHTML=work;
+}
+function ordinal(n){return n+(['th','st','nd','rd'][(n%100>>3^1&&n%10)||0]||'th');}
+function sigFig(x,n){ if(x===0)return '0'; const d=Math.ceil(Math.log10(Math.abs(x))); const power=n-d; const f=Math.pow(10,power);
+  const r=Math.round(x*f)/f; return r.toString(); }
+
+/* ---------- % OF QUANTITY ---------- */
+let pPct=15, pQty=80;
+function renderPct(){
+  const b=$('toolBody');
+  b.innerHTML=`
+    <div class="panel-h">Find a percentage of an amount</div>
+    <div class="inrow"><input id="pP" type="number" value="${pPct}" min="0" max="100"><span class="x">% of</span><input id="pQ" type="number" value="${pQty}" min="0"></div>
+    <div class="pct-bar"><div class="pct-fill" id="pBar"></div></div>
+    <div class="round-result" id="pRes" style="margin-top:1rem"></div>
+    <div class="work" id="pWork"></div>`;
+  $('pP').addEventListener('input',e=>{ pPct=parseFloat(e.target.value)||0; updatePct(); });
+  $('pQ').addEventListener('input',e=>{ pQty=parseFloat(e.target.value)||0; updatePct(); });
+  updatePct();
+}
+function updatePct(){
+  const ans=pPct/100*pQty;
+  $('pBar').style.width=Math.min(100,pPct)+'%';
+  $('pRes').textContent=`${pPct}% of ${pQty} = ${+ans.toFixed(2)}`;
+  const onePct=pQty/100;
+  $('pWork').innerHTML=`Method 1 — find 1% first: <span class="sym">${pQty} ÷ 100 = ${+onePct.toFixed(3)}</span>, then × ${pPct} = <b>${+ans.toFixed(2)}</b>.<br>`+
+    `Method 2 — decimal multiplier: ${pPct}% = ${pPct/100}, so <span class="sym">${pPct/100} × ${pQty} = ${+ans.toFixed(2)}</span>.`;
+}
+
+/* ---------- tool switching ---------- */
+document.querySelectorAll('#toolTabs .btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#toolTabs .btn').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  tool=b.dataset.tool;
+  if(tool==='fdp')renderFDP(); else if(tool==='round')renderRound(); else renderPct();
+}));
+
+/* ---------- QUIZ ---------- */
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function mc(text,correct,distract,explain){const opts=shuffle([correct,...distract]);return{text,opts,answer:opts.indexOf(correct),explain};}
+function buildBank(){
+  const Q=[];
+  Q.push(mc('Write 0.25 as a fraction','1/4',['1/25','2/5','1/2'],'0.25 = 25/100, simplify by 25 → 1/4.'));
+  Q.push(mc('Write 3/4 as a percentage','75%',['34%','43%','60%'],'3 ÷ 4 = 0.75 = 75%.'));
+  Q.push(mc('Write 60% as a decimal','0.6',['6.0','0.06','60'],'Divide by 100: 60 ÷ 100 = 0.6.'));
+  Q.push(mc('Round 3.147 to 2 decimal places','3.15',['3.14','3.2','3.147'],'The 3rd decimal is 7 (≥5), so round the 4 up to 5 → 3.15.'));
+  Q.push(mc('Round 4582 to 2 significant figures','4600',['4500','4580','46'],'First two sig figs are 4 and 5; next digit 8 rounds up → 4600.'));
+  Q.push(mc('Round 273 to the nearest 100','300',['200','270','280'],'The tens digit is 7 (≥5), so round up to 300.'));
+  Q.push(mc('What is 10% of 250?','25',['2.5','250','100'],'10% means ÷ 10: 250 ÷ 10 = 25.'));
+  Q.push(mc('What is 25% of 80?','20',['25','40','16'],'25% = 1/4, so 80 ÷ 4 = 20.'));
+  Q.push(mc('Write 1/5 as a percentage','20%',['15%','5%','25%'],'1 ÷ 5 = 0.2 = 20%.'));
+  Q.push(mc('Round 0.0473 to 1 significant figure','0.05',['0.04','0.5','0.047'],'First sig fig is 4; next digit 7 rounds it up → 0.05.'));
+  Q.push(mc('What is 15% of 200?','30',['15','45','3'],'10% = 20, 5% = 10, so 15% = 30.'));
+  Q.push(mc('Write 0.8 as a fraction','4/5',['8/10','1/8','5/4'],'0.8 = 8/10, simplify by 2 → 4/5.'));
+  Q.push(mc('Write 0.5 as a fraction','1/2',['1/5','5/1','1/50'],'0.5 = 5/10, simplify by 5 → 1/2.'));
+  Q.push(mc('Write 0.75 as a fraction','3/4',['7/5','75/10','3/40'],'0.75 = 75/100, simplify by 25 → 3/4.'));
+  Q.push(mc('Write 0.125 as a fraction','1/8',['1/4','125/10','1/12'],'0.125 = 125/1000, simplify → 1/8.'));
+  Q.push(mc('Write 1/2 as a percentage','50%',['12%','25%','5%'],'1 ÷ 2 = 0.5 = 50%.'));
+  Q.push(mc('Write 1/4 as a percentage','25%',['14%','40%','75%'],'1 ÷ 4 = 0.25 = 25%.'));
+  Q.push(mc('Write 2/5 as a percentage','40%',['25%','20%','52%'],'2 ÷ 5 = 0.4 = 40%.'));
+  Q.push(mc('Write 30% as a decimal','0.3',['3.0','0.03','30'],'30 ÷ 100 = 0.3.'));
+  Q.push(mc('Write 5% as a decimal','0.05',['0.5','5.0','0.005'],'5 ÷ 100 = 0.05.'));
+  Q.push(mc('Write 0.2 as a percentage','20%',['2%','200%','0.2%'],'0.2 × 100 = 20%.'));
+  Q.push(mc('Write 90% as a fraction','9/10',['90/10','9/100','1/9'],'90/100, simplify by 10 → 9/10.'));
+  Q.push(mc('Write 3/10 as a decimal','0.3',['3.0','0.03','0.13'],'3 ÷ 10 = 0.3.'));
+  Q.push(mc('Round 2.738 to 1 decimal place','2.7',['2.8','2.73','3.0'],'The 2nd decimal is 3 (<5), so round down → 2.7.'));
+  Q.push(mc('Round 5.96 to 1 decimal place','6.0',['5.9','5.96','6.1'],'The 2nd decimal is 6 (≥5), 5.9 rounds up to 6.0.'));
+  Q.push(mc('Round 0.0846 to 2 decimal places','0.08',['0.09','0.085','0.1'],'The 3rd decimal is 4 (<5), so round down → 0.08.'));
+  Q.push(mc('Round 6473 to 1 significant figure','6000',['7000','6500','6400'],'First sig fig is 6; next digit 4 rounds down → 6000.'));
+  Q.push(mc('Round 849 to the nearest 10','850',['840','800','860'],'The units digit is 9 (≥5), so round up → 850.'));
+  Q.push(mc('Round 1450 to the nearest 1000','1000',['2000','1500','1400'],'The hundreds digit is 4 (<5), so round down → 1000.'));
+  Q.push(mc('What is 50% of 60?','30',['25','50','15'],'50% = 1/2, so 60 ÷ 2 = 30.'));
+  Q.push(mc('What is 20% of 150?','30',['15','20','45'],'10% = 15, so 20% = 30.'));
+  Q.push(mc('What is 75% of 40?','30',['25','35','20'],'75% = 3/4, so 40 ÷ 4 × 3 = 30.'));
+  Q.push(mc('What is 1% of 800?','8',['80','0.8','18'],'1% means ÷ 100: 800 ÷ 100 = 8.'));
+  Q.push(mc('What is 5% of 300?','15',['30','50','3'],'10% = 30, so 5% = 15.'));
+  return shuffle(Q);
+}
+const QLEN=8; let quiz=null;
+function startQuiz(){ quiz={qs:buildBank().slice(0,QLEN),idx:0,score:0,results:[]}; renderQ(); }
+function renderQ(){
+  const q=quiz.qs[quiz.idx], c=$('quizCard');
+  let dots=''; for(let i=0;i<QLEN;i++){let cl='dot';if(i<quiz.results.length)cl+=quiz.results[i]?' right':' wrong';else if(i===quiz.idx)cl+=' now';dots+=`<span class="${cl}"></span>`;}
+  c.innerHTML=`<div class="qprog">${dots}</div><div class="qtext">${q.text}</div>
+    <div class="opts">${q.opts.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join('')}</div>
+    <div class="explain" id="ex"></div>
+    <div class="quiz-foot"><span class="score-pill">Score: ${quiz.score}/${quiz.results.length}</span><button class="btn" id="nx" style="display:none">Next →</button></div>`;
+  c.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{
+    const i=+b.dataset.i, right=i===q.answer; quiz.results.push(right); if(right)quiz.score++;
+    c.querySelectorAll('.opt').forEach((x,j)=>{x.disabled=true;if(j===q.answer)x.classList.add('correct');else if(j===i)x.classList.add('incorrect');});
+    const ex=$('ex'); ex.style.display='block'; ex.innerHTML=(right?'✅ ':'❌ ')+q.explain;
+    c.querySelector('.score-pill').textContent=`Score: ${quiz.score}/${quiz.results.length}`;
+    const nx=$('nx'); nx.style.display='inline-block'; nx.textContent=quiz.idx+1<QLEN?'Next →':'Results →';
+    nx.onclick=()=>{ quiz.idx++; if(quiz.idx<QLEN)renderQ(); else results(); };
+  }));
+}
+function results(){
+  const pct=quiz.score/QLEN; let e='🎯',t='Number ninja!';
+  if(pct<0.5){e='🔢';t='Keep practising!';} else if(pct<0.8){e='✨';t='Good work!';}
+  $('quizCard').innerHTML=`<div class="result-screen"><div class="big">${e}</div><h3>${t}</h3>
+    <p style="color:var(--ink-soft)">You scored ${quiz.score} out of ${QLEN}.</p>
+    <button class="btn" id="rt">Try again</button> <button class="btn" id="bk">Back to explore</button></div>`;
+  $('rt').onclick=startQuiz; $('bk').onclick=()=>setMode('play');
+}
+function setMode(m){
+  $('playMode').style.display=m==='play'?'':'none'; $('quizMode').style.display=m==='play'?'none':'';
+  $('tabPlay').classList.toggle('on',m==='play'); $('tabQuiz').classList.toggle('on',m!=='play');
+  if(m!=='play') startQuiz();
+}
+$('tabPlay').onclick=()=>setMode('play'); $('tabQuiz').onclick=()=>setMode('quiz');
+
+renderFDP();
+</script>
+</body>
+</html>

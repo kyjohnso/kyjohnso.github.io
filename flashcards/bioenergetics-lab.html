@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bioenergetics Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{ --paper:#F2F7FA; --grid-line:#D5E4EC; --ink:#1F3540; --ink-soft:#5A7280; --panel:#fff;
+    --copper:#C2622E; --amber:#FFB02E; --green:#2E8B6A; --red:#D6493E; --blue:#3A7CA5; --purple:#7B5EA7; --shadow:rgba(31,53,64,.14);
+    --light:#FFB02E; --co2:#5A7280; --water:#3A7CA5; --glucose:#C2622E; --oxygen:#2E8B6A; }
+  body{ font-family:'Karla',sans-serif; color:var(--ink); background:linear-gradient(135deg,#EAF4EE,#F4F1E8); min-height:100vh; padding:1.25rem; }
+  .wrap{ max-width:920px; margin:0 auto; }
+  header{ text-align:center; margin-bottom:1rem; }
+  h1{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(1.6rem,4vw,2.3rem); }
+  .subtitle{ color:var(--ink-soft); margin-top:.25rem; }
+  .tabs{ display:flex; justify-content:center; gap:.5rem; margin-top:.8rem; flex-wrap:wrap; }
+  .card{ background:var(--panel); border-radius:16px; box-shadow:0 6px 18px var(--shadow); padding:1rem; margin-bottom:1rem; }
+  .btn{ font-family:'Karla',sans-serif; font-weight:700; font-size:.85rem; border:2px solid var(--ink); border-radius:999px;
+    background:#fff; color:var(--ink); padding:.45rem 1rem; cursor:pointer; transition:all .15s; touch-action:manipulation; }
+  .btn:hover{ background:var(--ink); color:#fff; } .btn.on{ background:var(--ink); color:#fff; }
+  .btn:focus-visible{ outline:3px solid var(--amber); outline-offset:2px; }
+  .tool-tabs{ display:flex; gap:.4rem; flex-wrap:wrap; justify-content:center; margin-bottom:1rem; }
+  .tool-tabs .btn{ font-size:.78rem; padding:.35rem .8rem; }
+  .panel-h{ font-family:'Space Grotesk',sans-serif; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); margin-bottom:.6rem; }
+
+  .eq{ text-align:center; font-family:'Space Grotesk',sans-serif; font-weight:700; margin:.3rem 0 1rem; line-height:2; }
+  .eq .word{ font-size:1.05rem; } .eq .sym{ font-size:1.15rem; } .eq sub{ font-size:.62em; }
+  .eq .react{ color:var(--blue); } .eq .prod{ color:var(--green); } .eq .arrow{ color:var(--ink-soft); margin:0 .4rem; }
+  .eq .light{ color:var(--copper); font-size:.8rem; }
+
+  .stage-grid{ display:grid; grid-template-columns:1fr 270px; gap:1rem; align-items:start; }
+  @media (max-width:760px){ .stage-grid{ grid-template-columns:1fr; } }
+  #scene{ width:100%; height:auto; display:block; background:linear-gradient(#DCEEFB,#EaF6Ea); border-radius:12px; }
+
+  .slider-row{ margin:.7rem 0; }
+  .slider-row label{ font-weight:700; font-size:.88rem; display:flex; justify-content:space-between; align-items:baseline; }
+  .slider-row label output{ font-family:'Space Grotesk',sans-serif; }
+  input[type=range]{ width:100%; margin-top:.25rem; }
+  .s-light input{ accent-color:var(--light);} .s-co2 input{ accent-color:var(--co2);} .s-water input{ accent-color:var(--water);}
+  .rate-box{ text-align:center; margin-top:.6rem; }
+  .rate-box .lbl{ font-size:.78rem; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.08em; font-weight:700; }
+  .rate-box .val{ font-family:'Space Grotesk',sans-serif; font-size:1.8rem; font-weight:700; color:var(--green); }
+  .limiting{ text-align:center; font-size:.86rem; margin-top:.4rem; padding:.4rem; border-radius:8px; background:var(--paper); }
+  .limiting b{ color:var(--copper); }
+  .outputs{ display:flex; gap:.6rem; justify-content:center; margin-top:.6rem; }
+  .out-chip{ flex:1; text-align:center; border:2px solid var(--grid-line); border-radius:10px; padding:.4rem; }
+  .out-chip .n{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:1.2rem; }
+  .out-chip.gluc .n{ color:var(--glucose);} .out-chip.oxy .n{ color:var(--oxygen);}
+  .out-chip .l{ font-size:.72rem; color:var(--ink-soft); }
+  .work{ font-size:.85rem; color:var(--ink-soft); line-height:1.6; margin-top:.7rem; background:var(--paper); border-radius:10px; padding:.7rem .9rem; } .work b{color:var(--ink);}
+
+  .compare-cols{ display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  @media (max-width:620px){ .compare-cols{ grid-template-columns:1fr; } }
+  .ccol{ border:2px solid var(--grid-line); border-radius:12px; padding:.9rem; }
+  .ccol h3{ font-family:'Space Grotesk',sans-serif; font-size:1.05rem; margin-bottom:.5rem; }
+  .ccol.photo h3{ color:var(--green);} .ccol.resp h3{ color:var(--red);}
+  .ccol .ro{ display:flex; justify-content:space-between; font-size:.85rem; padding:.25rem 0; border-top:1px dashed var(--grid-line); gap:.6rem; }
+  .ccol .ro:first-child{ border-top:none; } .ccol .ro b{ text-align:right; }
+  /* quiz */
+  .quiz-card{ max-width:600px; margin:0 auto; }
+  .qprog{ display:flex; gap:.3rem; justify-content:center; margin-bottom:1rem; }
+  .qprog .dot{ width:11px; height:11px; border-radius:50%; background:var(--grid-line); }
+  .qprog .dot.now{ background:var(--ink); } .qprog .dot.right{ background:var(--green); } .qprog .dot.wrong{ background:var(--red); }
+  .qtext{ font-family:'Space Grotesk',sans-serif; font-size:1.15rem; font-weight:500; text-align:center; margin-bottom:1rem; }
+  .qtext sub{ font-size:.65em; }
+  .opts{ display:grid; grid-template-columns:1fr 1fr; gap:.6rem; }
+  .opt{ font-family:'Space Grotesk',sans-serif; font-size:.98rem; font-weight:700; padding:.8rem; border:2px solid var(--grid-line); border-radius:12px; background:var(--paper); cursor:pointer; transition:all .12s; touch-action:manipulation; }
+  .opt sub{ font-size:.65em; }
+  .opt:hover:not(:disabled){ border-color:var(--ink); } .opt:disabled{ cursor:default; }
+  .opt.correct{ border-color:var(--green); background:#DDF2E9; } .opt.incorrect{ border-color:var(--red); background:#FBE3E1; }
+  .explain{ margin-top:.9rem; padding:.75rem .9rem; border-radius:12px; background:#FFF6E3; border:2px solid var(--amber); font-size:.95rem; line-height:1.5; display:none; }
+  .quiz-foot{ display:flex; justify-content:space-between; align-items:center; margin-top:1rem; } .score-pill{ font-weight:700; color:var(--ink-soft); }
+  .result-screen{ text-align:center; padding:1rem 0; } .result-screen .big{ font-size:3rem; } .result-screen h3{ font-family:'Space Grotesk',sans-serif; font-size:1.5rem; margin:.5rem 0; }
+  footer{ text-align:center; color:var(--ink-soft); font-size:.78rem; margin-top:.5rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🌿 Bioenergetics Lab</h1>
+    <p class="subtitle">Photosynthesis and respiration — how living things make and use their energy.</p>
+    <div class="tabs"><button class="btn on" id="tabPlay">Explore</button><button class="btn" id="tabQuiz">🎓 Review quiz</button></div>
+  </header>
+
+  <section id="playMode">
+    <div class="card">
+      <div class="tool-tabs" id="toolTabs">
+        <button class="btn on" data-tool="photo">Photosynthesis</button>
+        <button class="btn" data-tool="resp">Respiration</button>
+        <button class="btn" data-tool="compare">Compare the two</button>
+      </div>
+      <div id="toolBody"></div>
+    </div>
+  </section>
+
+  <section id="quizMode" style="display:none"><div class="card quiz-card" id="quizCard"></div></section>
+  <footer>Bioenergetics Lab · part of the little tutoring tools family</footer>
+</div>
+
+<script>
+"use strict";
+const SVGNS="http://www.w3.org/2000/svg";
+const $=id=>document.getElementById(id);
+function el(n,a,p){const e=document.createElementNS(SVGNS,n);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e;}
+let tool='photo';
+let light=70, co2=70, water=70;
+let activity='rest';
+
+/* ---------- shared molecule animation engine ---------- */
+let rafId=null, particles=[], sceneState=null, lastT=0;
+let sunG=null, leafEls=[];
+function stopAnim(){ if(rafId){cancelAnimationFrame(rafId);rafId=null;} particles=[]; sceneState=null; }
+function makeMol(type){
+  const spec={ co2:{c:'#8CA0AA',t:'CO₂'}, h2o:{c:'#4E97C7',t:'H₂O'}, o2:{c:'#2E8B6A',t:'O₂'},
+    glu:{c:'#C2622E',t:'glucose'}, atp:{c:'#FFB02E',t:'ATP'}, lac:{c:'#7B5EA7',t:'lactic acid'} };
+  const g=el('g',{});
+  if(type==='light'){ el('circle',{r:9,fill:'#FFD24A',opacity:.22},g); el('circle',{r:4.5,fill:'#FFC02E',opacity:.95},g); return g; }
+  const s=spec[type]; const w=s.t.length*6.0+14;
+  el('rect',{x:-w/2,y:-9,width:w,height:18,rx:9,fill:s.c,opacity:.96,stroke:'rgba(0,0,0,.12)','stroke-width':1},g);
+  const tx=el('text',{x:0,y:3.5,'text-anchor':'middle','font-family':"'Space Grotesk',sans-serif",'font-size':'9.5px','font-weight':'700',fill:type==='atp'?'#3A2A00':'#fff'},g); tx.textContent=s.t;
+  return g;
+}
+function spawnMol(type,x,y,props){
+  if(particles.length>72) return null;
+  const fx=$('fx'); if(!fx) return null;
+  const node=makeMol(type); node.setAttribute('transform',`translate(${x},${y})`); fx.appendChild(node);
+  const p=Object.assign({type,x,y,node},props); particles.push(p); return p;
+}
+function tick(t){
+  if(!sceneState){ rafId=null; return; }
+  const dt=Math.min(2.5,((t-lastT)||16)/16); lastT=t;
+  sceneState.spawn(dt);
+  for(const p of particles){
+    if(p.dead) continue;
+    if(p.steer){ const dx=p.tx-p.x, dy=p.ty-p.y, d=Math.hypot(dx,dy)||1;
+      p.x+=dx/d*p.spd*dt; p.y+=dy/d*p.spd*dt;
+      if(d<14){ p.dead=true; sceneState.flash=9; } }
+    else { p.x+=(p.vx||0)*dt; p.y+=(p.vy||0)*dt;
+      if(p.life!=null){ p.life-=dt; if(p.life<=0)p.dead=true; }
+      if(p.fade!=null){ p.fade-=0.018*dt; if(p.node)p.node.setAttribute('opacity',Math.max(0,p.fade).toFixed(2)); if(p.fade<=0)p.dead=true; }
+      if(p.x<-30||p.x>490||p.y<-30||p.y>390)p.dead=true; }
+    if(p.node&&!p.dead) p.node.setAttribute('transform',`translate(${p.x.toFixed(1)},${p.y.toFixed(1)})`);
+  }
+  for(let i=particles.length-1;i>=0;i--){ if(particles[i].dead){ const n=particles[i].node; if(n)n.remove(); particles.splice(i,1);} }
+  const fn=sceneState.flashNode;
+  if(sceneState.flash>0){ sceneState.flash-=dt; if(fn)fn.setAttribute('opacity',Math.min(.55,sceneState.flash/9*.55).toFixed(2)); }
+  else if(fn) fn.setAttribute('opacity','0');
+  rafId=requestAnimationFrame(tick);
+}
+
+/* ---------- PHOTOSYNTHESIS ---------- */
+function renderPhoto(){
+  stopAnim();
+  $('toolBody').innerHTML=`
+    <div class="eq">
+      <div class="word"><span class="react">carbon dioxide + water</span> <span class="arrow">—light→</span> <span class="prod">glucose + oxygen</span></div>
+      <div class="sym"><span class="react">6CO<sub>2</sub> + 6H<sub>2</sub>O</span> <span class="arrow">→</span> <span class="prod">C<sub>6</sub>H<sub>12</sub>O<sub>6</sub> + 6O<sub>2</sub></span> <span class="light">(needs light + chlorophyll)</span></div>
+    </div>
+    <div class="stage-grid">
+      <div><svg id="scene" viewBox="0 0 460 360" aria-label="Plant photosynthesising"></svg></div>
+      <div>
+        <div class="panel-h">Turn the conditions up or down</div>
+        <div class="slider-row s-light"><label>☀️ Light intensity <output id="oLight"></output></label><input type="range" id="sLight" min="0" max="100" value="${light}"></div>
+        <div class="slider-row s-co2"><label>🌫️ Carbon dioxide <output id="oCo2"></output></label><input type="range" id="sCo2" min="0" max="100" value="${co2}"></div>
+        <div class="slider-row s-water"><label>💧 Water <output id="oWater"></output></label><input type="range" id="sWater" min="0" max="100" value="${water}"></div>
+        <div class="rate-box"><div class="lbl">Rate of photosynthesis</div><div class="val" id="rate"></div></div>
+        <div class="limiting" id="limiting"></div>
+        <div class="outputs">
+          <div class="out-chip gluc"><div class="n" id="outG"></div><div class="l">glucose made</div></div>
+          <div class="out-chip oxy"><div class="n" id="outO"></div><div class="l">O₂ released</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="work" id="pWork"></div>`;
+  $('sLight').addEventListener('input',e=>{light=+e.target.value;updatePhoto();});
+  $('sCo2').addEventListener('input',e=>{co2=+e.target.value;updatePhoto();});
+  $('sWater').addEventListener('input',e=>{water=+e.target.value;updatePhoto();});
+  buildPhotoScene();
+  updatePhoto();
+}
+function leafFill(rate){ return `rgb(${46+Math.round((100-rate)*0.40)},${120+Math.round(rate*0.50)},70)`; }
+function buildPhotoScene(){
+  const svg=$('scene'); svg.innerHTML='';
+  // soil
+  el('rect',{x:0,y:300,width:460,height:60,fill:'#A9784E'},svg);
+  el('rect',{x:0,y:300,width:460,height:7,fill:'#8C5E3A'},svg);
+  // roots spreading down from the stem base
+  el('path',{d:'M230 300 Q230 332 202 352 M230 300 Q230 334 256 352 M230 306 Q208 320 184 320 M230 306 Q252 320 278 320',fill:'none',stroke:'#C79A6B','stroke-width':3,'stroke-linecap':'round'},svg);
+  // stem
+  el('rect',{x:226,y:150,width:8,height:152,rx:3,fill:'#2E7D46'},svg);
+  // leaves (with midribs)
+  leafEls=[];
+  const RX={x:300,y:152};
+  [[196,152,-30],[300,152,30],[188,206,-18],[300,206,18],[248,118,0]].forEach(([x,y,r])=>{
+    const lf=el('ellipse',{cx:x,cy:y,rx:46,ry:21,fill:leafFill(0),stroke:'#246B3A','stroke-width':2,transform:`rotate(${r} ${x} ${y})`},svg);
+    el('line',{x1:x-40,y1:y,x2:x+40,y2:y,stroke:'#246B3A','stroke-width':1.4,opacity:.45,transform:`rotate(${r} ${x} ${y})`},svg);
+    leafEls.push(lf);
+  });
+  // reaction glow (a chloroplast lighting up) on the reaction leaf
+  const glow=el('circle',{cx:RX.x,cy:RX.y,r:30,fill:'#9CFFC9',opacity:0},svg);
+  // sun
+  sunG=el('g',{},svg);
+  el('circle',{cx:72,cy:60,r:30,fill:'var(--light)'},sunG);
+  for(let i=0;i<8;i++){const a=i*45*Math.PI/180; el('line',{x1:72+34*Math.cos(a),y1:60+34*Math.sin(a),x2:72+48*Math.cos(a),y2:60+48*Math.sin(a),stroke:'var(--light)','stroke-width':3.5,'stroke-linecap':'round'},sunG);}
+  // gentle directional labels (the molecules show the actual direction)
+  el('text',{x:432,y:150,'text-anchor':'end','font-size':'11px','font-weight':'700',fill:'#6C7A82'},svg).textContent='CO₂ from the air';
+  el('text',{x:150,y:344,'font-size':'11px','font-weight':'700',fill:'#3A7CA5'},svg).textContent='H₂O up from the roots';
+  el('text',{x:332,y:40,'font-size':'11px','font-weight':'700',fill:'var(--oxygen)'},svg).textContent='O₂ released ↑';
+  // moving-molecule layer on top
+  el('g',{id:'fx'},svg);
+  sceneState={ flash:0, flashNode:glow, acc:{co2:0,h2o:0,li:0,pr:0},
+    spawn(dt){
+      const rate=Math.min(light,co2,water);
+      this.acc.co2+=co2/100*0.11*dt;
+      this.acc.h2o+=water/100*0.11*dt;
+      this.acc.li +=light/100*0.13*dt;
+      this.acc.pr +=rate/100*0.11*dt;
+      if(this.acc.co2>=1){ this.acc.co2-=1; spawnMol('co2',464,116+Math.random()*74,{steer:true,tx:RX.x+18,ty:RX.y,spd:2.3}); }
+      if(this.acc.h2o>=1){ this.acc.h2o-=1; spawnMol('h2o',224+Math.random()*14,334,{steer:true,tx:RX.x-8,ty:RX.y+4,spd:2.0}); }
+      if(this.acc.li >=1){ this.acc.li -=1; spawnMol('light',74,62,{steer:true,tx:RX.x,ty:RX.y,spd:3.1}); }
+      if(this.acc.pr >=1){ this.acc.pr -=1;
+        spawnMol('o2',RX.x+(Math.random()*16-8),RX.y,{vx:0.35+Math.random()*0.5,vy:-(1.0+Math.random()*0.7),life:240});
+        if(Math.random()<0.45) spawnMol('glu',RX.x-4,RX.y+8,{vx:-0.25,vy:0.55,life:150,fade:1});
+      }
+    }
+  };
+  lastT=0; rafId=requestAnimationFrame(tick);
+}
+function updatePhoto(){
+  const rate=Math.min(light,co2,water);
+  const names={light:'light',co2:'carbon dioxide',water:'water'};
+  let limF='light',limV=light; if(co2<limV){limF='co2';limV=co2;} if(water<limV){limF='water';limV=water;}
+  $('oLight').textContent=light+'%'; $('oCo2').textContent=co2+'%'; $('oWater').textContent=water+'%';
+  $('rate').textContent=rate+'%';
+  $('outO').textContent=Math.round(rate/100*12);   // ~6 O₂ per glucose
+  $('outG').textContent=Math.round(rate/100*2);
+  const allHigh = light>90&&co2>90&&water>90;
+  $('limiting').innerHTML = rate===0 ? `One factor is at 0%, so photosynthesis <b>stops</b> — watch the molecules stop arriving.`
+    : allHigh ? `All factors high — near maximum rate.`
+    : `The <b>limiting factor</b> is <b>${names[limF]}</b> — it's the lowest, so it trickles in slowest and holds the rate back. Raise it to speed everything up.`;
+  if(sunG) sunG.setAttribute('opacity',(0.3+light/100*0.7).toFixed(2));
+  leafEls.forEach(l=>l.setAttribute('fill',leafFill(rate)));
+  $('pWork').innerHTML=`Plants make their own food by photosynthesis in the <b>chloroplasts</b> of their leaves. They take in <b>carbon dioxide</b> from the air and <b>water</b> drawn up from the roots and, using energy from <b>light</b> captured by green <b>chlorophyll</b>, rearrange the atoms into <b>glucose</b> (stored as food) and <b>oxygen</b> (released into the air). Each ingredient flows in at its own slider's pace, but the reaction only goes as fast as the <b>scarcest</b> one allows — its <b>limiting factor</b>.`;
+}
+
+/* ---------- RESPIRATION ---------- */
+function renderResp(){
+  stopAnim();
+  $('toolBody').innerHTML=`
+    <div class="eq">
+      <div class="word"><span class="react">glucose + oxygen</span> <span class="arrow">→</span> <span class="prod">carbon dioxide + water</span> <span class="light">(+ energy as ATP)</span></div>
+      <div class="sym"><span class="react">C<sub>6</sub>H<sub>12</sub>O<sub>6</sub> + 6O<sub>2</sub></span> <span class="arrow">→</span> <span class="prod">6CO<sub>2</sub> + 6H<sub>2</sub>O</span></div>
+    </div>
+    <div class="stage-grid">
+      <div><svg id="scene" viewBox="0 0 460 360" aria-label="Respiration inside a cell"></svg></div>
+      <div>
+        <div class="panel-h">How hard is the body working?</div>
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.6rem">
+          <button class="btn ${activity==='rest'?'on':''}" data-act="rest">😴 Resting</button>
+          <button class="btn ${activity==='walk'?'on':''}" data-act="walk">🚶 Walking</button>
+          <button class="btn ${activity==='run'?'on':''}" data-act="run">🏃 Running</button>
+        </div>
+        <div class="rate-box"><div class="lbl">Energy released</div><div class="val" id="energy"></div></div>
+        <div class="outputs">
+          <div class="out-chip oxy"><div class="n" id="rO2"></div><div class="l">O₂ used</div></div>
+          <div class="out-chip gluc"><div class="n" id="rGl"></div><div class="l">glucose used</div></div>
+          <div class="out-chip" style="border-color:var(--amber)"><div class="n" id="rATP" style="color:#C9870F"></div><div class="l">ATP / glucose</div></div>
+        </div>
+        <div class="limiting" id="anaer"></div>
+      </div>
+    </div>
+    <div class="work" id="rWork"></div>`;
+  document.querySelectorAll('[data-act]').forEach(b=>b.addEventListener('click',()=>{ activity=b.dataset.act; renderResp(); }));
+  buildRespScene();
+  updateResp();
+}
+function buildRespScene(){
+  const svg=$('scene'); svg.innerHTML='';
+  el('rect',{x:0,y:0,width:460,height:360,fill:'#EAF1F4'},svg);
+  // cell membrane + cytoplasm
+  el('rect',{x:46,y:46,width:368,height:268,rx:78,fill:'#FFF6EC',stroke:'var(--copper)','stroke-width':5},svg);
+  // small nucleus for cell feel
+  el('ellipse',{cx:112,cy:112,rx:26,ry:22,fill:'#E7DBF1',stroke:'var(--purple)','stroke-width':2},svg);
+  el('circle',{cx:112,cy:112,r:8,fill:'#9B82C0'},svg);
+  el('text',{x:112,y:150,'text-anchor':'middle','font-size':'9px',fill:'#7B5EA7'},svg).textContent='nucleus';
+  // mitochondrion = reaction zone
+  const RX={x:264,y:184};
+  const glow=el('ellipse',{cx:RX.x,cy:RX.y,rx:62,ry:38,fill:'#FFE08A',opacity:0},svg);
+  el('ellipse',{cx:RX.x,cy:RX.y,rx:60,ry:36,fill:'#F4C9C3',stroke:'var(--red)','stroke-width':3},svg);
+  el('path',{d:`M${RX.x-44} ${RX.y} q12 -16 24 0 q12 16 24 0 q12 -16 24 0`,fill:'none',stroke:'var(--red)','stroke-width':2,opacity:.7},svg);
+  el('text',{x:RX.x,y:RX.y+54,'text-anchor':'middle','font-size':'11px','font-weight':'700',fill:'var(--red)'},svg).textContent='mitochondrion';
+  el('text',{x:34,y:152,'font-size':'11px','font-weight':'700',fill:'var(--copper)'},svg).textContent='glucose in →';
+  el('text',{x:426,y:152,'text-anchor':'end','font-size':'11px','font-weight':'700',fill:'var(--oxygen)'},svg).textContent='← O₂ in';
+  el('g',{id:'fx'},svg);
+  const isRun=activity==='run';
+  sceneState={ flash:0, flashNode:glow, acc:{glu:0,o2:0,pr:0},
+    spawn(dt){
+      const lvl={rest:2,walk:5,run:9}[activity], r=lvl/9;
+      this.acc.glu+=r*0.10*dt; this.acc.o2+=r*(isRun?0.05:0.11)*dt; this.acc.pr+=r*0.12*dt;
+      if(this.acc.glu>=1){ this.acc.glu-=1; spawnMol('glu',22,150+Math.random()*66,{steer:true,tx:RX.x-14,ty:RX.y,spd:2.0}); }
+      if(this.acc.o2 >=1){ this.acc.o2 -=1; spawnMol('o2',440,150+Math.random()*66,{steer:true,tx:RX.x+14,ty:RX.y,spd:2.2}); }
+      if(this.acc.pr >=1){ this.acc.pr -=1;
+        if(isRun && Math.random()<0.5){
+          spawnMol('lac',RX.x,RX.y+6,{vx:(Math.random()-0.5)*0.7,vy:1.0+Math.random()*0.5,life:240});
+          if(Math.random()<0.4) spawnMol('atp',RX.x+(Math.random()*16-8),RX.y-8,{vx:(Math.random()-0.5)*0.7,vy:-(0.8+Math.random()*0.5),life:150,fade:1});
+        } else {
+          spawnMol('co2',RX.x-12,RX.y+5,{vx:-(0.5+Math.random()*0.5),vy:0.7+Math.random()*0.5,life:260});
+          spawnMol('h2o',RX.x+12,RX.y+5,{vx:0.5+Math.random()*0.5,vy:0.7+Math.random()*0.5,life:260});
+          spawnMol('atp',RX.x+(Math.random()*20-10),RX.y-10,{vx:(Math.random()-0.5)*0.8,vy:-(0.9+Math.random()*0.6),life:160,fade:1});
+          if(Math.random()<0.6) spawnMol('atp',RX.x+(Math.random()*20-10),RX.y-6,{vx:(Math.random()-0.5)*0.8,vy:-(0.9+Math.random()*0.6),life:160,fade:1});
+        }
+      }
+    }
+  };
+  lastT=0; rafId=requestAnimationFrame(tick);
+}
+function updateResp(){
+  const lvl={rest:2,walk:5,run:9}[activity];
+  $('energy').textContent='●'.repeat(lvl)+'○'.repeat(10-lvl);
+  $('rO2').textContent=lvl; $('rGl').textContent=(lvl/6).toFixed(1);
+  $('rATP').textContent=activity==='run'?'≈2*':'≈38';
+  const anaer=$('anaer');
+  if(activity==='run'){ anaer.innerHTML=`Running hard, the lungs and blood can't deliver oxygen fast enough. Muscles switch to <b>anaerobic respiration</b>: glucose → <b>lactic acid</b> (the purple molecules) with far less energy — only about <b>2 ATP</b> per glucose instead of 38. That's the burn, and the "oxygen debt" you repay by panting afterwards.`; }
+  else { anaer.innerHTML=`Plenty of oxygen is reaching the mitochondria, so this is <b>aerobic respiration</b> — the efficient kind, releasing about <b>38 ATP</b> per glucose.`; }
+  $('rWork').innerHTML=`<b>Every living cell</b> respires all the time, in its <b>mitochondria</b> — animals and plants alike. Glucose and oxygen flow in, and the energy stored in glucose is released as <b>ATP</b> (the cell's usable energy), giving out <b>carbon dioxide</b> and <b>water</b>. Notice it's <b>photosynthesis run backwards</b>. The harder you work, the faster molecules flow through — until oxygen can't keep up and the muscle switches to the anaerobic, lactic-acid pathway.`;
+}
+
+/* ---------- COMPARE ---------- */
+function renderCompare(){
+  stopAnim();
+  $('toolBody').innerHTML=`
+    <div class="compare-cols">
+      <div class="ccol photo"><h3>🌿 Photosynthesis</h3>
+        <div class="ro"><span>Who does it?</span><b>plants (in chloroplasts)</b></div>
+        <div class="ro"><span>Needs in</span><b>CO₂ + water + light</b></div>
+        <div class="ro"><span>Makes out</span><b>glucose + oxygen</b></div>
+        <div class="ro"><span>Energy</span><b>stores light energy</b></div>
+        <div class="ro"><span>When</span><b>only in the light</b></div>
+      </div>
+      <div class="ccol resp"><h3>🔥 Respiration</h3>
+        <div class="ro"><span>Who does it?</span><b>all living cells (mitochondria)</b></div>
+        <div class="ro"><span>Needs in</span><b>glucose + oxygen</b></div>
+        <div class="ro"><span>Makes out</span><b>CO₂ + water</b></div>
+        <div class="ro"><span>Energy</span><b>releases energy</b></div>
+        <div class="ro"><span>When</span><b>all the time, day and night</b></div>
+      </div>
+    </div>
+    <div class="work" style="margin-top:1rem">They are <b>opposite reactions</b>. Photosynthesis builds glucose and stores energy; respiration breaks glucose down and releases it. The products of one are the reactants of the other:
+      <div class="eq" style="margin-top:.6rem">
+        <div class="sym"><span class="react">6CO<sub>2</sub> + 6H<sub>2</sub>O</span> <span class="arrow">⇌</span> <span class="prod">C<sub>6</sub>H<sub>12</sub>O<sub>6</sub> + 6O<sub>2</sub></span></div>
+      </div>
+      Read left-to-right it's photosynthesis; right-to-left it's respiration. <b>Important:</b> plants do <b>both</b> — they photosynthesise in the light, but they respire all the time, just like animals.</div>`;
+}
+
+document.querySelectorAll('#toolTabs .btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#toolTabs .btn').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  tool=b.dataset.tool; if(tool==='photo')renderPhoto(); else if(tool==='resp')renderResp(); else renderCompare();
+}));
+
+/* ---------- QUIZ ---------- */
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function mc(text,correct,distract,explain){const opts=shuffle([correct,...distract]);return{text,opts,answer:opts.indexOf(correct),explain};}
+function buildBank(){
+  const Q=[];
+  Q.push(mc('What does photosynthesis make?','glucose and oxygen',['carbon dioxide and water','glucose and carbon dioxide','oxygen and water'],'CO₂ + water →(light) glucose + oxygen.'));
+  Q.push(mc('What does photosynthesis need to take in?','carbon dioxide and water',['glucose and oxygen','oxygen and water','glucose and CO₂'],'It takes in carbon dioxide and water and uses light energy.'));
+  Q.push(mc('Photosynthesis happens in the…','chloroplasts',['mitochondria','nucleus','roots'],'Chloroplasts contain chlorophyll, which captures light.'));
+  Q.push(mc('What gas does photosynthesis release?','oxygen',['carbon dioxide','nitrogen','hydrogen'],'Oxygen is released as a product — useful for animals to breathe.'));
+  Q.push(mc('Which is NOT a limiting factor for photosynthesis?','oxygen',['light','carbon dioxide','temperature'],'Light, CO₂ and temperature can limit the rate. Oxygen is a product, not a requirement.'));
+  Q.push(mc('What does respiration release?','energy',['light','chlorophyll','sunlight'],'Respiration releases the energy stored in glucose for the cell to use.'));
+  Q.push(mc('Aerobic respiration uses glucose and…','oxygen',['carbon dioxide','water','nitrogen'],'glucose + oxygen → CO₂ + water (+ energy).'));
+  Q.push(mc('Respiration happens in the…','mitochondria',['chloroplasts','nucleus','cell wall'],'Mitochondria are the site of respiration in all living cells.'));
+  Q.push(mc('Which living things respire?','all living things, all the time',['only animals','only plants','only at night'],'Every living cell — plant and animal — respires constantly.'));
+  Q.push(mc('Respiration is basically photosynthesis…','run in reverse',['done twice','at night only','without water'],'Its reactants and products are swapped: it uses glucose+O₂ and makes CO₂+water.'));
+  Q.push(mc('Hard exercise without enough oxygen causes…','anaerobic respiration (lactic acid)',['photosynthesis','more chlorophyll','no respiration'],'Muscles respire anaerobically, making lactic acid — the "burn".'));
+  Q.push(mc('Do plants respire?','yes — all the time, day and night',['no, only photosynthesise','only at night','only when flowering'],'Plants photosynthesise in light but respire constantly, like animals.'));
+  Q.push(mc('The symbol equation 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂ is…','photosynthesis',['respiration','digestion','breathing'],'Building glucose from CO₂ and water using light is photosynthesis.'));
+  Q.push(mc('Photosynthesis takes in…','carbon dioxide and water',['glucose and oxygen','oxygen and water','glucose and CO₂'],'It uses CO₂ and water, plus light energy.'));
+  Q.push(mc('Photosynthesis makes…','glucose and oxygen',['CO₂ and water','glucose and CO₂','oxygen and water'],'The products are glucose (food) and oxygen.'));
+  Q.push(mc('Photosynthesis happens in the…','chloroplasts',['mitochondria','nucleus','roots'],'Chloroplasts contain chlorophyll to capture light.'));
+  Q.push(mc('The green pigment that captures light is…','chlorophyll',['glucose','haemoglobin','cytoplasm'],'Chlorophyll in the chloroplasts absorbs light energy.'));
+  Q.push(mc('Respiration takes in…','glucose and oxygen',['CO₂ and water','glucose and CO₂','oxygen and water'],'Aerobic respiration uses glucose and oxygen.'));
+  Q.push(mc('Respiration makes…','carbon dioxide and water',['glucose and oxygen','glucose and water','oxygen only'],'It produces CO₂ and water, releasing energy.'));
+  Q.push(mc('Respiration releases…','energy',['light','chlorophyll','sunlight'],'Energy stored in glucose is released for the cell to use.'));
+  Q.push(mc('Respiration happens in the…','mitochondria',['chloroplasts','nucleus','cell wall'],'Mitochondria are the site of respiration in all living cells.'));
+  Q.push(mc('Which is a limiting factor for photosynthesis?','light intensity',['oxygen level','nitrogen level','soil colour'],'Light, CO₂ and temperature can limit the rate; oxygen is a product.'));
+  Q.push(mc('Which gas do plants release during photosynthesis?','oxygen',['carbon dioxide','nitrogen','hydrogen'],'Oxygen is released — useful for animals to breathe.'));
+  Q.push(mc('Which gas do plants take in for photosynthesis?','carbon dioxide',['oxygen','nitrogen','hydrogen'],'Plants take in CO₂ through their leaves.'));
+  Q.push(mc('Anaerobic respiration in muscles produces…','lactic acid',['glucose','oxygen','chlorophyll'],'Without enough oxygen, muscles make lactic acid — the "burn".'));
+  Q.push(mc('Do plants respire?','yes — all the time, day and night',['no, only photosynthesise','only at night','only when flowering'],'Plants respire constantly, like animals, and photosynthesise in light.'));
+  Q.push(mc('Photosynthesis only happens when there is…','light',['darkness','cold','still air'],'Light energy drives photosynthesis, so it stops in the dark.'));
+  Q.push(mc('Respiration happens…','all the time, day and night',['only in light','only at night','only during exercise'],'Every living cell respires constantly to stay alive.'));
+  Q.push(mc('Why is photosynthesis important for animals?','it produces oxygen and food',['it removes all water','it warms the air','it makes soil'],'Plants release oxygen and form the base of food chains.'));
+  Q.push(mc('The products of respiration are the ___ of photosynthesis.','reactants',['products','catalysts','enzymes'],'They are reverse reactions: CO₂ and water feed back into photosynthesis.'));
+  Q.push(mc('Glucose is used in respiration as a…','fuel (energy source)',['waste product','gas','mineral'],'Glucose is the fuel whose energy respiration releases.'));
+  Q.push(mc('6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂ represents…','photosynthesis',['respiration','digestion','breathing'],'Building glucose from CO₂ and water using light is photosynthesis.'));
+  Q.push(mc('C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O represents…','respiration',['photosynthesis','digestion','evaporation'],'Breaking glucose down with oxygen is aerobic respiration.'));
+  Q.push(mc('When you exercise harder, your rate of respiration…','increases',['decreases','stops','stays the same'],'Working muscles need more energy, so you respire faster and breathe more.'));
+  Q.push(mc('Breathing and respiration are…','different things',['exactly the same','both photosynthesis','only done by plants'],'Breathing moves air; respiration is the chemical release of energy in cells.'));
+  return shuffle(Q);
+}
+const QLEN=8; let quiz=null;
+function startQuiz(){ quiz={qs:buildBank().slice(0,QLEN),idx:0,score:0,results:[]}; renderQ(); }
+function renderQ(){
+  const q=quiz.qs[quiz.idx], c=$('quizCard');
+  let dots=''; for(let i=0;i<QLEN;i++){let cl='dot';if(i<quiz.results.length)cl+=quiz.results[i]?' right':' wrong';else if(i===quiz.idx)cl+=' now';dots+=`<span class="${cl}"></span>`;}
+  c.innerHTML=`<div class="qprog">${dots}</div><div class="qtext">${q.text}</div>
+    <div class="opts">${q.opts.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join('')}</div>
+    <div class="explain" id="ex"></div>
+    <div class="quiz-foot"><span class="score-pill">Score: ${quiz.score}/${quiz.results.length}</span><button class="btn" id="nx" style="display:none">Next →</button></div>`;
+  c.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{
+    const i=+b.dataset.i, right=i===q.answer; quiz.results.push(right); if(right)quiz.score++;
+    c.querySelectorAll('.opt').forEach((x,j)=>{x.disabled=true;if(j===q.answer)x.classList.add('correct');else if(j===i)x.classList.add('incorrect');});
+    const ex=$('ex'); ex.style.display='block'; ex.innerHTML=(right?'✅ ':'❌ ')+q.explain;
+    c.querySelector('.score-pill').textContent=`Score: ${quiz.score}/${quiz.results.length}`;
+    const nx=$('nx'); nx.style.display='inline-block'; nx.textContent=quiz.idx+1<QLEN?'Next →':'Results →';
+    nx.onclick=()=>{ quiz.idx++; if(quiz.idx<QLEN)renderQ(); else results(); };
+  }));
+}
+function results(){
+  const pct=quiz.score/QLEN; let e='🌿',t='Energy expert!';
+  if(pct<0.5){e='🌱';t='Keep growing!';} else if(pct<0.8){e='☘️';t='Nice work!';}
+  $('quizCard').innerHTML=`<div class="result-screen"><div class="big">${e}</div><h3>${t}</h3>
+    <p style="color:var(--ink-soft)">You scored ${quiz.score} out of ${QLEN}.</p>
+    <button class="btn" id="rt">Try again</button> <button class="btn" id="bk">Back to explore</button></div>`;
+  $('rt').onclick=startQuiz; $('bk').onclick=()=>setMode('play');
+}
+function setMode(m){
+  $('playMode').style.display=m==='play'?'':'none'; $('quizMode').style.display=m==='play'?'none':'';
+  $('tabPlay').classList.toggle('on',m==='play'); $('tabQuiz').classList.toggle('on',m!=='play');
+  if(m==='play'){ if(tool==='photo')renderPhoto(); else if(tool==='resp')renderResp(); else renderCompare(); }
+  else { stopAnim(); startQuiz(); }
+}
+$('tabPlay').onclick=()=>setMode('play'); $('tabQuiz').onclick=()=>setMode('quiz');
+
+renderPhoto();
+</script>
+</body>
+</html>

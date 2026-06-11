@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Angle Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{ --paper:#F2F7FA; --grid-line:#D5E4EC; --ink:#1F3540; --ink-soft:#5A7280; --panel:#fff;
+    --copper:#C2622E; --amber:#FFB02E; --green:#2E8B6A; --red:#D6493E; --blue:#3A7CA5; --purple:#7B5EA7; --shadow:rgba(31,53,64,.14); }
+  body{ font-family:'Karla',sans-serif; color:var(--ink); background:linear-gradient(135deg,#E8F1F6,#F0F3EC); min-height:100vh; padding:1.25rem; }
+  .wrap{ max-width:920px; margin:0 auto; }
+  header{ text-align:center; margin-bottom:1rem; }
+  h1{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(1.7rem,4vw,2.4rem); }
+  .subtitle{ color:var(--ink-soft); margin-top:.25rem; }
+  .tabs{ display:flex; justify-content:center; gap:.5rem; margin-top:.8rem; flex-wrap:wrap; }
+  .card{ background:var(--panel); border-radius:16px; box-shadow:0 6px 18px var(--shadow); padding:1rem; margin-bottom:1rem; }
+  .btn{ font-family:'Karla',sans-serif; font-weight:700; font-size:.85rem; border:2px solid var(--ink); border-radius:999px;
+    background:#fff; color:var(--ink); padding:.45rem 1rem; cursor:pointer; transition:all .15s; touch-action:manipulation; }
+  .btn:hover{ background:var(--ink); color:#fff; } .btn.on{ background:var(--ink); color:#fff; }
+  .btn:focus-visible{ outline:3px solid var(--amber); outline-offset:2px; }
+  .fact-tabs{ display:flex; gap:.4rem; flex-wrap:wrap; justify-content:center; margin-bottom:1rem; }
+  .fact-tabs .btn{ font-size:.78rem; padding:.35rem .75rem; }
+  .grid{ display:grid; grid-template-columns:1fr 260px; gap:1rem; align-items:start; }
+  @media (max-width:780px){ .grid{ grid-template-columns:1fr; } }
+  #stage{ width:100%; height:auto; display:block; background:var(--paper); border-radius:12px; touch-action:none; cursor:grab; }
+  .panel-h{ font-family:'Space Grotesk',sans-serif; font-size:.8rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); margin-bottom:.6rem; }
+  .rule{ font-family:'Space Grotesk',sans-serif; font-size:1.05rem; font-weight:700; margin-bottom:.5rem; }
+  .ro{ display:flex; justify-content:space-between; font-size:.95rem; padding:.25rem 0; border-top:1px dashed var(--grid-line); }
+  .ro:first-child{ border-top:none; } .ro b{ font-variant-numeric:tabular-nums; }
+  .sum-line{ font-family:'Space Grotesk',sans-serif; font-size:1.15rem; font-weight:700; text-align:center; margin-top:.6rem; padding:.5rem; border-radius:10px; background:var(--paper); }
+  .sum-line.ok{ color:var(--green); } 
+  .work{ font-size:.85rem; color:var(--ink-soft); line-height:1.55; margin-top:.6rem; } .work b{ color:var(--ink); }
+  .hint{ font-size:.8rem; color:var(--ink-soft); text-align:center; margin-top:.5rem; }
+  .stepper{ display:flex; align-items:center; gap:.5rem; justify-content:center; margin-top:.6rem; }
+  .stepper button{ width:32px; height:32px; border-radius:8px; border:2px solid var(--ink); background:#fff; font-size:1.1rem; font-weight:700; cursor:pointer; }
+  .stepper button:hover{ background:var(--ink); color:#fff; }
+
+  /* quiz */
+  .quiz-card{ max-width:620px; margin:0 auto; }
+  .qprog{ display:flex; gap:.3rem; justify-content:center; margin-bottom:1rem; }
+  .qprog .dot{ width:11px; height:11px; border-radius:50%; background:var(--grid-line); }
+  .qprog .dot.now{ background:var(--ink); } .qprog .dot.right{ background:var(--green); } .qprog .dot.wrong{ background:var(--red); }
+  .qtext{ font-family:'Space Grotesk',sans-serif; font-size:1.15rem; font-weight:500; text-align:center; margin-bottom:.8rem; }
+  #qStage{ width:100%; max-width:380px; height:auto; display:block; margin:0 auto 1rem; background:var(--paper); border-radius:12px; }
+  .opts{ display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:.5rem; }
+  .opt{ font-family:'Space Grotesk',sans-serif; font-size:1.1rem; font-weight:700; padding:.7rem; border:2px solid var(--grid-line);
+    border-radius:12px; background:var(--paper); cursor:pointer; transition:all .12s; touch-action:manipulation; }
+  .opt:hover:not(:disabled){ border-color:var(--ink); } .opt:disabled{ cursor:default; }
+  .opt.correct{ border-color:var(--green); background:#DDF2E9; } .opt.incorrect{ border-color:var(--red); background:#FBE3E1; }
+  .explain{ margin-top:.9rem; padding:.75rem .9rem; border-radius:12px; background:#FFF6E3; border:2px solid var(--amber); font-size:.95rem; line-height:1.5; display:none; }
+  .quiz-foot{ display:flex; justify-content:space-between; align-items:center; margin-top:1rem; } .score-pill{ font-weight:700; color:var(--ink-soft); }
+  .result-screen{ text-align:center; padding:1rem 0; } .result-screen .big{ font-size:3rem; } .result-screen h3{ font-family:'Space Grotesk',sans-serif; font-size:1.5rem; margin:.5rem 0; }
+  footer{ text-align:center; color:var(--ink-soft); font-size:.78rem; margin-top:.5rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>📐 Angle Lab</h1>
+    <p class="subtitle">Drag the angles — the rules stay true, so the numbers always add up.</p>
+    <div class="tabs"><button class="btn on" id="tabPlay">Explore</button><button class="btn" id="tabQuiz">🎓 Find the missing angle</button></div>
+  </header>
+
+  <section id="playMode">
+    <div class="card">
+      <div class="fact-tabs" id="factTabs">
+        <button class="btn on" data-fact="line">On a line (180°)</button>
+        <button class="btn" data-fact="point">Around a point (360°)</button>
+        <button class="btn" data-fact="vert">Vertically opposite</button>
+        <button class="btn" data-fact="triangle">Triangle (180°)</button>
+        <button class="btn" data-fact="quad">Quadrilateral (360°)</button>
+        <button class="btn" data-fact="parallel">Parallel lines</button>
+        <button class="btn" data-fact="polygon">Polygon angles</button>
+      </div>
+      <div class="grid">
+        <div><svg id="stage" viewBox="0 0 460 380" aria-label="Angle diagram"></svg>
+          <div class="hint" id="hint"></div>
+          <div class="stepper" id="stepper" style="display:none"></div>
+        </div>
+        <div>
+          <div class="panel-h">The rule</div>
+          <div class="rule" id="ruleText"></div>
+          <div id="ros"></div>
+          <div class="sum-line" id="sumLine"></div>
+          <div class="work" id="work"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="quizMode" style="display:none"><div class="card quiz-card" id="quizCard"></div></section>
+  <footer>Angle Lab · part of the little tutoring tools family</footer>
+</div>
+
+<script>
+"use strict";
+const SVGNS="http://www.w3.org/2000/svg";
+const $=id=>document.getElementById(id);
+function el(n,a,p){const e=document.createElementNS(SVGNS,n);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e;}
+const COL=['var(--blue)','var(--amber)','var(--green)','var(--purple)','var(--copper)','var(--red)'];
+let fact='line';
+let angles=[];        // current draggable angle values (degrees)
+let nSides=5;         // for polygon
+const CX=200, CY=200;
+
+function arcPath(cx,cy,r,a0,a1){
+  const p=a=>[cx+r*Math.cos(a*Math.PI/180), cy-r*Math.sin(a*Math.PI/180)];
+  const q0=p(a0), q1=p(a1); const large=((a1-a0)%360+360)%360>180?1:0;
+  return `M ${q0[0]} ${q0[1]} A ${r} ${r} 0 ${large} 0 ${q1[0]} ${q1[1]}`;
+}
+
+function defaults(){
+  if(fact==='line') angles=[55,125];
+  else if(fact==='point') angles=[90,120,150];
+  else if(fact==='vert') angles=[60];
+  else if(fact==='triangle') angles=[60,70,50];
+  else if(fact==='quad') angles=[80,100,90,90];
+  else if(fact==='parallel') angles=[60];
+  else if(fact==='polygon') nSides=5;
+}
+
+function render(){
+  const svg=$('stage'); svg.innerHTML='';
+  $('ruleText').textContent=''; $('ros').innerHTML=''; $('work').innerHTML=''; $('sumLine').textContent=''; $('stepper').style.display='none'; $('hint').textContent='';
+  if(fact==='line') drawLine(svg);
+  else if(fact==='point') drawPoint(svg);
+  else if(fact==='vert') drawVert(svg);
+  else if(fact==='triangle') drawTriangle(svg);
+  else if(fact==='quad') drawQuad(svg);
+  else if(fact==='parallel') drawParallel(svg);
+  else if(fact==='polygon') drawPolygon(svg);
+}
+
+/* ---- angles on a straight line ---- */
+function drawLine(svg){
+  $('ruleText').textContent='Angles on a straight line add up to 180°.';
+  $('hint').textContent='Drag the ray to change the split.';
+  const y=240, x0=40, x1=420, ox=200;
+  el('line',{x1:x0,y1:y,x2:x1,y2:y,stroke:'var(--ink)','stroke-width':3},svg);
+  const a=angles[0]; angles[1]=180-a;
+  const rad=a*Math.PI/180; const ex=ox+150*Math.cos(rad), ey=y-150*Math.sin(rad);
+  el('line',{x1:ox,y1:y,x2:ex,y2:ey,stroke:'var(--ink)','stroke-width':3},svg);
+  el('path',{d:arcPath(ox,y,46,0,a),fill:'none',stroke:COL[0],'stroke-width':3},svg);
+  el('path',{d:arcPath(ox,y,46,a,180),fill:'none',stroke:COL[1],'stroke-width':3},svg);
+  label(svg,ox,y,a/2,70,Math.round(a)+'°',COL[0]);
+  label(svg,ox,y,(a+180)/2,70,Math.round(180-a)+'°',COL[1]);
+  const h=el('circle',{cx:ex,cy:ey,r:9,fill:COL[0],stroke:'#fff','stroke-width':2,style:'cursor:grab'},svg); h.dataset.drag='0'; h.dataset.cx=ox; h.dataset.cy=y;
+  $('ros').innerHTML=`<div class="ro"><span>angle a</span><b>${Math.round(a)}°</b></div><div class="ro"><span>angle b</span><b>${Math.round(180-a)}°</b></div>`;
+  $('sumLine').className='sum-line ok'; $('sumLine').textContent=`${Math.round(a)}° + ${Math.round(180-a)}° = 180° ✓`;
+  $('work').innerHTML=`To find the missing one, subtract from 180: <b>180 − ${Math.round(a)} = ${Math.round(180-a)}</b>.`;
+}
+
+/* ---- around a point ---- */
+function drawPoint(svg){
+  $('ruleText').textContent='Angles around a point add up to 360°.';
+  $('hint').textContent='Drag any ray; the last angle fills the rest.';
+  // angles[0..2] free, last = remainder
+  let used=angles[0]+angles[1]+angles[2];
+  let last=360-used; if(last<10){ angles[2]=Math.max(10,angles[2]-(10-last)); used=angles[0]+angles[1]+angles[2]; last=360-used; }
+  const segs=[...angles.slice(0,3),last];
+  let acc=0; const rosArr=[];
+  segs.forEach((seg,i)=>{
+    const a0=acc, a1=acc+seg;
+    const rad=a1*Math.PI/180; const ex=CX+150*Math.cos(rad), ey=CY-150*Math.sin(rad);
+    el('line',{x1:CX,y1:CY,x2:ex,y2:ey,stroke:'var(--ink)','stroke-width':3},svg);
+    el('path',{d:arcPath(CX,CY,40+i*6,a0,a1),fill:'none',stroke:COL[i],'stroke-width':3},svg);
+    label(svg,CX,CY,(a0+a1)/2,72,Math.round(seg)+'°',COL[i]);
+    if(i<3){ const h=el('circle',{cx:ex,cy:ey,r:9,fill:COL[i],stroke:'#fff','stroke-width':2,style:'cursor:grab'},svg); h.dataset.drag=''+i; h.dataset.cx=CX; h.dataset.cy=CY; h.dataset.base=''+a0; }
+    rosArr.push(`<div class="ro"><span>angle ${i+1}${i===3?' (the rest)':''}</span><b>${Math.round(seg)}°</b></div>`);
+    acc=a1;
+  });
+  el('circle',{cx:CX,cy:CY,r:5,fill:'var(--ink)'},svg);
+  $('ros').innerHTML=rosArr.join('');
+  $('sumLine').className='sum-line ok'; $('sumLine').textContent=`sum = 360° ✓`;
+  $('work').innerHTML=`The missing angle = 360 − (the others) = <b>360 − ${Math.round(used)} = ${Math.round(last)}°</b>.`;
+}
+
+/* ---- vertically opposite ---- */
+function drawVert(svg){
+  $('ruleText').textContent='When two lines cross, vertically opposite angles are equal.';
+  $('hint').textContent='Drag to rotate the crossing lines.';
+  const a=angles[0];
+  const r=160, rad=a*Math.PI/180;
+  el('line',{x1:CX-r,y1:CY,x2:CX+r,y2:CY,stroke:'var(--ink)','stroke-width':3},svg);
+  el('line',{x1:CX-r*Math.cos(rad),y1:CY+r*Math.sin(rad),x2:CX+r*Math.cos(rad),y2:CY-r*Math.sin(rad),stroke:'var(--ink)','stroke-width':3},svg);
+  el('path',{d:arcPath(CX,CY,40,0,a),fill:'none',stroke:COL[0],'stroke-width':3},svg);
+  el('path',{d:arcPath(CX,CY,40,180,180+a),fill:'none',stroke:COL[0],'stroke-width':3},svg);
+  el('path',{d:arcPath(CX,CY,52,a,180),fill:'none',stroke:COL[1],'stroke-width':3},svg);
+  el('path',{d:arcPath(CX,CY,52,180+a,360),fill:'none',stroke:COL[1],'stroke-width':3},svg);
+  label(svg,CX,CY,a/2,70,Math.round(a)+'°',COL[0]);
+  label(svg,CX,CY,180+a/2,70,Math.round(a)+'°',COL[0]);
+  label(svg,CX,CY,(a+180)/2,70,Math.round(180-a)+'°',COL[1]);
+  const ex=CX+r*Math.cos(rad), ey=CY-r*Math.sin(rad);
+  const h=el('circle',{cx:ex,cy:ey,r:9,fill:COL[0],stroke:'#fff','stroke-width':2,style:'cursor:grab'},svg); h.dataset.drag='0'; h.dataset.cx=CX; h.dataset.cy=CY;
+  $('ros').innerHTML=`<div class="ro"><span>angle a (both)</span><b>${Math.round(a)}°</b></div><div class="ro"><span>angle b (both)</span><b>${Math.round(180-a)}°</b></div>`;
+  $('sumLine').className='sum-line'; $('sumLine').textContent=`a and its opposite are equal`;
+  $('work').innerHTML=`Opposite angles match. Neighbouring angles still make a straight line: <b>${Math.round(a)} + ${Math.round(180-a)} = 180</b>.`;
+}
+
+/* ---- triangle ---- */
+function drawTriangle(svg){
+  $('ruleText').textContent='The angles inside a triangle add up to 180°.';
+  $('hint').textContent='Drag any corner to reshape the triangle.';
+  if(!window._tri) window._tri=[[110,300],[350,300],[210,90]];
+  const P=window._tri;
+  el('polygon',{points:P.map(p=>p.join(',')).join(' '),fill:'rgba(58,124,165,.12)',stroke:'var(--ink)','stroke-width':3,'stroke-linejoin':'round'},svg);
+  const angs=triAngles(P);
+  P.forEach((p,i)=>{
+    label2(svg,p[0],p[1],centroid(P),Math.round(angs[i])+'°',COL[i]);
+    const h=el('circle',{cx:p[0],cy:p[1],r:9,fill:COL[i],stroke:'#fff','stroke-width':2,style:'cursor:grab'},svg); h.dataset.dragpt=''+i;
+  });
+  const sum=Math.round(angs[0]+angs[1]+angs[2]);
+  $('ros').innerHTML=angs.map((a,i)=>`<div class="ro"><span>corner ${i+1}</span><b>${Math.round(a)}°</b></div>`).join('');
+  $('sumLine').className='sum-line ok'; $('sumLine').textContent=`${Math.round(angs[0])} + ${Math.round(angs[1])} + ${Math.round(angs[2])} = ${sum}° ✓`;
+  $('work').innerHTML=`Missing angle = 180 − (other two). However you drag it, the three always total 180°.`;
+}
+
+/* ---- quadrilateral ---- */
+function drawQuad(svg){
+  $('ruleText').textContent='The angles inside a quadrilateral add up to 360°.';
+  $('hint').textContent='Drag any corner.';
+  if(!window._quad) window._quad=[[110,110],[350,120],[330,300],[120,290]];
+  const P=window._quad;
+  el('polygon',{points:P.map(p=>p.join(',')).join(' '),fill:'rgba(123,94,167,.12)',stroke:'var(--ink)','stroke-width':3,'stroke-linejoin':'round'},svg);
+  const angs=polyAngles(P);
+  P.forEach((p,i)=>{ label2(svg,p[0],p[1],centroid(P),Math.round(angs[i])+'°',COL[i]);
+    const h=el('circle',{cx:p[0],cy:p[1],r:9,fill:COL[i],stroke:'#fff','stroke-width':2,style:'cursor:grab'},svg); h.dataset.dragpt=''+i; });
+  const sum=Math.round(angs.reduce((a,b)=>a+b,0));
+  $('ros').innerHTML=angs.map((a,i)=>`<div class="ro"><span>corner ${i+1}</span><b>${Math.round(a)}°</b></div>`).join('');
+  $('sumLine').className='sum-line ok'; $('sumLine').textContent=`sum = ${sum}° ✓`;
+  $('work').innerHTML=`A quadrilateral splits into 2 triangles, so 2 × 180 = <b>360°</b>.`;
+}
+
+/* ---- parallel lines ---- */
+function drawParallel(svg){
+  $('ruleText').textContent='A line crossing parallel lines makes equal angles.';
+  $('hint').textContent='Drag the handle to tilt the transversal.';
+  const a=angles[0];                          // angle between transversal and the parallel lines
+  const y1=130, y2=270, mx=230, my=(y1+y2)/2; // transversal pivots about the midpoint
+  el('line',{x1:30,y1:y1,x2:430,y2:y1,stroke:'var(--ink)','stroke-width':3},svg);
+  el('line',{x1:30,y1:y2,x2:430,y2:y2,stroke:'var(--ink)','stroke-width':3},svg);
+  [y1,y2].forEach(y=>{ el('path',{d:`M 60 ${y-6} l 10 6 l -10 6`,fill:'none',stroke:'var(--ink-soft)','stroke-width':2},svg); });
+  const cot=Math.cos(a*Math.PI/180)/Math.sin(a*Math.PI/180);
+  const xAt=y=>mx+(y-my)*cot;                 // screen slope dx/dy = cot(a) → upper branch sits at polar 180−a, lower at −a
+  el('line',{x1:xAt(55),y1:55,x2:xAt(345),y2:345,stroke:'var(--copper)','stroke-width':3},svg);
+  const tx=xAt(y1), bx=xAt(y2);
+  const arc=(cx,cy,r,a0,a1,col)=>el('path',{d:arcPath(cx,cy,r,a0,a1),fill:'none',stroke:col,'stroke-width':3},svg);
+  // top crossing: angle a in the wedge from the lower transversal branch (−a) round to the right ray (0°)
+  arc(tx,y1,36,360-a,360,COL[0]);  label(svg,tx,y1,-a/2,58,Math.round(a)+'°',COL[0]);
+  // bottom crossing, same position: corresponding angle (F) — also a
+  arc(bx,y2,36,360-a,360,COL[0]);  label(svg,bx,y2,-a/2,58,Math.round(a)+'°',COL[0]);
+  // bottom crossing, upper-left wedge (from upper branch 180−a to the left ray 180°): alternate angle (Z) — also a
+  arc(bx,y2,36,180-a,180,COL[2]);  label(svg,bx,y2,180-a/2,58,Math.round(a)+'°',COL[2]);
+  // bottom crossing, upper-right wedge (right ray 0° to upper branch 180−a): co-interior partner (C) — 180−a
+  arc(bx,y2,48,0,180-a,COL[1]);    label(svg,bx,y2,(180-a)/2,72,Math.round(180-a)+'°',COL[1]);
+  const h=el('circle',{cx:xAt(345),cy:345,r:9,fill:'var(--copper)',stroke:'#fff','stroke-width':2,style:'cursor:grab'},svg); h.dataset.dragpar='1';
+  $('ros').innerHTML=`<div class="ro"><span>corresponding (F)</span><b>${Math.round(a)}° = ${Math.round(a)}°</b></div>
+    <div class="ro"><span>alternate (Z)</span><b>${Math.round(a)}° = ${Math.round(a)}°</b></div>
+    <div class="ro"><span>co-interior (C)</span><b>${Math.round(a)}° + ${Math.round(180-a)}° = 180°</b></div>`;
+  $('sumLine').className='sum-line'; $('sumLine').textContent='F & Z equal · C add to 180°';
+  $('work').innerHTML=`The two <b>blue</b> angles are <b>corresponding (F)</b> — same position at each crossing, both ${Math.round(a)}°. The <b>green</b> angle is <b>alternate (Z)</b> with the top blue one — also ${Math.round(a)}°. The <b>amber</b> ${Math.round(180-a)}° is <b>co-interior (C)</b> with the top angle: ${Math.round(a)} + ${Math.round(180-a)} = 180.`;
+}
+
+/* ---- polygon ---- */
+function drawPolygon(svg){
+  $('ruleText').textContent='Interior angles of a regular polygon.';
+  $('hint').textContent='Use − / + to change the number of sides.';
+  $('stepper').style.display='flex';
+  $('stepper').innerHTML=`<button id="pm">−</button><b style="font-family:Space Grotesk;font-size:1.1rem">${nSides} sides</b><button id="pp">+</button>`;
+  $('pm').onclick=()=>{ nSides=Math.max(3,nSides-1); render(); };
+  $('pp').onclick=()=>{ nSides=Math.min(10,nSides+1); render(); };
+  const r=130, pts=[];
+  for(let i=0;i<nSides;i++){ const ang=-90+i*360/nSides; pts.push([CX+r*Math.cos(ang*Math.PI/180), CY+r*Math.sin(ang*Math.PI/180)]); }
+  el('polygon',{points:pts.map(p=>p.map(v=>v.toFixed(1)).join(',')).join(' '),fill:'rgba(46,139,106,.12)',stroke:'var(--ink)','stroke-width':3,'stroke-linejoin':'round'},svg);
+  const interior=(nSides-2)*180/nSides;
+  pts.forEach(p=>label2(svg,p[0],p[1],[CX,CY],Math.round(interior)+'°',COL[2]));
+  const total=(nSides-2)*180;
+  $('ros').innerHTML=`<div class="ro"><span>number of sides</span><b>${nSides}</b></div>
+    <div class="ro"><span>triangles inside</span><b>${nSides-2}</b></div>
+    <div class="ro"><span>sum of interior angles</span><b>${total}°</b></div>
+    <div class="ro"><span>each interior angle</span><b>${(+interior.toFixed(1))}°</b></div>
+    <div class="ro"><span>each exterior angle</span><b>${(+(360/nSides).toFixed(1))}°</b></div>`;
+  $('sumLine').className='sum-line'; $('sumLine').textContent=`sum = (${nSides}−2) × 180 = ${total}°`;
+  $('work').innerHTML=`Split into triangles from one corner: <b>${nSides}−2 = ${nSides-2}</b> triangles, each 180°.<br>Each angle (regular) = ${total} ÷ ${nSides} = <b>${(+interior.toFixed(1))}°</b>. Exterior angles always total 360°.`;
+}
+
+/* ---- helpers ---- */
+function label(svg,cx,cy,ang,r,txt,col){ const rad=ang*Math.PI/180; const t=el('text',{x:cx+r*Math.cos(rad),y:cy-r*Math.sin(rad)+5,'text-anchor':'middle','font-family':'Space Grotesk','font-size':'15px','font-weight':'700',fill:col},svg); t.textContent=txt; }
+function label2(svg,px,py,c,txt,col){ const dx=c[0]-px,dy=c[1]-py,l=Math.hypot(dx,dy)||1; const t=el('text',{x:px+dx/l*34,y:py+dy/l*34+5,'text-anchor':'middle','font-family':'Space Grotesk','font-size':'15px','font-weight':'700',fill:col},svg); t.textContent=txt; }
+function centroid(P){ return [P.reduce((s,p)=>s+p[0],0)/P.length, P.reduce((s,p)=>s+p[1],0)/P.length]; }
+function angleAt(a,b,c){ const v1=[a[0]-b[0],a[1]-b[1]],v2=[c[0]-b[0],c[1]-b[1]]; let d=(Math.atan2(v2[1],v2[0])-Math.atan2(v1[1],v1[0]))*180/Math.PI; d=((d%360)+360)%360; if(d>180)d=360-d; return d; }
+function triAngles(P){ return [angleAt(P[2],P[0],P[1]),angleAt(P[0],P[1],P[2]),angleAt(P[1],P[2],P[0])]; }
+function polyAngles(P){ return P.map((p,i)=>angleAt(P[(i-1+P.length)%P.length],p,P[(i+1)%P.length])); }
+
+/* ---- dragging ---- */
+function svgPt(cx,cy){ const pt=$('stage').createSVGPoint(); pt.x=cx;pt.y=cy; const m=$('stage').getScreenCTM(); if(!m)return null; const p=pt.matrixTransform(m.inverse()); return [p.x,p.y]; }
+let drag=null;
+$('stage').addEventListener('pointerdown',e=>{
+  const t=e.target;
+  if(t.dataset && t.dataset.dragpt!==undefined){ drag={type:'pt',i:+t.dataset.dragpt}; e.preventDefault(); }
+  else if(t.dataset && t.dataset.drag!==undefined){ drag={type:'ray',i:+t.dataset.drag,cx:+t.dataset.cx,cy:+t.dataset.cy,base:t.dataset.base?+t.dataset.base:0}; e.preventDefault(); }
+  else if(t.dataset && t.dataset.dragpar!==undefined){ drag={type:'par'}; e.preventDefault(); }
+});
+window.addEventListener('pointermove',e=>{
+  if(!drag)return; const p=svgPt(e.clientX,e.clientY); if(!p)return;
+  if(drag.type==='ray'){
+    let ang=Math.atan2(drag.cy-p[1],p[0]-drag.cx)*180/Math.PI; ang=((ang%360)+360)%360;
+    if(fact==='line'){ angles[0]=Math.max(10,Math.min(170,Math.round(ang))); }
+    else if(fact==='vert'){ angles[0]=Math.max(15,Math.min(165,Math.round(ang))); }
+    else if(fact==='point'){ let rel=ang-drag.base; rel=((rel%360)+360)%360; angles[drag.i]=Math.max(20,Math.min(300,Math.round(rel))); }
+    render();
+  } else if(drag.type==='pt'){
+    const P = fact==='triangle'?window._tri:window._quad;
+    P[drag.i]=[Math.max(20,Math.min(440,p[0])),Math.max(20,Math.min(360,p[1]))];
+    render();
+  } else if(drag.type==='par'){
+    let ang=Math.atan2(p[1]-200, p[0]-230)*180/Math.PI;  // pivot = midpoint (230,200); screen-down angle = a
+    if(ang<0)ang+=180;                                    // direction-agnostic (a line, not a ray)
+    angles[0]=Math.max(35,Math.min(145,Math.round(ang)));
+    render();
+  }
+});
+window.addEventListener('pointerup',()=>drag=null);
+
+document.querySelectorAll('#factTabs .btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#factTabs .btn').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  fact=b.dataset.fact; window._tri=null; window._quad=null; defaults(); render();
+}));
+
+/* ---------- QUIZ: find the missing angle ---------- */
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function ri(a,b){return a+Math.floor(Math.random()*(b-a+1));}
+function buildBank(){
+  const Q=[]; const seen=new Set();
+  function add(o){ if(o && !seen.has(o.text)){ seen.add(o.text); Q.push(o); } }
+  let guard=0;
+  while(Q.length<36 && guard++<500){
+    // straight line (2 angles)
+    {const a=ri(20,160); add(q(`Angles on a straight line. One is ${a}°. Find the other.`,180-a,`Straight line = 180°. 180 − ${a} = ${180-a}°.`,'line',a));}
+    // straight line (3 angles)
+    {const a=ri(30,80),b=ri(30,80); const c=180-a-b; if(c>15) add(q(`Three angles sit on a straight line: ${a}°, ${b}° and one more. Find it.`,c,`Straight line = 180°. 180 − ${a} − ${b} = ${c}°.`,'line'));}
+    // around a point (find 4th)
+    {const a=ri(60,120),b=ri(60,120),c=ri(40,100); const d=360-a-b-c; if(d>20) add(q(`Angles around a point: ${a}°, ${b}°, ${c}° and one more. Find it.`,d,`Around a point = 360°. 360 − ${a} − ${b} − ${c} = ${d}°.`,'point'));}
+    // around a point (2 known)
+    {const a=ri(80,160),b=ri(80,160); const c=360-a-b; if(c>20&&c<200) add(q(`Three angles meet at a point: ${a}° and ${b}°. Find the third.`,c,`Around a point = 360°. 360 − ${a} − ${b} = ${c}°.`,'point'));}
+    // triangle
+    {const a=ri(30,100),b=ri(30,100); const c=180-a-b; if(c>15) add(q(`A triangle has angles ${a}° and ${b}°. Find the third.`,c,`Triangle = 180°. 180 − ${a} − ${b} = ${c}°.`,'tri'));}
+    // isosceles apex from base
+    {const base=ri(35,75); const apex=180-2*base; if(apex>10) add(q(`An isosceles triangle has two base angles of ${base}°. Find the top angle.`,apex,`Base angles equal: ${base}+${base}=${2*base}. 180 − ${2*base} = ${apex}°.`,'tri'));}
+    // isosceles base from apex
+    {const apex=ri(20,100); const base=(180-apex)/2; if(Number.isInteger(base)) add(q(`An isosceles triangle has a top angle of ${apex}°. Find each base angle.`,base,`The two base angles are equal: (180 − ${apex}) ÷ 2 = ${base}°.`,'tri'));}
+    // right triangle
+    {const a=ri(20,70); const b=90-a; add(q(`A right-angled triangle has one angle of ${a}° (besides the right angle). Find the other.`,b,`Angles total 180° and one is 90°. 180 − 90 − ${a} = ${b}°.`,'tri'));}
+    // exterior angle of triangle
+    {const a=ri(40,80),b=ri(40,80); const ext=a+b; if(ext<170) add(q(`In a triangle, the two angles not next to an exterior angle are ${a}° and ${b}°. Find the exterior angle.`,ext,`An exterior angle equals the two opposite interior angles added: ${a} + ${b} = ${ext}°.`,'tri'));}
+    // quadrilateral
+    {const a=ri(70,110),b=ri(70,110),c=ri(70,110); const d=360-a-b-c; if(d>20&&d<170) add(q(`A quadrilateral has angles ${a}°, ${b}°, ${c}°. Find the fourth.`,d,`Quadrilateral = 360°. 360 − ${a} − ${b} − ${c} = ${d}°.`,'quad'));}
+    // vertically opposite
+    {const a=ri(30,150); add(q(`Two lines cross. One angle is ${a}°. What is the angle vertically opposite it?`,a,`Vertically opposite angles are equal, so it's also ${a}°.`,'vert'));}
+    // neighbour on a line at a crossing
+    {const a=ri(40,140); add(q(`Two lines cross making a ${a}° angle. Find the angle right next to it.`,180-a,`Neighbouring angles sit on a straight line: 180 − ${a} = ${180-a}°.`,'vert'));}
+    // parallel: corresponding
+    {const a=ri(40,140); add(q(`Parallel lines: a corresponding (F) angle is ${a}°. Find its partner.`,a,`Corresponding angles are equal → ${a}°.`,'par'));}
+    // parallel: alternate
+    {const a=ri(40,140); add(q(`Parallel lines: an alternate (Z) angle is ${a}°. Find its partner.`,a,`Alternate angles are equal → ${a}°.`,'par'));}
+    // parallel: co-interior
+    {const a=ri(50,130); add(q(`Parallel lines: co-interior (C) angles. One is ${a}°. Find the other.`,180-a,`Co-interior angles add to 180°. 180 − ${a} = ${180-a}°.`,'par'));}
+    // exterior polygon
+    {const n=[5,6,8,9,10,12][ri(0,5)]; const ext=360/n; if(Number.isInteger(ext)) add(q(`A regular polygon has ${n} sides. Find each exterior angle.`,ext,`Exterior angles total 360°. 360 ÷ ${n} = ${ext}°.`,'poly'));}
+    // interior polygon
+    {const n=[5,6,8,9,10,12][ri(0,5)]; const interior=(n-2)*180/n; if(Number.isInteger(interior)) add(q(`A regular polygon has ${n} sides. Find each interior angle.`,interior,`Sum = (${n}−2)×180 = ${(n-2)*180}. Each = ${(n-2)*180} ÷ ${n} = ${interior}°.`,'poly'));}
+    // number of sides from exterior angle
+    {const n=[5,6,8,9,10,12][ri(0,5)]; const ext=360/n; if(Number.isInteger(ext)) add(q(`A regular polygon has exterior angles of ${ext}°. How many sides has it?`,n,`Number of sides = 360 ÷ exterior angle = 360 ÷ ${ext} = ${n}.`,'poly'));}
+  }
+  return shuffle(Q);
+}
+function q(text,ans,explain){
+  const opts=new Set([ans]);
+  while(opts.size<4){ const d=ans+[(-20),(-10),10,20,180-ans-ans,5,-5][Math.floor(Math.random()*7)]; if(d>0&&d<360&&d!==ans)opts.add(d); }
+  const arr=shuffle([...opts]).slice(0,4); if(!arr.includes(ans))arr[0]=ans;
+  const fin=shuffle(arr);
+  return {text,opts:fin.map(v=>v+'°'),answer:fin.indexOf(ans),explain};
+}
+const QLEN=8; let quiz=null;
+function startQuiz(){ quiz={qs:buildBank().slice(0,QLEN),idx:0,score:0,results:[]}; renderQ(); }
+function renderQ(){
+  const q=quiz.qs[quiz.idx], c=$('quizCard');
+  let dots=''; for(let i=0;i<QLEN;i++){let cl='dot';if(i<quiz.results.length)cl+=quiz.results[i]?' right':' wrong';else if(i===quiz.idx)cl+=' now';dots+=`<span class="${cl}"></span>`;}
+  c.innerHTML=`<div class="qprog">${dots}</div><div class="qtext">${q.text}</div>
+    <div class="opts">${q.opts.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join('')}</div>
+    <div class="explain" id="ex"></div>
+    <div class="quiz-foot"><span class="score-pill">Score: ${quiz.score}/${quiz.results.length}</span><button class="btn" id="nx" style="display:none">Next →</button></div>`;
+  c.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{
+    const i=+b.dataset.i, right=i===q.answer; quiz.results.push(right); if(right)quiz.score++;
+    c.querySelectorAll('.opt').forEach((x,j)=>{x.disabled=true;if(j===q.answer)x.classList.add('correct');else if(j===i)x.classList.add('incorrect');});
+    const ex=$('ex'); ex.style.display='block'; ex.innerHTML=(right?'✅ ':'❌ ')+q.explain;
+    c.querySelector('.score-pill').textContent=`Score: ${quiz.score}/${quiz.results.length}`;
+    const nx=$('nx'); nx.style.display='inline-block'; nx.textContent=quiz.idx+1<QLEN?'Next →':'Results →';
+    nx.onclick=()=>{ quiz.idx++; if(quiz.idx<QLEN)renderQ(); else results(); };
+  }));
+}
+function results(){
+  const pct=quiz.score/QLEN; let e='📐',t='Angle ace!';
+  if(pct<0.5){e='📏';t='Keep measuring up!';} else if(pct<0.8){e='✏️';t='Well done!';}
+  $('quizCard').innerHTML=`<div class="result-screen"><div class="big">${e}</div><h3>${t}</h3>
+    <p style="color:var(--ink-soft)">You scored ${quiz.score} out of ${QLEN}.</p>
+    <button class="btn" id="rt">Try again</button> <button class="btn" id="bk">Back to explore</button></div>`;
+  $('rt').onclick=startQuiz; $('bk').onclick=()=>setMode('play');
+}
+function setMode(m){
+  $('playMode').style.display=m==='play'?'':'none'; $('quizMode').style.display=m==='play'?'none':'';
+  $('tabPlay').classList.toggle('on',m==='play'); $('tabQuiz').classList.toggle('on',m!=='play');
+  if(m!=='play') startQuiz(); else render();
+}
+$('tabPlay').onclick=()=>setMode('play'); $('tabQuiz').onclick=()=>setMode('quiz');
+
+defaults(); render();
+</script>
+</body>
+</html>

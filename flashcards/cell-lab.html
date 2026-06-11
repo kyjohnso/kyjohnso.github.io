@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cell Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{ --paper:#F2F7FA; --grid-line:#D5E4EC; --ink:#1F3540; --ink-soft:#5A7280; --panel:#fff;
+    --copper:#C2622E; --amber:#FFB02E; --green:#2E8B6A; --red:#D6493E; --blue:#3A7CA5; --purple:#7B5EA7; --shadow:rgba(31,53,64,.14);
+    --membrane:#C2622E; --cyto:#FBE4D0; --nucleus:#7B5EA7; --mito:#D6493E; --wall:#2E8B6A; --chloro:#3FA66A; --vac:#8FC4E0; }
+  body{ font-family:'Karla',sans-serif; color:var(--ink); background:linear-gradient(135deg,#EAF4EE,#F4F1E8); min-height:100vh; padding:1.25rem; }
+  .wrap{ max-width:940px; margin:0 auto; }
+  header{ text-align:center; margin-bottom:1rem; }
+  h1{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(1.7rem,4vw,2.4rem); }
+  .subtitle{ color:var(--ink-soft); margin-top:.25rem; }
+  .tabs{ display:flex; justify-content:center; gap:.5rem; margin-top:.8rem; flex-wrap:wrap; }
+  .card{ background:var(--panel); border-radius:16px; box-shadow:0 6px 18px var(--shadow); padding:1rem; margin-bottom:1rem; }
+  .btn{ font-family:'Karla',sans-serif; font-weight:700; font-size:.85rem; border:2px solid var(--ink); border-radius:999px;
+    background:#fff; color:var(--ink); padding:.45rem 1rem; cursor:pointer; transition:all .15s; touch-action:manipulation; }
+  .btn:hover{ background:var(--ink); color:#fff; } .btn.on{ background:var(--ink); color:#fff; }
+  .btn:focus-visible{ outline:3px solid var(--amber); outline-offset:2px; }
+  .tool-tabs{ display:flex; gap:.4rem; flex-wrap:wrap; justify-content:center; margin-bottom:1rem; }
+  .tool-tabs .btn{ font-size:.78rem; padding:.35rem .8rem; }
+  .panel-h{ font-family:'Space Grotesk',sans-serif; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); margin-bottom:.6rem; }
+  .grid{ display:grid; grid-template-columns:1fr 280px; gap:1rem; align-items:start; }
+  @media (max-width:760px){ .grid{ grid-template-columns:1fr; } }
+  #cell{ width:100%; height:auto; display:block; background:var(--paper); border-radius:12px; touch-action:manipulation; }
+  .part{ cursor:pointer; transition:opacity .15s; } .part:hover{ opacity:.82; }
+  .hint{ font-size:.8rem; color:var(--ink-soft); text-align:center; margin-top:.5rem; }
+  .info .nm{ font-family:'Space Grotesk',sans-serif; font-size:1.2rem; font-weight:700; }
+  .info .nm .sw{ display:inline-block; width:14px; height:14px; border-radius:4px; border:2px solid var(--ink); margin-right:.4rem; vertical-align:-2px; }
+  .info .role{ font-size:.92rem; line-height:1.55; margin-top:.4rem; }
+  .info .ap{ font-size:.82rem; color:var(--ink-soft); margin-top:.5rem; }
+  .info .ap b{ color:var(--ink); }
+  .legend-list{ list-style:none; margin-top:.6rem; }
+  .legend-list li{ font-size:.85rem; padding:.28rem 0; border-top:1px dashed var(--grid-line); cursor:pointer; display:flex; align-items:center; gap:.5rem; }
+  .legend-list li:first-child{ border-top:none; } .legend-list li:hover{ color:var(--blue); }
+  .legend-list .sw{ width:14px; height:14px; border-radius:4px; border:2px solid var(--ink); flex:0 0 auto; }
+  .legend-list .po{ font-size:.7rem; color:var(--ink-soft); margin-left:auto; }
+
+  /* compare */
+  .cmp-table{ width:100%; border-collapse:collapse; }
+  .cmp-table th,.cmp-table td{ border:1px solid var(--grid-line); padding:.5rem .6rem; text-align:left; font-size:.9rem; }
+  .cmp-table th{ background:var(--paper); font-family:'Space Grotesk',sans-serif; }
+  .cmp-table td.y{ color:var(--green); font-weight:700; } .cmp-table td.n{ color:var(--red); font-weight:700; }
+  .cmp-note{ font-size:.86rem; color:var(--ink-soft); margin-top:.7rem; line-height:1.6; }
+
+  /* organisation */
+  .org-row{ display:flex; align-items:center; justify-content:center; gap:.4rem; flex-wrap:wrap; margin-bottom:1rem; }
+  .org-step{ border:2px solid var(--grid-line); border-radius:12px; padding:.6rem .7rem; text-align:center; min-width:92px; cursor:pointer; transition:all .15s; background:var(--paper); }
+  .org-step.on{ border-color:var(--ink); background:#fff; box-shadow:0 4px 10px var(--shadow); }
+  .org-step .ic{ font-size:1.6rem; } .org-step .lb{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:.82rem; margin-top:.2rem; }
+  .org-arrow{ font-size:1.3rem; color:var(--ink-soft); }
+  .org-detail{ background:var(--paper); border-radius:12px; padding:.9rem; }
+  .org-detail .nm{ font-family:'Space Grotesk',sans-serif; font-size:1.15rem; font-weight:700; }
+  .org-detail .ex{ font-size:.92rem; margin-top:.4rem; line-height:1.5; } .org-detail .ex b{ color:var(--ink); }
+  /* quiz */
+  .quiz-card{ max-width:600px; margin:0 auto; }
+  .qprog{ display:flex; gap:.3rem; justify-content:center; margin-bottom:1rem; }
+  .qprog .dot{ width:11px; height:11px; border-radius:50%; background:var(--grid-line); }
+  .qprog .dot.now{ background:var(--ink); } .qprog .dot.right{ background:var(--green); } .qprog .dot.wrong{ background:var(--red); }
+  .qtext{ font-family:'Space Grotesk',sans-serif; font-size:1.2rem; font-weight:500; text-align:center; margin-bottom:1rem; }
+  .opts{ display:grid; grid-template-columns:1fr 1fr; gap:.6rem; }
+  .opt{ font-family:'Space Grotesk',sans-serif; font-size:1.0rem; font-weight:700; padding:.8rem; border:2px solid var(--grid-line); border-radius:12px; background:var(--paper); cursor:pointer; transition:all .12s; touch-action:manipulation; }
+  .opt:hover:not(:disabled){ border-color:var(--ink); } .opt:disabled{ cursor:default; }
+  .opt.correct{ border-color:var(--green); background:#DDF2E9; } .opt.incorrect{ border-color:var(--red); background:#FBE3E1; }
+  .explain{ margin-top:.9rem; padding:.75rem .9rem; border-radius:12px; background:#FFF6E3; border:2px solid var(--amber); font-size:.95rem; line-height:1.5; display:none; }
+  .quiz-foot{ display:flex; justify-content:space-between; align-items:center; margin-top:1rem; } .score-pill{ font-weight:700; color:var(--ink-soft); }
+  .result-screen{ text-align:center; padding:1rem 0; } .result-screen .big{ font-size:3rem; } .result-screen h3{ font-family:'Space Grotesk',sans-serif; font-size:1.5rem; margin:.5rem 0; }
+  footer{ text-align:center; color:var(--ink-soft); font-size:.78rem; margin-top:.5rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🔬 Cell Lab</h1>
+    <p class="subtitle">The building blocks of life. Tap each part to find out what its job is.</p>
+    <div class="tabs"><button class="btn on" id="tabPlay">Explore</button><button class="btn" id="tabQuiz">🎓 Review quiz</button></div>
+  </header>
+
+  <section id="playMode">
+    <div class="card">
+      <div class="tool-tabs" id="toolTabs">
+        <button class="btn on" data-tool="animal">Animal cell</button>
+        <button class="btn" data-tool="plant">Plant cell</button>
+        <button class="btn" data-tool="compare">Animal vs plant</button>
+        <button class="btn" data-tool="org">Levels of organisation</button>
+      </div>
+      <div id="toolBody"></div>
+    </div>
+  </section>
+
+  <section id="quizMode" style="display:none"><div class="card quiz-card" id="quizCard"></div></section>
+  <footer>Cell Lab · part of the little tutoring tools family</footer>
+</div>
+
+<script>
+"use strict";
+const SVGNS="http://www.w3.org/2000/svg";
+const $=id=>document.getElementById(id);
+function el(n,a,p){const e=document.createElementNS(SVGNS,n);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e;}
+let tool='animal';
+
+const PARTS={
+  membrane:{nm:'Cell membrane', col:'var(--membrane)', role:'A thin skin around the cell that controls what goes in and out.', both:true},
+  cytoplasm:{nm:'Cytoplasm', col:'var(--cyto)', role:'Jelly-like fluid where most chemical reactions happen.', both:true},
+  nucleus:{nm:'Nucleus', col:'var(--nucleus)', role:'The control centre — holds the DNA and tells the cell what to do.', both:true},
+  mitochondria:{nm:'Mitochondria', col:'var(--mito)', role:'Where respiration happens, releasing energy from glucose.', both:true},
+  wall:{nm:'Cell wall', col:'var(--wall)', role:'A tough layer of cellulose outside the membrane that supports the plant cell and keeps its shape.', both:false},
+  chloroplast:{nm:'Chloroplast', col:'var(--chloro)', role:'Contains green chlorophyll and is where photosynthesis happens — making food from light.', both:false},
+  vacuole:{nm:'Vacuole', col:'var(--vac)', role:'A large sac of cell sap that keeps the plant cell firm (turgid).', both:false},
+};
+let selectedPart='nucleus';
+
+function drawAnimal(svg){
+  // wobbly round membrane
+  el('path',{d:'M 60 200 Q 40 110 130 70 Q 230 30 330 80 Q 420 120 400 220 Q 390 320 290 350 Q 170 380 90 310 Q 50 270 60 200 Z',
+    fill:'var(--cyto)', stroke:'var(--membrane)','stroke-width':6, class:'part','data-part':'membrane'},svg);
+  // cytoplasm hit zone (interior label clicker)
+  el('circle',{cx:230,cy:215,r:30,fill:'transparent',class:'part','data-part':'cytoplasm'},svg);
+  // nucleus
+  el('circle',{cx:200,cy:180,r:46,fill:'var(--nucleus)',stroke:'var(--ink)','stroke-width':2,class:'part','data-part':'nucleus'},svg);
+  el('circle',{cx:200,cy:180,r:16,fill:'#5B4080'},svg);
+  // mitochondria (a couple)
+  mito(svg,300,150); mito(svg,150,280);
+  labelDots(svg,'animal');
+}
+function drawPlant(svg){
+  // rectangular cell wall
+  el('rect',{x:55,y:60,width:350,height:290,rx:14,fill:'var(--wall)',stroke:'var(--ink)','stroke-width':2,class:'part','data-part':'wall'},svg);
+  // membrane just inside
+  el('rect',{x:68,y:73,width:324,height:264,rx:10,fill:'var(--cyto)',stroke:'var(--membrane)','stroke-width':4,class:'part','data-part':'membrane'},svg);
+  // big vacuole
+  el('rect',{x:120,y:120,width:230,height:170,rx:30,fill:'var(--vac)',stroke:'var(--ink)','stroke-width':2,class:'part','data-part':'vacuole'},svg);
+  // cytoplasm clicker (between membrane and vacuole)
+  el('rect',{x:78,y:83,width:30,height:240,fill:'transparent',class:'part','data-part':'cytoplasm'},svg);
+  // nucleus
+  el('circle',{cx:110,cy:120,r:30,fill:'var(--nucleus)',stroke:'var(--ink)','stroke-width':2,class:'part','data-part':'nucleus'},svg);
+  el('circle',{cx:110,cy:120,r:11,fill:'#5B4080'},svg);
+  // chloroplasts
+  chloro(svg,360,110); chloro(svg,95,300); chloro(svg,360,310);
+  // mitochondrion
+  mito(svg,110,310);
+  labelDots(svg,'plant');
+}
+function mito(svg,x,y){
+  const g=el('g',{class:'part','data-part':'mitochondria',style:'cursor:pointer'},svg);
+  el('ellipse',{cx:x,cy:y,rx:26,ry:14,fill:'var(--mito)',stroke:'var(--ink)','stroke-width':2},g);
+  el('path',{d:`M ${x-18} ${y} Q ${x-9} ${y-8} ${x} ${y} Q ${x+9} ${y+8} ${x+18} ${y}`,fill:'none',stroke:'#fff','stroke-width':2},g);
+}
+function chloro(svg,x,y){
+  const g=el('g',{class:'part','data-part':'chloroplast',style:'cursor:pointer'},svg);
+  el('ellipse',{cx:x,cy:y,rx:24,ry:13,fill:'var(--chloro)',stroke:'var(--ink)','stroke-width':2,transform:`rotate(25 ${x} ${y})`},g);
+  for(let i=-1;i<2;i++) el('circle',{cx:x+i*9,cy:y+i*4,r:3,fill:'#1F6B45'},g);
+}
+function labelDots(svg){ /* labels handled in legend list; keep diagram clean */ }
+
+function renderCell(which){
+  $('toolBody').innerHTML=`
+    <div class="grid">
+      <div><svg id="cell" viewBox="0 0 460 400" aria-label="${which} cell"></svg>
+        <div class="hint">Tap a part of the cell — or a name in the list — to learn its job.</div></div>
+      <div>
+        <div class="panel-h">${which==='animal'?'Animal cell':'Plant cell'}</div>
+        <div class="info" id="info"></div>
+        <ul class="legend-list" id="legend"></ul>
+      </div>
+    </div>`;
+  const svg=$('cell');
+  if(which==='animal') drawAnimal(svg); else drawPlant(svg);
+  svg.querySelectorAll('.part').forEach(p=>p.addEventListener('click',()=>{ selectedPart=p.getAttribute('data-part'); showPart(); highlightLegend(); }));
+  // legend
+  const order = which==='animal' ? ['membrane','cytoplasm','nucleus','mitochondria'] : ['wall','membrane','cytoplasm','nucleus','mitochondria','chloroplast','vacuole'];
+  $('legend').innerHTML = order.map(k=>`<li data-k="${k}"><span class="sw" style="background:${PARTS[k].col}"></span>${PARTS[k].nm}${PARTS[k].both?'':'<span class="po">plant only</span>'}</li>`).join('');
+  $('legend').querySelectorAll('li').forEach(li=>li.addEventListener('click',()=>{ selectedPart=li.dataset.k; showPart(); highlightLegend(); }));
+  if(!order.includes(selectedPart)) selectedPart=order.includes('nucleus')?'nucleus':order[0];
+  showPart(); highlightLegend();
+}
+function showPart(){
+  const p=PARTS[selectedPart];
+  $('info').innerHTML=`<div class="nm"><span class="sw" style="background:${p.col}"></span>${p.nm}</div>
+    <div class="role">${p.role}</div>
+    <div class="ap">${p.both?'Found in <b>both</b> animal and plant cells.':'Found in <b>plant cells only</b>.'}</div>`;
+}
+function highlightLegend(){ $('legend').querySelectorAll('li').forEach(li=>li.style.fontWeight=li.dataset.k===selectedPart?'700':'400'); }
+
+function renderCompare(){
+  $('toolBody').innerHTML=`
+    <div class="panel-h">Which parts does each cell have?</div>
+    <table class="cmp-table">
+      <tr><th>Cell part</th><th>Animal</th><th>Plant</th><th>Job</th></tr>
+      ${Object.keys(PARTS).map(k=>{const p=PARTS[k];return `<tr><td><b>${p.nm}</b></td>
+        <td class="${p.both?'y':'n'}">${p.both?'✓':'✗'}</td>
+        <td class="y">✓</td>
+        <td style="color:var(--ink-soft)">${p.role.split('—')[0].split('.')[0]}</td></tr>`;}).join('')}
+    </table>
+    <div class="cmp-note">Both cell types share the membrane, cytoplasm, nucleus and mitochondria. <b>Plant cells have three extra parts</b>: a cell wall (support), chloroplasts (photosynthesis) and a large permanent vacuole (keeps the cell firm). That's why plant cells have a fixed, boxy shape while animal cells are rounder.</div>`;
+}
+
+const ORG=[
+  {ic:'🧬',lb:'Cell',nm:'Cell',ex:'The smallest living building block. Example: a single <b>muscle cell</b>.'},
+  {ic:'🧫',lb:'Tissue',nm:'Tissue',ex:'A group of similar cells working together. Example: <b>muscle tissue</b>, made of many muscle cells.'},
+  {ic:'🫀',lb:'Organ',nm:'Organ',ex:'Different tissues working together for one job. Example: the <b>heart</b>, which contains muscle tissue and more.'},
+  {ic:'🫁',lb:'Organ system',nm:'Organ system',ex:'A group of organs working together. Example: the <b>circulatory system</b> — heart and blood vessels.'},
+  {ic:'🧍',lb:'Organism',nm:'Organism',ex:'All the organ systems together make a whole living thing. Example: a <b>human</b>.'},
+];
+let orgStep=0;
+function renderOrg(){
+  $('toolBody').innerHTML=`
+    <div class="panel-h">From tiny to whole: tap to step up</div>
+    <div class="org-row" id="orgRow"></div>
+    <div class="org-detail" id="orgDetail"></div>`;
+  const row=$('orgRow');
+  ORG.forEach((o,i)=>{
+    if(i>0){ const a=document.createElement('span'); a.className='org-arrow'; a.textContent='→'; row.appendChild(a); }
+    const d=document.createElement('div'); d.className='org-step'+(i===orgStep?' on':''); d.innerHTML=`<div class="ic">${o.ic}</div><div class="lb">${o.lb}</div>`;
+    d.addEventListener('click',()=>{ orgStep=i; renderOrg(); });
+    row.appendChild(d);
+  });
+  const o=ORG[orgStep];
+  $('orgDetail').innerHTML=`<div class="nm">${o.ic} ${o.nm}</div><div class="ex">${o.ex}</div>
+    <div class="ex" style="color:var(--ink-soft);margin-top:.5rem">Order: cell → tissue → organ → organ system → organism. Each level is built from many of the one before it.</div>`;
+}
+
+document.querySelectorAll('#toolTabs .btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#toolTabs .btn').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  tool=b.dataset.tool;
+  if(tool==='animal')renderCell('animal'); else if(tool==='plant')renderCell('plant'); else if(tool==='compare')renderCompare(); else renderOrg();
+}));
+
+/* ---------- QUIZ ---------- */
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function mc(text,correct,distract,explain){const opts=shuffle([correct,...distract]);return{text,opts,answer:opts.indexOf(correct),explain};}
+function buildBank(){
+  const Q=[];
+  Q.push(mc('Which part is the control centre of the cell?','nucleus',['mitochondria','cytoplasm','cell membrane'],'The nucleus holds the DNA and controls the cell\'s activities.'));
+  Q.push(mc('Where in the cell does respiration release energy?','mitochondria',['nucleus','vacuole','cell wall'],'Mitochondria are where respiration happens, releasing energy from glucose.'));
+  Q.push(mc('Which part controls what enters and leaves the cell?','cell membrane',['cell wall','nucleus','cytoplasm'],'The thin cell membrane controls what passes in and out.'));
+  Q.push(mc('Which THREE parts are found only in plant cells?','cell wall, chloroplast, vacuole',['nucleus, mitochondria, membrane','cytoplasm, nucleus, vacuole','cell wall, nucleus, mitochondria'],'Plant cells add a cell wall, chloroplasts and a large vacuole.'));
+  Q.push(mc('Where does photosynthesis happen?','chloroplast',['mitochondria','nucleus','vacuole'],'Chloroplasts contain chlorophyll and carry out photosynthesis.'));
+  Q.push(mc('What is the jelly where most reactions happen?','cytoplasm',['nucleus','membrane','vacuole'],'The cytoplasm is the jelly-like fluid filling the cell.'));
+  Q.push(mc('What does the plant cell wall do?','supports the cell and keeps its shape',['controls the DNA','releases energy','captures light'],'The cellulose cell wall gives the plant cell support and a fixed shape.'));
+  Q.push(mc('Put these in order, smallest first:','cell → tissue → organ → organ system',['organ → tissue → cell → organism','tissue → cell → organ → organism','cell → organ → tissue → organism'],'Cells make tissues, tissues make organs, organs make organ systems.'));
+  Q.push(mc('A group of similar cells working together is a…','tissue',['organ','organ system','organism'],'Many similar cells form a tissue, e.g. muscle tissue.'));
+  Q.push(mc('The heart is an example of a…','organ',['tissue','cell','organ system'],'The heart is an organ — made of several tissues working together.'));
+  Q.push(mc('Which parts do BOTH animal and plant cells have?','nucleus, cytoplasm, membrane, mitochondria',['cell wall and chloroplasts','vacuole and cell wall','only a nucleus'],'Both share the membrane, cytoplasm, nucleus and mitochondria.'));
+  Q.push(mc('What keeps a plant cell firm (turgid)?','the vacuole full of cell sap',['the nucleus','the mitochondria','the chloroplasts'],'The large central vacuole fills with sap and presses outward, keeping the cell firm.'));
+  Q.push(mc('Which part contains the cell\'s DNA?','nucleus',['mitochondria','cytoplasm','cell membrane'],'The nucleus holds the DNA and controls the cell.'));
+  Q.push(mc('The plant cell wall is made of…','cellulose',['protein','fat','water'],'A tough cellulose wall supports the plant cell.'));
+  Q.push(mc('Which part is found ONLY in plant cells?','chloroplast',['nucleus','mitochondria','cell membrane'],'Chloroplasts (plus cell wall and vacuole) are plant-only.'));
+  Q.push(mc('Animal cells do NOT have a…','cell wall',['nucleus','cytoplasm','cell membrane'],'Cell walls are found in plant cells, not animal cells.'));
+  Q.push(mc('Several tissues working together make a(n)…','organ',['cell','organ system','organism'],'Different tissues combine to form an organ, like the heart.'));
+  Q.push(mc('Several organs working together make a(n)…','organ system',['tissue','cell','organism'],'Organs working together form an organ system.'));
+  Q.push(mc('A whole living thing is a(n)…','organism',['organ','tissue','cell'],'All the organ systems together make a complete organism.'));
+  Q.push(mc('Muscle cells grouped together form…','muscle tissue',['an organ','an organ system','an organism'],'Similar cells together make a tissue.'));
+  Q.push(mc('The circulatory system is an example of a(n)…','organ system',['organ','tissue','cell'],'Heart + blood vessels working together = an organ system.'));
+  Q.push(mc('Both plant and animal cells contain a…','nucleus',['cell wall','chloroplast','vacuole'],'Nucleus, cytoplasm, membrane and mitochondria are in both.'));
+  Q.push(mc('Chloroplasts contain a green pigment called…','chlorophyll',['cytoplasm','cellulose','haemoglobin'],'Chlorophyll captures light for photosynthesis.'));
+  Q.push(mc('Energy is released in a cell during respiration in the…','mitochondria',['nucleus','vacuole','cell wall'],'Mitochondria are the site of respiration.'));
+  Q.push(mc('Which controls what passes in and out of the cell?','cell membrane',['cell wall','nucleus','cytoplasm'],'The thin membrane controls what enters and leaves.'));
+  Q.push(mc('Which jelly-like fluid fills the cell?','cytoplasm',['nucleus','vacuole','membrane'],'Most chemical reactions happen in the cytoplasm.'));
+  Q.push(mc('Which keeps a plant cell firm and supported?','the vacuole full of sap',['the nucleus','the mitochondria','the chloroplasts'],'The large central vacuole presses outward to keep the cell firm.'));
+  Q.push(mc('Put these smallest to largest:','cell, tissue, organ, organ system',['organ, tissue, cell, system','tissue, cell, organ, system','cell, organ, tissue, system'],'Cells build tissues, tissues build organs, organs build systems.'));
+  Q.push(mc('A group of similar cells working together is a…','tissue',['organ','organ system','organism'],'Many similar cells form a tissue.'));
+  Q.push(mc('The leaf of a plant is an example of a(n)…','organ',['cell','tissue','organism'],'A leaf contains several tissues working together — it is an organ.'));
+  Q.push(mc('Which part does photosynthesis in a plant cell?','chloroplast',['nucleus','mitochondria','vacuole'],'Chloroplasts carry out photosynthesis.'));
+  Q.push(mc('Which cell is a plant cell?','one with a cell wall and chloroplasts',['one with no cell wall','one with only a nucleus','one shaped like a ball'],'A cell wall, chloroplasts and a large vacuole mark out a plant cell.'));
+  Q.push(mc('How many of these are in BOTH plant and animal cells: nucleus, cytoplasm, membrane, mitochondria?','all four',['only the nucleus','only two','none'],'All four are shared by plant and animal cells.'));
+  Q.push(mc('What gives a plant cell its fixed, boxy shape?','the cell wall',['the membrane','the vacuole','the nucleus'],'The rigid cellulose cell wall holds the shape.'));
+  return shuffle(Q);
+}
+const QLEN=8; let quiz=null;
+function startQuiz(){ quiz={qs:buildBank().slice(0,QLEN),idx:0,score:0,results:[]}; renderQ(); }
+function renderQ(){
+  const q=quiz.qs[quiz.idx], c=$('quizCard');
+  let dots=''; for(let i=0;i<QLEN;i++){let cl='dot';if(i<quiz.results.length)cl+=quiz.results[i]?' right':' wrong';else if(i===quiz.idx)cl+=' now';dots+=`<span class="${cl}"></span>`;}
+  c.innerHTML=`<div class="qprog">${dots}</div><div class="qtext">${q.text}</div>
+    <div class="opts">${q.opts.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join('')}</div>
+    <div class="explain" id="ex"></div>
+    <div class="quiz-foot"><span class="score-pill">Score: ${quiz.score}/${quiz.results.length}</span><button class="btn" id="nx" style="display:none">Next →</button></div>`;
+  c.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{
+    const i=+b.dataset.i, right=i===q.answer; quiz.results.push(right); if(right)quiz.score++;
+    c.querySelectorAll('.opt').forEach((x,j)=>{x.disabled=true;if(j===q.answer)x.classList.add('correct');else if(j===i)x.classList.add('incorrect');});
+    const ex=$('ex'); ex.style.display='block'; ex.innerHTML=(right?'✅ ':'❌ ')+q.explain;
+    c.querySelector('.score-pill').textContent=`Score: ${quiz.score}/${quiz.results.length}`;
+    const nx=$('nx'); nx.style.display='inline-block'; nx.textContent=quiz.idx+1<QLEN?'Next →':'Results →';
+    nx.onclick=()=>{ quiz.idx++; if(quiz.idx<QLEN)renderQ(); else results(); };
+  }));
+}
+function results(){
+  const pct=quiz.score/QLEN; let e='🔬',t='Cell scientist!';
+  if(pct<0.5){e='🧫';t='Keep exploring!';} else if(pct<0.8){e='🧬';t='Nice work!';}
+  $('quizCard').innerHTML=`<div class="result-screen"><div class="big">${e}</div><h3>${t}</h3>
+    <p style="color:var(--ink-soft)">You scored ${quiz.score} out of ${QLEN}.</p>
+    <button class="btn" id="rt">Try again</button> <button class="btn" id="bk">Back to explore</button></div>`;
+  $('rt').onclick=startQuiz; $('bk').onclick=()=>setMode('play');
+}
+function setMode(m){
+  $('playMode').style.display=m==='play'?'':'none'; $('quizMode').style.display=m==='play'?'none':'';
+  $('tabPlay').classList.toggle('on',m==='play'); $('tabQuiz').classList.toggle('on',m!=='play');
+  if(m!=='play') startQuiz();
+}
+$('tabPlay').onclick=()=>setMode('play'); $('tabQuiz').onclick=()=>setMode('quiz');
+
+renderCell('animal');
+</script>
+</body>
+</html>
