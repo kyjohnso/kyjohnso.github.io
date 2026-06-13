@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lower 4 French — Practice Test</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --blue: #0055A4; --red: #EF4135; --dark-blue: #003580; --light-blue: #4A90E2; --shadow: rgba(0,0,0,0.15); }
+        body { font-family: 'Karla', sans-serif; background: linear-gradient(135deg, #E8EAF6 0%, #C5CAE9 50%, #9FA8DA 100%); min-height: 100vh; padding: 2rem; position: relative; overflow-x: hidden; }
+        body::before { content: ''; position: fixed; inset: 0; background-image: radial-gradient(circle at 20% 80%, rgba(0,85,164,0.10) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(239,65,53,0.10) 0%, transparent 50%); pointer-events: none; z-index: 0; }
+        .header { text-align: center; margin-bottom: 1.2rem; position: relative; z-index: 1; }
+        h1 { font-family: 'Cormorant Garamond', serif; font-size: 3.4rem; font-weight: 700; color: var(--dark-blue); text-shadow: 2px 2px 0px rgba(0,85,164,0.18); letter-spacing: 1px; margin-bottom: 0.4rem; }
+        .subtitle { font-size: 1.05rem; color: var(--blue); font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+        .flag { display: inline-block; width: 46px; height: 30px; border-radius: 4px; overflow: hidden; vertical-align: middle; margin: 0 0.5rem; box-shadow: 0 2px 6px var(--shadow); background: linear-gradient(to right, var(--blue) 0 33.3%, #fff 33.3% 66.6%, var(--red) 66.6% 100%); }
+        button { background: linear-gradient(135deg, var(--blue), var(--light-blue)); color: white; border: none; padding: 0.8rem 2rem; font-size: 1rem; font-weight: 700; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,85,164,0.3); transition: all 0.25s ease; font-family: 'Karla', sans-serif; margin: 0 0.4rem; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,85,164,0.4); }
+        button:active { transform: translateY(0); }
+        .nav-row { text-align: center; margin-bottom: 1.6rem; position: relative; z-index: 1; }
+        .back-link { display: inline-block; text-decoration: none; color: var(--dark-blue); font-weight: 700; font-size: 0.95rem; }
+        .back-link:hover { text-decoration: underline; }
+        .cta-link { display: inline-block; text-decoration: none; background: linear-gradient(135deg, var(--blue), var(--light-blue)); color: #fff; font-weight: 700; font-size: 1rem; padding: 0.8rem 2rem; border-radius: 50px; box-shadow: 0 4px 15px var(--shadow); transition: all 0.25s ease; margin-left: 0.5rem; }
+        .cta-link:hover { transform: translateY(-2px); box-shadow: 0 7px 22px var(--shadow); }
+        .quiz-panel { max-width: 780px; margin: 0 auto 2.2rem; background: rgba(255,255,255,0.82); border-radius: 20px; padding: 1.9rem; box-shadow: 0 8px 30px var(--shadow); position: relative; z-index: 1; border: 2px solid rgba(255,255,255,0.6); }
+        .quiz-title { font-family: 'Cormorant Garamond', serif; font-size: 2.1rem; font-weight: 700; color: var(--dark-blue); text-align: center; margin-bottom: 0.3rem; }
+        .quiz-desc { text-align: center; color: #555; font-size: 0.97rem; margin-bottom: 1.2rem; line-height: 1.5; }
+        .quiz-center { text-align: center; }
+        .quiz-meta { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: #666; margin-bottom: 0.6rem; }
+        .quiz-progress-wrap { height: 8px; background: rgba(0,0,0,0.08); border-radius: 50px; overflow: hidden; margin-bottom: 1.2rem; }
+        .quiz-progress-bar { height: 100%; background: linear-gradient(90deg, var(--blue), var(--light-blue)); width: 0; transition: width 0.3s ease; }
+        .qcard { border-radius: 16px; padding: 1.5rem 1.4rem; text-align: center; box-shadow: 0 6px 22px var(--shadow); border: 2px solid rgba(255,255,255,0.5); margin-bottom: 1.2rem; min-height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .qcard.ask { background: linear-gradient(135deg, #FFFFFF 0%, #F1F3FB 100%); border-left: 6px solid var(--blue); }
+        .qcard.gram { background: linear-gradient(135deg, #FFFFFF 0%, #FBF0F0 100%); border-left: 6px solid var(--red); }
+        .qcard-term { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 700; color: var(--dark-blue); letter-spacing: 0.5px; line-height: 1.25; }
+        .qcard.gram .qcard-term { font-size: 1.5rem; color: #b5302a; }
+        .qcard-gap { color: var(--red); font-weight: 700; }
+        .qcard-tag { margin-top: 0.75rem; font-size: 0.7rem; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; color: var(--blue); }
+        .qcard.gram .qcard-tag { color: var(--red); }
+        .quiz-options { display: grid; grid-template-columns: 1fr; gap: 0.7rem; }
+        .quiz-option { display: block; width: 100%; text-align: left; background: #fff; border: 2px solid rgba(0,0,0,0.1); border-radius: 12px; padding: 0.85rem 1rem; font-family: 'Karla', sans-serif; font-size: 1rem; color: #333; cursor: pointer; transition: all 0.18s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin: 0; font-weight: 500; line-height: 1.4; }
+        .quiz-option:hover:not(:disabled) { border-color: var(--blue); transform: translateY(-1px); box-shadow: 0 4px 12px var(--shadow); }
+        .quiz-option:disabled { cursor: default; }
+        .quiz-option.correct { background: #e7f7ec; border-color: #2e9e5b; color: #1d6b3c; font-weight: 700; }
+        .quiz-option.wrong { background: #fdeaea; border-color: #d9534f; color: #a4302c; font-weight: 700; }
+        .quiz-explain { margin-top: 1.1rem; border-radius: 12px; padding: 0.9rem 1.1rem; font-size: 0.98rem; line-height: 1.5; display: none; }
+        .quiz-explain.show { display: block; }
+        .quiz-explain.ok { background: #e7f7ec; border-left: 5px solid #2e9e5b; color: #1d6b3c; }
+        .quiz-explain.no { background: #fdeaea; border-left: 5px solid #d9534f; color: #8c2622; }
+        .quiz-explain .lead { font-weight: 700; display: block; margin-bottom: 0.15rem; }
+        .quiz-next { margin-top: 1.2rem; text-align: center; min-height: 1px; }
+        .score-big { font-family: 'Cormorant Garamond', serif; font-size: 3.6rem; font-weight: 700; color: var(--dark-blue); line-height: 1; margin-bottom: 0.2rem; }
+        .score-pct { font-size: 1.15rem; color: var(--blue); font-weight: 700; margin-bottom: 0.3rem; }
+        .score-msg { color: #555; margin: 0.5rem 0 1.4rem; font-size: 1rem; }
+        @media (max-width: 768px) { h1 { font-size: 2.4rem; } .quiz-panel { padding: 1.2rem; } .qcard-term { font-size: 1.7rem; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Lower 4 French</h1>
+        <p class="subtitle"><span class="flag"></span>Year 8 Practice Test<span class="flag"></span></p>
+    </div>
+    <div class="nav-row"><a class="back-link" href="index.html">&larr; Back to study materials</a></div>
+
+    <div class="quiz-panel" id="quizPanel">
+        <div id="quizIntro">
+            <div class="quiz-title">Prêt(e) ? (Ready?)</div>
+            <div class="quiz-desc">
+                <strong>25 questions</strong>, picked at random from a bank of <strong>200</strong>.<br>
+                Vocabulary works <strong>both ways</strong> (French&nbsp;&rarr;&nbsp;English and English&nbsp;&rarr;&nbsp;French), with fill-in-the-blank grammar and verb endings mixed in.<br>
+                Pick the right option &mdash; if you slip up, you'll get a quick note explaining the correct answer. Scored at the end.
+            </div>
+            <div class="quiz-desc" style="font-size:0.85rem;color:#777;">
+                Covers Modules 1&ndash;3: shops &amp; quantities, <em>du/de&nbsp;la/des</em>, &minus;ER/&minus;RE/&minus;IR verbs, the time, the near future, <em>pouvoir</em> &amp; <em>venir</em>, transport, countries, holidays, opinions, school subjects and daily routine.
+            </div>
+            <div class="quiz-center"><button onclick="startQuiz()">Commencer (Start)</button></div>
+        </div>
+        <div id="quizPlay" style="display:none;">
+            <div class="quiz-meta"><span id="quizCounter">Question 1 of 25</span><span id="quizScore">Score: 0</span></div>
+            <div class="quiz-progress-wrap"><div class="quiz-progress-bar" id="quizBar"></div></div>
+            <div id="quizPrompt"></div>
+            <div class="quiz-options" id="quizOptions"></div>
+            <div class="quiz-explain" id="quizExplain"></div>
+            <div class="quiz-next" id="quizNextWrap"></div>
+        </div>
+        <div id="quizResults" style="display:none;" class="quiz-center">
+            <div class="quiz-title">Terminé ! (Finished!)</div>
+            <div class="score-big" id="scoreBig">0 / 25</div>
+            <div class="score-pct" id="scorePct">0%</div>
+            <div class="score-msg" id="scoreMsg"></div>
+            <button onclick="startQuiz()">Try Again</button>
+            <a class="cta-link" href="index.html">Study materials</a>
+        </div>
+    </div>
+
+    <script>
+        /* ---- VOCABULARY BANK (160 pairs, asked in BOTH directions) ---- */
+        /* Drawn from the Lower 4 exercise book: Modules 1-3. */
+        const VOCAB = [
+            // --- Les magasins (shops) ---
+            { fr: "un supermarché", en: "a supermarket", cat: "shops" },
+            { fr: "une pharmacie", en: "a chemist's / pharmacy", cat: "shops" },
+            { fr: "un magasin de vêtements", en: "a clothes shop", cat: "shops" },
+            { fr: "une boucherie", en: "a butcher's shop", cat: "shops" },
+            { fr: "une librairie-papeterie", en: "a bookshop & stationer's", cat: "shops" },
+            { fr: "une charcuterie", en: "a pork butcher's / deli", cat: "shops" },
+            { fr: "une épicerie", en: "a grocer's / corner shop", cat: "shops" },
+            { fr: "une boulangerie-pâtisserie", en: "a bakery & cake shop", cat: "shops" },
+            { fr: "un tabac", en: "a tobacconist's", cat: "shops" },
+            { fr: "une pâtisserie", en: "a cake shop", cat: "shops" },
+            // --- Food & shopping items ---
+            { fr: "du pain", en: "some bread", cat: "food" },
+            { fr: "du beurre", en: "some butter", cat: "food" },
+            { fr: "de l'eau minérale", en: "some mineral water", cat: "food" },
+            { fr: "du jambon", en: "some ham", cat: "food" },
+            { fr: "de la salade", en: "some lettuce / salad", cat: "food" },
+            { fr: "du poulet", en: "some chicken", cat: "food" },
+            { fr: "des timbres", en: "some stamps", cat: "food" },
+            { fr: "de l'aspirine", en: "some aspirin", cat: "food" },
+            { fr: "du fromage", en: "some cheese", cat: "food" },
+            { fr: "de la confiture", en: "some jam", cat: "food" },
+            { fr: "des croissants", en: "some croissants", cat: "food" },
+            { fr: "des médicaments", en: "some medicines", cat: "food" },
+            // --- Les quantités ---
+            { fr: "un kilo de", en: "a kilo of", cat: "quantities" },
+            { fr: "un grand morceau de", en: "a big piece of", cat: "quantities" },
+            { fr: "une boîte de", en: "a tin / box of", cat: "quantities" },
+            { fr: "une bouteille de", en: "a bottle of", cat: "quantities" },
+            { fr: "un pot de", en: "a jar of", cat: "quantities" },
+            { fr: "une tranche de", en: "a slice of", cat: "quantities" },
+            { fr: "un paquet de", en: "a packet of", cat: "quantities" },
+            { fr: "un litre de", en: "a litre of", cat: "quantities" },
+            { fr: "un demi-kilo de", en: "half a kilo of", cat: "quantities" },
+            { fr: "une barquette de", en: "a punnet of", cat: "quantities" },
+            // --- "some": du / de la / des ---
+            { fr: "du", en: "some (masculine)", cat: "partitive" },
+            { fr: "de la", en: "some (feminine)", cat: "partitive" },
+            { fr: "des", en: "some (plural)", cat: "partitive" },
+            { fr: "un", en: "a / an (masculine)", cat: "partitive" },
+            { fr: "une", en: "a / an (feminine)", cat: "partitive" },
+            { fr: "le", en: "the (masculine)", cat: "partitive" },
+            // --- -ER verbs ---
+            { fr: "acheter", en: "to buy", cat: "erverbs" },
+            { fr: "chercher", en: "to look for", cat: "erverbs" },
+            { fr: "trouver", en: "to find", cat: "erverbs" },
+            { fr: "travailler", en: "to work", cat: "erverbs" },
+            { fr: "aimer", en: "to like", cat: "erverbs" },
+            { fr: "préférer", en: "to prefer", cat: "erverbs" },
+            { fr: "jouer", en: "to play", cat: "erverbs" },
+            { fr: "regarder", en: "to watch", cat: "erverbs" },
+            { fr: "écouter", en: "to listen", cat: "erverbs" },
+            { fr: "détester", en: "to hate", cat: "erverbs" },
+            // --- -RE verbs ---
+            { fr: "vendre", en: "to sell", cat: "reverbs" },
+            { fr: "descendre", en: "to go down", cat: "reverbs" },
+            { fr: "attendre", en: "to wait", cat: "reverbs" },
+            { fr: "répondre", en: "to reply / answer", cat: "reverbs" },
+            { fr: "entendre", en: "to hear", cat: "reverbs" },
+            { fr: "rendre", en: "to give back", cat: "reverbs" },
+            // --- -IR verbs ---
+            { fr: "finir", en: "to finish", cat: "irverbs" },
+            { fr: "choisir", en: "to choose", cat: "irverbs" },
+            { fr: "obéir", en: "to obey", cat: "irverbs" },
+            { fr: "réussir", en: "to succeed", cat: "irverbs" },
+            { fr: "maigrir", en: "to lose weight", cat: "irverbs" },
+            { fr: "grossir", en: "to put on weight", cat: "irverbs" },
+            { fr: "remplir", en: "to fill", cat: "irverbs" },
+            // --- Key irregular verbs ---
+            { fr: "venir", en: "to come", cat: "keyverbs" },
+            { fr: "pouvoir", en: "to be able to / can", cat: "keyverbs" },
+            { fr: "prendre", en: "to take", cat: "keyverbs" },
+            { fr: "apprendre", en: "to learn", cat: "keyverbs" },
+            // --- Numbers ---
+            { fr: "quinze", en: "15", cat: "numbers" },
+            { fr: "soixante-quinze", en: "75", cat: "numbers" },
+            { fr: "quatre-vingts", en: "80", cat: "numbers" },
+            { fr: "quatre-vingt-douze", en: "92", cat: "numbers" },
+            { fr: "quatre-vingt-dix-neuf", en: "99", cat: "numbers" },
+            { fr: "quatre-vingt-quinze", en: "95", cat: "numbers" },
+            { fr: "cent cinq", en: "105", cat: "numbers" },
+            { fr: "deux cents", en: "200", cat: "numbers" },
+            { fr: "deux cent cinquante", en: "250", cat: "numbers" },
+            { fr: "mille", en: "1000", cat: "numbers" },
+            // --- Transport ---
+            { fr: "en train", en: "by train", cat: "transport" },
+            { fr: "en car", en: "by coach", cat: "transport" },
+            { fr: "en bus", en: "by bus", cat: "transport" },
+            { fr: "à pied", en: "on foot", cat: "transport" },
+            { fr: "en taxi", en: "by taxi", cat: "transport" },
+            { fr: "en métro", en: "by underground / metro", cat: "transport" },
+            { fr: "à moto", en: "by motorbike", cat: "transport" },
+            { fr: "à vélo", en: "by bike", cat: "transport" },
+            { fr: "en avion", en: "by plane", cat: "transport" },
+            { fr: "en voiture", en: "by car", cat: "transport" },
+            // --- Countries (au / en / aux) ---
+            { fr: "en France", en: "to / in France", cat: "countries" },
+            { fr: "au Portugal", en: "to / in Portugal", cat: "countries" },
+            { fr: "en Allemagne", en: "to / in Germany", cat: "countries" },
+            { fr: "aux Pays-Bas", en: "to / in the Netherlands", cat: "countries" },
+            { fr: "aux États-Unis", en: "to / in the United States", cat: "countries" },
+            { fr: "en Écosse", en: "to / in Scotland", cat: "countries" },
+            { fr: "au Maroc", en: "to / in Morocco", cat: "countries" },
+            { fr: "au pays de Galles", en: "to / in Wales", cat: "countries" },
+            { fr: "en Angleterre", en: "to / in England", cat: "countries" },
+            { fr: "en Suisse", en: "to / in Switzerland", cat: "countries" },
+            // --- Holiday activities ---
+            { fr: "aller à la pêche", en: "to go fishing", cat: "activities" },
+            { fr: "jouer au golf", en: "to play golf", cat: "activities" },
+            { fr: "faire du vélo", en: "to ride a bike", cat: "activities" },
+            { fr: "prendre des photos", en: "to take photos", cat: "activities" },
+            { fr: "faire du camping", en: "to go camping", cat: "activities" },
+            { fr: "faire de la voile", en: "to go sailing", cat: "activities" },
+            { fr: "faire du ski", en: "to go skiing", cat: "activities" },
+            { fr: "faire du canoë-kayak", en: "to go canoeing / kayaking", cat: "activities" },
+            { fr: "visiter un château", en: "to visit a castle", cat: "activities" },
+            { fr: "faire de l'équitation", en: "to go horse-riding", cat: "activities" },
+            // --- Time / signpost words ---
+            { fr: "ce soir", en: "this evening / tonight", cat: "timewords" },
+            { fr: "demain", en: "tomorrow", cat: "timewords" },
+            { fr: "la semaine prochaine", en: "next week", cat: "timewords" },
+            { fr: "samedi soir", en: "Saturday evening", cat: "timewords" },
+            { fr: "dimanche prochain", en: "next Sunday", cat: "timewords" },
+            { fr: "d'habitude", en: "usually", cat: "timewords" },
+            { fr: "cet été", en: "this summer", cat: "timewords" },
+            { fr: "parfois", en: "sometimes", cat: "timewords" },
+            // --- Weather ---
+            { fr: "il fait chaud", en: "it is hot", cat: "weather" },
+            { fr: "il fait beau", en: "the weather is nice", cat: "weather" },
+            { fr: "il fait froid", en: "it is cold", cat: "weather" },
+            { fr: "il fait mauvais", en: "the weather is bad", cat: "weather" },
+            { fr: "il pleut", en: "it is raining", cat: "weather" },
+            { fr: "il y a du vent", en: "it is windy", cat: "weather" },
+            { fr: "il y a du soleil", en: "it is sunny", cat: "weather" },
+            // --- Opinions ---
+            { fr: "génial", en: "great", cat: "opinions" },
+            { fr: "amusant", en: "fun", cat: "opinions" },
+            { fr: "intéressant", en: "interesting", cat: "opinions" },
+            { fr: "ennuyeux", en: "boring", cat: "opinions" },
+            { fr: "nul", en: "rubbish", cat: "opinions" },
+            { fr: "facile", en: "easy", cat: "opinions" },
+            { fr: "difficile", en: "hard / difficult", cat: "opinions" },
+            { fr: "utile", en: "useful", cat: "opinions" },
+            { fr: "inutile", en: "useless", cat: "opinions" },
+            { fr: "cependant", en: "however", cat: "opinions" },
+            // --- School subjects ---
+            { fr: "le dessin", en: "art", cat: "subjects" },
+            { fr: "le français", en: "French", cat: "subjects" },
+            { fr: "le latin", en: "Latin", cat: "subjects" },
+            { fr: "la biologie", en: "biology", cat: "subjects" },
+            { fr: "la chimie", en: "chemistry", cat: "subjects" },
+            { fr: "la géographie", en: "geography", cat: "subjects" },
+            { fr: "la musique", en: "music", cat: "subjects" },
+            { fr: "la physique", en: "physics", cat: "subjects" },
+            { fr: "la technologie", en: "DT / technology", cat: "subjects" },
+            { fr: "l'histoire", en: "history", cat: "subjects" },
+            { fr: "l'informatique", en: "ICT / computing", cat: "subjects" },
+            { fr: "l'espagnol", en: "Spanish", cat: "subjects" },
+            // --- School life ---
+            { fr: "la cinquième", en: "Year 8 (Lower 4)", cat: "school" },
+            { fr: "la sixième", en: "Year 7", cat: "school" },
+            { fr: "un CDI", en: "the library / careers area", cat: "school" },
+            { fr: "la récréation", en: "break time", cat: "school" },
+            { fr: "demi-pensionnaire", en: "a day pupil", cat: "school" },
+            { fr: "le lycée", en: "sixth form / high school", cat: "school" },
+            { fr: "la cour", en: "the playground", cat: "school" },
+            { fr: "une leçon", en: "a lesson", cat: "school" },
+            // --- Daily routine ---
+            { fr: "je me réveille", en: "I wake up", cat: "routine" },
+            { fr: "je me lève", en: "I get up", cat: "routine" },
+            { fr: "je me lave", en: "I get washed", cat: "routine" },
+            { fr: "je m'habille", en: "I get dressed", cat: "routine" },
+            { fr: "je me brosse les dents", en: "I brush my teeth", cat: "routine" },
+            { fr: "je prends le petit déjeuner", en: "I have breakfast", cat: "routine" },
+            { fr: "j'arrive au collège", en: "I arrive at school", cat: "routine" },
+            { fr: "je mange mon déjeuner", en: "I eat my lunch", cat: "routine" },
+            { fr: "je fais mes devoirs", en: "I do my homework", cat: "routine" },
+            { fr: "je me couche", en: "I go to bed", cat: "routine" }
+        ];
+
+        /* ---- GRAMMAR / FILL-IN-THE-BLANK BANK (40) ---- */
+        /* The "_____" gap is shown in the prompt; pick the right word/ending. */
+        const GRAMMAR = [
+            // du / de la / de l' / des
+            { prompt: "À la boulangerie, on achète _____ baguettes.", answer: "des", options: ["des", "du", "de la", "de l'"], explain: "Use « des » for 'some' with a plural noun: des baguettes." },
+            { prompt: "À l'épicerie, j'achète _____ beurre.", answer: "du", options: ["du", "de la", "des", "de l'"], explain: "« beurre » is masculine, so 'some butter' = du beurre." },
+            { prompt: "Je voudrais _____ eau minérale, s'il vous plaît.", answer: "de l'", options: ["de l'", "du", "de la", "des"], explain: "Before a vowel, 'some' = de l' : de l'eau minérale." },
+            { prompt: "À la pâtisserie, j'aime acheter _____ tartes.", answer: "des", options: ["des", "du", "de la", "un"], explain: "Plural noun → des tartes." },
+            { prompt: "some cheese = _____ fromage (masc.)", answer: "du", options: ["du", "de la", "de l'", "des"], explain: "Masculine → du fromage." },
+            { prompt: "some jam = _____ confiture (fem.)", answer: "de la", options: ["de la", "du", "des", "de l'"], explain: "Feminine → de la confiture." },
+            // -RE verb: vendre
+            { prompt: "Est-ce que vous _____ des glaces ? (vendre)", answer: "vendez", options: ["vendez", "vends", "vend", "vendent"], explain: "vous form of an -RE verb ends in -ez: vous vendez." },
+            { prompt: "Je _____ surtout des boissons froides. (vendre)", answer: "vends", options: ["vends", "vend", "vendez", "vendons"], explain: "For je, an -RE verb adds -s to the stem: je vends." },
+            { prompt: "Nous _____ beaucoup d'autres choses. (vendre)", answer: "vendons", options: ["vendons", "vendez", "vendent", "vends"], explain: "nous form ends in -ons: nous vendons." },
+            { prompt: "Aux enfants, il _____ des glaces. (vendre)", answer: "vend", options: ["vend", "vends", "vendent", "vendez"], explain: "For il/elle/on, an -RE verb adds nothing: il vend." },
+            // -ER verbs
+            { prompt: "Nous _____ au marché du village. (acheter)", answer: "achetons", options: ["achetons", "achète", "achetez", "achètent"], explain: "nous form of an -ER verb ends in -ons: nous achetons." },
+            { prompt: "Tu _____ tes e-mails sur l'ordinateur. (regarder)", answer: "regardes", options: ["regardes", "regarde", "regardez", "regardent"], explain: "tu form of an -ER verb ends in -es: tu regardes." },
+            { prompt: "Elles _____ de la musique. (écouter)", answer: "écoutent", options: ["écoutent", "écoute", "écoutes", "écoutez"], explain: "ils/elles form of an -ER verb ends in -ent: elles écoutent." },
+            { prompt: "Je _____ faire les courses. (détester)", answer: "déteste", options: ["déteste", "détestes", "détestez", "détestent"], explain: "je form of an -ER verb ends in -e: je déteste." },
+            // -IR verbs
+            { prompt: "Je _____ mes devoirs. (finir)", answer: "finis", options: ["finis", "finit", "finissons", "finissent"], explain: "je form of an -IR verb ends in -is: je finis." },
+            { prompt: "Tu _____ à l'examen. (réussir)", answer: "réussis", options: ["réussis", "réussit", "réussissez", "réussissent"], explain: "tu form of an -IR verb ends in -is: tu réussis." },
+            { prompt: "Nous _____ un bon restaurant. (choisir)", answer: "choisissons", options: ["choisissons", "choisit", "choisis", "choisissez"], explain: "nous form of an -IR verb ends in -issons: nous choisissons." },
+            { prompt: "Elles _____ à leurs parents. (obéir)", answer: "obéissent", options: ["obéissent", "obéit", "obéis", "obéissez"], explain: "ils/elles form of an -IR verb ends in -issent: elles obéissent." },
+            { prompt: "Elle _____ grâce au sport. (maigrir)", answer: "maigrit", options: ["maigrit", "maigris", "maigrissent", "maigrissez"], explain: "il/elle/on form of an -IR verb ends in -it: elle maigrit." },
+            // aller (near future)
+            { prompt: "Je _____ aller à la pêche. (aller)", answer: "vais", options: ["vais", "vas", "va", "vont"], explain: "aller is irregular: je vais." },
+            { prompt: "Vous _____ à Londres en train. (aller)", answer: "allez", options: ["allez", "allons", "vont", "vas"], explain: "aller is irregular: vous allez." },
+            { prompt: "Elles _____ prendre des photos. (aller)", answer: "vont", options: ["vont", "va", "allez", "allons"], explain: "aller is irregular: ils/elles vont." },
+            // venir
+            { prompt: "Je _____ de Bruxelles. (venir)", answer: "viens", options: ["viens", "vient", "venons", "viennent"], explain: "venir is irregular: je viens." },
+            { prompt: "Vous _____ de Bordeaux ? (venir)", answer: "venez", options: ["venez", "venons", "viennent", "viens"], explain: "venir is irregular: vous venez." },
+            { prompt: "Est-ce que tes cousins _____ au concert ? (venir)", answer: "viennent", options: ["viennent", "vient", "venez", "venons"], explain: "venir is irregular: ils/elles viennent." },
+            // pouvoir
+            { prompt: "Est-ce que je _____ regarder un film ? (pouvoir)", answer: "peux", options: ["peux", "peut", "pouvons", "peuvent"], explain: "pouvoir is irregular: je peux." },
+            { prompt: "Les garçons _____ jouer au football. (pouvoir)", answer: "peuvent", options: ["peuvent", "peut", "peux", "pouvez"], explain: "pouvoir is irregular: ils/elles peuvent." },
+            { prompt: "Vous _____ aller au zoo. (pouvoir)", answer: "pouvez", options: ["pouvez", "pouvons", "peuvent", "peut"], explain: "pouvoir is irregular: vous pouvez." },
+            // partir
+            { prompt: "Nous _____ pour la Suisse le 15 juillet. (partir)", answer: "partons", options: ["partons", "partez", "partent", "pars"], explain: "partir is irregular: nous partons." },
+            { prompt: "Ils _____ à 8 heures pour aller au collège. (partir)", answer: "partent", options: ["partent", "part", "partez", "partons"], explain: "partir is irregular: ils/elles partent." },
+            // au / en / aux + countries
+            { prompt: "J'habite _____ Lyon. (a town)", answer: "à", options: ["à", "au", "en", "aux"], explain: "With towns, use à : à Lyon." },
+            { prompt: "Je vais _____ Maroc. (Morocco — masc.)", answer: "au", options: ["au", "en", "aux", "à"], explain: "au + a masculine country: au Maroc." },
+            { prompt: "New York est _____ États-Unis. (plural)", answer: "aux", options: ["aux", "au", "en", "à"], explain: "aux + a plural country: aux États-Unis." },
+            { prompt: "Athènes est _____ Grèce. (fem.)", answer: "en", options: ["en", "au", "aux", "à"], explain: "en + a feminine country: en Grèce." },
+            // negation
+            { prompt: "Je n'ai _____ de poulet. (no more)", answer: "plus", options: ["plus", "pas", "jamais", "rien"], explain: "ne... plus = 'no more / no longer': je n'ai plus de poulet." },
+            { prompt: "Il _____ y a pas de pain.", answer: "n'", options: ["n'", "ne", "pas", "plus"], explain: "ne shortens to n' before a vowel: il n'y a pas." },
+            // reflexive pronouns
+            { prompt: "Je _____ lave. (se laver)", answer: "me", options: ["me", "te", "se", "nous"], explain: "The je reflexive pronoun is 'me': je me lave." },
+            { prompt: "Elle _____ réveille. (se réveiller)", answer: "se", options: ["se", "me", "te", "vous"], explain: "The il/elle reflexive pronoun is 'se': elle se réveille." },
+            // telling the time
+            { prompt: "Il est 9:30 = neuf heures _____.", answer: "et demie", options: ["et demie", "et quart", "moins le quart", "moins cinq"], explain: "Half past = et demie: neuf heures et demie (9:30)." },
+            { prompt: "Il est 1:45 = deux heures _____.", answer: "moins le quart", options: ["moins le quart", "et quart", "et demie", "moins cinq"], explain: "Quarter to = moins le quart: deux heures moins le quart (1:45)." }
+        ];
+
+        /* ---- BUILD THE POOL ---- */
+        const POOL = [];
+        VOCAB.forEach(v => POOL.push({ kind: "vocab", data: v }));
+        GRAMMAR.forEach(g => POOL.push({ kind: "gram", data: g }));
+
+        // Group vocab by category for distractor sampling
+        const BY_CAT = {};
+        VOCAB.forEach((v, i) => { (BY_CAT[v.cat] = BY_CAT[v.cat] || []).push(i); });
+
+        const QUIZ_LEN = 25;
+        let quiz = { questions: [], idx: 0, score: 0, answered: false };
+
+        function shuffle(arr){ for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];} return arr; }
+        function escapeHtml(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+        function makeVocabQuestion(item){
+            const v = item.data;
+            const fr2en = Math.random() < 0.5;
+            // distractors from same category
+            const others = BY_CAT[v.cat].map(i => VOCAB[i]).filter(o => o !== v);
+            let pool = shuffle(others.slice());
+            // top up from the whole list if a category is tiny
+            if (pool.length < 3){
+                const extra = shuffle(VOCAB.filter(o => o !== v && o.cat !== v.cat));
+                pool = pool.concat(extra);
+            }
+            const distractors = pool.slice(0, 3);
+            if (fr2en){
+                const correct = v.en;
+                const opts = shuffle([correct, ...distractors.map(d => d.en)]);
+                return {
+                    promptHTML: `<div class="qcard ask"><div class="qcard-term">${escapeHtml(v.fr)}</div><div class="qcard-tag">What does this mean in English?</div></div>`,
+                    options: opts, correct,
+                    explain: `« ${escapeHtml(v.fr)} » means &ldquo;${escapeHtml(v.en)}&rdquo;.`
+                };
+            } else {
+                const correct = v.fr;
+                const opts = shuffle([correct, ...distractors.map(d => d.fr)]);
+                return {
+                    promptHTML: `<div class="qcard ask"><div class="qcard-term">${escapeHtml(v.en)}</div><div class="qcard-tag">How do you say this in French?</div></div>`,
+                    options: opts, correct,
+                    explain: `&ldquo;${escapeHtml(v.en)}&rdquo; in French is « ${escapeHtml(v.fr)} ».`
+                };
+            }
+        }
+
+        function makeGramQuestion(item){
+            const g = item.data;
+            const promptText = escapeHtml(g.prompt).replace("_____", '<span class="qcard-gap">_____</span>');
+            return {
+                promptHTML: `<div class="qcard gram"><div class="qcard-term">${promptText}</div><div class="qcard-tag">Fill in the blank</div></div>`,
+                options: shuffle(g.options.slice()),
+                correct: g.answer,
+                explain: g.explain
+            };
+        }
+
+        function buildQuiz(){
+            const order = shuffle(POOL.map((_,i)=>i)).slice(0, QUIZ_LEN);
+            quiz.questions = order.map(i => {
+                const item = POOL[i];
+                return item.kind === "vocab" ? makeVocabQuestion(item) : makeGramQuestion(item);
+            });
+            quiz.idx = 0; quiz.score = 0; quiz.answered = false;
+        }
+
+        function startQuiz(){
+            buildQuiz();
+            document.getElementById('quizIntro').style.display='none';
+            document.getElementById('quizResults').style.display='none';
+            document.getElementById('quizPlay').style.display='block';
+            renderQuestion();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderQuestion(){
+            const q = quiz.questions[quiz.idx];
+            quiz.answered = false;
+            document.getElementById('quizCounter').textContent = `Question ${quiz.idx+1} of ${quiz.questions.length}`;
+            document.getElementById('quizScore').textContent = `Score: ${quiz.score}`;
+            document.getElementById('quizBar').style.width = `${(quiz.idx/quiz.questions.length)*100}%`;
+            document.getElementById('quizPrompt').innerHTML = q.promptHTML;
+            document.getElementById('quizOptions').innerHTML = q.options.map((opt,pos)=>
+                `<button class="quiz-option" data-pos="${pos}" onclick="answer(${pos})">${escapeHtml(opt)}</button>`
+            ).join('');
+            const ex = document.getElementById('quizExplain');
+            ex.className = 'quiz-explain'; ex.innerHTML = '';
+            document.getElementById('quizNextWrap').innerHTML = '';
+        }
+
+        function answer(pos){
+            if (quiz.answered) return; quiz.answered = true;
+            const q = quiz.questions[quiz.idx];
+            const btns = document.querySelectorAll('.quiz-option');
+            const correctPos = q.options.indexOf(q.correct);
+            btns.forEach(b => b.disabled = true);
+            btns[correctPos].classList.add('correct');
+            const ex = document.getElementById('quizExplain');
+            if (pos === correctPos){
+                quiz.score++;
+                ex.className = 'quiz-explain ok show';
+                ex.innerHTML = `<span class="lead">Correct ! ✓</span>${q.explain}`;
+            } else {
+                btns[pos].classList.add('wrong');
+                ex.className = 'quiz-explain no show';
+                ex.innerHTML = `<span class="lead">Not quite — the answer is « ${escapeHtml(q.correct)} ».</span>${q.explain}`;
+            }
+            document.getElementById('quizScore').textContent = `Score: ${quiz.score}`;
+            const last = quiz.idx === quiz.questions.length - 1;
+            document.getElementById('quizNextWrap').innerHTML = `<button onclick="nextQuestion()">${last ? 'See Results' : 'Next Question'}</button>`;
+        }
+
+        function nextQuestion(){ quiz.idx++; if (quiz.idx >= quiz.questions.length){ showResults(); } else { renderQuestion(); window.scrollTo({ top: 0, behavior: 'smooth' }); } }
+
+        function showResults(){
+            const total = quiz.questions.length;
+            const pct = Math.round((quiz.score/total)*100);
+            document.getElementById('quizPlay').style.display='none';
+            document.getElementById('quizResults').style.display='block';
+            document.getElementById('scoreBig').textContent = `${quiz.score} / ${total}`;
+            document.getElementById('scorePct').textContent = `${pct}%`;
+            let msg;
+            if (pct>=90) msg='Excellent ! You really know your stuff.';
+            else if (pct>=70) msg='Très bien — almost there, just a few to polish.';
+            else if (pct>=50) msg='Bon effort — keep revising the tricky ones.';
+            else msg='Courage ! Run it again and the words will stick.';
+            document.getElementById('scoreMsg').textContent = msg;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
