@@ -106,11 +106,12 @@ const $=id=>document.getElementById(id);
 function el(n,a,p){const e=document.createElementNS(SVGNS,n);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e;}
 let tool='photo';
 let light=70, co2=70, water=70;
+let health=1;            // 1 = lush green, 0 = dead & brown (photosynthesis scene)
 let activity='rest';
 
 /* ---------- shared molecule animation engine ---------- */
 let rafId=null, particles=[], sceneState=null, lastT=0;
-let sunG=null, leafEls=[];
+let sunG=null, leafEls=[], stemEl=null, lastStatusKey='';
 function stopAnim(){ if(rafId){cancelAnimationFrame(rafId);rafId=null;} particles=[]; sceneState=null; }
 function makeMol(type){
   const spec={ co2:{c:'#8CA0AA',t:'CO₂'}, h2o:{c:'#4E97C7',t:'H₂O'}, o2:{c:'#2E8B6A',t:'O₂'},
@@ -167,6 +168,7 @@ function renderPhoto(){
         <div class="slider-row s-water"><label>💧 Water <output id="oWater"></output></label><input type="range" id="sWater" min="0" max="100" value="${water}"></div>
         <div class="rate-box"><div class="lbl">Rate of photosynthesis</div><div class="val" id="rate"></div></div>
         <div class="limiting" id="limiting"></div>
+        <div class="limiting" id="plantStatus" style="display:none;background:#FBE3E1;border:1px solid #E7A9A2"></div>
         <div class="outputs">
           <div class="out-chip gluc"><div class="n" id="outG"></div><div class="l">glucose made</div></div>
           <div class="out-chip oxy"><div class="n" id="outO"></div><div class="l">O₂ released</div></div>
@@ -181,22 +183,48 @@ function renderPhoto(){
   updatePhoto();
 }
 function leafFill(rate){ return `rgb(${46+Math.round((100-rate)*0.40)},${120+Math.round(rate*0.50)},70)`; }
+function parseRGB(s){ const m=s.match(/\d+/g).map(Number); return [m[0],m[1],m[2]]; }
+function lerp3(a,b,t){ return [Math.round(a[0]+(b[0]-a[0])*t),Math.round(a[1]+(b[1]-a[1])*t),Math.round(a[2]+(b[2]-a[2])*t)]; }
+function rgbStr(c){ return `rgb(${c[0]},${c[1]},${c[2]})`; }
+// leaf colour: healthy green → sickly yellow → dead brown as health falls
+function leafColor(rate){
+  const green=parseRGB(leafFill(rate)), yellow=[205,180,55], brown=[120,80,45], w=1-health;
+  return w<0.5 ? rgbStr(lerp3(green,yellow,w/0.5)) : rgbStr(lerp3(yellow,brown,(w-0.5)/0.5));
+}
+// recolour, wilt (droop + sag + flatten) and bend the plant according to `health`
+function updatePlantAppearance(rate){
+  const w=1-health, col=leafColor(rate);
+  leafEls.forEach(L=>{
+    L.node.setAttribute('fill',col);
+    const sy=(1-0.42*w).toFixed(3), sag=(15*w).toFixed(1), droop=(L.sign*46*w).toFixed(1);
+    L.group.setAttribute('transform',`rotate(${droop} ${L.x} ${L.y}) translate(0 ${sag}) translate(${L.x} ${L.y}) scale(1 ${sy}) translate(${-L.x} ${-L.y})`);
+  });
+  if(stemEl){ stemEl.setAttribute('fill',rgbStr(lerp3([46,125,70],[120,82,46],w))); stemEl.setAttribute('transform',`rotate(${(w*-5).toFixed(1)} 230 302)`); }
+  let key,msg;
+  if(rate>40 && health<0.97){ key='rec'; msg='🌱 <b>Recovering…</b> keep the factors up and it greens back up.'; }
+  else if(health<=0.04){ key='dead'; msg='💀 Your plant has <b>died</b> — it ran out of what it needs. Raise the low factor and a new shoot grows back.'; }
+  else if(health<0.5){ key='wilt'; msg='🥀 Your plant is <b>wilting and turning brown</b>! A factor is too low — raise it to save the plant.'; }
+  else { key='ok'; msg=''; }
+  if(key!==lastStatusKey){ lastStatusKey=key; const ps=$('plantStatus'); if(ps){ ps.style.display=msg?'':'none'; if(msg)ps.innerHTML=msg; } }
+}
 function buildPhotoScene(){
   const svg=$('scene'); svg.innerHTML='';
+  health=1; lastStatusKey='';
   // soil
   el('rect',{x:0,y:300,width:460,height:60,fill:'#A9784E'},svg);
   el('rect',{x:0,y:300,width:460,height:7,fill:'#8C5E3A'},svg);
   // roots spreading down from the stem base
   el('path',{d:'M230 300 Q230 332 202 352 M230 300 Q230 334 256 352 M230 306 Q208 320 184 320 M230 306 Q252 320 278 320',fill:'none',stroke:'#C79A6B','stroke-width':3,'stroke-linecap':'round'},svg);
   // stem
-  el('rect',{x:226,y:150,width:8,height:152,rx:3,fill:'#2E7D46'},svg);
-  // leaves (with midribs)
+  stemEl=el('rect',{x:226,y:150,width:8,height:152,rx:3,fill:'#2E7D46'},svg);
+  // leaves (each leaf + midrib grouped so it can wilt/droop as one)
   leafEls=[];
   const RX={x:300,y:152};
   [[196,152,-30],[300,152,30],[188,206,-18],[300,206,18],[248,118,0]].forEach(([x,y,r])=>{
-    const lf=el('ellipse',{cx:x,cy:y,rx:46,ry:21,fill:leafFill(0),stroke:'#246B3A','stroke-width':2,transform:`rotate(${r} ${x} ${y})`},svg);
-    el('line',{x1:x-40,y1:y,x2:x+40,y2:y,stroke:'#246B3A','stroke-width':1.4,opacity:.45,transform:`rotate(${r} ${x} ${y})`},svg);
-    leafEls.push(lf);
+    const g=el('g',{},svg);
+    const lf=el('ellipse',{cx:x,cy:y,rx:46,ry:21,fill:leafFill(0),stroke:'#246B3A','stroke-width':2,transform:`rotate(${r} ${x} ${y})`},g);
+    el('line',{x1:x-40,y1:y,x2:x+40,y2:y,stroke:'#246B3A','stroke-width':1.4,opacity:.45,transform:`rotate(${r} ${x} ${y})`},g);
+    leafEls.push({node:lf,group:g,x,y,r,sign:(x>=230?1:-1)});
   });
   // reaction glow (a chloroplast lighting up) on the reaction leaf
   const glow=el('circle',{cx:RX.x,cy:RX.y,r:30,fill:'#9CFFC9',opacity:0},svg);
@@ -224,8 +252,14 @@ function buildPhotoScene(){
         spawnMol('o2',RX.x+(Math.random()*16-8),RX.y,{vx:0.35+Math.random()*0.5,vy:-(1.0+Math.random()*0.7),life:240});
         if(Math.random()<0.45) spawnMol('glu',RX.x-4,RX.y+8,{vx:-0.25,vy:0.55,life:150,fade:1});
       }
+      // plant health: starves when a factor runs low, recovers when well fed
+      if(rate<20) health-=(20-rate)/20*0.0024*dt;
+      else if(rate>40) health+=(rate-40)/60*0.0030*dt;
+      health=Math.max(0,Math.min(1,health));
+      updatePlantAppearance(rate);
     }
   };
+  updatePlantAppearance(Math.min(light,co2,water));
   lastT=0; rafId=requestAnimationFrame(tick);
 }
 function updatePhoto(){
@@ -241,7 +275,7 @@ function updatePhoto(){
     : allHigh ? `All factors high — near maximum rate.`
     : `The <b>limiting factor</b> is <b>${names[limF]}</b> — it's the lowest, so it trickles in slowest and holds the rate back. Raise it to speed everything up.`;
   if(sunG) sunG.setAttribute('opacity',(0.3+light/100*0.7).toFixed(2));
-  leafEls.forEach(l=>l.setAttribute('fill',leafFill(rate)));
+  updatePlantAppearance(rate);
   $('pWork').innerHTML=`Plants make their own food by photosynthesis in the <b>chloroplasts</b> of their leaves. They take in <b>carbon dioxide</b> from the air and <b>water</b> drawn up from the roots and, using energy from <b>light</b> captured by green <b>chlorophyll</b>, rearrange the atoms into <b>glucose</b> (stored as food) and <b>oxygen</b> (released into the air). Each ingredient flows in at its own slider's pace, but the reaction only goes as fast as the <b>scarcest</b> one allows — its <b>limiting factor</b>.`;
 }
 
