@@ -37,6 +37,7 @@
         .qcard-gap { color: var(--red); font-weight: 700; }
         .qcard-tag { margin-top: 0.75rem; font-size: 0.7rem; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; color: var(--blue); }
         .qcard.gram .qcard-tag { color: var(--red); }
+        .egg-badge { display: inline-block; background: linear-gradient(135deg, #8e44ad, #c0392b); color: #fff; font-size: 0.66rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 0.16rem 0.6rem; border-radius: 50px; margin-bottom: 0.55rem; }
         .quiz-options { display: grid; grid-template-columns: 1fr; gap: 0.7rem; }
         .quiz-option { display: block; width: 100%; text-align: left; background: #fff; border: 2px solid rgba(0,0,0,0.1); border-radius: 12px; padding: 0.85rem 1rem; font-family: 'Karla', sans-serif; font-size: 1rem; color: #333; cursor: pointer; transition: all 0.18s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin: 0; font-weight: 500; line-height: 1.4; }
         .quiz-option:hover:not(:disabled) { border-color: var(--blue); transform: translateY(-1px); box-shadow: 0 4px 12px var(--shadow); }
@@ -66,7 +67,7 @@
         <div id="quizIntro">
             <div class="quiz-title">Prêt(e) ? (Ready?)</div>
             <div class="quiz-desc">
-                <strong>25 questions</strong>, picked at random from a bank of <strong>200</strong>.<br>
+                <strong>25 questions</strong>, picked at random from a bank of <strong id="bankCount">200</strong> &mdash; with hidden 🥚 <strong>anime bonus questions</strong> sprinkled in!<br>
                 Vocabulary works <strong>both ways</strong> (French&nbsp;&rarr;&nbsp;English and English&nbsp;&rarr;&nbsp;French), with fill-in-the-blank grammar and verb endings mixed in.<br>
                 Pick the right option &mdash; if you slip up, you'll get a quick note explaining the correct answer. Scored at the end.
             </div>
@@ -334,10 +335,28 @@
             { prompt: "Il est 1:45 = deux heures _____.", answer: "moins le quart", options: ["moins le quart", "et quart", "et demie", "moins cinq"], explain: "Quarter to = moins le quart: deux heures moins le quart (1:45)." }
         ];
 
+        /* ---- ANIME EASTER EGGS (bonus questions — still real French!) ---- */
+        const ANIME = [
+            { egg: true, prompt: "🥚 Demon Slayer — Tanjiro uses « Water Breathing ». How do you say 'water' in French?", answer: "l'eau", options: ["l'eau", "le feu", "l'air", "la terre"], explain: "'water' = l'eau. So « Water Breathing » ≈ la respiration de l'eau. 💧" },
+            { egg: true, prompt: "🥚 Avatar: The Last Airbender — Zuko is a Fire-bender. What is 'fire' in French?", answer: "le feu", options: ["le feu", "l'eau", "le vent", "la neige"], explain: "'fire' = le feu. Zuko would be « un maître du feu ». 🔥" },
+            { egg: true, prompt: "🥚 My Hero Academia — Deku trains to be a hero. How do you say 'a hero' in French?", answer: "un héros", options: ["un héros", "un héritage", "une heure", "un héron"], explain: "'a hero' = un héros. Plus Ultra! 💥" },
+            { egg: true, prompt: "🥚 Pokémon — you want to 'catch them all'. The French verb « attraper » means…?", answer: "to catch", options: ["to catch", "to throw", "to lose", "to feed"], explain: "« attraper » = to catch. Attrape-les tous ! 🔴" },
+            { egg: true, prompt: "🥚 Sailor Moon transforms by moonlight. « la lune » means…?", answer: "the moon", options: ["the moon", "the sun", "the star", "the sky"], explain: "« la lune » = the moon. 🌙" },
+            { egg: true, prompt: "🥚 Naruto dreams of leading his village. « un village » in French means…?", answer: "a village", options: ["a village", "a city", "a country", "a house"], explain: "« un village » = a village — same word, French pronunciation!" },
+            { egg: true, prompt: "🥚 Attack on Titan — humanity hides behind giant walls. « un mur » means…?", answer: "a wall", options: ["a wall", "a door", "a roof", "a floor"], explain: "« un mur » = a wall. The walls: Maria, Rose and Sina!" },
+            { egg: true, prompt: "🥚 One Piece — Luffy sails the seas for treasure. « la mer » means…?", answer: "the sea", options: ["the sea", "the mountain", "the forest", "the desert"], explain: "« la mer » = the sea. (Careful: « la mère » = the mother!) 🏴‍☠️" },
+            { egg: true, prompt: "🥚 Demon Slayer — Tanjiro protects his sister Nezuko. « ma sœur » means…?", answer: "my sister", options: ["my sister", "my brother", "my mother", "my friend"], explain: "« ma sœur » = my sister. 🎍" },
+            { egg: true, prompt: "🥚 Jujutsu Kaisen — Gojo claims he's the strongest. « fort » means…?", answer: "strong", options: ["strong", "weak", "fast", "tall"], explain: "« fort » = strong. « le plus fort » = the strongest!" },
+            { egg: true, prompt: "🥚 Studio Ghibli's « Mon voisin Totoro » (My Neighbour Totoro). « un voisin » means…?", answer: "a neighbour", options: ["a neighbour", "a forest", "a friend", "a stranger"], explain: "« un voisin » = a neighbour. 🌳" },
+            { egg: true, prompt: "🥚 Pokémon — Pikachu is bright yellow. « jaune » means…?", answer: "yellow", options: ["yellow", "red", "blue", "green"], explain: "« jaune » = yellow. ⚡" }
+        ];
+
         /* ---- BUILD THE POOL ---- */
         const POOL = [];
         VOCAB.forEach(v => POOL.push({ kind: "vocab", data: v }));
         GRAMMAR.forEach(g => POOL.push({ kind: "gram", data: g }));
+        ANIME.forEach(g => POOL.push({ kind: "gram", data: g }));
+        document.getElementById('bankCount').textContent = POOL.length;
 
         // Group vocab by category for distractor sampling
         const BY_CAT = {};
@@ -383,8 +402,10 @@
         function makeGramQuestion(item){
             const g = item.data;
             const promptText = escapeHtml(g.prompt).replace("_____", '<span class="qcard-gap">_____</span>');
+            const badge = g.egg ? '<span class="egg-badge">🥚 Bonus · Anime</span>' : '';
+            const tag = g.egg ? 'Anime bonus — pick the answer' : 'Fill in the blank';
             return {
-                promptHTML: `<div class="qcard gram"><div class="qcard-term">${promptText}</div><div class="qcard-tag">Fill in the blank</div></div>`,
+                promptHTML: `<div class="qcard gram">${badge}<div class="qcard-term">${promptText}</div><div class="qcard-tag">${tag}</div></div>`,
                 options: shuffle(g.options.slice()),
                 correct: g.answer,
                 explain: g.explain

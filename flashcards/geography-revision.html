@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lower 4 Geography Revision</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --ink: #20312b;
+    --forest: #2e9e5b; --forest-d: #1b6b3a;
+    --ocean: #1f8ac0; --ocean-d: #0a5a86;
+    --urban: #ef8a1f; --urban-d: #c4630a;
+    --gold: #c79a2e; --gold-d: #8a6a12;
+    --shadow: rgba(0,0,0,0.15);
+}
+body { font-family: 'Karla', sans-serif; color: var(--ink); background: linear-gradient(135deg, #E8F3EC 0%, #D6EAF2 45%, #FCEBD6 100%); min-height: 100vh; padding: 2rem 1rem 3rem; position: relative; overflow-x: hidden; }
+body::before { content: ''; position: fixed; inset: 0; background-image: radial-gradient(circle at 15% 85%, rgba(46,158,91,0.10) 0%, transparent 45%), radial-gradient(circle at 85% 15%, rgba(31,138,192,0.10) 0%, transparent 45%); pointer-events: none; z-index: 0; }
+.wrap { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+.header { text-align: center; margin-bottom: 1.2rem; }
+h1 { font-family: 'Cormorant Garamond', serif; font-size: 3.3rem; font-weight: 700; color: var(--forest-d); text-shadow: 2px 2px 0 rgba(46,158,91,0.18); letter-spacing: 1px; line-height: 1.05; }
+.subtitle { font-size: 1rem; color: var(--ocean-d); font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-top: 0.3rem; }
+.globe { font-size: 2.6rem; }
+.back-link { display: inline-block; text-decoration: none; color: var(--forest-d); font-weight: 700; font-size: 0.95rem; margin-bottom: 1rem; }
+.back-link:hover { text-decoration: underline; }
+
+.exam-banner { background: linear-gradient(135deg, #fff 0%, #f3f9f5 100%); border-left: 6px solid var(--gold); border-radius: 14px; padding: 1.1rem 1.3rem; margin-bottom: 1.6rem; box-shadow: 0 6px 22px var(--shadow); font-size: 0.95rem; line-height: 1.55; }
+.exam-banner strong { color: var(--gold-d); }
+.exam-banner .pill { display: inline-block; background: var(--gold); color: #fff; font-weight: 700; font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; padding: 0.18rem 0.7rem; border-radius: 50px; margin-bottom: 0.5rem; }
+
+/* tabs */
+.tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 1.6rem; }
+.tab { background: rgba(255,255,255,0.7); border: 2px solid rgba(0,0,0,0.08); color: #555; font-family: 'Karla', sans-serif; font-weight: 700; font-size: 0.95rem; padding: 0.65rem 1.1rem; border-radius: 50px; cursor: pointer; transition: all 0.2s ease; }
+.tab:hover { transform: translateY(-2px); box-shadow: 0 4px 12px var(--shadow); }
+.tab.active { color: #fff; border-color: transparent; box-shadow: 0 4px 14px var(--shadow); }
+.tab[data-acc="forest"].active { background: linear-gradient(135deg, var(--forest), var(--forest-d)); }
+.tab[data-acc="urban"].active { background: linear-gradient(135deg, var(--urban), var(--urban-d)); }
+.tab[data-acc="ocean"].active { background: linear-gradient(135deg, var(--ocean), var(--ocean-d)); }
+.tab[data-acc="gold"].active { background: linear-gradient(135deg, var(--gold), var(--gold-d)); }
+
+.panel { display: none; animation: fade 0.4s ease; }
+.panel.active { display: block; }
+@keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.topic-head { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 700; margin-bottom: 0.2rem; }
+.topic-sub { color: #666; font-size: 0.95rem; margin-bottom: 1.2rem; }
+
+.note-card { background: #fff; border-radius: 14px; padding: 1.2rem 1.3rem; margin-bottom: 1rem; box-shadow: 0 5px 18px var(--shadow); border-left: 5px solid var(--acc); }
+.note-card h3 { font-size: 1.15rem; color: var(--acc-d); margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.45rem; }
+.note-card ul { list-style: none; }
+.note-card li { padding: 0.28rem 0 0.28rem 1.4rem; position: relative; line-height: 1.5; font-size: 0.96rem; }
+.note-card li::before { content: '▸'; position: absolute; left: 0.2rem; color: var(--acc); font-weight: 700; }
+.kt { font-weight: 700; color: var(--acc-d); }
+.note-card li ul { margin-top: 0.2rem; }
+.note-card li ul li { font-size: 0.9rem; color: #555; }
+.note-card li ul li::before { content: '–'; }
+
+.diagram-card { background: #fff; border-radius: 14px; padding: 1.2rem; margin-bottom: 1rem; box-shadow: 0 5px 18px var(--shadow); border-left: 5px solid var(--acc); text-align: center; }
+.diagram-card h3 { font-size: 1.15rem; color: var(--acc-d); margin-bottom: 0.8rem; }
+.diagram-card svg { max-width: 100%; height: auto; }
+.diagram-card .cap { font-size: 0.85rem; color: #666; margin-top: 0.6rem; font-style: italic; }
+
+.links-box { background: linear-gradient(135deg, #fff 0%, #f6faf7 100%); border-radius: 14px; padding: 1.1rem 1.3rem; margin-bottom: 1.2rem; box-shadow: 0 5px 18px var(--shadow); border-left: 5px solid var(--acc); }
+.links-box h3 { font-size: 1.05rem; color: var(--acc-d); margin-bottom: 0.5rem; }
+.links-box a { color: var(--ocean-d); font-weight: 600; word-break: break-word; text-decoration: none; }
+.links-box a:hover { text-decoration: underline; }
+.links-box li { list-style: none; padding: 0.3rem 0; line-height: 1.45; font-size: 0.92rem; }
+
+button.go { color: #fff; border: none; padding: 0.85rem 2rem; font-size: 1.02rem; font-weight: 700; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px var(--shadow); transition: all 0.25s ease; font-family: 'Karla', sans-serif; background: linear-gradient(135deg, var(--acc), var(--acc-d)); }
+button.go:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--shadow); }
+button.go:active { transform: translateY(0); }
+
+/* quiz */
+.quiz-launch { text-align: center; background: rgba(255,255,255,0.55); border-radius: 16px; padding: 1.5rem; margin-top: 0.5rem; box-shadow: 0 5px 18px var(--shadow); }
+.quiz-launch .qt { font-family: 'Cormorant Garamond', serif; font-size: 1.7rem; font-weight: 700; color: var(--acc-d); margin-bottom: 0.3rem; }
+.quiz-launch .qd { color: #555; font-size: 0.92rem; margin-bottom: 1rem; }
+.quiz-mount { margin-top: 0.4rem; }
+.qmeta { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: #666; margin-bottom: 0.5rem; }
+.qbar-wrap { height: 8px; background: rgba(0,0,0,0.08); border-radius: 50px; overflow: hidden; margin-bottom: 1.1rem; }
+.qbar { height: 100%; background: linear-gradient(90deg, var(--acc), var(--acc-d)); width: 0; transition: width 0.3s ease; }
+.qcard { background: linear-gradient(135deg, #fff 0%, #f5f7f6 100%); border-radius: 14px; padding: 1.4rem 1.3rem; box-shadow: 0 6px 20px var(--shadow); border-left: 6px solid var(--acc); margin-bottom: 1.1rem; text-align: center; min-height: 90px; display: flex; flex-direction: column; justify-content: center; }
+.qcard .qtext { font-size: 1.18rem; font-weight: 700; color: var(--ink); line-height: 1.4; }
+.egg-badge { display: inline-block; background: linear-gradient(135deg, #8e44ad, #c0392b); color: #fff; font-size: 0.66rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 0.16rem 0.6rem; border-radius: 50px; margin-bottom: 0.6rem; align-self: center; }
+.qopts { display: grid; grid-template-columns: 1fr; gap: 0.6rem; }
+.qopt { display: block; width: 100%; text-align: left; background: #fff; border: 2px solid rgba(0,0,0,0.1); border-radius: 12px; padding: 0.8rem 1rem; font-family: 'Karla', sans-serif; font-size: 1rem; color: #333; cursor: pointer; transition: all 0.16s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.06); font-weight: 500; line-height: 1.4; }
+.qopt:hover:not(:disabled) { border-color: var(--acc); transform: translateY(-1px); box-shadow: 0 4px 12px var(--shadow); }
+.qopt:disabled { cursor: default; }
+.qopt.correct { background: #e7f7ec; border-color: #2e9e5b; color: #1d6b3c; font-weight: 700; }
+.qopt.wrong { background: #fdeaea; border-color: #d9534f; color: #a4302c; font-weight: 700; }
+.qexplain { margin-top: 1rem; border-radius: 12px; padding: 0.85rem 1.05rem; font-size: 0.96rem; line-height: 1.5; display: none; }
+.qexplain.show { display: block; }
+.qexplain.ok { background: #e7f7ec; border-left: 5px solid #2e9e5b; color: #1d6b3c; }
+.qexplain.no { background: #fdeaea; border-left: 5px solid #d9534f; color: #8c2622; }
+.qexplain .lead { font-weight: 700; display: block; margin-bottom: 0.15rem; }
+.qnext { margin-top: 1.1rem; text-align: center; }
+.score-big { font-family: 'Cormorant Garamond', serif; font-size: 3.4rem; font-weight: 700; color: var(--acc-d); line-height: 1; }
+.score-pct { font-size: 1.1rem; color: var(--acc-d); font-weight: 700; }
+.score-msg { color: #555; margin: 0.5rem 0 1.2rem; }
+
+.tips-card { background: #fff; border-radius: 14px; padding: 1.2rem 1.3rem; margin-bottom: 1rem; box-shadow: 0 5px 18px var(--shadow); border-left: 5px solid var(--gold); }
+.tips-card h3 { color: var(--gold-d); margin-bottom: 0.6rem; font-size: 1.15rem; }
+.tips-card li { padding: 0.3rem 0 0.3rem 1.4rem; position: relative; line-height: 1.5; font-size: 0.96rem; list-style: none; }
+.tips-card li::before { content: '✓'; position: absolute; left: 0.2rem; color: var(--gold); font-weight: 700; }
+.egg-foot { text-align: center; font-size: 0.8rem; color: #999; margin-top: 2rem; }
+
+@media (max-width: 700px) { h1 { font-size: 2.4rem; } .topic-head { font-size: 2rem; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <a class="back-link" href="index.html">&larr; Back to study materials</a>
+    <div class="header">
+        <div class="globe">🌍</div>
+        <h1>Lower 4 Geography</h1>
+        <p class="subtitle">Revision &amp; Quiz Zone 2026</p>
+    </div>
+
+    <div class="exam-banner">
+        <span class="pill">📝 The Exam</span><br>
+        <strong>One written paper, 60 minutes, three sections.</strong> You answer <strong>all</strong> questions, so revise <strong>all three topics</strong>: Tropical Rainforests, Urbanisation and Coasts. ⚠️ Be ready to <strong>sketch and label a diagram from the Coasts topic</strong> (the cave → arch → stack → stump sequence is a classic!). As well as recall, you'll need skills: identifying places on a map, describing what you see, and explaining your ideas — so learn the <strong>geographical terms</strong> for each topic.
+    </div>
+
+    <div class="tabs">
+        <button class="tab active" data-acc="forest" data-panel="rainforest">🌴 Rainforests</button>
+        <button class="tab" data-acc="urban" data-panel="urban">🏙️ Urbanisation</button>
+        <button class="tab" data-acc="ocean" data-panel="coasts">🌊 Coasts</button>
+        <button class="tab" data-acc="gold" data-panel="master">🏆 Master Quiz</button>
+        <button class="tab" data-acc="gold" data-panel="tips">💡 Revision Tips</button>
+    </div>
+
+    <!-- ================= RAINFORESTS ================= -->
+    <div class="panel active" id="panel-rainforest" style="--acc:#2e9e5b;--acc-d:#1b6b3a;">
+        <div class="topic-head" style="color:var(--acc-d);">🌴 Tropical Rainforests</div>
+        <div class="topic-sub">Ecosystems · world environments · climate factors · importance · deforestation</div>
+
+        <div class="note-card">
+            <h3>🌿 Ecosystems &amp; world environments</h3>
+            <ul>
+                <li>An <span class="kt">ecosystem</span> is a community of living things that interact with each other <em>and</em> with the non-living environment (climate, soil, water).</li>
+                <li>A <span class="kt">biome</span> is a large-scale global ecosystem — e.g. tropical rainforest, hot desert, savanna grassland, tundra, polar.</li>
+                <li><span class="kt">Biotic</span> = the living parts (plants, animals). <span class="kt">Abiotic</span> = the non-living parts (sunlight, temperature, water, soil).</li>
+                <li>Energy flows through a <span class="kt">food chain / food web</span>: <span class="kt">producers</span> (plants) → <span class="kt">consumers</span> (animals) → <span class="kt">decomposers</span> (break dead matter down and recycle nutrients).</li>
+            </ul>
+        </div>
+
+        <div class="note-card">
+            <h3>🌡️ Factors affecting climate</h3>
+            <ul>
+                <li><span class="kt">Latitude</span> — distance from the Equator. Near the Equator = hot; near the poles = cold.</li>
+                <li><span class="kt">Altitude</span> — height above sea level. The higher you go, the colder it gets.</li>
+                <li><span class="kt">Distance from the sea</span> — the sea heats/cools slowly, so it moderates coastal temperatures.</li>
+                <li><span class="kt">Ocean currents</span> and <span class="kt">prevailing winds</span> carry warmth or cold to different places.</li>
+            </ul>
+        </div>
+
+        <div class="note-card">
+            <h3>📍 Where &amp; what are tropical rainforests?</h3>
+            <ul>
+                <li>Found <span class="kt">around the Equator</span>, between the Tropic of Cancer and the Tropic of Capricorn — the <span class="kt">Amazon</span> (S. America), the <span class="kt">Congo</span> (Africa), and South-East Asia.</li>
+                <li>Climate is <span class="kt">hot (~27°C) and wet (~2000mm rain) all year</span> — there are no real seasons.</li>
+                <li>Four layers: <span class="kt">emergent</span> (tallest trees, 45m+) → <span class="kt">canopy</span> (dense roof ~30m, most wildlife) → <span class="kt">under-canopy</span> → dark <span class="kt">forest floor</span>.</li>
+                <li>Plant adaptations: <span class="kt">drip-tip leaves</span> (shed heavy rain), <span class="kt">buttress roots</span> (support tall trees in thin soil), <span class="kt">lianas</span> and <span class="kt">epiphytes</span> (climb/grow up to reach light).</li>
+            </ul>
+        </div>
+
+        <div class="note-card">
+            <h3>💚 Why rainforests matter</h3>
+            <ul>
+                <li>Incredible <span class="kt">biodiversity</span> — the greatest variety of species on Earth.</li>
+                <li>The "<span class="kt">lungs of the planet</span>" — they release oxygen and absorb CO₂ (a giant <span class="kt">carbon sink</span>), helping control climate.</li>
+                <li>Source of <span class="kt">medicines, foods and materials</span>, and home to <span class="kt">indigenous peoples</span>.</li>
+                <li>Help regulate the <span class="kt">water cycle</span>.</li>
+            </ul>
+        </div>
+
+        <div class="note-card">
+            <h3>🪓 Deforestation</h3>
+            <ul>
+                <li><span class="kt">Causes:</span> logging for timber, clearing for farming (<span class="kt">cattle ranching, palm oil, soya</span>), mining, roads, settlement and dams.</li>
+                <li><span class="kt">Effects:</span> lost biodiversity, more CO₂ → <span class="kt">climate change</span>, <span class="kt">soil erosion</span> &amp; flooding, and indigenous people losing their homes.</li>
+                <li><span class="kt">Solutions:</span> <span class="kt">selective logging</span>, replanting, <span class="kt">ecotourism</span>, agroforestry and protected reserves (<span class="kt">sustainable management</span>).</li>
+            </ul>
+        </div>
+
+        <div class="links-box">
+            <h3>🔗 Useful website</h3>
+            <ul><li>BBC Bitesize — Rainforests: <a href="https://www.bbc.co.uk/bitesize/topics/ztgw2hv/articles/zppthcw" target="_blank" rel="noopener">bbc.co.uk/bitesize/topics/ztgw2hv</a></li></ul>
+        </div>
+
+        <div class="quiz-launch">
+            <div class="qt">🌴 Rainforests Quiz</div>
+            <div class="qd">10 random questions on ecosystems, climate and deforestation. A hint pops up on every wrong answer.</div>
+            <div class="quiz-mount" id="quiz-rainforest"></div>
+        </div>
+    </div>
+
+    <!-- ================= URBANISATION ================= -->
+    <div class="panel" id="panel-urban" style="--acc:#ef8a1f;--acc-d:#c4630a;">
+        <div class="topic-head" style="color:var(--acc-d);">🏙️ Urbanisation</div>
+        <div class="topic-sub">Manchester's story · megacities · push &amp; pull · slums &amp; solutions</div>
+
+        <div class="note-card">
+            <h3>🔑 Key words</h3>
+            <ul>
+                <li><span class="kt">Urbanisation</span> = the increase in the <em>proportion</em> of people living in towns and cities.</li>
+                <li><span class="kt">Urban</span> = town/city; <span class="kt">rural</span> = countryside.</li>
+                <li><span class="kt">Megacity</span> = a city with <span class="kt">over 10 million people</span> (e.g. Tokyo, Delhi, São Paulo, Lagos).</li>
+            </ul>
+        </div>
+
+        <div class="note-card">
+            <h3>🏭 Manchester's story</h3>
+            <ul>
+                <li><span class="kt">Industrialisation (1800s):</span> Manchester boomed on the <span class="kt">cotton/textile</span> industry — nicknamed "<span class="kt">Cottonopolis</span>" — pulling in workers; canals &amp; railways grew with it.</li>
+                <li><span class="kt">Decline (1900s):</span> mills and factories <span class="kt">closed</span> as industry moved abroad — <span class="kt">unemployment</span>, dereliction and people leaving the inner city.</li>
+                <li><span class="kt">Regeneration (recent):</span> run-down areas redeveloped — <span class="kt">Salford Quays / MediaCityUK</span>, new housing, sport and services (rebuilding after the 1996 city-centre bomb).</li>
+            </ul>
+        </div>
+
+        <div class="note-card">
+            <h3>➡️ Push &amp; pull factors</h3>
+            <ul>
+                <li><span class="kt">Push factors</span> drive people <em>away</em> from the countryside: poverty, few jobs, <span class="kt">drought / crop failure</span>, poor services, natural disasters.</li>
+                <li><span class="kt">Pull factors</span> attract people <em>to</em> cities: better-paid <span class="kt">jobs</span>, education, healthcare, services and entertainment.</li>
+                <li>The fastest-growing cities today are in <span class="kt">lower-income countries (LICs/NEEs)</span> across Asia, Africa and South America.</li>
+            </ul>
+        </div>
+
+        <div class="note-card">
+            <h3>🏚️ Living in slums &amp; tackling the problem</h3>
+            <ul>
+                <li>A <span class="kt">slum / squatter settlement / shanty town</span> is a poor, overcrowded area, often built illegally — e.g. <span class="kt">Dharavi</span> in Mumbai.</li>
+                <li><span class="kt">Problems:</span> overcrowding, <span class="kt">poor sanitation</span> and disease, no clean water or electricity, and <span class="kt">informal jobs</span> (no contract — street selling, recycling).</li>
+                <li><span class="kt">Solutions:</span> <span class="kt">self-help / site-and-service</span> schemes (residents given materials &amp; loans to improve homes), upgrading water, sanitation and power, and help from <span class="kt">NGOs/charities</span>.</li>
+            </ul>
+        </div>
+
+        <div class="links-box">
+            <h3>🔗 Useful websites</h3>
+            <ul>
+                <li>BBC Teach — KS3 Rapid Urbanisation (video): <a href="https://www.bbc.co.uk/teach/class-clips-video/geography-ks3-rapid-urbanisation/z4ybgwx" target="_blank" rel="noopener">bbc.co.uk/teach/…/z4ybgwx</a></li>
+                <li>BBC Bitesize — Megacities: <a href="https://www.bbc.co.uk/bitesize/topics/z96vr82/articles/zc7htrd#z34496f" target="_blank" rel="noopener">bbc.co.uk/bitesize/topics/z96vr82</a></li>
+            </ul>
+        </div>
+
+        <div class="quiz-launch">
+            <div class="qt">🏙️ Urbanisation Quiz</div>
+            <div class="qd">10 random questions on Manchester, megacities, push/pull and slums.</div>
+            <div class="quiz-mount" id="quiz-urban"></div>
+        </div>
+    </div>
+
+    <!-- ================= COASTS ================= -->
+    <div class="panel" id="panel-coasts" style="--acc:#1f8ac0;--acc-d:#0a5a86;">
+        <div class="topic-head" style="color:var(--acc-d);">🌊 Coasts</div>
+        <div class="topic-sub">Waves · erosion, transport &amp; deposition · landforms · management</div>
+
+        <div class="note-card">
+            <h3>🌬️ What causes waves?</h3>
+            <ul>
+                <li>Waves are made by the <span class="kt">wind</span> blowing across the sea surface (friction).</li>
+                <li><span class="kt">Fetch</span> = the distance of open water the wind blows over. <span class="kt">Bigger fetch = bigger waves.</span></li>
+                <li><span class="kt">Constructive waves</span> build beaches up (strong <span class="kt">swash</span>, weak backwash). <span class="kt">Destructive waves</span> erode (weak swash, strong <span class="kt">backwash</span>).</li>
+            </ul>
+        </div>
+
+        <div class="note-card">
+            <h3>⛏️ The four processes of erosion</h3>
+            <ul>
+                <li><span class="kt">Hydraulic action</span> — the force of water compresses air in cracks and shatters the rock.</li>
+                <li><span class="kt">Abrasion</span> — waves fling rocks &amp; sand at the cliff, wearing it away like sandpaper.</li>
+                <li><span class="kt">Attrition</span> — rocks knock together, becoming smaller, rounder and smoother.</li>
+                <li><span class="kt">Solution</span> — acids in seawater chemically dissolve rock such as limestone.</li>
+            </ul>
+        </div>
+
+        <div class="note-card">
+            <h3>↗️ Transportation — longshore drift</h3>
+            <ul>
+                <li>The prevailing wind pushes waves up the beach <span class="kt">at an angle</span> (swash); <span class="kt">backwash</span> drags material <span class="kt">straight back down</span> (gravity).</li>
+                <li>This makes sediment <span class="kt">zig-zag along the coast</span> — that's <span class="kt">longshore drift</span>.</li>
+                <li>Material is also moved by <span class="kt">traction, saltation, suspension and solution</span>.</li>
+            </ul>
+        </div>
+
+        <div class="diagram-card">
+            <h3>✏️ Sketch this! Cave → Arch → Stack → Stump</h3>
+            <svg viewBox="0 0 720 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagram showing a headland eroding into a cave, then an arch, then a stack, then a stump">
+                <rect x="0" y="170" width="720" height="70" fill="#bfe3f2"/>
+                <!-- stage 1: cliff with cave -->
+                <path d="M10,170 L10,60 Q40,40 80,55 L120,55 Q150,60 150,170 Z" fill="#caa472" stroke="#8a6a3a" stroke-width="2"/>
+                <ellipse cx="150" cy="150" rx="22" ry="16" fill="#7a5a30"/>
+                <text x="80" y="210" text-anchor="middle" font-size="14" font-weight="700" fill="#0a5a86">1. Cave</text>
+                <!-- stage 2: arch -->
+                <path d="M195,170 L195,60 Q230,42 275,58 L300,58 Q320,80 320,170 L295,170 Q295,120 270,118 Q245,120 245,170 Z" fill="#caa472" stroke="#8a6a3a" stroke-width="2"/>
+                <text x="258" y="210" text-anchor="middle" font-size="14" font-weight="700" fill="#0a5a86">2. Arch</text>
+                <!-- stage 3: stack (arch roof collapsed) -->
+                <path d="M375,170 L375,60 Q405,46 440,60 L450,60 Q455,120 452,170 Z" fill="#caa472" stroke="#8a6a3a" stroke-width="2"/>
+                <path d="M500,170 L500,95 Q515,86 530,95 L530,170 Z" fill="#caa472" stroke="#8a6a3a" stroke-width="2"/>
+                <text x="515" y="80" text-anchor="middle" font-size="12" fill="#0a5a86">↑ collapsed</text>
+                <text x="465" y="210" text-anchor="middle" font-size="14" font-weight="700" fill="#0a5a86">3. Stack</text>
+                <!-- stage 4: stump -->
+                <path d="M590,170 L590,70 Q620,56 655,70 L665,70 Q670,120 667,170 Z" fill="#caa472" stroke="#8a6a3a" stroke-width="2"/>
+                <path d="M700,170 L700,150 Q710,145 718,150 L718,170 Z" fill="#caa472" stroke="#8a6a3a" stroke-width="2"/>
+                <text x="709" y="140" text-anchor="middle" font-size="12" fill="#0a5a86">stump</text>
+                <text x="650" y="210" text-anchor="middle" font-size="14" font-weight="700" fill="#0a5a86">4. Stump</text>
+            </svg>
+            <div class="cap">Waves attack a crack → <strong>cave</strong> → erodes through the headland → <strong>arch</strong> → roof collapses → <strong>stack</strong> → stack erodes down to a <strong>stump</strong>. Practise drawing &amp; labelling this for the exam!</div>
+        </div>
+
+        <div class="note-card">
+            <h3>🏖️ Landforms &amp; coastal management</h3>
+            <ul>
+                <li><span class="kt">Erosion landforms:</span> headlands &amp; bays (hard vs soft rock), cliffs &amp; <span class="kt">wave-cut platforms</span>, and cave → arch → stack → stump.</li>
+                <li><span class="kt">Deposition landforms:</span> <span class="kt">beaches</span>, and <span class="kt">spits</span> (a ridge of sand built by longshore drift, joined to land at one end).</li>
+                <li><span class="kt">Hard engineering:</span> sea walls, <span class="kt">groynes</span> (trap sediment), rock armour (rip-rap), gabions.</li>
+                <li><span class="kt">Soft engineering:</span> <span class="kt">beach nourishment</span>, managed retreat, dune regeneration.</li>
+            </ul>
+        </div>
+
+        <div class="links-box">
+            <h3>🔗 Useful website</h3>
+            <ul><li>BBC Bitesize — Coasts: <a href="https://www.bbc.co.uk/bitesize/topics/z6bd7ty" target="_blank" rel="noopener">bbc.co.uk/bitesize/topics/z6bd7ty</a></li></ul>
+        </div>
+
+        <div class="quiz-launch">
+            <div class="qt">🌊 Coasts Quiz</div>
+            <div class="qd">10 random questions on waves, erosion, longshore drift and landforms.</div>
+            <div class="quiz-mount" id="quiz-coasts"></div>
+        </div>
+    </div>
+
+    <!-- ================= MASTER QUIZ ================= -->
+    <div class="panel" id="panel-master" style="--acc:#c79a2e;--acc-d:#8a6a12;">
+        <div class="topic-head" style="color:var(--acc-d);">🏆 Master Quiz</div>
+        <div class="topic-sub">All three topics combined — just like the real exam</div>
+        <div class="note-card">
+            <h3>🎯 The big one</h3>
+            <ul>
+                <li><span class="kt">20 random questions</span> drawn from <em>all three</em> topics — Rainforests, Urbanisation and Coasts.</li>
+                <li>Hints appear on every wrong answer so you learn as you go, and you're scored at the end.</li>
+                <li>👀 Keep your eyes open — a few <span class="kt">anime easter-egg questions</span> are hidden in the banks for fun!</li>
+            </ul>
+        </div>
+        <div class="quiz-launch">
+            <div class="qt">🏆 Combined Exam Quiz</div>
+            <div class="qd">20 random questions from everything. Aim for that top grade!</div>
+            <div class="quiz-mount" id="quiz-master"></div>
+        </div>
+    </div>
+
+    <!-- ================= TIPS ================= -->
+    <div class="panel" id="panel-tips" style="--acc:#c79a2e;--acc-d:#8a6a12;">
+        <div class="topic-head" style="color:var(--acc-d);">💡 Revision Tips</div>
+        <div class="topic-sub">Straight from your revision guide</div>
+        <div class="tips-card">
+            <h3>How to revise</h3>
+            <ul>
+                <li><strong>Sketch &amp; label diagrams</strong> to explain what happens (essential for Coasts!).</li>
+                <li><strong>Look, cover, write, check</strong> important facts.</li>
+                <li><strong>Flash cards</strong> — key term on one side, definition or answer on the other.</li>
+                <li><strong>Mind maps</strong> — pick a key word and branch out with details.</li>
+                <li><strong>Test yourself</strong> — get someone to quiz you, then focus on what you didn't know.</li>
+            </ul>
+        </div>
+        <div class="tips-card">
+            <h3>Remember</h3>
+            <ul>
+                <li>You'll do <strong>recall</strong> questions <em>and</em> show skills: <strong>identifying places on a map</strong>, <strong>describing</strong> what you see, and <strong>explaining</strong> your ideas.</li>
+                <li>Learn the <strong>geographical terms</strong> from each topic — they win marks.</li>
+            </ul>
+        </div>
+        <div class="tips-card">
+            <h3>All useful websites</h3>
+            <ul style="list-style:none;">
+                <li>🌴 Rainforests: <a href="https://www.bbc.co.uk/bitesize/topics/ztgw2hv/articles/zppthcw" target="_blank" rel="noopener">bbc.co.uk/bitesize/topics/ztgw2hv</a></li>
+                <li>🌊 Coasts: <a href="https://www.bbc.co.uk/bitesize/topics/z6bd7ty" target="_blank" rel="noopener">bbc.co.uk/bitesize/topics/z6bd7ty</a></li>
+                <li>🏙️ Urbanisation (video): <a href="https://www.bbc.co.uk/teach/class-clips-video/geography-ks3-rapid-urbanisation/z4ybgwx" target="_blank" rel="noopener">bbc.co.uk/teach/…/z4ybgwx</a></li>
+                <li>🌆 Megacities: <a href="https://www.bbc.co.uk/bitesize/topics/z96vr82/articles/zc7htrd#z34496f" target="_blank" rel="noopener">bbc.co.uk/bitesize/topics/z96vr82</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="egg-foot">🥚 Psst… there are anime easter eggs hidden in the quizzes. Gotta catch 'em all. ✨</div>
+</div>
+
+<script>
+/* ============ QUESTION BANKS ============ */
+/* egg:true marks an anime easter-egg question (still 100% valid geography!) */
+const BANKS = {
+    rainforest: [
+        { q: "What is an <em>ecosystem</em>?", a: "A community of living things interacting with each other and their non-living surroundings", opts: ["A community of living things interacting with each other and their non-living surroundings", "A single type of animal living alone", "A man-made park full of plants", "A weather pattern over the sea"], ex: "An ecosystem links the living (biotic) things to the non-living (abiotic) environment like climate, soil and water." },
+        { q: "A <em>biome</em> is best described as…", a: "A large-scale global ecosystem, like tropical rainforest or hot desert", opts: ["A large-scale global ecosystem, like tropical rainforest or hot desert", "A single tree and the insects on it", "A type of soil", "A river and its banks"], ex: "Biomes are huge — tropical rainforest, desert, tundra and savanna are all biomes." },
+        { q: "Which of these is an <em>abiotic</em> (non-living) part of an ecosystem?", a: "Sunlight", opts: ["Sunlight", "Monkeys", "Trees", "Beetles"], ex: "Abiotic = non-living: sunlight, temperature, water and soil. The others are biotic (living)." },
+        { q: "In a food chain, <em>producers</em> are…", a: "Plants, which make their own food by photosynthesis", opts: ["Plants, which make their own food by photosynthesis", "Lions and other top predators", "Fungi that rot dead leaves", "Insects that eat other insects"], ex: "Producers (plants) make their own food and start every food chain; decomposers recycle the nutrients." },
+        { q: "Where in the world are tropical rainforests found?", a: "Around the Equator, between the Tropics", opts: ["Around the Equator, between the Tropics", "At the North and South Poles", "In the middle of hot deserts", "Only on tall mountains"], ex: "Rainforests hug the Equator — the Amazon, the Congo and South-East Asia." },
+        { q: "What is the tropical rainforest climate like?", a: "Hot and wet all year round", opts: ["Hot and wet all year round", "Hot and dry with no rain", "Cold and snowy in winter", "Warm summers and freezing winters"], ex: "About 27°C and 2000mm of rain every year, with no real seasons." },
+        { q: "The factor 'how close a place is to the Equator' is called…", a: "Latitude", opts: ["Latitude", "Altitude", "Longitude", "Fetch"], ex: "Latitude controls how hot a place is — near the Equator is hottest. (Altitude is height; fetch is a coasts term.)" },
+        { q: "As <em>altitude</em> increases (you go higher up), the temperature…", a: "Falls — it gets colder", opts: ["Falls — it gets colder", "Rises — it gets hotter", "Stays exactly the same", "Becomes wetter only"], ex: "Higher up = colder. That's why mountain tops can be snowy even in warm regions." },
+        { q: "🐉 In <em>Demon Slayer</em>, Tanjiro trains on misty, forested mountains. In a real rainforest, which layer forms a dense 'roof' ~30m up that blocks most sunlight?", a: "The canopy", opts: ["The canopy", "The forest floor", "The emergent layer", "The under-canopy"], ex: "The canopy is the thick continuous layer ~30m up — it soaks up the light, leaving the forest floor dark. Total concentration: Canopy!", egg: true },
+        { q: "Why do many rainforest trees have <em>drip-tip leaves</em>?", a: "So heavy rain runs off quickly and the leaves don't rot", opts: ["So heavy rain runs off quickly and the leaves don't rot", "To store water inside for the dry season", "To trap snow in winter", "To make the tree taller"], ex: "Drip-tips let the constant heavy rain drain away fast, stopping mould and rot." },
+        { q: "Why are rainforests called the 'lungs of the planet'?", a: "They release oxygen and absorb carbon dioxide", opts: ["They release oxygen and absorb carbon dioxide", "They are shaped like lungs", "They make all the world's rain", "They are full of breathing animals"], ex: "Rainforests are a giant carbon sink — taking in CO₂ and giving out oxygen, which helps control climate." },
+        { q: "<em>Biodiversity</em> means…", a: "The huge variety of different plant and animal species", opts: ["The huge variety of different plant and animal species", "The total weight of all the trees", "The number of rivers in a forest", "The amount of rain that falls"], ex: "Rainforests have the highest biodiversity on Earth — the greatest variety of life." },
+        { q: "Which of these is a <em>cause</em> of deforestation?", a: "Clearing land for cattle ranching", opts: ["Clearing land for cattle ranching", "Creating a protected nature reserve", "Replanting native trees", "Running an ecotourism trail"], ex: "Causes include cattle ranching, palm oil, soya, logging and mining. The others are solutions!" },
+        { q: "🐼 In <em>Avatar: The Last Airbender</em>, the forest spirit Hei Bai goes on a rampage after the Fire Nation burns down his forest. What is the real-world large-scale clearing of forests called?", a: "Deforestation", opts: ["Deforestation", "Urbanisation", "Longshore drift", "Photosynthesis"], ex: "Deforestation — just like the burnt forest that enrages Hei Bai, it wrecks habitats, biodiversity and the homes of indigenous people.", egg: true },
+        { q: "Which is an <em>effect</em> of deforestation?", a: "More CO₂ in the air, adding to climate change", opts: ["More CO₂ in the air, adding to climate change", "More species and more oxygen", "Richer, deeper soils", "Cooler global temperatures"], ex: "Fewer trees means less CO₂ absorbed, plus soil erosion, flooding and lost biodiversity." },
+        { q: "Which is a <em>sustainable</em> way to manage rainforests?", a: "Selective logging and replanting", opts: ["Selective logging and replanting", "Clear-felling whole areas", "Burning forest for cattle", "Building more roads and mines"], ex: "Selective logging, replanting, ecotourism and reserves let us use the forest without destroying it." },
+        { q: "What do <em>decomposers</em> (like fungi and bacteria) do?", a: "Break down dead matter and recycle nutrients into the soil", opts: ["Break down dead matter and recycle nutrients into the soil", "Hunt and eat large animals", "Make their own food from sunlight", "Block light from the canopy"], ex: "Decomposers recycle nutrients from dead plants and animals back into the ecosystem." },
+        { q: "A <em>consumer</em> in a food chain is…", a: "An animal that eats plants or other animals", opts: ["An animal that eats plants or other animals", "A plant that makes its own food", "A type of soil", "The Sun"], ex: "Consumers can't make their own food, so they eat producers or other consumers." },
+        { q: "Why is rainforest soil often surprisingly <em>infertile</em>?", a: "Heavy rain washes nutrients away and plants quickly take up the rest", opts: ["Heavy rain washes nutrients away and plants quickly take up the rest", "It is frozen most of the year", "No plants ever grew there", "It is made of pure sand"], ex: "Nutrients are stored in the plants, not the soil — and leaching by heavy rain keeps the soil poor." },
+        { q: "The Amazon rainforest is found on which continent?", a: "South America", opts: ["South America", "Africa", "Antarctica", "Europe"], ex: "The Amazon is in South America; the Congo rainforest is in Africa; others are in SE Asia." },
+        { q: "Which region contains a huge tropical rainforest?", a: "The Congo Basin", opts: ["The Congo Basin", "The Sahara Desert", "Antarctica", "The Alps"], ex: "The Congo Basin in Central Africa is the world's second-largest rainforest." },
+        { q: "🍃 In <em>Naruto</em>, the Hidden Leaf Village sits in a dense forest where little light reaches the ground. Why is a real rainforest floor so dark?", a: "The thick canopy blocks most of the sunlight", opts: ["The thick canopy blocks most of the sunlight", "It is night-time all year", "The soil is black", "There are no trees"], ex: "The canopy soaks up the sunlight ~30m up, so very little grows on the shadowy forest floor.", egg: true },
+        { q: "<em>Lianas</em> are…", a: "Woody climbing vines that use trees to reach the light", opts: ["Woody climbing vines that use trees to reach the light", "Small ground-dwelling mammals", "Drip-tip leaves", "Tropical storms"], ex: "Lianas climb up tree trunks to reach sunlight in the canopy." },
+        { q: "<em>Epiphytes</em> (like some orchids) are plants that…", a: "Grow on the branches of trees to get closer to the light", opts: ["Grow on the branches of trees to get closer to the light", "Live deep underground", "Float on rivers", "Only grow in deserts"], ex: "Epiphytes perch on branches high up rather than rooting in the dark forest floor." },
+        { q: "<em>Indigenous</em> people of the rainforest are…", a: "People who have traditionally lived there for many generations", opts: ["People who have traditionally lived there for many generations", "Tourists on a short visit", "Loggers from abroad", "Scientists studying plants"], ex: "Indigenous peoples have lived sustainably in the rainforest for generations and are threatened by deforestation." },
+        { q: "A <em>carbon sink</em> is…", a: "Something that absorbs and stores more carbon than it releases", opts: ["Something that absorbs and stores more carbon than it releases", "A hole that fills with rainwater", "A type of factory", "A river that floods"], ex: "Rainforests are huge carbon sinks, locking away CO₂ and helping slow climate change." },
+        { q: "How is <em>palm oil</em> linked to deforestation?", a: "Rainforest is cleared to plant huge palm oil plantations", opts: ["Rainforest is cleared to plant huge palm oil plantations", "Palm oil helps trees grow back", "Palm oil is made from seawater", "It has no link at all"], ex: "Vast areas of rainforest, especially in SE Asia, are cleared for palm oil plantations." },
+        { q: "<em>Ecotourism</em> means…", a: "Tourism that protects the environment and benefits local people", opts: ["Tourism that protects the environment and benefits local people", "Building big resorts in the forest", "Cutting trees for tourists", "Banning all visitors"], ex: "Ecotourism gives the forest economic value while keeping it standing — a sustainable solution." },
+        { q: "What is <em>selective logging</em>?", a: "Cutting down only certain trees and leaving the rest to recover", opts: ["Cutting down only certain trees and leaving the rest to recover", "Clearing every tree in an area", "Burning the forest down", "Planting palm oil"], ex: "Selective logging removes a few mature trees so the forest can regrow — more sustainable than clear-felling." },
+        { q: "What happens to soil when trees are removed by deforestation?", a: "Without roots to hold it, the soil is eroded and washed away", opts: ["Without roots to hold it, the soil is eroded and washed away", "It becomes much more fertile", "It turns into solid rock", "Nothing changes"], ex: "Tree roots bind the soil; remove them and heavy rain erodes the soil, causing flooding downstream." },
+        { q: "Why is it hottest at the Equator?", a: "The Sun's rays are most concentrated there", opts: ["The Sun's rays are most concentrated there", "It is closest to the Moon", "There is no sea nearby", "It is highest above sea level"], ex: "At low latitudes the Sun is high overhead, so its energy is concentrated on a small area — making it hot." },
+        { q: "The <em>emergent</em> layer of a rainforest is…", a: "The tallest trees that poke out above the canopy (45m+)", opts: ["The tallest trees that poke out above the canopy (45m+)", "The dark forest floor", "An underground layer", "A layer of cloud"], ex: "Emergents are the giant trees standing above the canopy, exposed to the most sunlight and wind." }
+    ],
+    urban: [
+        { q: "<em>Urbanisation</em> means…", a: "The increase in the proportion of people living in towns and cities", opts: ["The increase in the proportion of people living in towns and cities", "People moving out to the countryside", "Building new motorways", "The growth of farming"], ex: "Urbanisation = a rising share of the population living in urban areas." },
+        { q: "🏯 In <em>Avatar: The Last Airbender</em>, Ba Sing Se is a giant walled city where rich and poor are split into rings. A real city of over 10 million people is called a…", a: "Megacity", opts: ["Megacity", "Village", "Hamlet", "Suburb"], ex: "A megacity has 10 million+ people — Ba Sing Se would definitely qualify. Tokyo is the world's biggest!", egg: true },
+        { q: "Which of these is a <em>push</em> factor (driving people away from the countryside)?", a: "Crop failure and drought", opts: ["Crop failure and drought", "Better-paid jobs", "Good hospitals", "Top universities"], ex: "Push factors push people away: poverty, drought, few jobs. The others are pull factors." },
+        { q: "🦸 People flock to huge cities like the one in <em>My Hero Academia</em> for jobs, schools and hospitals. Reasons that <em>attract</em> people TO a city are called…", a: "Pull factors", opts: ["Pull factors", "Push factors", "Erosion factors", "Climate factors"], ex: "Pull factors pull people in — jobs, education, healthcare. Plus Ultra! 💥", egg: true },
+        { q: "Manchester first grew rapidly in the 1800s because of which industry?", a: "Cotton and textiles ('Cottonopolis')", opts: ["Cotton and textiles ('Cottonopolis')", "Oil drilling", "Computer chips", "Tourism"], ex: "Manchester boomed on cotton mills in the Industrial Revolution — nicknamed 'Cottonopolis'." },
+        { q: "What happened to Manchester during its period of <em>decline</em>?", a: "Factories closed and unemployment rose as industry moved away", opts: ["Factories closed and unemployment rose as industry moved away", "It suddenly doubled its factories", "It became a farming village again", "Everyone became wealthy overnight"], ex: "In the 20th century industry declined — closures, unemployment and inner-city dereliction." },
+        { q: "<em>Regeneration</em> of a city means…", a: "Improving and redeveloping run-down urban areas", opts: ["Improving and redeveloping run-down urban areas", "Knocking a city down for farmland", "Moving a city to the coast", "Banning all new buildings"], ex: "Regeneration revives derelict areas — e.g. Salford Quays / MediaCityUK in Manchester." },
+        { q: "Salford Quays and MediaCityUK are an example of Manchester's…", a: "Regeneration", opts: ["Regeneration", "Industrialisation", "Decline", "Deforestation"], ex: "Old derelict docks were redeveloped into MediaCityUK — classic regeneration." },
+        { q: "A <em>slum</em> (shanty town / squatter settlement) is…", a: "A poor, overcrowded settlement, often built illegally on the edge of a city", opts: ["A poor, overcrowded settlement, often built illegally on the edge of a city", "A wealthy gated neighbourhood", "A modern shopping centre", "A protected national park"], ex: "Dharavi in Mumbai is a famous example of a slum." },
+        { q: "Which is a typical <em>problem</em> of life in a slum like Dharavi?", a: "Poor sanitation, overcrowding and disease", opts: ["Poor sanitation, overcrowding and disease", "Wide empty streets and big gardens", "Free private healthcare for all", "Lots of green parkland"], ex: "Slums often lack clean water, sanitation and electricity, with overcrowding and informal jobs." },
+        { q: "A 'self-help' (site-and-service) scheme tackles slums by…", a: "Giving residents materials and loans to improve their own homes", opts: ["Giving residents materials and loans to improve their own homes", "Bulldozing the whole area with no replacement", "Banning people from the city", "Building luxury hotels there"], ex: "Self-help schemes provide basic services and let residents upgrade their homes step by step." },
+        { q: "The fastest-growing megacities today are mostly found in…", a: "Lower-income countries in Asia, Africa and South America", opts: ["Lower-income countries in Asia, Africa and South America", "Antarctica", "Northern Europe only", "The middle of oceans"], ex: "Rapid urbanisation is happening fastest in LICs/NEEs — Lagos, Mumbai, São Paulo and more." },
+        { q: "The <em>informal economy</em> in a slum means…", a: "Unofficial jobs with no contract, like street selling or recycling", opts: ["Unofficial jobs with no contract, like street selling or recycling", "Well-paid office jobs with pensions", "Government-run factories", "Jobs that don't exist"], ex: "Much of Dharavi works in informal jobs — recycling, pottery, street trade — without official contracts." },
+        { q: "<em>Rural-urban migration</em> is…", a: "People moving from the countryside to live in towns and cities", opts: ["People moving from the countryside to live in towns and cities", "People moving from cities to the countryside", "Tourists visiting a city", "Building new farms"], ex: "Rural-urban migration is a major driver of urbanisation in lower-income countries." },
+        { q: "<em>Rural</em> means…", a: "The countryside", opts: ["The countryside", "The city centre", "An industrial estate", "The seaside"], ex: "Rural = countryside; urban = town/city." },
+        { q: "Which of these is a <em>megacity</em>?", a: "Tokyo", opts: ["Tokyo", "A hamlet of 500 people", "An Antarctic research base", "A single farm"], ex: "A megacity has over 10 million people — Tokyo is the world's largest." },
+        { q: "<em>Natural increase</em> in a city's population happens when…", a: "Births outnumber deaths", opts: ["Births outnumber deaths", "People emigrate abroad", "Factories close down", "The city shrinks"], ex: "Cities grow both from migration and from natural increase (more births than deaths)." },
+        { q: "The <em>Industrial Revolution</em> was…", a: "The period in the 1800s when factories and industry grew rapidly", opts: ["The period in the 1800s when factories and industry grew rapidly", "A modern computer boom", "A type of farming", "A war over cities"], ex: "Manchester urbanised rapidly during the Industrial Revolution thanks to the cotton industry." },
+        { q: "🏯 In <em>Attack on Titan</em>, humanity is packed tightly inside walled cities for safety. When too many people are crammed into too little space, this is called…", a: "Overcrowding", opts: ["Overcrowding", "Regeneration", "Deforestation", "Deposition"], ex: "Overcrowding plagues fast-growing cities and slums — too many people, too few services and too little space.", egg: true },
+        { q: "MediaCityUK was built in which area of Greater Manchester?", a: "Salford (the old docks at Salford Quays)", opts: ["Salford (the old docks at Salford Quays)", "The City of London", "Rural Wales", "Central Paris"], ex: "The derelict Salford Quays docks were regenerated into MediaCityUK." },
+        { q: "A clear sign of urban <em>decline</em> is…", a: "Derelict, abandoned buildings and high unemployment", opts: ["Derelict, abandoned buildings and high unemployment", "Brand-new factories opening", "Rapidly rising population", "Lots of new jobs"], ex: "Decline brings closed factories, derelict land and people leaving the inner city." },
+        { q: "An <em>NGO</em> (e.g. a charity) helps slums by…", a: "Providing aid, services and projects to improve people's lives", opts: ["Providing aid, services and projects to improve people's lives", "Building luxury malls only", "Charging residents high taxes", "Knocking the area down"], ex: "Non-Government Organisations and charities support slum communities with water, sanitation, schools and clinics." },
+        { q: "Which is a <em>pull</em> factor attracting people to cities?", a: "Better access to healthcare and education", opts: ["Better access to healthcare and education", "Drought ruining the harvest", "No jobs in the village", "A natural disaster"], ex: "Pull factors attract people in: jobs, schools, hospitals. The others are push factors." },
+        { q: "Which is a <em>push</em> factor (driving people from rural areas)?", a: "A natural disaster destroying farmland", opts: ["A natural disaster destroying farmland", "Higher wages in the city", "Better entertainment", "Good universities"], ex: "Push factors force people away: disasters, drought, poverty, lack of jobs." },
+        { q: "The <em>informal housing</em> people build for themselves, often illegally, is a…", a: "Squatter settlement (shanty town)", opts: ["Squatter settlement (shanty town)", "Gated community", "Business district", "National park"], ex: "Squatter settlements like Dharavi are built by residents, often without legal ownership of the land." },
+        { q: "Why do megacities in lower-income countries grow so quickly?", a: "Lots of rural-urban migration plus high natural increase", opts: ["Lots of rural-urban migration plus high natural increase", "People are leaving for the countryside", "Birth rates are very low", "Factories are all closing"], ex: "Migration into the city combines with more births than deaths to fuel rapid growth." }
+    ],
+    coasts: [
+        { q: "What actually causes <em>waves</em>?", a: "Wind blowing across the surface of the sea", opts: ["Wind blowing across the surface of the sea", "Fish swimming in groups", "The Moon touching the water", "Boats driving past"], ex: "Friction from wind blowing over the sea makes waves. (Tides — not waves — are caused by the Moon.)" },
+        { q: "🌊 In <em>Avatar: The Last Airbender</em>, Katara bends water to whip up the waves. In real life, what creates waves at the coast?", a: "The wind blowing over the sea", opts: ["The wind blowing over the sea", "Earthbending the seabed", "The Moon's gravity making waves", "Penguins diving in"], ex: "No waterbending needed — it's the wind. The bigger the fetch, the bigger the wave!", egg: true },
+        { q: "<em>Fetch</em> is…", a: "The distance of open water the wind blows over", opts: ["The distance of open water the wind blows over", "The height of a cliff", "The speed of a boat", "A type of beach"], ex: "A longer fetch means more powerful waves — a key control on wave size." },
+        { q: "<em>Constructive</em> waves…", a: "Build up the beach (strong swash, weak backwash)", opts: ["Build up the beach (strong swash, weak backwash)", "Tear the beach away (strong backwash)", "Only happen at night", "Are made of sand"], ex: "Constructive = builds the beach. Destructive waves (strong backwash) erode it." },
+        { q: "<em>Hydraulic action</em> erodes a cliff by…", a: "The force of water compressing air in cracks until rock shatters", opts: ["The force of water compressing air in cracks until rock shatters", "Rocks rubbing smooth against each other", "Acid dissolving the rock", "Wind blowing sand away"], ex: "Hydraulic action is the sheer power of water forcing air into cracks and blasting rock apart." },
+        { q: "When waves fling pebbles and sand at a cliff and wear it away like sandpaper, that's…", a: "Abrasion", opts: ["Abrasion", "Attrition", "Solution", "Deposition"], ex: "Abrasion (corrasion) = the sandpaper effect of material hurled at the cliff." },
+        { q: "<em>Attrition</em> is the process where…", a: "Rocks knock together and become smaller, rounder and smoother", opts: ["Rocks knock together and become smaller, rounder and smoother", "Seawater dissolves limestone", "Air is compressed in cracks", "Material is dropped on a beach"], ex: "Attrition wears the rocks themselves down — that's why beach pebbles are rounded." },
+        { q: "🐉 <em>Demon Slayer</em>'s Water Breathing flows like the sea. When waves hit the beach at an angle and zig-zag sediment <em>along</em> the coast, the process is…", a: "Longshore drift", opts: ["Longshore drift", "Hydraulic action", "Deposition", "Attrition"], ex: "Longshore drift — swash carries material up at an angle, backwash pulls it straight back. Total Concentration: Coast Breathing! 🌊", egg: true },
+        { q: "Why does longshore drift move material at an angle <em>up</em> the beach?", a: "The prevailing wind drives the swash at an angle; backwash returns straight down under gravity", opts: ["The prevailing wind drives the swash at an angle; backwash returns straight down under gravity", "The Moon pulls it sideways", "Fish push the sand along", "The beach is tilted by people"], ex: "Angled swash + straight-down backwash = the zig-zag of longshore drift." },
+        { q: "Put the erosion landforms in the correct order:", a: "Cave → Arch → Stack → Stump", opts: ["Cave → Arch → Stack → Stump", "Stump → Stack → Arch → Cave", "Beach → Spit → Bar → Tombolo", "Arch → Cave → Stump → Stack"], ex: "Cave erodes through a headland into an arch; the roof collapses to leave a stack, which erodes to a stump. (Sketch this for the exam!)" },
+        { q: "A <em>wave-cut platform</em> is…", a: "A flat rocky surface left behind as a cliff is eroded and retreats", opts: ["A flat rocky surface left behind as a cliff is eroded and retreats", "A sandy ridge built across a bay", "A man-made sea defence", "A floating platform for boats"], ex: "As the wave-cut notch undercuts the cliff, the cliff retreats and leaves a flat platform at its base." },
+        { q: "Headlands tend to form where the coast has…", a: "Bands of hard rock that stick out, with bays in the softer rock", opts: ["Bands of hard rock that stick out, with bays in the softer rock", "Only one type of rock everywhere", "No rock at all", "Lots of sand and no rock"], ex: "Hard rock resists erosion and juts out as headlands; soft rock erodes back into bays." },
+        { q: "A <em>spit</em> is a landform of…", a: "Deposition — a ridge of sand/shingle built out by longshore drift", opts: ["Deposition — a ridge of sand/shingle built out by longshore drift", "Erosion by hydraulic action", "Chemical solution of limestone", "Wind blowing inland"], ex: "Longshore drift deposits material across a bay or river mouth to build a spit, joined to land at one end." },
+        { q: "Which of these is <em>hard</em> engineering coastal management?", a: "A sea wall or groynes", opts: ["A sea wall or groynes", "Beach nourishment", "Managed retreat", "Sand dune regeneration"], ex: "Hard engineering = built structures (sea walls, groynes, rock armour). The others are soft engineering." },
+        { q: "What is the job of <em>groynes</em>?", a: "Wooden or rock barriers that trap sediment and slow longshore drift", opts: ["Wooden or rock barriers that trap sediment and slow longshore drift", "Walls that dissolve the waves", "Pipes that drain the sea", "Nets that catch fish"], ex: "Groynes trap material moving by longshore drift, building up the beach to protect the coast." },
+        { q: "<em>Swash</em> is…", a: "The water rushing up the beach after a wave breaks", opts: ["The water rushing up the beach after a wave breaks", "The water draining back down to the sea", "The distance the wind blows over", "A type of cliff"], ex: "Swash runs up the beach; backwash drains back down." },
+        { q: "<em>Backwash</em> is…", a: "The water flowing back down the beach towards the sea", opts: ["The water flowing back down the beach towards the sea", "Water rushing up the beach", "A wave caused by wind", "A deposited ridge of sand"], ex: "Strong backwash (destructive waves) drags material out to sea and erodes the beach." },
+        { q: "<em>Destructive</em> waves are typically…", a: "Tall and frequent with a strong backwash, eroding the beach", opts: ["Tall and frequent with a strong backwash, eroding the beach", "Low and gentle, building the beach up", "Only found in rivers", "Made of shingle"], ex: "Destructive waves have a powerful backwash that pulls material away — they erode the coast." },
+        { q: "<em>Solution</em> (corrosion) as a process of erosion is…", a: "Seawater chemically dissolving soluble rock like chalk and limestone", opts: ["Seawater chemically dissolving soluble rock like chalk and limestone", "Rocks smashing into each other", "Air compressed in cracks", "Sand dropped on a beach"], ex: "Slightly acidic seawater dissolves soluble rocks such as limestone and chalk." },
+        { q: "In transportation, <em>traction</em> means…", a: "Large rocks being rolled along the seabed by the waves", opts: ["Large rocks being rolled along the seabed by the waves", "Fine mud carried in the water", "Pebbles bouncing along", "Material dropped by the sea"], ex: "Traction rolls the biggest material along the seabed; saltation bounces smaller pebbles." },
+        { q: "<em>Saltation</em> is…", a: "Small pebbles being bounced along the seabed", opts: ["Small pebbles being bounced along the seabed", "Salt dissolving in the sea", "Big boulders rolling", "Sand floating on top"], ex: "Saltation = a hopping/bouncing motion of small stones along the bed." },
+        { q: "<em>Suspension</em> as a transport process means…", a: "Fine, light sediment carried along within the water", opts: ["Fine, light sediment carried along within the water", "Heavy rocks rolling on the bed", "Rock dissolving chemically", "Waves stopping completely"], ex: "Fine material like silt and clay is carried suspended in the water, making it look cloudy." },
+        { q: "<em>Deposition</em> happens when…", a: "Waves lose energy and drop the material they were carrying", opts: ["Waves lose energy and drop the material they were carrying", "Waves get stronger and erode", "The wind suddenly increases", "Rock dissolves in water"], ex: "When waves slow and lose energy (e.g. in a sheltered bay), they deposit their sediment." },
+        { q: "🏴‍☠️ Many islands in <em>One Piece</em> have dramatic sea arches and rock pillars. A pillar of rock left standing when an arch's roof collapses is a…", a: "Stack", opts: ["Stack", "Spit", "Bay", "Groyne"], ex: "Arch roof collapses → isolated stack → erodes down to a stump. Set sail for the Grand Line! 🌊", egg: true },
+        { q: "A <em>wave-cut notch</em> is…", a: "A dent eroded into the base of a cliff", opts: ["A dent eroded into the base of a cliff", "The flat platform left behind", "A ridge of deposited sand", "A sea defence"], ex: "Erosion cuts a notch at the cliff base; as it deepens the cliff above collapses and retreats." },
+        { q: "🌊 In <em>Pokémon</em>, the move Surf sends a huge wave crashing in. Tall waves with a strong backwash that wear the beach away are called…", a: "Destructive waves", opts: ["Destructive waves", "Constructive waves", "Longshore drift", "Deposition"], ex: "Surf would be a destructive wave — strong backwash erodes the beach. It's super effective! ⚡", egg: true },
+        { q: "<em>Rock armour</em> (rip-rap) is…", a: "Large boulders placed at the cliff base to absorb wave energy", opts: ["Large boulders placed at the cliff base to absorb wave energy", "Sand added to a beach", "Letting the sea flood the land", "A wooden fence across the beach"], ex: "Rock armour is hard engineering — big boulders that break up the waves before they hit the cliff." },
+        { q: "<em>Beach nourishment</em> is a form of soft engineering that…", a: "Adds new sand or shingle to replace eroded material", opts: ["Adds new sand or shingle to replace eroded material", "Builds a concrete sea wall", "Drops boulders on the beach", "Lets the cliff collapse"], ex: "Beach nourishment tops up the beach so it can absorb wave energy — natural-looking soft engineering." },
+        { q: "<em>Managed retreat</em> means…", a: "Allowing the sea to flood low-value land in a controlled way", opts: ["Allowing the sea to flood low-value land in a controlled way", "Building higher and higher sea walls", "Removing all the water from the sea", "Banning people from the beach"], ex: "Managed retreat lets the coastline move back naturally where defending it isn't worth the cost." },
+        { q: "What does a <em>sea wall</em> do?", a: "Reflects waves back out to sea to protect the coast behind it", opts: ["Reflects waves back out to sea to protect the coast behind it", "Traps sediment moving along the beach", "Adds sand to the beach", "Dissolves the waves"], ex: "A sea wall is hard engineering — a curved concrete barrier that reflects wave energy away." }
+    ]
+};
+
+/* ============ GENERIC QUIZ ENGINE ============ */
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+function Quiz(mount, bank, len){
+    this.mount = mount; this.bank = bank; this.len = len;
+    this.renderIntro();
+}
+Quiz.prototype.renderIntro = function(){
+    const self = this;
+    this.mount.innerHTML = '<button class="go">Start Quiz ▶</button>';
+    this.mount.querySelector('button').onclick = function(){ self.start(); };
+};
+Quiz.prototype.start = function(){
+    const order = shuffle(this.bank.map((_,i)=>i)).slice(0, Math.min(this.len, this.bank.length));
+    this.questions = order.map(i => {
+        const item = this.bank[i];
+        return { q: item.q, correct: item.a, opts: shuffle(item.opts.slice()), ex: item.ex, egg: !!item.egg };
+    });
+    this.idx = 0; this.score = 0; this.answered = false;
+    this.mount.innerHTML =
+        '<div class="qmeta"><span class="q-counter"></span><span class="q-score"></span></div>' +
+        '<div class="qbar-wrap"><div class="qbar"></div></div>' +
+        '<div class="q-prompt"></div><div class="qopts"></div>' +
+        '<div class="qexplain"></div><div class="qnext"></div>';
+    this.render();
+};
+Quiz.prototype.render = function(){
+    const self = this, q = this.questions[this.idx];
+    this.answered = false;
+    this.mount.querySelector('.q-counter').textContent = 'Question ' + (this.idx+1) + ' of ' + this.questions.length;
+    this.mount.querySelector('.q-score').textContent = 'Score: ' + this.score;
+    this.mount.querySelector('.qbar').style.width = ((this.idx/this.questions.length)*100) + '%';
+    const egg = q.egg ? '<span class="egg-badge">🥚 Bonus · Anime</span>' : '';
+    this.mount.querySelector('.q-prompt').innerHTML = '<div class="qcard">' + egg + '<div class="qtext">' + q.q + '</div></div>';
+    const optsEl = this.mount.querySelector('.qopts');
+    optsEl.innerHTML = q.opts.map((o,p)=>'<button class="qopt" data-p="'+p+'">'+o+'</button>').join('');
+    optsEl.querySelectorAll('.qopt').forEach(function(b){ b.onclick = function(){ self.answer(parseInt(b.dataset.p)); }; });
+    this.mount.querySelector('.qexplain').className = 'qexplain';
+    this.mount.querySelector('.qexplain').innerHTML = '';
+    this.mount.querySelector('.qnext').innerHTML = '';
+};
+Quiz.prototype.answer = function(pos){
+    if(this.answered) return; this.answered = true;
+    const self = this, q = this.questions[this.idx];
+    const btns = this.mount.querySelectorAll('.qopt');
+    const correctPos = q.opts.indexOf(q.correct);
+    btns.forEach(function(b){ b.disabled = true; });
+    btns[correctPos].classList.add('correct');
+    const ex = this.mount.querySelector('.qexplain');
+    if(pos === correctPos){
+        this.score++;
+        ex.className = 'qexplain ok show';
+        ex.innerHTML = '<span class="lead">Correct! ✓</span>' + q.ex;
+    } else {
+        btns[pos].classList.add('wrong');
+        ex.className = 'qexplain no show';
+        ex.innerHTML = '<span class="lead">Not quite — the answer is highlighted in green.</span>' + q.ex;
+    }
+    this.mount.querySelector('.q-score').textContent = 'Score: ' + this.score;
+    const last = this.idx === this.questions.length - 1;
+    this.mount.querySelector('.qnext').innerHTML = '<button class="go">' + (last ? 'See Results 🏁' : 'Next ▶') + '</button>';
+    this.mount.querySelector('.qnext button').onclick = function(){ self.next(); };
+};
+Quiz.prototype.next = function(){
+    this.idx++;
+    if(this.idx >= this.questions.length){ this.results(); }
+    else { this.render(); this.mount.scrollIntoView({behavior:'smooth', block:'center'}); }
+};
+Quiz.prototype.results = function(){
+    const self = this, total = this.questions.length, pct = Math.round((this.score/total)*100);
+    let msg;
+    if(pct>=90) msg='🏆 Outstanding — exam-ready!';
+    else if(pct>=70) msg='🌟 Great work — almost there.';
+    else if(pct>=50) msg='👍 Good effort — review the tricky ones.';
+    else msg='📚 Keep revising and run it again!';
+    this.mount.innerHTML =
+        '<div style="text-align:center;">' +
+        '<div class="score-big">' + this.score + ' / ' + total + '</div>' +
+        '<div class="score-pct">' + pct + '%</div>' +
+        '<div class="score-msg">' + msg + '</div>' +
+        '<button class="go">Try Again ↻</button></div>';
+    this.mount.querySelector('button').onclick = function(){ self.start(); };
+    this.mount.scrollIntoView({behavior:'smooth', block:'center'});
+};
+
+/* ============ TABS ============ */
+document.querySelectorAll('.tab').forEach(function(tab){
+    tab.onclick = function(){
+        document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+        document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+        tab.classList.add('active');
+        document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+});
+
+/* ============ BUILD QUIZZES ============ */
+const masterBank = [].concat(BANKS.rainforest, BANKS.urban, BANKS.coasts);
+new Quiz(document.getElementById('quiz-rainforest'), BANKS.rainforest, 10);
+new Quiz(document.getElementById('quiz-urban'), BANKS.urban, 10);
+new Quiz(document.getElementById('quiz-coasts'), BANKS.coasts, 10);
+new Quiz(document.getElementById('quiz-master'), masterBank, 20);
+</script>
+</body>
+</html>
