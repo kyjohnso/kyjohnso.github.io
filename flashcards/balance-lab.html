@@ -76,6 +76,7 @@
       <button class="btn lvl on" data-lvl="1">One-step</button>
       <button class="btn lvl" data-lvl="2">Two-step</button>
       <button class="btn lvl" data-lvl="3">x on both sides</button>
+      <button class="btn lvl" data-lvl="4">× to solve (x⁄d)</button>
       <button class="btn" id="btnNew" style="margin-left:auto">↻ New equation</button>
     </div>
   </div>
@@ -101,8 +102,12 @@
     <div class="move-row">
       <button class="btn" data-op="sub-x">remove <span class="opx">1</span>x from both sides</button>
       <label><input id="valX" type="number" value="1" min="-9" max="9"></label>
+    </div>
+    <div class="move-row">
       <button class="btn" data-op="div">÷ both sides by <span class="opd">2</span></button>
       <label><input id="valD" type="number" value="2" min="1" max="12"></label>
+      <button class="btn" data-op="mul">× both sides by <span class="opm">5</span></button>
+      <label><input id="valM" type="number" value="5" min="2" max="12"></label>
     </div>
     <button class="btn" id="btnUndo">↩ Undo last step</button>
   </div>
@@ -117,7 +122,8 @@
 
 <script>
 "use strict";
-/* equation: L.x · x + L.n  =  R.x · x + R.n  ; we know the true solution `sol` */
+/* equation: L.x · x + L.n  =  R.x · x + R.n
+   every quantity is an exact fraction {n,d} so x⁄5, 2x⁄3 etc. stay precise. */
 let L, R, sol, level = 1, history = [], solved = false;
 const SVGNS = "http://www.w3.org/2000/svg";
 const $ = id => document.getElementById(id);
@@ -125,55 +131,89 @@ const $ = id => document.getElementById(id);
 function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b];}return a||1;}
 function randint(a,b){return a+Math.floor(Math.random()*(b-a+1));}
 
+/* ---- fraction helpers (always reduced, denominator > 0) ---- */
+function fr(n, d){ d = (d===undefined?1:d); if(d<0){n=-n;d=-d;} const g=gcd(n,d)||1; return {n:n/g, d:d/g}; }
+function fadd(a,b){ return fr(a.n*b.d + b.n*a.d, a.d*b.d); }
+function fsub(a,b){ return fr(a.n*b.d - b.n*a.d, a.d*b.d); }
+function fmul(a,b){ return fr(a.n*b.n, a.d*b.d); }
+function fdiv(a,b){ return fr(a.n*b.d, a.d*b.n); }
+function fisZero(a){ return a.n===0; }
+function fisInt(a){ return a.d===1; }
+function fnum(a){ return a.d===1 ? String(a.n) : (a.n + '/' + a.d); } // plain number text
+
 function newEquation() {
   solved = false; history = [];
   const s = randint(2, 9); sol = s;
   if (level === 1) {
     // ax = b  or  x + b = c
-    if (Math.random() < 0.5) { const a = randint(2,6); L = {x:a, n:0}; R = {x:0, n:a*s}; }
-    else { const b = randint(1,9); L = {x:1, n:b}; R = {x:0, n:s+b}; }
+    if (Math.random() < 0.5) { const a = randint(2,6); L = {x:fr(a), n:fr(0)}; R = {x:fr(0), n:fr(a*s)}; }
+    else { const b = randint(1,9); L = {x:fr(1), n:fr(b)}; R = {x:fr(0), n:fr(s+b)}; }
   } else if (level === 2) {
     const a = randint(2,5), b = randint(-6,9);
-    L = {x:a, n:b}; R = {x:0, n:a*s+b};
-  } else {
+    L = {x:fr(a), n:fr(b)}; R = {x:fr(0), n:fr(a*s+b)};
+  } else if (level === 3) {
     let a, d;
     do { a = randint(2,6); d = randint(1,4); } while (a === d);
     const b = randint(-5,6);
     const rn = a*s + b - d*s;   // ensures a*s+b = d*s+rn
-    L = {x:a, n:b}; R = {x:d, n:rn};
+    L = {x:fr(a), n:fr(b)}; R = {x:fr(d), n:fr(rn)};
+  } else {
+    // level 4: fraction-coefficient equations — need "× both sides" to solve
+    const form = randint(0, 3);
+    if (form === 3) {
+      // a·x⁄d = a·m   → × d to clear the fraction, then ÷ a   (a, d coprime)
+      const pairs = [[2,3],[2,5],[3,2],[3,4],[3,5]];
+      const p = pairs[randint(0, pairs.length-1)], a = p[0], d = p[1], m = randint(2,4);
+      sol = d*m;                                        // x = d·m
+      L = {x:fr(a,d), n:fr(0)}; R = {x:fr(0), n:fr(a*m)};
+    } else {
+      const d = randint(2,5), k = randint(2,5); sol = d*k;   // x = d·k
+      if (form === 0)      { L = {x:fr(1,d), n:fr(0)}; R = {x:fr(0), n:fr(k)}; }      // x⁄d = k
+      else if (form === 1) { L = {x:fr(0), n:fr(k)}; R = {x:fr(1,d), n:fr(0)}; }      // k = x⁄d
+      else { const b = randint(1,6); L = {x:fr(1,d), n:fr(b)}; R = {x:fr(0), n:fr(k+b)}; } // x⁄d + b = k+b
+    }
   }
   pushTrace('start');
   render();
-  $('toast').className = 'toast'; $('toast').textContent = '';
+  if (level === 4) flash('Tip: clear the x⁄d fraction by multiplying both sides by the bottom number.', 'ok');
+  else { $('toast').className = 'toast'; $('toast').textContent = ''; }
 }
 
-function snapshot(){ return {L:{...L}, R:{...R}}; }
 function pushTrace(op){ history.push({L:{...L}, R:{...R}, op}); }
 
+function fmtX(f) {
+  // f is a non-zero x-coefficient fraction → "x", "3x", "−x", "x/5", "2x/3", "−x/5"
+  const sign = f.n < 0 ? '−' : '';
+  const an = Math.abs(f.n), coef = an === 1 ? '' : an;
+  return sign + coef + 'x' + (f.d === 1 ? '' : '/' + f.d);
+}
 function term(side) {
   const parts = [];
-  if (side.x !== 0) parts.push((side.x === 1 ? '' : side.x === -1 ? '−' : (side.x<0?'−'+Math.abs(side.x):side.x)) + 'x');
-  if (side.n !== 0 || parts.length === 0) {
-    if (parts.length === 0) parts.push((side.n<0?'−':'')+Math.abs(side.n));
-    else parts.push((side.n<0?' − ':' + ')+Math.abs(side.n));
+  if (!fisZero(side.x)) parts.push(fmtX(side.x));
+  if (!fisZero(side.n) || parts.length === 0) {
+    const neg = side.n.n < 0;
+    const body = (side.n.d === 1) ? String(Math.abs(side.n.n)) : (Math.abs(side.n.n) + '/' + side.n.d);
+    if (parts.length === 0) parts.push((neg ? '−' : '') + body);
+    else parts.push((neg ? ' − ' : ' + ') + body);
   }
   return parts.join('');
 }
 function eqString(l, r){ return term(l) + ' = ' + term(r); }
 
+function isOneX(f){ return f.n === 1 && f.d === 1; }
 function checkSolved() {
   // solved when one side is exactly "x" and the other is a pure number
-  const oneXleft = L.x === 1 && L.n === 0 && R.x === 0;
-  const oneXright = R.x === 1 && R.n === 0 && L.x === 0;
+  const oneXleft = isOneX(L.x) && fisZero(L.n) && fisZero(R.x);
+  const oneXright = isOneX(R.x) && fisZero(R.n) && fisZero(L.x);
   return oneXleft || oneXright;
 }
+function solvedValue(){ return isOneX(L.x) ? R.n : L.n; }
 
 function render() {
   const eq = $('eqBig');
   solved = checkSolved();
   if (solved) {
-    const val = (L.x === 1 ? R.n : L.n);
-    eq.innerHTML = `<span class="x">x</span> = <span class="solved">${val}</span>`;
+    eq.innerHTML = `<span class="x">x</span> = <span class="solved">${fnum(solvedValue())}</span>`;
   } else {
     eq.innerHTML = eqString(L,R).replace(/x/g, '<span class="x">x</span>');
   }
@@ -182,10 +222,6 @@ function render() {
 }
 
 /* ---- scale drawing ---- */
-function blocksFor(side) {
-  // returns array of {type:'x'|'pos'|'neg', count}
-  return { x: side.x, n: side.n };
-}
 function drawPan(g, cx, topY, side) {
   const bw = 30, bh = 30, gap = 5, perRow = 5, startX = cx - (perRow*(bw+gap)-gap)/2;
   let placed = 0;
@@ -193,15 +229,21 @@ function drawPan(g, cx, topY, side) {
     const col = placed % perRow, row = Math.floor(placed / perRow);
     const x = startX + col*(bw+gap), y = topY - row*(bh+gap);
     el('rect', {x, y:y-bh, width:bw, height:bh, rx:5, fill, stroke:stroke||'var(--ink)', 'stroke-width':2}, g);
-    const t = el('text', {x:x+bw/2, y:y-bh/2+5, 'text-anchor':'middle', 'font-size':'14px', 'font-weight':'700',
-      'font-family':'Space Grotesk', fill:'#fff'}, g);
+    const t = el('text', {x:x+bw/2, y:y-bh/2+5, 'text-anchor':'middle', 'font-size':(label.length>=3?'10px':'14px'),
+      'font-weight':'700', 'font-family':'Space Grotesk', fill:'#fff'}, g);
     t.textContent = label;
     placed++;
   };
-  const ax = Math.abs(side.x), an = Math.abs(side.n);
-  for (let i=0;i<ax;i++) place('var(--copper)', side.x<0?'−x':'x');
-  for (let i=0;i<an;i++) place(side.n<0?'var(--red)':'var(--amber)', side.n<0?'−1':'1');
-  if (ax===0 && an===0) { const t=el('text',{x:cx,y:topY-15,'text-anchor':'middle','font-size':'18px',fill:'var(--ink-soft)'},g); t.textContent='0'; }
+  const ax = side.x, an = side.n;
+  if (!fisZero(ax)) {
+    const label = (ax.n < 0 ? '−x' : 'x') + (ax.d === 1 ? '' : '/' + ax.d);
+    for (let i=0;i<Math.abs(ax.n);i++) place('var(--copper)', label);
+  }
+  if (!fisZero(an)) {
+    if (an.d === 1) { for (let i=0;i<Math.abs(an.n);i++) place(an.n<0?'var(--red)':'var(--amber)', an.n<0?'−1':'1'); }
+    else place(an.n<0?'var(--red)':'var(--amber)', fnum(an)); // fractional constant fallback
+  }
+  if (fisZero(ax) && fisZero(an)) { const t=el('text',{x:cx,y:topY-15,'text-anchor':'middle','font-size':'18px',fill:'var(--ink-soft)'},g); t.textContent='0'; }
 }
 
 function el(name, attrs, parent){ const e=document.createElementNS(SVGNS,name); for(const k in attrs) e.setAttribute(k,attrs[k]); if(parent)parent.appendChild(e); return e; }
@@ -233,8 +275,8 @@ function drawTrace() {
     const last = i === history.length - 1;
     const line = document.createElement('div');
     line.className = 'trace-line ' + (last ? 'now' : 'past');
-    const eqTxt = (h.L.x===1&&h.L.n===0&&h.R.x===0) ? 'x = ' + h.R.n
-                : (h.R.x===1&&h.R.n===0&&h.L.x===0) ? 'x = ' + h.L.n
+    const eqTxt = (isOneX(h.L.x)&&fisZero(h.L.n)&&fisZero(h.R.x)) ? 'x = ' + fnum(h.R.n)
+                : (isOneX(h.R.x)&&fisZero(h.R.n)&&fisZero(h.L.x)) ? 'x = ' + fnum(h.L.n)
                 : eqString(h.L, h.R);
     line.innerHTML = `<span>${eqTxt.replace(/x/g,'<i style="color:var(--copper);font-style:normal">x</i>')}</span><span class="op">${h.op==='start'?'':h.op}</span>`;
     t.appendChild(line);
@@ -244,23 +286,29 @@ function drawTrace() {
 /* ---- operations (always both sides) ---- */
 function applyOp(kind) {
   if (solved) { flash('Already solved! Try a new equation.', 'ok'); return; }
-  const n = parseInt($('valN').value)||0, xv = parseInt($('valX').value)||0, d = parseInt($('valD').value)||1;
+  const n = parseInt($('valN').value)||0, xv = parseInt($('valX').value)||0,
+        d = parseInt($('valD').value)||1, m = parseInt($('valM').value)||1;
   let op = '';
-  if (kind === 'add-n') { L.n += n; R.n += n; op = `+ ${n} to both sides`; }
-  else if (kind === 'sub-n') { L.n -= n; R.n -= n; op = `− ${n} from both sides`; }
-  else if (kind === 'sub-x') { L.x -= xv; R.x -= xv; op = `remove ${xv}x from both sides`; }
+  if (kind === 'add-n') { L.n = fadd(L.n, fr(n)); R.n = fadd(R.n, fr(n)); op = `+ ${n} to both sides`; }
+  else if (kind === 'sub-n') { L.n = fsub(L.n, fr(n)); R.n = fsub(R.n, fr(n)); op = `− ${n} from both sides`; }
+  else if (kind === 'sub-x') { L.x = fsub(L.x, fr(xv)); R.x = fsub(R.x, fr(xv)); op = `remove ${xv}x from both sides`; }
   else if (kind === 'div') {
     if (d === 0) { flash("Can't divide by zero!", 'bad'); return; }
-    if (L.x % d !== 0 || L.n % d !== 0 || R.x % d !== 0 || R.n % d !== 0) {
+    const df = fr(d);
+    if (![L.x, L.n, R.x, R.n].every(q => fisInt(fdiv(q, df)))) {
       flash(`Both sides must divide evenly by ${d} — try isolating the x term first.`, 'bad'); return;
     }
-    L.x/=d; L.n/=d; R.x/=d; R.n/=d; op = `÷ both sides by ${d}`;
+    L.x = fdiv(L.x, df); L.n = fdiv(L.n, df); R.x = fdiv(R.x, df); R.n = fdiv(R.n, df); op = `÷ both sides by ${d}`;
+  }
+  else if (kind === 'mul') {
+    if (m === 0) { flash("Multiplying by zero erases the equation!", 'bad'); return; }
+    const mf = fr(m);
+    L.x = fmul(L.x, mf); L.n = fmul(L.n, mf); R.x = fmul(R.x, mf); R.n = fmul(R.n, mf); op = `× both sides by ${m}`;
   }
   pushTrace(op);
   render();
   if (checkSolved()) {
-    const val = (L.x===1?R.n:L.n);
-    flash(`🎉 Solved in ${history.length-1} step${history.length-1===1?'':'s'}: x = ${val}`, 'win');
+    flash(`🎉 Solved in ${history.length-1} step${history.length-1===1?'':'s'}: x = ${fnum(solvedValue())}`, 'win');
   } else {
     flash('Still balanced ✓', 'ok');
   }
@@ -281,6 +329,7 @@ const sync = () => {
   $('valN').oninput = () => document.querySelectorAll('.opn').forEach(s=>s.textContent=$('valN').value);
   $('valX').oninput = () => document.querySelectorAll('.opx').forEach(s=>s.textContent=$('valX').value);
   $('valD').oninput = () => document.querySelectorAll('.opd').forEach(s=>s.textContent=$('valD').value);
+  $('valM').oninput = () => document.querySelectorAll('.opm').forEach(s=>s.textContent=$('valM').value);
 };
 sync();
 newEquation();
