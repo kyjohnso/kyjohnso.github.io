@@ -214,5 +214,6 @@
         function resetCards(){ const c=document.getElementById('cardsContainer'); const a=Array.from(c.children); a.sort((x,y)=>parseInt(x.dataset.index)-parseInt(y.dataset.index)); a.forEach(card=>{c.appendChild(card);card.querySelector('.card').classList.remove('flipped');}); }
         buildLegend(); initializeCards();
 </script>
+<script src="study-audio.js"></script>
 </body>
 </html>
