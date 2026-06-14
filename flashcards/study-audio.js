@@ -147,8 +147,9 @@ const StudyAudio = (function(){
   }
   setInterval(tempoTick, 250);
 
-  function start(){ ensure(); if(ctx.state==='suspended') ctx.resume(); if(playing) return; playing=true; nextTime=ctx.currentTime+0.1; step=0; loop(); }
-  function stop(){ playing=false; if(timer){ clearTimeout(timer); timer=null; } }
+  function start(){ ensure(); if(ctx.state==='suspended') ctx.resume(); if(master) master.gain.setTargetAtTime(vol*0.5, ctx.currentTime, 0.05); if(playing) return; playing=true; nextTime=ctx.currentTime+0.1; step=0; loop(); }
+  function stop(){ playing=false; if(timer){ clearTimeout(timer); timer=null; } if(master&&ctx) master.gain.setTargetAtTime(0.00001, ctx.currentTime, 0.05); }
+  function isLive(){ return playing && !!ctx && ctx.state==='running'; }
   function setVolume(v){ vol=v; if(master) master.gain.value=v*0.5; }
   function setMood(key){ if(MOODS[key]) mood=MOODS[key]; }
   function isPlaying(){ return playing; }
@@ -162,7 +163,7 @@ const StudyAudio = (function(){
     else if(type==='levelup'){ [0,2,3,4,4].forEach((d,i)=> pluck(mtof(r+12+sc[d%sc.length]+(i>=4?12:0)), t+i*0.09, 0.24, 0.9, 'triangle')); pad(chordMidi(0).slice(0,3).map(mtof), t, 1.8); }
     else if(type==='select'){ pluck(mtof(r+24+sc[0]), t, 0.1, 0.35, 'sine'); }
   }
-  return { start, stop, setVolume, setMood, cue, isPlaying, registerInteraction, telemetry, MOODS };
+  return { start, stop, setVolume, setMood, cue, isPlaying, isLive, registerInteraction, telemetry, MOODS };
 })();
 window.StudyAudio = StudyAudio;
 
@@ -185,20 +186,26 @@ StudyAudio.setMood(moodKey);
 
 /* ---------------- remembered toggle + gesture-start ---------------- */
 let enabled = localStorage.getItem('studyAudio') !== 'off';   // default ON
-let started = false;
+let btn=null;
 
-function maybeStart(){ if(enabled && !started){ started=true; StudyAudio.start(); updateUI(); } }
-document.addEventListener('pointerdown', ()=>{ StudyAudio.registerInteraction(); maybeStart(); }, true);
-document.addEventListener('keydown',    ()=>{ StudyAudio.registerInteraction(); maybeStart(); }, true);
+// any interaction (except on our own button) starts the music on first gesture if enabled
+function onGesture(e){
+  StudyAudio.registerInteraction();
+  if(btn && e && e.target && btn.contains(e.target)) return;   // button handles itself
+  if(enabled && !StudyAudio.isPlaying()){ StudyAudio.start(); updateUI(); }
+}
+document.addEventListener('pointerdown', onGesture, true);
+document.addEventListener('keydown',    onGesture, true);
 
+// the button toggles based on whether sound is actually playing right now
 function toggle(){
-  enabled=!enabled; localStorage.setItem('studyAudio', enabled?'on':'off');
-  if(enabled){ started=true; StudyAudio.start(); } else { started=false; StudyAudio.stop(); }
+  if(StudyAudio.isPlaying()){ enabled=false; StudyAudio.stop(); }
+  else { enabled=true; StudyAudio.start(); }
+  localStorage.setItem('studyAudio', enabled?'on':'off');
   updateUI();
 }
 
 /* ---------------- corner control UI ---------------- */
-let btn=null;
 function injectUI(){
   const css = document.createElement('style');
   css.textContent = `
@@ -212,24 +219,29 @@ function injectUI(){
     #sa-toggle.on .bars i{ animation:sa-bounce .9s ease-in-out infinite; }
     #sa-toggle.on .bars i:nth-child(2){ animation-delay:.15s } #sa-toggle.on .bars i:nth-child(3){ animation-delay:.3s } #sa-toggle.on .bars i:nth-child(4){ animation-delay:.45s }
     @keyframes sa-bounce{ 0%,100%{height:4px} 50%{height:14px} }
-    #sa-toggle .off-ic{ display:none; } #sa-toggle.off .off-ic{ display:inline; } #sa-toggle.off .bars{ display:none; }
+    #sa-toggle .play-ic,#sa-toggle .off-ic{ display:none; font-size:.85rem; line-height:1; }
+    #sa-toggle.wait .bars{ display:none; } #sa-toggle.wait .play-ic{ display:inline; }
+    #sa-toggle.off .bars{ display:none; } #sa-toggle.off .off-ic{ display:inline; }
     @media (max-width:600px){ #sa-toggle{ font-size:.76rem; padding:.45rem .7rem; } }
   `;
   document.head.appendChild(css);
   btn = document.createElement('button');
   btn.id='sa-toggle'; btn.type='button';
-  btn.innerHTML = `<span class="bars"><i></i><i></i><i></i><i></i></span><span class="off-ic">🔇</span><span class="lbl">Music</span>`;
+  btn.innerHTML = `<span class="bars"><i></i><i></i><i></i><i></i></span><span class="play-ic">▶</span><span class="off-ic">🔇</span><span class="lbl">Music</span>`;
   btn.addEventListener('click', toggle);
   document.body.appendChild(btn);
   updateUI();
 }
 function updateUI(){
   if(!btn) return;
-  const live = enabled && started;
-  btn.classList.toggle('on', live);
-  btn.classList.toggle('off', !enabled);
-  btn.title = enabled ? ('Study music: '+StudyAudio.MOODS[moodKey].label+' — click to mute') : 'Study music off — click to turn on';
-  btn.querySelector('.lbl').textContent = enabled ? 'Music' : 'Muted';
+  const live = StudyAudio.isPlaying();
+  btn.classList.toggle('on',   live);            // actually playing
+  btn.classList.toggle('wait', enabled && !live); // on, but waiting for first tap
+  btn.classList.toggle('off',  !enabled);         // muted
+  const lbl = btn.querySelector('.lbl');
+  if(!enabled){ lbl.textContent='Muted'; btn.title='Study music off — click to play'; }
+  else if(!live){ lbl.textContent='Music'; btn.title='Study music ready — click (or interact) to play'; }
+  else { lbl.textContent='Music'; btn.title='Study music: '+StudyAudio.MOODS[moodKey].label+' — click to mute'; }
 }
 
 /* ---------------- auto cues from answer classes ---------------- */
