@@ -46,6 +46,22 @@
   .verdict{ text-align:center; font-weight:700; padding:.6rem; border-radius:10px; margin-top:.7rem; min-height:1.4rem; }
   .verdict.ok{ background:#DDF2E9; color:var(--green); } .verdict.bad{ background:#FBE3E1; color:var(--red); }
   .streak{ text-align:center; color:var(--ink-soft); font-weight:700; margin-top:.4rem; }
+  /* build a molecule */
+  .palette{ display:flex; gap:.55rem; flex-wrap:wrap; justify-content:center; margin-bottom:.8rem; }
+  .el-chip{ display:flex; flex-direction:column; align-items:center; gap:2px; cursor:grab; user-select:none; -webkit-user-select:none; touch-action:none; }
+  .el-chip:active{ cursor:grabbing; }
+  .el-chip .disc{ width:42px; height:42px; border-radius:50%; border:2px solid var(--ink); display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:.95rem; box-shadow:0 2px 6px var(--shadow); transition:transform .1s; }
+  .el-chip:hover .disc{ transform:translateY(-2px); }
+  .el-chip .nm{ font-size:.62rem; color:var(--ink-soft); font-weight:700; }
+  #bench{ width:100%; height:auto; display:block; background:var(--paper); border:2px dashed var(--grid-line); border-radius:12px; touch-action:none; }
+  .batom{ cursor:grab; } .batom:active{ cursor:grabbing; }
+  .build-tally{ text-align:center; font-size:.85rem; color:var(--ink-soft); font-weight:700; margin:.6rem 0 .3rem; }
+  .build-tally sub{ font-size:.72em; }
+  .build-msg{ text-align:center; font-size:.92rem; line-height:1.5; min-height:2.4rem; padding:.55rem .7rem; border-radius:10px; background:var(--paper); display:flex; align-items:center; justify-content:center; gap:.4rem; flex-wrap:wrap; }
+  .build-msg.match{ background:#DDF2E9; color:var(--green); } .build-msg.nomatch{ background:#FFF6E3; color:var(--copper); }
+  .build-msg .fbig{ font-family:'Space Grotesk',sans-serif; font-size:1.1rem; font-weight:700; }
+  .build-msg .fbig sub{ font-size:.65em; }
+  .build-foot{ display:flex; justify-content:center; gap:.6rem; margin-top:.7rem; }
   /* quiz */
   .quiz-card{ max-width:600px; margin:0 auto; }
   .qprog{ display:flex; gap:.3rem; justify-content:center; margin-bottom:1rem; }
@@ -76,6 +92,7 @@
     <div class="card">
       <div class="tool-tabs" id="toolTabs">
         <button class="btn on" data-tool="formula">Read a formula</button>
+        <button class="btn" data-tool="build">🧪 Build a molecule</button>
         <button class="btn" data-tool="classify">Element, compound or mixture?</button>
       </div>
       <div id="toolBody"></div>
@@ -238,9 +255,189 @@ function judge(ans){
   $('streak').textContent=streak>0?`Streak: ${streak} 🔥`:'';
 }
 
+/* ---------- build a molecule ---------- */
+const EXTRA=[
+ {f:'H2',name:'hydrogen',kind:'element',parts:[['H',2]],atoms:[['H',-16,0],['H',16,0]],bonds:[[0,1]]},
+ {f:'N2',name:'nitrogen',kind:'element',parts:[['N',2]],atoms:[['N',-18,0],['N',18,0]],bonds:[[0,1]]},
+ {f:'Cl2',name:'chlorine',kind:'element',parts:[['Cl',2]],atoms:[['Cl',-20,0],['Cl',20,0]],bonds:[[0,1]]},
+ {f:'CO',name:'carbon monoxide',kind:'compound',parts:[['C',1],['O',1]],atoms:[['C',-18,0],['O',18,0]],bonds:[[0,1]]},
+ {f:'NO',name:'nitrogen monoxide',kind:'compound',parts:[['N',1],['O',1]],atoms:[['N',-18,0],['O',18,0]],bonds:[[0,1]]},
+ {f:'NO2',name:'nitrogen dioxide',kind:'compound',parts:[['N',1],['O',2]],atoms:[['N',0,0],['O',-40,18],['O',40,18]],bonds:[[0,1],[0,2]]},
+ {f:'H2S',name:'hydrogen sulfide',kind:'compound',parts:[['H',2],['S',1]],atoms:[['S',0,0],['H',-34,24],['H',34,24]],bonds:[[0,1],[0,2]]},
+ {f:'SO2',name:'sulfur dioxide',kind:'compound',parts:[['S',1],['O',2]],atoms:[['S',0,0],['O',-40,18],['O',40,18]],bonds:[[0,1],[0,2]]},
+ {f:'SO3',name:'sulfur trioxide',kind:'compound',parts:[['S',1],['O',3]],atoms:[['S',0,0],['O',0,-40],['O',38,24],['O',-38,24]],bonds:[[0,1],[0,2],[0,3]]},
+ {f:'H2O2',name:'hydrogen peroxide',kind:'compound',parts:[['H',2],['O',2]],atoms:[['O',-18,0],['O',18,0],['H',-44,22],['H',44,22]],bonds:[[0,1],[0,2],[1,3]]},
+ {f:'CaO',name:'calcium oxide',kind:'compound',parts:[['Ca',1],['O',1]],atoms:[['Ca',-20,0],['O',20,0]],bonds:[[0,1]]},
+ {f:'MgCl2',name:'magnesium chloride',kind:'compound',parts:[['Mg',1],['Cl',2]],atoms:[['Mg',0,0],['Cl',-42,0],['Cl',42,0]],bonds:[[0,1],[0,2]]},
+ {f:'CaCl2',name:'calcium chloride',kind:'compound',parts:[['Ca',1],['Cl',2]],atoms:[['Ca',0,0],['Cl',-46,0],['Cl',46,0]],bonds:[[0,1],[0,2]]},
+ {f:'Na2O',name:'sodium oxide',kind:'compound',parts:[['Na',2],['O',1]],atoms:[['O',0,0],['Na',-40,0],['Na',40,0]],bonds:[[0,1],[0,2]]},
+];
+function canon(c){return Object.keys(c).sort().map(k=>k+c[k]).join('');}
+/* organic molecules — bonds may carry an order: [i,j] single, [i,j,2] double, [i,j,3] triple.
+   Where one formula has isomers, list them in order (the common one first). */
+const ORGANIC=[
+ {f:'C2H2',name:'ethyne (acetylene)',kind:'compound',parts:[['C',2],['H',2]],
+  atoms:[['C',-18,0],['C',18,0],['H',-46,0],['H',46,0]], bonds:[[0,1,3],[0,2],[1,3]]},
+ {f:'CH2O',name:'methanal (formaldehyde)',kind:'compound',parts:[['C',1],['H',2],['O',1]],
+  atoms:[['C',0,6],['O',0,-32],['H',-28,24],['H',28,24]], bonds:[[0,1,2],[0,2],[0,3]]},
+ {f:'C2H4',name:'ethene (ethylene)',kind:'compound',parts:[['C',2],['H',4]],
+  atoms:[['C',-20,0],['C',20,0],['H',-46,-20],['H',-46,20],['H',46,-20],['H',46,20]], bonds:[[0,1,2],[0,2],[0,3],[1,4],[1,5]]},
+ {f:'CH4O',name:'methanol',kind:'compound',parts:[['C',1],['H',4],['O',1]],
+  atoms:[['C',-18,0],['O',26,0],['H',-18,-30],['H',-44,18],['H',-44,-18],['H',52,-14]], bonds:[[0,1],[0,2],[0,3],[0,4],[1,5]]},
+ {f:'C2H6',name:'ethane',kind:'compound',parts:[['C',2],['H',6]],
+  atoms:[['C',-20,0],['C',20,0],['H',-46,-18],['H',-46,18],['H',-20,-30],['H',46,-18],['H',46,18],['H',20,-30]], bonds:[[0,1],[0,2],[0,3],[0,4],[1,5],[1,6],[1,7]]},
+ {f:'C2H4O2',name:'ethanoic acid (acetic acid)',kind:'compound',parts:[['C',2],['H',4],['O',2]],
+  atoms:[['C',-30,0],['C',8,0],['O',8,-34],['O',40,20],['H',64,12],['H',-30,-30],['H',-56,18],['H',-56,-18]], bonds:[[0,1],[1,2,2],[1,3],[3,4],[0,5],[0,6],[0,7]]},
+ {f:'C2H6O',name:'ethanol',kind:'compound',parts:[['C',2],['H',6],['O',1]],
+  atoms:[['C',-40,0],['C',-4,0],['O',32,0],['H',58,-14],['H',-40,-30],['H',-64,16],['H',-64,-16],['H',-4,-30],['H',-4,30]], bonds:[[0,1],[1,2],[2,3],[0,4],[0,5],[0,6],[1,7],[1,8]]},
+ {f:'C2H6O',name:'dimethyl ether',kind:'compound',parts:[['C',2],['H',6],['O',1]],
+  atoms:[['C',-40,0],['O',0,0],['C',40,0],['H',-40,-30],['H',-66,16],['H',-66,-16],['H',40,-30],['H',66,16],['H',66,-16]], bonds:[[0,1],[1,2],[0,3],[0,4],[0,5],[2,6],[2,7],[2,8]]},
+ {f:'C3H6',name:'propene',kind:'compound',parts:[['C',3],['H',6]],
+  atoms:[['C',-44,0],['C',-8,0],['C',28,0],['H',-70,-16],['H',-70,16],['H',-8,-30],['H',28,30],['H',54,16],['H',54,-16]], bonds:[[0,1,2],[1,2],[0,3],[0,4],[1,5],[2,6],[2,7],[2,8]]},
+ {f:'C3H6',name:'cyclopropane',kind:'compound',parts:[['C',3],['H',6]],
+  atoms:[['C',0,-26],['C',-30,22],['C',30,22],['H',-24,-44],['H',24,-44],['H',-56,10],['H',-42,48],['H',56,10],['H',42,48]], bonds:[[0,1],[1,2],[2,0],[0,3],[0,4],[1,5],[1,6],[2,7],[2,8]]},
+ {f:'C3H8',name:'propane',kind:'compound',parts:[['C',3],['H',8]],
+  atoms:[['C',-46,0],['C',0,0],['C',46,0],['H',-72,-16],['H',-72,16],['H',-46,-30],['H',0,-30],['H',0,30],['H',72,-16],['H',72,16],['H',46,-30]], bonds:[[0,1],[1,2],[0,3],[0,4],[0,5],[1,6],[1,7],[2,8],[2,9],[2,10]]},
+ {f:'C4H8',name:'but-1-ene',kind:'compound',parts:[['C',4],['H',8]],
+  atoms:[['C',-66,0],['C',-32,0],['C',2,0],['C',38,0],['H',-90,-18],['H',-90,18],['H',-32,-30],['H',2,30],['H',2,-30],['H',62,-18],['H',62,18],['H',38,30]], bonds:[[0,1,2],[1,2],[2,3],[0,4],[0,5],[1,6],[2,7],[2,8],[3,9],[3,10],[3,11]]},
+ {f:'C4H8',name:'but-2-ene',kind:'compound',parts:[['C',4],['H',8]],
+  atoms:[['C',-60,0],['C',-24,0],['C',12,0],['C',48,0],['H',-60,-30],['H',-86,16],['H',-86,-16],['H',-24,30],['H',12,30],['H',48,-30],['H',74,16],['H',74,-16]], bonds:[[0,1],[1,2,2],[2,3],[0,4],[0,5],[0,6],[1,7],[2,8],[3,9],[3,10],[3,11]]},
+ {f:'C3H8O',name:'propan-1-ol',kind:'compound',parts:[['C',3],['H',8],['O',1]],
+  atoms:[['C',-66,0],['C',-30,0],['C',6,0],['O',42,0],['H',66,-14],['H',-66,-30],['H',-92,16],['H',-92,-16],['H',-30,30],['H',-30,-30],['H',6,30],['H',6,-30]], bonds:[[0,1],[1,2],[2,3],[3,4],[0,5],[0,6],[0,7],[1,8],[1,9],[2,10],[2,11]]},
+ {f:'C3H8O',name:'propan-2-ol',kind:'compound',parts:[['C',3],['H',8],['O',1]],
+  atoms:[['C',-48,0],['C',-6,0],['C',36,0],['O',-6,-34],['H',18,-46],['H',-48,30],['H',-74,16],['H',-74,-16],['H',-6,30],['H',36,30],['H',62,16],['H',62,-16]], bonds:[[0,1],[1,2],[1,3],[3,4],[0,5],[0,6],[0,7],[1,8],[2,9],[2,10],[2,11]]},
+ {f:'C4H10',name:'butane',kind:'compound',parts:[['C',4],['H',10]],
+  atoms:[['C',-66,0],['C',-30,0],['C',6,0],['C',42,0],['H',-66,-30],['H',-92,16],['H',-92,-16],['H',-30,30],['H',-30,-30],['H',6,30],['H',6,-30],['H',42,-30],['H',68,16],['H',68,-16]], bonds:[[0,1],[1,2],[2,3],[0,4],[0,5],[0,6],[1,7],[1,8],[2,9],[2,10],[3,11],[3,12],[3,13]]},
+ {f:'C4H10',name:'methylpropane (isobutane)',kind:'compound',parts:[['C',4],['H',10]],
+  atoms:[['C',0,0],['C',0,-40],['C',-40,28],['C',40,28],['H',0,40],['H',0,-70],['H',-26,-54],['H',26,-54],['H',-66,12],['H',-66,44],['H',-40,58],['H',66,12],['H',66,44],['H',40,58]], bonds:[[0,1],[0,2],[0,3],[0,4],[1,5],[1,6],[1,7],[2,8],[2,9],[2,10],[3,11],[3,12],[3,13]]},
+];
+const BUILD_RECIPES=COMPOUNDS.concat(EXTRA,ORGANIC);
+const RECIPE_MAP={};
+BUILD_RECIPES.forEach(r=>{ const c={}; r.parts.forEach(([s,n])=>c[s]=n); const k=canon(c); (RECIPE_MAP[k]=RECIPE_MAP[k]||[]).push(r); });
+const PALETTE=['H','O','C','N','Cl','Na','Ca','S','Mg'];
+const MAXATOMS=14;
+let bench=[], benchSvg=null, atomsLayer=null, bondsLayer=null;
+let bdrag={type:null,atom:null,el:null,ghost:null};
+let bIsomer=0, bIsoKey=null;
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+function gcd(a,b){return b?gcd(b,a%b):a;}
+function svgPt(svg,cx,cy){const p=svg.createSVGPoint();p.x=cx;p.y=cy;return p.matrixTransform(svg.getScreenCTM().inverse());}
+function txtFill(s){return (s==='H'||s==='Ca'||s==='S')?'var(--ink)':'#fff';}
+
+function renderBuild(){
+  $('toolBody').innerHTML=`
+    <div class="panel-h" style="text-align:center">Drag atoms onto the bench — stable molecules snap together (try organic ones &amp; their isomers!)</div>
+    <div class="palette" id="palette"></div>
+    <svg id="bench" viewBox="0 0 460 300" aria-label="Molecule building bench"><g id="bondsLayer"></g><g id="atomsLayer"></g></svg>
+    <div class="build-tally" id="bTally"></div>
+    <div class="build-msg" id="bMsg"></div>
+    <div class="build-foot"><button class="btn" id="bClear">Clear bench</button></div>`;
+  benchSvg=$('bench'); atomsLayer=$('atomsLayer'); bondsLayer=$('bondsLayer'); bench=[];
+  const pal=$('palette');
+  PALETTE.forEach(s=>{
+    const chip=document.createElement('div'); chip.className='el-chip';
+    chip.innerHTML=`<div class="disc" style="background:${ATOM_COLOR[s]};color:${txtFill(s)}">${s}</div><div class="nm">${ENAME[s]}</div>`;
+    chip.addEventListener('pointerdown',ev=>startPaletteDrag(ev,s));
+    pal.appendChild(chip);
+  });
+  $('bClear').addEventListener('click',()=>{ bench.forEach(a=>a.g.remove()); bench=[]; bEvaluate(); });
+  bEvaluate();
+}
+function addAtom(s,x,y){
+  if(bench.length>=MAXATOMS) return;
+  const g=el('g',{class:'batom',transform:`translate(${x},${y})`},atomsLayer);
+  el('circle',{cx:0,cy:0,r:ATOM_R[s],fill:ATOM_COLOR[s],stroke:'var(--ink)','stroke-width':2},g);
+  const t=el('text',{x:0,y:4,'text-anchor':'middle','font-family':'Space Grotesk','font-weight':'700','font-size':'11px',fill:txtFill(s)},g); t.textContent=s;
+  const atom={el:s,x,y,g}; bench.push(atom);
+  g.addEventListener('pointerdown',ev=>startAtomDrag(ev,atom));
+  bEvaluate();
+}
+function removeAtom(atom){ bench=bench.filter(a=>a!==atom); atom.g.remove(); }
+function startAtomDrag(ev,atom){ ev.preventDefault(); ev.stopPropagation(); bdrag={type:'atom',atom}; bClearBonds(); }
+function startPaletteDrag(ev,s){ if(bench.length>=MAXATOMS){ flashCap(); return; } ev.preventDefault(); bdrag={type:'palette',el:s,ghost:makeGhost(s,ev.clientX,ev.clientY)}; }
+function makeGhost(s,x,y){ const r=ATOM_R[s]; const d=document.createElement('div'); d.style.cssText=`position:fixed;left:${x}px;top:${y}px;width:${r*2}px;height:${r*2}px;border-radius:50%;background:${ATOM_COLOR[s]};border:2px solid var(--ink);transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:11px;color:${txtFill(s)};pointer-events:none;z-index:2000;`; d.textContent=s; document.body.appendChild(d); return d; }
+function insideBench(cx,cy){ if(!benchSvg) return false; const r=benchSvg.getBoundingClientRect(); return cx>=r.left&&cx<=r.right&&cy>=r.top&&cy<=r.bottom; }
+window.addEventListener('pointermove',ev=>{
+  if(bdrag.type==='atom'){ const p=svgPt(benchSvg,ev.clientX,ev.clientY); bdrag.atom.x=clamp(p.x,16,444); bdrag.atom.y=clamp(p.y,16,284); bdrag.atom.g.setAttribute('transform',`translate(${bdrag.atom.x.toFixed(1)},${bdrag.atom.y.toFixed(1)})`); }
+  else if(bdrag.type==='palette'&&bdrag.ghost){ bdrag.ghost.style.left=ev.clientX+'px'; bdrag.ghost.style.top=ev.clientY+'px'; }
+});
+window.addEventListener('pointerup',ev=>{
+  if(bdrag.type==='atom'){ if(!insideBench(ev.clientX,ev.clientY)) removeAtom(bdrag.atom); bdrag={type:null}; bEvaluate(); }
+  else if(bdrag.type==='palette'){ if(bdrag.ghost) bdrag.ghost.remove(); if(insideBench(ev.clientX,ev.clientY)&&bench.length<MAXATOMS){ const p=svgPt(benchSvg,ev.clientX,ev.clientY); addAtom(bdrag.el,clamp(p.x,22,438),clamp(p.y,22,278)); } bdrag={type:null}; }
+});
+function bClearBonds(){ if(bondsLayer) bondsLayer.innerHTML=''; }
+function bDrawBonds(bonds,op){
+  bondsLayer.innerHTML='';
+  bonds.forEach(([a,b,order])=>{
+    const o=order||1;
+    if(o===1){ el('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:'var(--ink-soft)','stroke-width':4,opacity:op},bondsLayer); return; }
+    const dx=b.x-a.x, dy=b.y-a.y, len=Math.hypot(dx,dy)||1, nx=-dy/len, ny=dx/len;
+    const off=o===2?3.5:4.5, offs=o===2?[-off,off]:[-off,0,off], w=o===3?2.5:3;
+    offs.forEach(L=>el('line',{x1:a.x+nx*L,y1:a.y+ny*L,x2:b.x+nx*L,y2:b.y+ny*L,stroke:'var(--ink-soft)','stroke-width':w,opacity:op},bondsLayer));
+  });
+}
+function bTally(){ const c={}; bench.forEach(a=>c[a.el]=(c[a.el]||0)+1); return c; }
+function matchRecipe(counts){
+  const key=canon(counts); if(RECIPE_MAP[key]) return {n:1,recipes:RECIPE_MAP[key]};
+  const vals=Object.values(counts); let g=vals[0]; vals.forEach(v=>g=gcd(g,v));
+  for(let d=g; d>=2; d--){
+    if(g%d!==0) continue;
+    const red={}; let ok=true; for(const k in counts){ if(counts[k]%d){ok=false;break;} red[k]=counts[k]/d; }
+    if(ok && RECIPE_MAP[canon(red)]) return {n:d,recipes:RECIPE_MAP[canon(red)]};
+  }
+  return null;
+}
+function buildAssignments(recipe,n){
+  const q={}; bench.forEach(a=>{(q[a.el]=q[a.el]||[]).push(a);});
+  let cx0=0,cy0=0; bench.forEach(a=>{cx0+=a.x;cy0+=a.y;}); cx0/=bench.length; cy0/=bench.length;
+  const assignments=[],bonds=[];
+  for(let gi=0;gi<n;gi++){
+    const cx=n===1?clamp(cx0,80,380):460*(gi+1)/(n+1);
+    const cy=n===1?clamp(cy0,70,230):150;
+    const slot=[];
+    recipe.atoms.forEach(([elS,ox,oy])=>{ const atom=q[elS].shift(); slot.push(atom); assignments.push({atom,tx:cx+ox,ty:cy+oy}); });
+    recipe.bonds.forEach(b=>bonds.push([slot[b[0]],slot[b[1]],b[2]||1]));
+  }
+  return {assignments,bonds};
+}
+function linkAnimate(assignments,bonds){
+  const start=assignments.map(a=>({a:a.atom,sx:a.atom.x,sy:a.atom.y,tx:a.tx,ty:a.ty}));
+  const dur=560,t0=performance.now();
+  (function fr(now){ const k=Math.min(1,(now-t0)/dur),e=1-Math.pow(1-k,3);
+    start.forEach(s=>{ s.a.x=s.sx+(s.tx-s.sx)*e; s.a.y=s.sy+(s.ty-s.sy)*e; s.a.g.setAttribute('transform',`translate(${s.a.x.toFixed(1)},${s.a.y.toFixed(1)})`); });
+    bDrawBonds(bonds,e.toFixed(2));
+    if(k<1) requestAnimationFrame(fr); else bDrawBonds(bonds,1);
+  })(performance.now());
+}
+function flashCap(){ const m=$('bMsg'); if(!m) return; m.className='build-msg nomatch'; m.innerHTML=`<b>That's the ${MAXATOMS}-atom limit.</b>&nbsp;Clear the bench or remove an atom to add more.`; }
+function bEvaluate(){
+  if(!benchSvg) return;
+  const counts=bTally();
+  $('bTally').innerHTML = bench.length ? 'On the bench: '+Object.keys(counts).map(k=>`${k}<sub>${counts[k]}</sub>`).join(' + ')+` &nbsp;(${bench.length}/${MAXATOMS})` : `0 / ${MAXATOMS} atoms`;
+  const m=$('bMsg');
+  if(bench.length===0){ bClearBonds(); bIsoKey=null; m.className='build-msg'; m.innerHTML='Drag atoms from the palette onto the bench. If they can form a <b>stable molecule</b>, they snap together and bond. If not, they stay separate.'; return; }
+  const match=matchRecipe(counts);
+  if(!match){ bClearBonds(); bIsoKey=null; m.className='build-msg nomatch'; m.innerHTML="<b>No stable molecule yet.</b>&nbsp;These atoms don't combine into a molecule we know — try a different mix."; return; }
+  const key=canon(counts);
+  if(key!==bIsoKey){ bIsoKey=key; bIsomer=0; }
+  const recipes=match.recipes;
+  const canToggle = match.n===1 && recipes.length>1;
+  const idx = canToggle ? (bIsomer % recipes.length) : 0;
+  const recipe = recipes[idx];
+  const {assignments,bonds}=buildAssignments(recipe,match.n);
+  m.className='build-msg match';
+  const fdisp=(match.n>1?match.n+' × ':'')+fmtFormula(recipe.f);
+  const tag=recipe.kind==='element'?'<span class="tag el">element</span>':'<span class="tag cmp">compound</span>';
+  let html=`✓ Bonded! ${tag} <span class="fbig">${fdisp}</span> &mdash; ${recipe.name}.`;
+  if(canToggle){ const next=recipes[(idx+1)%recipes.length]; html+=` <button class="btn" id="bIso" style="font-size:.76rem;padding:.28rem .8rem">⇄ isomer: ${next.name}</button>`; }
+  m.innerHTML=html;
+  if(canToggle){ $('bIso').onclick=()=>{ bIsomer=(bIsomer+1)%recipes.length; bEvaluate(); }; }
+  linkAnimate(assignments,bonds);
+}
+
 document.querySelectorAll('#toolTabs .btn').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('#toolTabs .btn').forEach(x=>x.classList.remove('on')); b.classList.add('on');
-  tool=b.dataset.tool; if(tool==='formula')renderFormula(); else renderClassify();
+  tool=b.dataset.tool; if(tool==='formula')renderFormula(); else if(tool==='build')renderBuild(); else renderClassify();
 }));
 
 /* ---------- QUIZ ---------- */
