@@ -30,7 +30,8 @@
   .ro{ display:flex; justify-content:space-between; font-size:.95rem; padding:.25rem 0; border-top:1px dashed var(--grid-line); }
   .ro:first-child{ border-top:none; } .ro b{ font-variant-numeric:tabular-nums; }
   .sum-line{ font-family:'Space Grotesk',sans-serif; font-size:1.15rem; font-weight:700; text-align:center; margin-top:.6rem; padding:.5rem; border-radius:10px; background:var(--paper); }
-  .sum-line.ok{ color:var(--green); } 
+  .sum-line.ok{ color:var(--green); }
+  .sum-line.bad{ color:var(--red); } 
   .work{ font-size:.85rem; color:var(--ink-soft); line-height:1.55; margin-top:.6rem; } .work b{ color:var(--ink); }
   .hint{ font-size:.8rem; color:var(--ink-soft); text-align:center; margin-top:.5rem; }
   .stepper{ display:flex; align-items:center; gap:.5rem; justify-content:center; margin-top:.6rem; }
@@ -229,7 +230,9 @@ function drawQuad(svg){
     const h=el('circle',{cx:p[0],cy:p[1],r:9,fill:COL[i],stroke:'#fff','stroke-width':2,style:'cursor:grab'},svg); h.dataset.dragpt=''+i; });
   const sum=Math.round(angs.reduce((a,b)=>a+b,0));
   $('ros').innerHTML=angs.map((a,i)=>`<div class="ro"><span>corner ${i+1}</span><b>${Math.round(a)}°</b></div>`).join('');
-  $('sumLine').className='sum-line ok'; $('sumLine').textContent=`sum = ${sum}° ✓`;
+  const ok = sum===360;
+  $('sumLine').className='sum-line '+(ok?'ok':'bad');
+  $('sumLine').textContent = ok ? `sum = ${sum}° ✓` : `sum = ${sum}° ✗ — keep it a simple 4-sided shape`;
   $('work').innerHTML=`A quadrilateral splits into 2 triangles, so 2 × 180 = <b>360°</b>.`;
 }
 
@@ -292,7 +295,19 @@ function label2(svg,px,py,c,txt,col){ const dx=c[0]-px,dy=c[1]-py,l=Math.hypot(d
 function centroid(P){ return [P.reduce((s,p)=>s+p[0],0)/P.length, P.reduce((s,p)=>s+p[1],0)/P.length]; }
 function angleAt(a,b,c){ const v1=[a[0]-b[0],a[1]-b[1]],v2=[c[0]-b[0],c[1]-b[1]]; let d=(Math.atan2(v2[1],v2[0])-Math.atan2(v1[1],v1[0]))*180/Math.PI; d=((d%360)+360)%360; if(d>180)d=360-d; return d; }
 function triAngles(P){ return [angleAt(P[2],P[0],P[1]),angleAt(P[0],P[1],P[2]),angleAt(P[1],P[2],P[0])]; }
-function polyAngles(P){ return P.map((p,i)=>angleAt(P[(i-1+P.length)%P.length],p,P[(i+1)%P.length])); }
+function polyAngles(P){
+  // True interior angle at each vertex (reflex corners read >180°). Using signed turns
+  // guarantees the interior angles of a simple polygon sum to exactly (n−2)×180°.
+  const n=P.length;
+  const turn=P.map((cur,i)=>{
+    const prev=P[(i-1+n)%n], next=P[(i+1)%n];
+    const e1=[cur[0]-prev[0],cur[1]-prev[1]], e2=[next[0]-cur[0],next[1]-cur[1]];
+    const cross=e1[0]*e2[1]-e1[1]*e2[0], dot=e1[0]*e2[0]+e1[1]*e2[1];
+    return Math.atan2(cross,dot)*180/Math.PI;   // signed exterior turn, (−180°,180°)
+  });
+  const o = turn.reduce((a,b)=>a+b,0) >= 0 ? 1 : -1;   // winding direction
+  return turn.map(t=>180 - o*t);
+}
 
 /* ---- dragging ---- */
 function svgPt(cx,cy){ const pt=$('stage').createSVGPoint(); pt.x=cx;pt.y=cy; const m=$('stage').getScreenCTM(); if(!m)return null; const p=pt.matrixTransform(m.inverse()); return [p.x,p.y]; }
