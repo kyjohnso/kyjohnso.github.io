@@ -276,9 +276,9 @@ const StudyAudio = (function(){
     const now=(typeof performance!=='undefined'?performance.now():Date.now());
     interactions=interactions.filter(x=> now-x < 10000);
     rate10=interactions.length;
-    if(rate10>=6){ targetMult=1.2; focusRamp=0; mode='fast'; }
+    if(rate10>=6){ targetMult=1.1; focusRamp=0; mode='fast'; }
     else if(rate10>=2){ targetMult=0.9; focusRamp=0; mode='relax'; }
-    else { focusRamp=Math.min(0.40, focusRamp+0.004); targetMult=0.85+focusRamp; mode='focus'; }
+    else { focusRamp=Math.min(0.40, focusRamp+0.0022); targetMult=0.85+focusRamp; mode='focus'; }
     tempoMult += (targetMult-tempoMult)*0.1;
   }
   setInterval(tempoTick, 250);
