@@ -192,17 +192,17 @@ let btn=null;
 function onGesture(e){
   StudyAudio.registerInteraction();
   if(btn && e && e.target && btn.contains(e.target)) return;   // button handles itself
-  if(enabled && !StudyAudio.isPlaying()){ StudyAudio.start(); updateUI(); }
+  if(enabled && !StudyAudio.isLive()){ StudyAudio.start(); setTimeout(updateUI,60); }
 }
 document.addEventListener('pointerdown', onGesture, true);
 document.addEventListener('keydown',    onGesture, true);
 
 // the button toggles based on whether sound is actually playing right now
 function toggle(){
-  if(StudyAudio.isPlaying()){ enabled=false; StudyAudio.stop(); }
+  if(StudyAudio.isLive()){ enabled=false; StudyAudio.stop(); }
   else { enabled=true; StudyAudio.start(); }
   localStorage.setItem('studyAudio', enabled?'on':'off');
-  updateUI();
+  setTimeout(updateUI,60);
 }
 
 /* ---------------- corner control UI ---------------- */
@@ -234,7 +234,7 @@ function injectUI(){
 }
 function updateUI(){
   if(!btn) return;
-  const live = StudyAudio.isPlaying();
+  const live = StudyAudio.isLive();
   btn.classList.toggle('on',   live);            // actually playing
   btn.classList.toggle('wait', enabled && !live); // on, but waiting for first tap
   btn.classList.toggle('off',  !enabled);         // muted
@@ -277,6 +277,14 @@ function startObserver(){
   obs.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','style']});
 }
 
-function init(){ injectUI(); startObserver(); }
+function init(){
+  injectUI(); startObserver();
+  // carry the music across page navigations: if enabled, try to resume right away.
+  // browsers that have site "engagement" will start silently; others wait for the
+  // first interaction (onGesture) — either way the on/off choice is shared site-wide.
+  if(enabled) StudyAudio.start();
+  updateUI();
+  setInterval(updateUI, 600);   // keep the button honest as the audio state settles
+}
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
