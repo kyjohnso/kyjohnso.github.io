@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Audio — Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{ --paper:#F2F7FA; --grid-line:#D5E4EC; --ink:#1F3540; --ink-soft:#5A7280; --panel:#fff;
+    --accent:#7B5EA7; --accent-d:#523a78; --green:#2E8B6A; --amber:#FFB02E; --red:#D6493E; --blue:#3A7CA5; --shadow:rgba(31,53,64,.16); }
+  body{ font-family:'Karla',sans-serif; color:var(--ink); background:linear-gradient(135deg,#ECE7F6,#F4F1E8); min-height:100vh; padding:1.5rem 1.25rem 3rem; }
+  .wrap{ max-width:680px; margin:0 auto; }
+  .back-link{ display:inline-block; color:var(--accent-d); text-decoration:none; font-weight:700; font-size:.85rem; margin-bottom:.6rem; }
+  .back-link:hover{ text-decoration:underline; }
+  header{ text-align:center; margin-bottom:1.4rem; }
+  h1{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(1.7rem,5vw,2.4rem); }
+  .subtitle{ color:var(--ink-soft); margin-top:.3rem; }
+  .card{ background:var(--panel); border-radius:18px; box-shadow:0 8px 26px var(--shadow); padding:1.4rem; margin-bottom:1.1rem; }
+  .panel-h{ font-family:'Space Grotesk',sans-serif; font-size:.74rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); margin-bottom:.7rem; text-align:center; }
+  .play-wrap{ text-align:center; }
+  .playbtn{ width:96px; height:96px; border-radius:50%; border:none; cursor:pointer; background:linear-gradient(135deg,var(--accent),var(--accent-d)); color:#fff; font-size:2.4rem; box-shadow:0 8px 22px rgba(123,94,167,.4); transition:transform .15s, box-shadow .15s; display:inline-flex; align-items:center; justify-content:center; }
+  .playbtn:hover{ transform:translateY(-2px); box-shadow:0 12px 28px rgba(123,94,167,.5); }
+  .playbtn:active{ transform:translateY(0); }
+  .viz{ display:flex; gap:4px; justify-content:center; align-items:flex-end; height:34px; margin:1rem 0 .3rem; }
+  .viz span{ width:5px; height:6px; border-radius:3px; background:var(--accent); opacity:.35; }
+  .viz.on span{ animation:bounce 1s ease-in-out infinite; opacity:.8; }
+  .viz.on span:nth-child(2){animation-delay:.12s}.viz.on span:nth-child(3){animation-delay:.24s}.viz.on span:nth-child(4){animation-delay:.36s}.viz.on span:nth-child(5){animation-delay:.48s}.viz.on span:nth-child(6){animation-delay:.30s}.viz.on span:nth-child(7){animation-delay:.18s}
+  @keyframes bounce{ 0%,100%{height:6px} 50%{height:30px} }
+  .now{ text-align:center; color:var(--ink-soft); font-weight:700; font-size:.9rem; min-height:1.2rem; }
+  .moods{ display:flex; gap:.5rem; flex-wrap:wrap; justify-content:center; }
+  .mood{ font-family:'Karla',sans-serif; font-weight:700; font-size:.88rem; border:2px solid var(--grid-line); border-radius:14px; background:#fff; color:var(--ink); padding:.5rem .9rem; cursor:pointer; transition:all .15s; text-align:center; line-height:1.15; }
+  .mood:hover{ border-color:var(--accent); } .mood.on{ background:var(--accent); border-color:var(--accent); color:#fff; }
+  .mood small{ display:block; font-size:.66rem; font-weight:700; opacity:.7; margin-top:1px; }
+  .group-lbl{ font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); text-align:center; margin:.9rem 0 .5rem; }
+  .vol-row{ display:flex; align-items:center; gap:.7rem; margin-top:1rem; }
+  .vol-row label{ font-weight:700; font-size:.85rem; white-space:nowrap; }
+  input[type=range]{ width:100%; accent-color:var(--accent); }
+  .cues{ display:grid; grid-template-columns:1fr 1fr; gap:.6rem; }
+  .cue{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:.95rem; border:2px solid var(--grid-line); border-radius:12px; background:var(--paper); color:var(--ink); padding:.8rem; cursor:pointer; transition:all .12s; }
+  .cue:hover{ transform:translateY(-1px); box-shadow:0 4px 12px var(--shadow); }
+  .cue.correct:hover{ border-color:var(--green); } .cue.wrong:hover{ border-color:var(--red); }
+  .cue.level:hover{ border-color:var(--amber); } .cue.select:hover{ border-color:var(--accent); }
+  /* adaptive tempo */
+  .tapbtn{ display:block; width:100%; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:1.1rem; border:none; border-radius:14px; background:linear-gradient(135deg,var(--blue),#2a5f86); color:#fff; padding:1rem; cursor:pointer; box-shadow:0 5px 16px var(--shadow); transition:transform .1s; }
+  .tapbtn:active{ transform:scale(.98); }
+  .telem{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:.6rem; margin-top:.9rem; text-align:center; }
+  .telem .box{ background:var(--paper); border-radius:12px; padding:.6rem .3rem; }
+  .telem .v{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:1.25rem; }
+  .telem .l{ font-size:.66rem; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.06em; font-weight:700; }
+  .mode-pill{ display:inline-block; margin-top:.8rem; font-weight:700; font-size:.85rem; padding:.3rem .9rem; border-radius:999px; background:var(--paper); }
+  .mode-pill.fast{ background:#FBE3E1; color:var(--red); } .mode-pill.relax{ background:#DDEAF2; color:var(--blue); } .mode-pill.focus{ background:#DDF2E9; color:var(--green); }
+  .tempo-bar{ height:8px; background:rgba(0,0,0,.08); border-radius:50px; overflow:hidden; margin-top:.7rem; }
+  .tempo-bar i{ display:block; height:100%; background:linear-gradient(90deg,var(--blue),var(--accent)); width:50%; transition:width .25s ease; }
+  .srow{ margin:.8rem 0; }
+  .srow .top{ display:flex; justify-content:space-between; font-weight:700; font-size:.86rem; margin-bottom:.15rem; }
+  .srow .top .val{ font-family:'Space Grotesk',sans-serif; color:var(--accent-d); }
+  .srow input{ width:100%; accent-color:var(--accent); }
+  .srow.disabled{ opacity:.4; }
+  .note{ font-size:.9rem; color:var(--ink-soft); line-height:1.6; }
+  .note b{ color:var(--ink); } .note ul{ margin:.5rem 0 0 1.1rem; } .note li{ margin:.25rem 0; }
+  footer{ text-align:center; color:var(--ink-soft); font-size:.78rem; margin-top:.6rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="index.html" class="back-link">&larr; Back to study materials</a>
+  <header>
+    <h1>🎧 Study Audio</h1>
+    <p class="subtitle">Generative instrumental music with adaptive tempo — a demo to audition</p>
+  </header>
+
+  <div class="card play-wrap">
+    <div class="panel-h">Press play (audio needs a tap to start)</div>
+    <button class="playbtn" id="playBtn" aria-label="Play or pause">▶</button>
+    <div class="viz" id="viz"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="now" id="now">Tap play to start the music</div>
+    <div class="vol-row"><label>🔉 Volume</label><input type="range" id="vol" min="0" max="100" value="55"></div>
+  </div>
+
+  <div class="card">
+    <div class="panel-h">Mood — each subject gets its own sound</div>
+    <div class="group-lbl">General</div>
+    <div class="moods" id="moodsGeneral"></div>
+    <div class="group-lbl">By subject</div>
+    <div class="moods" id="moodsSubject"></div>
+  </div>
+
+  <div class="card">
+    <div class="panel-h">🎛️ Tweak the sound (live)</div>
+    <div id="sliders"></div>
+    <p class="note" style="margin-top:.5rem">These nudge the current mood live. Switch mood and the sliders snap to that mood's settings.</p>
+  </div>
+
+  <div class="card">
+    <div class="panel-h">Adaptive tempo — the music reacts to how busy you are</div>
+    <button class="tapbtn" id="tapBtn">🖲️ Tap fast to "interact" — or just click around the page</button>
+    <div class="telem">
+      <div class="box"><div class="v" id="tRate">0</div><div class="l">taps / 10s</div></div>
+      <div class="box"><div class="v" id="tMult">×1.00</div><div class="l">tempo</div></div>
+      <div class="box"><div class="v" id="tBpm">— </div><div class="l">≈ bpm</div></div>
+    </div>
+    <div style="text-align:center"><span class="mode-pill" id="tMode">idle</span></div>
+    <div class="tempo-bar"><i id="tBar"></i></div>
+    <p class="note" style="margin-top:.9rem">
+      <b>Lots of activity</b> → speeds up (~×1.2). &nbsp;<b>A steady amount</b> → relaxes (~×0.9). &nbsp;<b>Almost idle</b> → <b>focus mode</b>: the tempo slowly climbs to keep your momentum, then resets the moment you get busy again. Changes are eased in smoothly.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="panel-h">Game cues — what plays on answers</div>
+    <div class="cues">
+      <button class="cue correct" data-cue="correct">✓ Correct answer</button>
+      <button class="cue wrong" data-cue="wrong">✗ Wrong answer</button>
+      <button class="cue level" data-cue="levelup">🏆 Level complete</button>
+      <button class="cue select" data-cue="select">• Select / tick</button>
+    </div>
+    <p class="note" style="margin-top:.9rem">Cues are built from the current mood's scale, so they always fit — and they work whether or not the music is playing.</p>
+  </div>
+
+  <div class="card">
+    <div class="note">
+      <b>Subject &rarr; sound map (for wiring into the pages):</b>
+      <ul>
+        <li>🔌 <b>Tech</b> — Circuit Lab (driving synth arpeggio + electronic beat)</li>
+        <li>📐 <b>Classical</b> — maths labs (graceful broken-chord arpeggios, major key)</li>
+        <li>🗣️ <b>Cultural</b> — French &amp; the religion sets (modal scale + hand-drum)</li>
+        <li>🌍 <b>Tribal</b> — biology &amp; geography (marimba + earthy drums)</li>
+        <li>🎓 General moods stay available for quizzes and anything else.</li>
+      </ul>
+    </div>
+  </div>
+  <footer>Study Audio demo · part of the little tutoring tools family</footer>
+</div>
+
+<script>
+"use strict";
+/* ============ generative study-audio engine (Web Audio API) ============ */
+const StudyAudio = (function(){
+  let ctx=null, master=null, comp=null, conv=null, revGain=null, percGain=null;
+  let playing=false, timer=null, nextTime=0, step=0;
+  let vol=0.55, mood=null, curChord=[60,67,72], reverbMix=0.9, percVol=1.0;
+
+  // adaptive tempo state
+  let interactions=[], tempoMult=1, targetMult=1, focusRamp=0, mode='idle', rate10=0;
+
+  const MOODS = {
+    calm:    { label:'Calm Focus', tag:'general', root:60, scale:[0,2,4,7,9],       bpm:58, prog:[0,9,5,7], cutoff:760,  wave:'triangle', density:0.42, perc:'none' },
+    dreamy:  { label:'Dreamy',     tag:'general', root:57, scale:[0,2,3,5,7,10],     bpm:52, prog:[0,5,8,3], cutoff:560,  wave:'sine',     density:0.36, perc:'none' },
+    playful: { label:'Playful',    tag:'general', root:62, scale:[0,2,4,7,9],        bpm:74, prog:[0,7,9,5], cutoff:1150, wave:'triangle', density:0.5,  perc:'none' },
+    twilight:{ label:'Twilight',   tag:'general', root:55, scale:[0,3,5,7,10],       bpm:48, prog:[0,7,3,5], cutoff:480,  wave:'sine',     density:0.32, perc:'none' },
+    tech:    { label:'Tech',       tag:'circuits',            root:57, scale:[0,3,5,7,10],      bpm:90, prog:[0,5,3,7], cutoff:1300, wave:'sawtooth', density:0.28, perc:'tech',     arp:true },
+    classical:{label:'Classical',  tag:'maths',               root:60, scale:[0,2,4,5,7,9,11],  bpm:66, prog:[0,5,7,9], cutoff:1000, wave:'triangle', density:0.22, perc:'none',     arp:true, triad:true },
+    cultural:{ label:'Cultural',   tag:'languages · religions',root:62, scale:[0,1,4,5,7,8,10], bpm:72, prog:[0,5,3,7], cutoff:900,  wave:'sawtooth', density:0.4,  perc:'cultural' },
+    tribal:  { label:'Tribal',     tag:'biology · geography', root:55, scale:[0,2,5,7,9],       bpm:82, prog:[0,7,5,9], cutoff:820,  wave:'triangle', density:0.4,  perc:'tribal' },
+  };
+  mood = MOODS.calm;
+  const mtof = m => 440 * Math.pow(2,(m-69)/12);
+
+  function ensure(){
+    if(ctx) return;
+    ctx = new (window.AudioContext||window.webkitAudioContext)();
+    master = ctx.createGain(); master.gain.value = vol*0.5;
+    comp = ctx.createDynamicsCompressor();
+    comp.threshold.value=-18; comp.knee.value=24; comp.ratio.value=3; comp.attack.value=0.01; comp.release.value=0.25;
+    master.connect(comp); comp.connect(ctx.destination);
+    conv = ctx.createConvolver(); conv.buffer = makeIR(2.6,2.4);
+    revGain = ctx.createGain(); revGain.gain.value=reverbMix; conv.connect(revGain); revGain.connect(master);
+    percGain = ctx.createGain(); percGain.gain.value=percVol; percGain.connect(master);
+  }
+  function makeIR(dur,decay){
+    const rate=ctx.sampleRate, len=rate*dur, buf=ctx.createBuffer(2,len,rate);
+    for(let ch=0; ch<2; ch++){ const d=buf.getChannelData(ch);
+      for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/len,decay); }
+    return buf;
+  }
+
+  /* ---- pitched voices ---- */
+  function pluck(freq,t,vel,dur,wave){
+    const o=ctx.createOscillator(); o.type=wave||mood.wave; o.frequency.value=freq;
+    const sub=ctx.createOscillator(); sub.type='sine'; sub.frequency.value=freq/2;
+    const lp=ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=mood.cutoff*2.4;
+    const g=ctx.createGain(); g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(vel,t+0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+(dur||1.4));
+    const sg=ctx.createGain(); sg.gain.value=0.35;
+    o.connect(g); sub.connect(sg); sg.connect(g); g.connect(lp); lp.connect(master); lp.connect(conv);
+    o.start(t); sub.start(t); o.stop(t+(dur||1.4)+0.05); sub.stop(t+(dur||1.4)+0.05);
+  }
+  function pad(freqs,t,dur){
+    freqs.forEach(f=>{
+      const o=ctx.createOscillator(); o.type='sawtooth'; o.frequency.value=f;
+      const o2=ctx.createOscillator(); o2.type='sawtooth'; o2.frequency.value=f*1.005;
+      const lp=ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=mood.cutoff; lp.Q.value=0.5;
+      const g=ctx.createGain(); const peak=0.055/Math.sqrt(freqs.length);
+      g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(peak,t+1.4);
+      g.gain.setValueAtTime(peak,t+dur-1.6); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+      o.connect(lp); o2.connect(lp); lp.connect(g); g.connect(master); g.connect(conv);
+      o.start(t); o2.start(t); o.stop(t+dur+0.05); o2.stop(t+dur+0.05);
+    });
+  }
+  function bass(freq,t,dur){
+    const o=ctx.createOscillator(); o.type='sine'; o.frequency.value=freq;
+    const g=ctx.createGain(); g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(0.12,t+0.04); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g); g.connect(master); o.start(t); o.stop(t+dur+0.05);
+  }
+
+  /* ---- percussion ---- */
+  function drum(t,f0,f1,dur,vel){
+    const o=ctx.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(f0,t);
+    o.frequency.exponentialRampToValueAtTime(f1,t+dur*0.9);
+    const g=ctx.createGain(); g.gain.setValueAtTime(vel,t); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g); g.connect(percGain||master); o.start(t); o.stop(t+dur+0.02);
+  }
+  function noiseHit(t,dur,type,freq,vel){
+    const len=Math.max(1,(ctx.sampleRate*dur)|0), b=ctx.createBuffer(1,len,ctx.sampleRate), d=b.getChannelData(0);
+    for(let i=0;i<len;i++) d[i]=Math.random()*2-1;
+    const src=ctx.createBufferSource(); src.buffer=b;
+    const f=ctx.createBiquadFilter(); f.type=type||'highpass'; f.frequency.value=freq||6000; f.Q.value=1.2;
+    const g=ctx.createGain(); g.gain.setValueAtTime(vel||0.12,t); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    src.connect(f); f.connect(g); g.connect(percGain||master); src.start(t); src.stop(t+dur+0.02);
+  }
+  function percussion(perc,barStep,t){
+    if(perc==='tech'){
+      if(barStep===0||barStep===4) drum(t,140,45,0.16,0.45);
+      noiseHit(t,0.03,'highpass',9000,barStep%2?0.05:0.09);
+    } else if(perc==='tribal'){
+      if(barStep===0||barStep===4) drum(t,165,55,0.34,0.5);
+      if(barStep===2||barStep===6) drum(t,300,120,0.18,0.32);
+      if(barStep%2===1) noiseHit(t,0.05,'bandpass',4200,0.12);
+    } else if(perc==='cultural'){
+      if(barStep===0) drum(t,185,72,0.3,0.45);
+      if(barStep===3||barStep===6){ drum(t,260,150,0.12,0.22); noiseHit(t,0.04,'highpass',3200,0.13); }
+      if(barStep%2===1) noiseHit(t,0.03,'highpass',7000,0.05);
+    }
+  }
+
+  /* ---- sequencer ---- */
+  function chordMidi(bar){
+    const r = mood.root + mood.prog[bar % mood.prog.length];
+    return mood.triad ? [r, r+4, r+7, r+12] : [r, r+7, r+12, r+7];
+  }
+  function scheduleStep(s,t){
+    const beat=60/(mood.bpm*tempoMult), eighth=beat/2, barStep=s%8;
+    if(barStep===0){
+      const bar=Math.floor(s/8);
+      curChord=chordMidi(bar);
+      pad(curChord.slice(0,3).map(mtof), t, beat*4*0.98);
+      bass(mtof(mood.root + mood.prog[bar%mood.prog.length] - 12), t, beat*2);
+    }
+    if(mood.perc && mood.perc!=='none') percussion(mood.perc, barStep, t);
+    if(mood.arp){
+      const ch=curChord, n=ch[s % ch.length]+12;
+      pluck(mtof(n), t, 0.15, eighth*1.7, mood.wave);
+      if(barStep===6 && Math.random()<0.4){ const deg=mood.scale[(Math.random()*mood.scale.length)|0]; pluck(mtof(mood.root+deg+24), t, 0.1, eighth*3, 'sine'); }
+    } else {
+      if(Math.random() < mood.density){
+        const deg=mood.scale[(Math.random()*mood.scale.length)|0], oct=12+(Math.random()<0.4?12:0);
+        pluck(mtof(mood.root+deg+oct), t, 0.16, eighth*3.2);
+      }
+      if(barStep===4 && Math.random()<0.3){ const deg=mood.scale[(Math.random()*mood.scale.length)|0]; pluck(mtof(mood.root+deg+24), t, 0.1, eighth*4, 'sine'); }
+    }
+  }
+  function loop(){
+    while(nextTime < ctx.currentTime + 0.12){
+      const eighth=(60/(mood.bpm*tempoMult))/2;
+      scheduleStep(step, nextTime);
+      nextTime += eighth; step++;
+    }
+    timer=setTimeout(loop, 25);
+  }
+
+  /* ---- adaptive tempo (runs always; lightweight) ---- */
+  function tempoTick(){
+    const now=(typeof performance!=='undefined'?performance.now():Date.now());
+    interactions=interactions.filter(x=> now-x < 10000);
+    rate10=interactions.length;
+    if(rate10>=6){ targetMult=1.2; focusRamp=0; mode='fast'; }
+    else if(rate10>=2){ targetMult=0.9; focusRamp=0; mode='relax'; }
+    else { focusRamp=Math.min(0.40, focusRamp+0.004); targetMult=0.85+focusRamp; mode='focus'; }
+    tempoMult += (targetMult-tempoMult)*0.1;
+  }
+  setInterval(tempoTick, 250);
+
+  /* ---- public ---- */
+  function start(){ ensure(); if(ctx.state==='suspended') ctx.resume(); if(playing) return; playing=true; nextTime=ctx.currentTime+0.1; step=0; loop(); }
+  function stop(){ playing=false; if(timer){ clearTimeout(timer); timer=null; } }
+  function setVolume(v){ vol=v; if(master) master.gain.value=v*0.5; }
+  function setMood(key){ if(MOODS[key]) mood=MOODS[key]; }
+  function isPlaying(){ return playing; }
+  function setTempo(bpm){ mood.bpm=bpm; }
+  function setDensity(v){ mood.density=v; }
+  function setCutoff(hz){ mood.cutoff=hz; }
+  function setReverb(v){ reverbMix=v; if(revGain) revGain.gain.value=v; }
+  function setPerc(v){ percVol=v; if(percGain) percGain.gain.value=v; }
+  function params(){ return { bpm:mood.bpm, density:mood.density||0, cutoff:mood.cutoff, reverb:reverbMix, perc:percVol, hasPerc:!!(mood.perc&&mood.perc!=='none') }; }
+  function registerInteraction(){ interactions.push(typeof performance!=='undefined'?performance.now():Date.now()); }
+  function telemetry(){ return { rate:rate10, mult:tempoMult, mode, bpm:Math.round(mood.bpm*tempoMult) }; }
+
+  function cue(type){
+    ensure(); if(ctx.state==='suspended') ctx.resume();
+    const t=ctx.currentTime+0.02, sc=mood.scale, r=mood.root;
+    if(type==='correct'){ [0,1,2,3].forEach(i=> pluck(mtof(r+12+sc[i%sc.length]+(i>=sc.length?12:0)), t+i*0.085, 0.22, 0.6, 'triangle')); }
+    else if(type==='wrong'){ pluck(mtof(r-2),t,0.18,0.5,'sine'); pluck(mtof(r-5),t+0.16,0.16,0.7,'sine'); }
+    else if(type==='levelup'){ [0,2,3,4,4].forEach((d,i)=> pluck(mtof(r+12+sc[d%sc.length]+(i>=4?12:0)), t+i*0.09, 0.24, 0.9, 'triangle')); pad(chordMidi(0).slice(0,3).map(mtof), t, 1.8); }
+    else if(type==='select'){ pluck(mtof(r+24+sc[0]), t, 0.1, 0.35, 'sine'); }
+  }
+  return { start, stop, setVolume, setMood, cue, isPlaying, registerInteraction, telemetry, setTempo, setDensity, setCutoff, setReverb, setPerc, params, MOODS };
+})();
+
+/* ============ demo UI ============ */
+const $=id=>document.getElementById(id);
+let on=false, curMood=StudyAudio.MOODS.calm;
+$('playBtn').addEventListener('click', ()=>{
+  on=!on;
+  if(on){ StudyAudio.start(); $('playBtn').textContent='⏸'; $('viz').classList.add('on'); $('now').textContent='♪ Now playing — '+curMood.label; }
+  else { StudyAudio.stop(); $('playBtn').textContent='▶'; $('viz').classList.remove('on'); $('now').textContent='Paused'; }
+});
+$('vol').addEventListener('input', e=> StudyAudio.setVolume(e.target.value/100));
+StudyAudio.setVolume(0.55);
+
+function makeMoodBtn(key,m,host,isFirst){
+  const b=document.createElement('button'); b.className='mood'+(isFirst?' on':'');
+  b.innerHTML=`${m.label}<small>${m.tag}</small>`;
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.mood').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+    StudyAudio.setMood(key); curMood=m; syncSliders();
+    if(on) $('now').textContent='♪ Now playing — '+m.label;
+  });
+  host.appendChild(b);
+}
+let first=true;
+Object.entries(StudyAudio.MOODS).forEach(([key,m])=>{
+  if(m.tag==='general'){ makeMoodBtn(key,m,$('moodsGeneral'),first); first=false; }
+});
+Object.entries(StudyAudio.MOODS).forEach(([key,m])=>{ if(m.tag!=='general') makeMoodBtn(key,m,$('moodsSubject'),false); });
+
+document.querySelectorAll('.cue').forEach(b=> b.addEventListener('click',()=> StudyAudio.cue(b.dataset.cue)));
+
+// live tweak sliders
+const SLIDERS=[
+  {key:'tempo',   label:'⏱️ Base tempo',    min:40, max:120,  step:1,  read:p=>p.bpm,                  apply:v=>StudyAudio.setTempo(v),       fmt:v=>v+' bpm'},
+  {key:'density', label:'🎵 Melody amount',  min:0,  max:100,  step:1,  read:p=>Math.round(p.density*100), apply:v=>StudyAudio.setDensity(v/100), fmt:v=>v+'%'},
+  {key:'cutoff',  label:'🌫️ Brightness',     min:300,max:3000, step:10, read:p=>p.cutoff,               apply:v=>StudyAudio.setCutoff(v),      fmt:v=>v+' Hz'},
+  {key:'reverb',  label:'🏛️ Reverb',         min:0,  max:140,  step:1,  read:p=>Math.round(p.reverb*100), apply:v=>StudyAudio.setReverb(v/100), fmt:v=>v+'%'},
+  {key:'perc',    label:'🥁 Percussion',     min:0,  max:150,  step:1,  read:p=>Math.round(p.perc*100),  apply:v=>StudyAudio.setPerc(v/100),    fmt:v=>v+'%'},
+];
+const slHost=$('sliders');
+SLIDERS.forEach(s=>{
+  const row=document.createElement('div'); row.className='srow'; row.dataset.key=s.key;
+  row.innerHTML=`<div class="top"><span>${s.label}</span><span class="val"></span></div><input type="range" min="${s.min}" max="${s.max}" step="${s.step}">`;
+  s._input=row.querySelector('input'); s._val=row.querySelector('.val');
+  s._input.addEventListener('input',()=>{ s.apply(+s._input.value); s._val.textContent=s.fmt(+s._input.value); });
+  slHost.appendChild(row);
+});
+function syncSliders(){
+  const p=StudyAudio.params();
+  SLIDERS.forEach(s=>{ const v=s.read(p); s._input.value=v; s._val.textContent=s.fmt(v); });
+  const percRow=document.querySelector('.srow[data-key="perc"]');
+  percRow.classList.toggle('disabled', !p.hasPerc);
+  percRow.querySelector('input').disabled=!p.hasPerc;
+}
+syncSliders();
+$('tapBtn').addEventListener('click', ()=> StudyAudio.registerInteraction());
+// any click or keypress on the page counts as an interaction
+document.addEventListener('pointerdown', ()=> StudyAudio.registerInteraction());
+document.addEventListener('keydown', ()=> StudyAudio.registerInteraction());
+
+const MODEINFO={ fast:{t:'⏫ Speeding up',c:'fast'}, relax:{t:'🌙 Relaxing',c:'relax'}, focus:{t:'🎯 Focus mode — ramping up',c:'focus'}, idle:{t:'idle',c:''} };
+setInterval(()=>{
+  const x=StudyAudio.telemetry();
+  $('tRate').textContent=x.rate;
+  $('tMult').textContent='×'+x.mult.toFixed(2);
+  $('tBpm').textContent=on?x.bpm:'—';
+  const mi=MODEINFO[x.mode]||MODEINFO.idle;
+  const pill=$('tMode'); pill.textContent=mi.t; pill.className='mode-pill '+mi.c;
+  $('tBar').style.width=Math.max(0,Math.min(100,(x.mult-0.8)/(1.25-0.8)*100))+'%';
+}, 250);
+</script>
+</body>
+</html>
