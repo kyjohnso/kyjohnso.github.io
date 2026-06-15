@@ -26,6 +26,9 @@ const StudyAudio = (function(){
     classical:{label:'Classical',  root:60, scale:[0,2,4,5,7,9,11],   bpm:66, prog:[0,5,7,9], cutoff:1000, wave:'triangle', density:0.22, perc:'none',     arp:true, triad:true },
     cultural:{ label:'Cultural',   root:62, scale:[0,1,4,5,7,8,10],   bpm:72, prog:[0,5,3,7], cutoff:900,  wave:'sawtooth', density:0.4,  perc:'cultural' },
     tribal:  { label:'Tribal',     root:55, scale:[0,2,5,7,9],        bpm:82, prog:[0,7,5,9], cutoff:820,  wave:'triangle', density:0.4,  perc:'tribal' },
+    // Majora's-Mask "Moon's Tear" feel: slow, melancholic, hollow open chords, soft
+    // ocarina-ish triangle tones, lots of reverb, no percussion.
+    moonlit: { label:'Moonlit',    root:57, scale:[0,2,3,5,7,8,10],   bpm:50, prog:[0,8,3,10], cutoff:540, wave:'triangle', density:0.3,  perc:'none' },
   };
   mood = MOODS.calm;
   const mtof = m => 440 * Math.pow(2,(m-69)/12);
@@ -175,10 +178,10 @@ const MOODMAP = {
   'atom-lab.html':'twilight','element-lab.html':'twilight','compound-lab.html':'twilight','acid-lab.html':'twilight',
   'cell-lab.html':'tribal','bioenergetics-lab.html':'tribal','ecosystem-lab.html':'tribal','predator-prey-sim.html':'tribal',
   'photosynthesis-adventure.html':'tribal','geography-revision.html':'tribal',
-  'french-grammar-flashcards.html':'cultural','lower4-french-test.html':'cultural',
-  'hinduism-flashcards.html':'cultural','hinduism-quiz.html':'cultural','islam-flashcards.html':'cultural','islam-quiz.html':'cultural',
-  'sikhism-flashcards.html':'cultural','sikhism-quiz.html':'cultural','resurrection-flashcards.html':'cultural','resurrection-quiz.html':'cultural',
-  'all-religions-quiz.html':'cultural','index.html':'calm',
+  'french-grammar-flashcards.html':'moonlit','lower4-french-test.html':'moonlit',
+  'hinduism-flashcards.html':'moonlit','hinduism-quiz.html':'moonlit','islam-flashcards.html':'moonlit','islam-quiz.html':'moonlit',
+  'sikhism-flashcards.html':'moonlit','sikhism-quiz.html':'moonlit','resurrection-flashcards.html':'moonlit','resurrection-quiz.html':'moonlit',
+  'all-religions-quiz.html':'moonlit','index.html':'calm',
 };
 const file = (location.pathname.split('/').pop()||'index.html');
 const moodKey = MOODMAP[file] || 'calm';
