@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mary, Queen of Scots &amp; Elizabeth I — A Story</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --ink: #241730;
+    --acc: #6a3d9c; --acc-d: #412266;
+    --gold: #c79a2e; --gold-d: #8a6a12;
+    --shadow: rgba(0,0,0,0.15);
+}
+body { font-family: 'Karla', sans-serif; color: var(--ink); background: linear-gradient(135deg, #F3EEF8 0%, #E7DDF2 50%, #DCCBEC 100%); min-height: 100vh; padding: 2rem 1rem 3rem; position: relative; overflow-x: hidden; }
+body::before { content: ''; position: fixed; inset: 0; background-image: radial-gradient(circle at 15% 85%, rgba(106,61,156,0.12) 0%, transparent 45%), radial-gradient(circle at 85% 15%, rgba(199,154,46,0.12) 0%, transparent 45%); pointer-events: none; z-index: 0; }
+.wrap { max-width: 820px; margin: 0 auto; position: relative; z-index: 1; }
+.header { text-align: center; margin-bottom: 1.2rem; }
+h1 { font-family: 'Cormorant Garamond', serif; font-size: 2.7rem; font-weight: 700; color: var(--acc-d); text-shadow: 2px 2px 0 rgba(106,61,156,0.18); letter-spacing: 1px; line-height: 1.05; }
+.subtitle { font-size: 1rem; color: var(--gold-d); font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-top: 0.3rem; }
+.crest { font-size: 2.6rem; }
+.back-link { display: inline-block; text-decoration: none; color: var(--acc-d); font-weight: 700; font-size: 0.95rem; margin-bottom: 1rem; }
+.back-link:hover { text-decoration: underline; }
+
+/* progress */
+.sq-progress { margin-bottom: 1.3rem; }
+.sq-meta { font-weight: 700; color: var(--acc-d); font-size: 0.82rem; text-align: center; margin-bottom: 0.45rem; letter-spacing: 1.5px; text-transform: uppercase; }
+.qbar-wrap { height: 8px; background: rgba(0,0,0,0.08); border-radius: 50px; overflow: hidden; }
+.qbar { height: 100%; background: linear-gradient(90deg, var(--acc), var(--acc-d)); width: 0; transition: width 0.4s ease; }
+
+/* flowing chapters down the page */
+.chapter { margin-bottom: 1.5rem; }
+.kt { font-weight: 700; color: var(--acc-d); }
+.story-card { margin-top: 1rem; background: #fff; border-radius: 14px; padding: 1rem 1.2rem 1.05rem; box-shadow: 0 5px 18px var(--shadow); border-left: 5px solid var(--acc); animation: fade 0.5s ease; }
+.story-card .yr { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 1.25rem; color: var(--acc-d); }
+.sq-title { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 1.15rem; color: var(--acc-d); margin: 0.05rem 0 0.35rem; }
+.story-card .ev { font-size: 0.99rem; line-height: 1.62; }
+
+/* active question card */
+.qcard-box { background: rgba(255,255,255,0.62); border-radius: 18px; padding: 1.5rem 1.4rem; box-shadow: 0 8px 26px var(--shadow); border: 2px solid rgba(255,255,255,0.6); }
+.sq-chapter-tag { display: inline-block; background: linear-gradient(135deg, var(--acc), var(--acc-d)); color: #fff; font-weight: 700; font-size: 0.72rem; letter-spacing: 1.5px; text-transform: uppercase; padding: 0.22rem 0.85rem; border-radius: 50px; margin-bottom: 0.8rem; }
+.sq-q { font-family: 'Cormorant Garamond', serif; font-size: 1.55rem; font-weight: 700; color: var(--ink); line-height: 1.32; margin-bottom: 1.1rem; }
+.sq-q .blankline { color: var(--acc); font-weight: 700; letter-spacing: 1px; }
+
+.qopts { display: grid; grid-template-columns: 1fr; gap: 0.6rem; }
+.qopt { display: block; width: 100%; text-align: left; background: #fff; border: 2px solid rgba(0,0,0,0.1); border-radius: 12px; padding: 0.85rem 1rem; font-family: 'Karla', sans-serif; font-size: 1rem; color: #333; cursor: pointer; transition: all 0.16s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.06); font-weight: 500; line-height: 1.4; }
+.qopt:hover:not(:disabled) { border-color: var(--acc); transform: translateY(-1px); box-shadow: 0 4px 12px var(--shadow); }
+.qopt:disabled { cursor: default; }
+.qopt.correct { background: #e7f7ec; border-color: #2e9e5b; color: #1d6b3c; font-weight: 700; }
+.qopt.wrong { background: #fdeaea; border-color: #d9534f; color: #a4302c; }
+
+.sq-input-row { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+.sq-input { flex: 1; min-width: 160px; padding: 0.8rem 1rem; font-family: 'Karla', sans-serif; font-size: 1.05rem; border: 2px solid rgba(0,0,0,0.15); border-radius: 12px; outline: none; background: #fff; color: #222; }
+.sq-input:focus { border-color: var(--acc); box-shadow: 0 0 0 3px rgba(106,61,156,0.12); }
+.sq-input:disabled { background: #f3f3f3; }
+.sq-hint { font-size: 0.82rem; color: #777; margin-top: 0.55rem; }
+
+.sq-feedback { margin-top: 1.1rem; border-radius: 12px; padding: 0.9rem 1.05rem; font-size: 0.97rem; line-height: 1.55; display: none; }
+.sq-feedback.show { display: block; }
+.sq-feedback.ok { background: #e7f7ec; border-left: 5px solid #2e9e5b; color: #1d6b3c; }
+.sq-feedback.no { background: #fdeaea; border-left: 5px solid #d9534f; color: #8c2622; }
+.sq-feedback .lead { font-weight: 700; display: block; margin-bottom: 0.2rem; }
+.sq-next { margin-top: 1.1rem; text-align: center; }
+
+.sq-intro { text-align: center; }
+.sq-intro-title { font-family: 'Cormorant Garamond', serif; font-size: 1.9rem; font-weight: 700; color: var(--acc-d); margin-bottom: 0.5rem; }
+.sq-intro-text { color: #555; line-height: 1.6; margin-bottom: 1.3rem; font-size: 1rem; }
+
+.sq-finish { text-align: center; }
+.score-big { font-family: 'Cormorant Garamond', serif; font-size: 3.4rem; font-weight: 700; color: var(--acc-d); line-height: 1; }
+.score-pct { font-size: 1.1rem; color: var(--acc-d); font-weight: 700; }
+.score-msg { color: #555; margin: 0.5rem 0 0.4rem; }
+.sec-label { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 700; color: var(--gold-d); margin: 1.4rem 0 0.5rem; }
+.topic-sub { color: #666; font-size: 0.92rem; margin-bottom: 0.9rem; }
+.think { background: linear-gradient(135deg, #fff 0%, #fbf7ef 100%); border-left: 5px solid var(--gold); border-radius: 12px; padding: 0.9rem 1.1rem; margin-bottom: 0.7rem; box-shadow: 0 4px 14px var(--shadow); font-size: 0.97rem; line-height: 1.5; display: flex; gap: 0.7rem; align-items: flex-start; text-align: left; }
+.think .tmark { font-size: 1.3rem; line-height: 1.2; flex: none; }
+
+button.go { color: #fff; border: none; padding: 0.85rem 2rem; font-size: 1.02rem; font-weight: 700; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px var(--shadow); transition: all 0.25s ease; font-family: 'Karla', sans-serif; background: linear-gradient(135deg, var(--acc), var(--acc-d)); }
+button.go:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--shadow); }
+button.go:active { transform: translateY(0); }
+
+@keyframes fade { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 700px) { h1 { font-size: 2rem; } .sq-q { font-size: 1.35rem; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <a class="back-link" href="index.html">&larr; Back to study materials</a>
+    <div class="header">
+        <div class="crest">👑</div>
+        <h1>Mary, Queen of Scots &amp; Elizabeth I</h1>
+        <p class="subtitle">Lower 4 History · An Unfolding Story</p>
+    </div>
+
+    <div class="sq-progress">
+        <div class="sq-meta" id="sq-meta"></div>
+        <div class="qbar-wrap"><div class="qbar" id="sq-bar"></div></div>
+    </div>
+
+    <div id="sq-flow"></div>
+</div>
+
+<script>
+/* ============ THE STORY ============ */
+const INTRO_TITLE = "👑 A Tale of Two Queens";
+const INTRO_TEXT = "The rivalry of Mary, Queen of Scots and Elizabeth I unfolds chapter by chapter — Mary's life, the plots, and the execution. Before each new twist, take a guess — multiple choice, fill-in-the-blank, guess-the-decade or guess-the-year — then watch the real story reveal what happened, and <em>why</em>. The questions change every time, so play it more than once!";
+
+const STAGES = [
+    { yr: "1542", icon: "👑", title: "A Queen Six Days Old",
+      story: "When King James V of <span class='kt'>Scotland</span> died in <span class='kt'>1542</span>, his daughter became queen aged just <span class='kt'>six days old</span>: <span class='kt'>Mary, Queen of Scots</span>. She was sent to <span class='kt'>France</span> to be raised a Catholic, and even became Queen of France for a short time. One day she would also claim the throne of <span class='kt'>England</span>.",
+      pool: [
+        { type:'mc', q:"How old was Mary, Queen of Scots when she became Queen of Scotland?", opts:["Just six days old","Twenty-one years old","Forty years old","Six years old"], answer:"Just six days old", ex:"Mary became Queen of Scots as a tiny baby in 1542." },
+        { type:'blank', q:"As a child, Mary was sent to be raised as a Catholic in __________.", accept:["france"], answerLabel:"France", ex:"Mary grew up in France and briefly became its queen too." },
+        { type:'decade', q:"In which decade was Mary, Queen of Scots born?", answer:1540, ex:"Mary was born in 1542." }
+      ] },
+    { yr: "1558", icon: "👸", title: "Elizabeth Takes the Throne",
+      story: "Far to the south, in <span class='kt'>1558</span>, <span class='kt'>Elizabeth I</span> — daughter of <span class='kt'>Henry VIII</span> and <span class='kt'>Anne Boleyn</span> — became Queen of England when her Catholic half-sister Mary I died. Elizabeth was <span class='kt'>Protestant</span>, and in <span class='kt'>1559</span> her <span class='kt'>Religious Settlement</span> chose a careful 'middle way' to calm the quarrel between Protestants and Catholics.",
+      pool: [
+        { type:'mc', q:"What religion was Elizabeth I?", opts:["Protestant","Catholic","She had no religion","Only Lutheran"], answer:"Protestant", ex:"Elizabeth restored Protestantism after the Catholic Mary I." },
+        { type:'mc', q:"Elizabeth I's parents were Henry VIII and…", opts:["Anne Boleyn","Catherine of Aragon","Jane Seymour","Mary of Scotland"], answer:"Anne Boleyn", ex:"Elizabeth was the daughter of Anne Boleyn." },
+        { type:'year', q:"Guess the year Elizabeth I became Queen of England (within 3 years).", answer:1558, tol:3, ex:"Elizabeth became queen in 1558." }
+      ] },
+    { yr: "1561", icon: "⛵", title: "Mary Returns to Scotland",
+      story: "Widowed in France, <span class='kt'>Mary, Queen of Scots</span> sailed home to <span class='kt'>Scotland</span> in <span class='kt'>1561</span>. But here was the danger for Elizabeth: as a great-granddaughter of Henry VII and a Catholic, Mary had a strong claim to the <span class='kt'>English throne</span>. English Catholics began to whisper that Mary, not Elizabeth, was the rightful queen.",
+      pool: [
+        { type:'mc', q:"Why was Mary's return a threat to Elizabeth?", opts:["As a Catholic, she had a strong claim to the English throne","She had a huge army","She controlled the English Parliament","She was much older than Elizabeth"], answer:"As a Catholic, she had a strong claim to the English throne", ex:"English Catholics saw Mary as the rightful Catholic queen of England." },
+        { type:'blank', q:"In 1561 Mary returned from France to rule __________.", accept:["scotland"], answerLabel:"Scotland", ex:"Mary came home to her kingdom of Scotland." },
+        { type:'mc', q:"What exactly made Mary so dangerous to Elizabeth?", opts:["Her claim to the English throne","Her wealth","Her navy","Her age"], answer:"Her claim to the English throne", ex:"Mary's claim made her a rallying point for Elizabeth's enemies." }
+      ] },
+    { yr: "1567", icon: "💍", title: "Scandal and Abdication",
+      story: "Mary's reign in Scotland collapsed in scandal. Her husband <span class='kt'>Lord Darnley</span> was murdered, and Mary then married the chief suspect, the Earl of <span class='kt'>Bothwell</span>. Outraged Scots forced her to <span class='kt'>abdicate</span> in <span class='kt'>1567</span>, and her baby son was crowned <span class='kt'>James VI</span> of Scotland.",
+      pool: [
+        { type:'mc', q:"What forced Mary to give up the Scottish throne in 1567?", opts:["Scandal over Darnley's murder and her marriage to Bothwell","A foreign invasion","Old age","A plague outbreak"], answer:"Scandal over Darnley's murder and her marriage to Bothwell", ex:"The murder of Darnley and her marriage to the chief suspect ruined her." },
+        { type:'blank', q:"Mary's murdered second husband was Lord __________.", accept:["darnley"], answerLabel:"Darnley", ex:"Lord Darnley's murder caused the scandal that toppled Mary." },
+        { type:'mc', q:"Who became King of Scotland when Mary abdicated?", opts:["Her baby son, James VI","Elizabeth I","The Earl of Bothwell","Philip II of Spain"], answer:"Her baby son, James VI", ex:"Mary's infant son became James VI of Scotland." }
+      ] },
+    { yr: "1568", icon: "🔒", title: "A Dangerous Guest",
+      story: "In <span class='kt'>1568</span> Mary fled south into <span class='kt'>England</span>, hoping her cousin <span class='kt'>Elizabeth</span> would help her win back Scotland. Instead, Elizabeth saw the danger and had Mary <span class='kt'>imprisoned</span>. Mary would remain a prisoner in England for <span class='kt'>nineteen years</span> — a magnet for every Catholic plot.",
+      pool: [
+        { type:'mc', q:"What did Elizabeth do when Mary fled to England in 1568?", opts:["Imprisoned her","Crowned her","Sent her to Spain","Made her the heir"], answer:"Imprisoned her", ex:"Elizabeth kept Mary a prisoner rather than risk freeing a rival." },
+        { type:'mc', q:"Roughly how long did Mary remain Elizabeth's prisoner?", opts:["About 19 years","A few weeks","About 2 years","About 50 years"], answer:"About 19 years", ex:"Mary was held for roughly 19 years before her execution." },
+        { type:'decade', q:"In which decade did Mary flee to England?", answer:1560, ex:"Mary fled to England in 1568." }
+      ] },
+    { yr: "1569–71", icon: "🗡️", title: "The First Plots",
+      story: "Mary's presence sparked rebellion. In <span class='kt'>1569</span> Catholic earls rose in the <span class='kt'>Northern Rebellion</span>, hoping to free Mary and overthrow Elizabeth. In <span class='kt'>1571</span> came the <span class='kt'>Ridolfi Plot</span>, a scheme to murder Elizabeth with Spanish help and put Mary on the throne. Both failed — but more would come.",
+      pool: [
+        { type:'mc', q:"The 1569 rising of Catholic earls to free Mary was the…", opts:["Northern Rebellion","Peasants' Revolt","Gunpowder Plot","Spanish Armada"], answer:"Northern Rebellion", ex:"The Northern Rebellion (1569) aimed to free Mary and restore Catholicism." },
+        { type:'mc', q:"The 1571 plot to kill Elizabeth with Spanish help was the…", opts:["Ridolfi Plot","Babington Plot","Throckmorton Plot","Rye House Plot"], answer:"Ridolfi Plot", ex:"The Ridolfi Plot (1571) sought Spanish help to put Mary on the throne." },
+        { type:'blank', q:"All the plots aimed to remove Elizabeth and make __________ queen instead.", accept:["mary","mary queen of scots"], answerLabel:"Mary, Queen of Scots", ex:"Mary was the Catholic alternative the plotters wanted on the throne." }
+      ] },
+    { yr: "1583–86", icon: "🕵️", title: "Walsingham's Web",
+      story: "Elizabeth's spymaster, <span class='kt'>Sir Francis Walsingham</span>, ran a network of spies and code-breakers. After the <span class='kt'>Throckmorton Plot</span> of <span class='kt'>1583</span>, he set a trap. In the <span class='kt'>1586</span> <span class='kt'>Babington Plot</span> he intercepted Mary's secret coded letters — in which she clearly approved a plan to assassinate Elizabeth. Now there was proof.",
+      pool: [
+        { type:'mc', q:"Who was Elizabeth's 'spymaster' who uncovered the plots?", opts:["Sir Francis Walsingham","Sir Francis Drake","Lord Darnley","Thomas Cromwell"], answer:"Sir Francis Walsingham", ex:"Walsingham's network of spies exposed plot after plot." },
+        { type:'mc', q:"Which 1586 plot was exposed by intercepting Mary's coded letters?", opts:["The Babington Plot","The Ridolfi Plot","The Gunpowder Plot","The Northern Rebellion"], answer:"The Babington Plot", ex:"The Babington Plot gave the proof that Mary approved Elizabeth's murder." },
+        { type:'blank', q:"Walsingham intercepted Mary's secret __________ letters that proved her guilt.", accept:["coded","code","ciphered","cipher","secret"], answerLabel:"coded", ex:"The decoded letters showed Mary approving the assassination plan." }
+      ] },
+    { yr: "1587", icon: "⚰️", title: "The Execution",
+      story: "With Mary's guilt proven, Parliament demanded her death. Elizabeth agonised — Mary was an <span class='kt'>anointed queen</span> and her own cousin. At last she signed the order, and in <span class='kt'>1587</span> <span class='kt'>Mary, Queen of Scots</span> was beheaded at <span class='kt'>Fotheringhay Castle</span>.",
+      pool: [
+        { type:'mc', q:"Where was Mary, Queen of Scots executed in 1587?", opts:["Fotheringhay Castle","The Tower of London","Edinburgh Castle","Hampton Court Palace"], answer:"Fotheringhay Castle", ex:"Mary was beheaded at Fotheringhay Castle in 1587." },
+        { type:'mc', q:"Why did Elizabeth hesitate to execute Mary?", opts:["Mary was an anointed queen and her own cousin","Mary was very popular in England","Elizabeth feared Mary's army","It was illegal to execute anyone"], answer:"Mary was an anointed queen and her own cousin", ex:"Killing a fellow anointed monarch set a dangerous precedent." },
+        { type:'year', q:"Guess the year Mary, Queen of Scots was executed (within 2 years).", answer:1587, tol:2, ex:"Mary was executed in 1587 after the Babington Plot." }
+      ] },
+    { yr: "1588", icon: "🌊", title: "The Armada Strikes",
+      story: "Catholic <span class='kt'>Philip II of Spain</span> was enraged — by Mary's execution and by English raids on his treasure ships. In <span class='kt'>1588</span> he sent the <span class='kt'>Spanish Armada</span>, a vast fleet, to invade England. Battered by English fireships and fierce storms, the Armada was defeated — a famous triumph for Elizabeth.",
+      pool: [
+        { type:'mc', q:"What did Philip II of Spain send against England in 1588?", opts:["The Spanish Armada","The Northern Rebellion","An ambassador","The Babington Plot"], answer:"The Spanish Armada", ex:"The Spanish Armada was a huge invasion fleet — and it was defeated." },
+        { type:'blank', q:"The Catholic king who sent the Armada was Philip II of __________.", accept:["spain"], answerLabel:"Spain", ex:"Philip II of Spain launched the Armada in 1588." },
+        { type:'decade', q:"In which decade was the Spanish Armada defeated?", answer:1580, ex:"The Armada was defeated in 1588." }
+      ] },
+    { yr: "1603", icon: "🤝", title: "Union of the Crowns",
+      story: "<span class='kt'>Elizabeth I</span> never married and had no child. When she died in <span class='kt'>1603</span>, the crown passed — astonishingly — to Mary's son, <span class='kt'>James VI of Scotland</span>, who became <span class='kt'>James I of England</span>. The two old rivals' families were united, and England and Scotland shared a king for the first time.",
+      pool: [
+        { type:'mc', q:"Who became King of England when Elizabeth died in 1603?", opts:["James I (James VI of Scotland), Mary's son","Philip II of Spain","Henry IX","Lord Darnley"], answer:"James I (James VI of Scotland), Mary's son", ex:"Mary's son united the crowns of Scotland and England in 1603." },
+        { type:'mc', q:"Why was Elizabeth called the 'Virgin Queen'?", opts:["She never married","She was very young","She was a nun","She had no army"], answer:"She never married", ex:"Elizabeth never married, leaving no direct heir of her own." },
+        { type:'year', q:"Guess the year Elizabeth I died (within 3 years).", answer:1603, tol:3, ex:"Elizabeth died in 1603, ending the Tudor dynasty." }
+      ] }
+];
+
+const THINK = [
+    "Was Elizabeth right to execute Mary, Queen of Scots? Weigh the danger Mary posed against the risks of killing an anointed queen.",
+    "Mary spent 19 years as Elizabeth's prisoner before she was executed. Why do you think Elizabeth kept her alive for so long?",
+    "Which was the most dangerous plot against Elizabeth, and why? Use evidence to support your choice.",
+    "“Mary, Queen of Scots was the author of her own downfall.” How far do you agree?",
+    "How important was Sir Francis Walsingham and his spy network to Elizabeth keeping her throne?",
+    "The Spanish Armada came the year after Mary's execution. What were the consequences of executing Mary for England's relations with Catholic Europe?"
+];
+
+const ACE_MSG = "🏆 Outstanding — you told that story like a true historian!";
+const GOOD_MSG = "🌟 Great work — you really followed the thread of the rivalry.";
+const OK_MSG = "👍 Good effort — play again and watch the story click into place.";
+const LOW_MSG = "📚 Now you know how it ends — tell the story again and beat your score!";
+
+/* ============ STORY ENGINE ============ */
+const norm = s => (s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function decadeLabel(d){ return d + 's'; }
+
+const elFlow = document.getElementById('sq-flow');
+const elBar = document.getElementById('sq-bar');
+const elMeta = document.getElementById('sq-meta');
+let sIdx = 0, sScore = 0;
+
+function renderIntro(){
+    elMeta.textContent = 'A story in ' + STAGES.length + ' chapters';
+    elBar.style.width = '0%';
+    elFlow.innerHTML = '<div class="chapter"><div class="qcard-box sq-intro">' +
+        '<div class="sq-intro-title">' + INTRO_TITLE + '</div>' +
+        '<div class="sq-intro-text">' + INTRO_TEXT + '</div>' +
+        '<button class="go" id="sq-begin">Begin the story ▶</button></div></div>';
+    document.getElementById('sq-begin').onclick = begin;
+}
+function begin(){ sIdx = 0; sScore = 0; elFlow.innerHTML = ''; const w = startStage(); w.scrollIntoView({behavior:'smooth', block:'center'}); }
+
+function updateProgress(){
+    elMeta.textContent = 'Chapter ' + (sIdx+1) + ' of ' + STAGES.length;
+    elBar.style.width = ((sIdx/STAGES.length)*100) + '%';
+}
+
+function startStage(){
+    updateProgress();
+    const idx = sIdx;
+    const stage = STAGES[idx];
+    const q = stage.pool[Math.floor(Math.random()*stage.pool.length)];
+    const wrap = document.createElement('div');
+    wrap.className = 'chapter';
+    let inner = '<div class="qcard-box"><div class="sq-chapter-tag">Chapter ' + (idx+1) + ' · ' + stage.yr + '</div>';
+    inner += '<div class="sq-q">' + q.q + '</div>';
+    if(q.type === 'mc'){
+        const opts = shuffle(q.opts.slice());
+        inner += '<div class="qopts">' + opts.map(o => '<button class="qopt" data-v="' + encodeURIComponent(o) + '">' + o + '</button>').join('') + '</div>';
+    } else if(q.type === 'decade'){
+        const a = q.answer;
+        const decs = shuffle([a-20, a-10, a, a+10]);
+        inner += '<div class="qopts">' + decs.map(d => '<button class="qopt" data-v="' + d + '">' + decadeLabel(d) + '</button>').join('') + '</div>';
+    } else if(q.type === 'blank'){
+        inner += '<div class="sq-input-row"><input type="text" class="sq-input" autocomplete="off" placeholder="Type your answer…"><button class="go sq-check">Check</button></div>';
+    } else if(q.type === 'year'){
+        inner += '<div class="sq-input-row"><input type="number" class="sq-input" placeholder="Guess a year…"><button class="go sq-check">Check</button></div>' +
+                 '<div class="sq-hint">Tip: get within ' + (q.tol||3) + ' years to score the point.</div>';
+    }
+    inner += '<div class="sq-feedback"></div></div>';
+    wrap.innerHTML = inner;
+    elFlow.appendChild(wrap);
+
+    const box = wrap.querySelector('.qcard-box');
+    const fb = wrap.querySelector('.sq-feedback');
+    let answered = false;
+
+    function done(correct, lead){
+        if(answered) return; answered = true;
+        if(correct) sScore++;
+        fb.className = 'sq-feedback show ' + (correct ? 'ok' : 'no');
+        fb.innerHTML = '<span class="lead">' + lead + '</span>' + (q.ex || '');
+        const card = document.createElement('div');
+        card.className = 'story-card';
+        card.innerHTML = '<div class="yr">' + stage.yr + '</div>' +
+            '<div class="sq-title">' + stage.icon + ' ' + stage.title + '</div>' +
+            '<div class="ev">' + stage.story + '</div>';
+        wrap.appendChild(card);
+        sIdx++;
+        if(sIdx >= STAGES.length){ finish(); }
+        else { startStage(); }
+        card.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+
+    if(q.type === 'mc' || q.type === 'decade'){
+        box.querySelectorAll('.qopt').forEach(b => { b.onclick = function(){
+            if(answered) return;
+            box.querySelectorAll('.qopt').forEach(x => x.disabled = true);
+            let correct, lead;
+            if(q.type === 'mc'){
+                const v = decodeURIComponent(b.dataset.v);
+                correct = (v === q.answer);
+                box.querySelectorAll('.qopt').forEach(x => { const xv = decodeURIComponent(x.dataset.v); if(xv === q.answer) x.classList.add('correct'); else if(x === b) x.classList.add('wrong'); });
+                lead = correct ? '✅ Correct!' : '❌ Not quite — the answer was <strong>' + q.answer + '</strong>.';
+            } else {
+                const v = parseInt(b.dataset.v);
+                correct = (v === q.answer);
+                box.querySelectorAll('.qopt').forEach(x => { const xv = parseInt(x.dataset.v); if(xv === q.answer) x.classList.add('correct'); else if(x === b) x.classList.add('wrong'); });
+                lead = correct ? '✅ Correct!' : '❌ Not quite — it was the <strong>' + decadeLabel(q.answer) + '</strong>.';
+            }
+            done(correct, lead);
+        }; });
+    } else {
+        const input = box.querySelector('.sq-input');
+        const checkBtn = box.querySelector('.sq-check');
+        function submit(){
+            if(answered) return;
+            let correct, lead;
+            if(q.type === 'blank'){
+                const nv = norm(input.value);
+                correct = !!nv && q.accept.some(a => { const na = norm(a); return nv === na || nv.indexOf(na) >= 0 || (na.indexOf(nv) >= 0 && nv.length >= 4); });
+                lead = correct ? '✅ Correct!' : '❌ Not quite — the answer was <strong>' + q.answerLabel + '</strong>.';
+            } else {
+                const g = parseInt(input.value), tol = q.tol || 3;
+                correct = !isNaN(g) && Math.abs(g - q.answer) <= tol;
+                if(correct) lead = (g === q.answer) ? '🎯 Spot on!' : '✅ Close enough — within ' + tol + ' years!';
+                else lead = '❌ Not quite — you were ' + (isNaN(g) ? '…' : Math.abs(g - q.answer)) + ' years off.';
+                lead += ' It was <strong>' + q.answer + '</strong>.';
+            }
+            input.disabled = true; checkBtn.disabled = true;
+            done(correct, lead);
+        }
+        checkBtn.onclick = submit;
+        input.addEventListener('keydown', function(e){ if(e.key === 'Enter') submit(); });
+        try { input.focus({preventScroll:true}); } catch(e) { }
+    }
+    return wrap;
+}
+
+function finish(){
+    const total = STAGES.length, pct = Math.round((sScore/total)*100);
+    elMeta.textContent = 'The End · ' + sScore + ' / ' + total;
+    elBar.style.width = '100%';
+    let msg = pct >= 90 ? ACE_MSG : pct >= 70 ? GOOD_MSG : pct >= 50 ? OK_MSG : LOW_MSG;
+    const think = THINK.map(t => '<div class="think"><span class="tmark">💭</span><span>' + t + '</span></div>').join('');
+    const block = document.createElement('div');
+    block.className = 'chapter';
+    block.innerHTML = '<div class="qcard-box sq-finish">' +
+        '<div class="score-big">' + sScore + ' / ' + total + '</div>' +
+        '<div class="score-pct">' + pct + '%</div>' +
+        '<div class="score-msg">' + msg + '</div>' +
+        '<div class="sec-label">💭 Now think like a historian</div>' +
+        '<div class="topic-sub">No single right answer — these reward explaining <em>why</em> things happened and the <em>consequences</em> that followed.</div>' +
+        think +
+        '<div style="margin-top:1.2rem;"><button class="go" id="sq-replay">Tell it again ↻</button></div></div>';
+    elFlow.appendChild(block);
+    document.getElementById('sq-replay').onclick = begin;
+}
+
+renderIntro();
+</script>
+<script src="study-audio.js"></script>
+</body>
+</html>

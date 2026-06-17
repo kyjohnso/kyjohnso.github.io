@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Reign of Henry VIII — A Story</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --ink: #2a1518;
+    --acc: #b0203c; --acc-d: #7a1227;
+    --gold: #c79a2e; --gold-d: #8a6a12;
+    --shadow: rgba(0,0,0,0.15);
+}
+body { font-family: 'Karla', sans-serif; color: var(--ink); background: linear-gradient(135deg, #FBF1E2 0%, #F3E2C9 50%, #EBD0AE 100%); min-height: 100vh; padding: 2rem 1rem 3rem; position: relative; overflow-x: hidden; }
+body::before { content: ''; position: fixed; inset: 0; background-image: radial-gradient(circle at 15% 85%, rgba(176,32,60,0.10) 0%, transparent 45%), radial-gradient(circle at 85% 15%, rgba(199,154,46,0.12) 0%, transparent 45%); pointer-events: none; z-index: 0; }
+.wrap { max-width: 820px; margin: 0 auto; position: relative; z-index: 1; }
+.header { text-align: center; margin-bottom: 1.2rem; }
+h1 { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 700; color: var(--acc-d); text-shadow: 2px 2px 0 rgba(176,32,60,0.18); letter-spacing: 1px; line-height: 1.05; }
+.subtitle { font-size: 1rem; color: var(--gold-d); font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-top: 0.3rem; }
+.crest { font-size: 2.6rem; }
+.back-link { display: inline-block; text-decoration: none; color: var(--acc-d); font-weight: 700; font-size: 0.95rem; margin-bottom: 1rem; }
+.back-link:hover { text-decoration: underline; }
+
+/* progress */
+.sq-progress { margin-bottom: 1.3rem; }
+.sq-meta { font-weight: 700; color: var(--acc-d); font-size: 0.82rem; text-align: center; margin-bottom: 0.45rem; letter-spacing: 1.5px; text-transform: uppercase; }
+.qbar-wrap { height: 8px; background: rgba(0,0,0,0.08); border-radius: 50px; overflow: hidden; }
+.qbar { height: 100%; background: linear-gradient(90deg, var(--acc), var(--acc-d)); width: 0; transition: width 0.4s ease; }
+
+/* flowing chapters down the page */
+.chapter { margin-bottom: 1.5rem; }
+.kt { font-weight: 700; color: var(--acc-d); }
+.story-card { margin-top: 1rem; background: #fff; border-radius: 14px; padding: 1rem 1.2rem 1.05rem; box-shadow: 0 5px 18px var(--shadow); border-left: 5px solid var(--acc); animation: fade 0.5s ease; }
+.story-card .yr { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 1.25rem; color: var(--acc-d); }
+.sq-title { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 1.15rem; color: var(--acc-d); margin: 0.05rem 0 0.35rem; }
+.story-card .ev { font-size: 0.99rem; line-height: 1.62; }
+
+/* active question card */
+.qcard-box { background: rgba(255,255,255,0.62); border-radius: 18px; padding: 1.5rem 1.4rem; box-shadow: 0 8px 26px var(--shadow); border: 2px solid rgba(255,255,255,0.6); }
+.sq-chapter-tag { display: inline-block; background: linear-gradient(135deg, var(--acc), var(--acc-d)); color: #fff; font-weight: 700; font-size: 0.72rem; letter-spacing: 1.5px; text-transform: uppercase; padding: 0.22rem 0.85rem; border-radius: 50px; margin-bottom: 0.8rem; }
+.sq-q { font-family: 'Cormorant Garamond', serif; font-size: 1.55rem; font-weight: 700; color: var(--ink); line-height: 1.32; margin-bottom: 1.1rem; }
+.sq-q .blankline { color: var(--acc); font-weight: 700; letter-spacing: 1px; }
+
+.qopts { display: grid; grid-template-columns: 1fr; gap: 0.6rem; }
+.qopt { display: block; width: 100%; text-align: left; background: #fff; border: 2px solid rgba(0,0,0,0.1); border-radius: 12px; padding: 0.85rem 1rem; font-family: 'Karla', sans-serif; font-size: 1rem; color: #333; cursor: pointer; transition: all 0.16s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.06); font-weight: 500; line-height: 1.4; }
+.qopt:hover:not(:disabled) { border-color: var(--acc); transform: translateY(-1px); box-shadow: 0 4px 12px var(--shadow); }
+.qopt:disabled { cursor: default; }
+.qopt.correct { background: #e7f7ec; border-color: #2e9e5b; color: #1d6b3c; font-weight: 700; }
+.qopt.wrong { background: #fdeaea; border-color: #d9534f; color: #a4302c; }
+
+.sq-input-row { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+.sq-input { flex: 1; min-width: 160px; padding: 0.8rem 1rem; font-family: 'Karla', sans-serif; font-size: 1.05rem; border: 2px solid rgba(0,0,0,0.15); border-radius: 12px; outline: none; background: #fff; color: #222; }
+.sq-input:focus { border-color: var(--acc); box-shadow: 0 0 0 3px rgba(176,32,60,0.12); }
+.sq-input:disabled { background: #f3f3f3; }
+.sq-hint { font-size: 0.82rem; color: #777; margin-top: 0.55rem; }
+
+.sq-feedback { margin-top: 1.1rem; border-radius: 12px; padding: 0.9rem 1.05rem; font-size: 0.97rem; line-height: 1.55; display: none; }
+.sq-feedback.show { display: block; }
+.sq-feedback.ok { background: #e7f7ec; border-left: 5px solid #2e9e5b; color: #1d6b3c; }
+.sq-feedback.no { background: #fdeaea; border-left: 5px solid #d9534f; color: #8c2622; }
+.sq-feedback .lead { font-weight: 700; display: block; margin-bottom: 0.2rem; }
+.sq-next { margin-top: 1.1rem; text-align: center; }
+
+.sq-intro { text-align: center; }
+.sq-intro-title { font-family: 'Cormorant Garamond', serif; font-size: 1.9rem; font-weight: 700; color: var(--acc-d); margin-bottom: 0.5rem; }
+.sq-intro-text { color: #555; line-height: 1.6; margin-bottom: 1.3rem; font-size: 1rem; }
+
+.sq-finish { text-align: center; }
+.score-big { font-family: 'Cormorant Garamond', serif; font-size: 3.4rem; font-weight: 700; color: var(--acc-d); line-height: 1; }
+.score-pct { font-size: 1.1rem; color: var(--acc-d); font-weight: 700; }
+.score-msg { color: #555; margin: 0.5rem 0 0.4rem; }
+.sec-label { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 700; color: var(--gold-d); margin: 1.4rem 0 0.5rem; }
+.topic-sub { color: #666; font-size: 0.92rem; margin-bottom: 0.9rem; }
+.think { background: linear-gradient(135deg, #fff 0%, #fbf7ef 100%); border-left: 5px solid var(--gold); border-radius: 12px; padding: 0.9rem 1.1rem; margin-bottom: 0.7rem; box-shadow: 0 4px 14px var(--shadow); font-size: 0.97rem; line-height: 1.5; display: flex; gap: 0.7rem; align-items: flex-start; text-align: left; }
+.think .tmark { font-size: 1.3rem; line-height: 1.2; flex: none; }
+
+button.go { color: #fff; border: none; padding: 0.85rem 2rem; font-size: 1.02rem; font-weight: 700; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px var(--shadow); transition: all 0.25s ease; font-family: 'Karla', sans-serif; background: linear-gradient(135deg, var(--acc), var(--acc-d)); }
+button.go:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--shadow); }
+button.go:active { transform: translateY(0); }
+
+@keyframes fade { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 700px) { h1 { font-size: 2.2rem; } .sq-q { font-size: 1.35rem; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <a class="back-link" href="index.html">&larr; Back to study materials</a>
+    <div class="header">
+        <div class="crest">👑</div>
+        <h1>The Reign of Henry VIII</h1>
+        <p class="subtitle">Lower 4 History · An Unfolding Story</p>
+    </div>
+
+    <div class="sq-progress">
+        <div class="sq-meta" id="sq-meta"></div>
+        <div class="qbar-wrap"><div class="qbar" id="sq-bar"></div></div>
+    </div>
+
+    <div id="sq-flow"></div>
+</div>
+
+<script>
+/* ============ THE STORY (chapters unfold one by one) ============ */
+const INTRO_TITLE = "👑 The Story of Henry VIII";
+const INTRO_TEXT = "Henry's reign unfolds chapter by chapter. Before each new twist, take a guess — multiple choice, fill-in-the-blank, guess-the-decade or guess-the-year — then watch the real story reveal what happened, and <em>why</em>. The questions are different every time you play, so play it more than once!";
+
+const STAGES = [
+    { yr: "1509", icon: "👑", title: "A New Young King",
+      story: "A confident, athletic 17-year-old was crowned at <span class='kt'>Westminster Abbey</span>: <span class='kt'>Henry VIII</span>, second son of <span class='kt'>Henry VII</span>, the first Tudor king. To seal an alliance with Spain, Henry married <span class='kt'>Catherine of Aragon</span> — a Spanish princess who had been the widow of his own elder brother, Arthur. The young king was popular, clever and Catholic, and few imagined the storms ahead.",
+      pool: [
+        { type:'mc', q:"Henry VIII's first wife was a Spanish princess who had once been married to his own brother. Who was she?", opts:["Catherine of Aragon","Anne Boleyn","Jane Seymour","Catherine Howard"], answer:"Catherine of Aragon", ex:"Catherine of Aragon, Arthur's widow, was Henry's first wife and mother of the future Mary I." },
+        { type:'decade', q:"In which decade did Henry VIII become king?", answer:1500, ex:"Henry was crowned in 1509, aged just 17." },
+        { type:'blank', q:"To seal an alliance with Spain, Henry married Catherine of __________.", accept:["aragon"], answerLabel:"Aragon", ex:"Catherine of Aragon came from Spain." }
+      ] },
+    { yr: "1516", icon: "👶", title: "The Missing Son",
+      story: "Year after year Henry longed for a son to secure the Tudor line. In <span class='kt'>1516</span> Catherine gave him a daughter, <span class='kt'>Princess Mary</span> — but their sons all died as babies. Henry grew anxious: England had never been ruled well by a queen alone, and he feared a return to civil war. His eye fell on a sharp, fashionable lady at court, <span class='kt'>Anne Boleyn</span>.",
+      pool: [
+        { type:'mc', q:"What did Henry want most desperately — but Catherine could not give him?", opts:["A surviving son and heir","More land in France","A bigger palace","A Spanish army"], answer:"A surviving son and heir", ex:"Henry feared dying without a male heir to keep the Tudors in power." },
+        { type:'blank', q:"Catherine gave Henry a daughter named __________, the future queen.", accept:["mary"], answerLabel:"Mary (Mary I)", ex:"Princess Mary, born 1516, later became Mary I." },
+        { type:'mc', q:"Which fashionable lady at court did Henry fall in love with?", opts:["Anne Boleyn","Jane Seymour","Catherine Parr","Anne of Cleves"], answer:"Anne Boleyn", ex:"Anne Boleyn refused to be just a mistress — she wanted to be queen." }
+      ] },
+    { yr: "1527", icon: "⛪", title: "The King's Great Matter",
+      story: "By <span class='kt'>1527</span> Henry was determined to end his marriage. He asked <span class='kt'>Pope Clement VII</span> in <span class='kt'>Rome</span> to <span class='kt'>annul</span> it — to declare it had never been valid. But the Pope refused: Catherine's nephew was <span class='kt'>Charles V</span>, the Holy Roman Emperor, whose troops controlled Rome. Henry handed the problem to his chief minister, <span class='kt'>Cardinal Wolsey</span>.",
+      pool: [
+        { type:'mc', q:"What did Henry ask the Pope for in 1527?", opts:["An annulment of his marriage","A new crown","A crusade","A loan of gold"], answer:"An annulment of his marriage", ex:"An annulment would declare the marriage had never been legal." },
+        { type:'mc', q:"Why did the Pope refuse Henry?", opts:["He feared Catherine's nephew, Emperor Charles V","He had never met Henry","Annulments were against the law","Henry was too poor"], answer:"He feared Catherine's nephew, Emperor Charles V", ex:"Charles V's troops controlled Rome, so the Pope dared not anger him." },
+        { type:'blank', q:"Henry wanted the Pope to grant an __________ — a ruling that his marriage had never been valid.", accept:["annulment","anulment"], answerLabel:"annulment", ex:"An annulment is different from a modern divorce — it says the marriage never counted." }
+      ] },
+    { yr: "1529", icon: "🎩", title: "Wolsey's Fall",
+      story: "<span class='kt'>Cardinal Wolsey</span> was the most powerful man in England after the king — but he could not deliver the annulment. In <span class='kt'>1529</span> Henry stripped him of power. Wolsey died on his way to face a trial for treason. The lesson was chilling: serve the king's wishes, or fall.",
+      pool: [
+        { type:'mc', q:"Why did Cardinal Wolsey fall from power in 1529?", opts:["He failed to get Henry's annulment","He lost a great battle","He stole the crown jewels","He married the queen"], answer:"He failed to get Henry's annulment", ex:"Wolsey's failure to win the annulment cost him everything." },
+        { type:'blank', q:"Henry's chief minister, Cardinal __________, fell for failing to get the annulment.", accept:["wolsey"], answerLabel:"Wolsey", ex:"Cardinal Wolsey died in 1530 before he could be tried." },
+        { type:'decade', q:"In which decade did Cardinal Wolsey fall from power?", answer:1520, ex:"Wolsey fell in 1529." }
+      ] },
+    { yr: "1533–34", icon: "⛓️", title: "The Break with Rome",
+      story: "If the Pope would not act, Henry would. His new archbishop, <span class='kt'>Thomas Cranmer</span>, annulled the marriage in <span class='kt'>1533</span>, and Henry married the pregnant <span class='kt'>Anne Boleyn</span> — who soon gave birth to <span class='kt'>Princess Elizabeth</span>. Then in <span class='kt'>1534</span> the <span class='kt'>Act of Supremacy</span> made Henry 'Supreme Head of the Church of England'. England had broken with <span class='kt'>Rome</span>.",
+      pool: [
+        { type:'mc', q:"The 1534 law that made Henry head of the English Church was the…", opts:["Act of Supremacy","Magna Carta","Divine Right Act","Dissolution Act"], answer:"Act of Supremacy", ex:"The Act of Supremacy (1534) made Henry Supreme Head of the Church of England." },
+        { type:'mc', q:"Anne Boleyn's daughter, born in 1533, would grow up to be…", opts:["Elizabeth I","Mary I","Lady Jane Grey","Catherine of Aragon"], answer:"Elizabeth I", ex:"Princess Elizabeth, born 1533, became Elizabeth I." },
+        { type:'blank', q:"Archbishop Thomas __________ annulled Henry's first marriage so he could wed Anne Boleyn.", accept:["cranmer"], answerLabel:"Cranmer", ex:"Thomas Cranmer, Archbishop of Canterbury, granted the annulment." },
+        { type:'year', q:"Guess the year of the Act of Supremacy, when Henry became head of the Church (within 3 years).", answer:1534, tol:3, ex:"The Act of Supremacy was passed in 1534." }
+      ] },
+    { yr: "1535", icon: "📕", title: "Those Who Said No",
+      story: "Not everyone accepted the change. <span class='kt'>Sir Thomas More</span> — Henry's friend, a former Lord Chancellor and a devout Catholic — refused to swear that Henry was head of the Church. In <span class='kt'>1535</span> he was executed for <span class='kt'>treason</span>. To defy Henry now was to risk your life.",
+      pool: [
+        { type:'mc', q:"Who was executed in 1535 for refusing to accept Henry as Head of the Church?", opts:["Sir Thomas More","Thomas Cromwell","Cardinal Wolsey","Thomas Cranmer"], answer:"Sir Thomas More", ex:"Sir Thomas More chose death over betraying his Catholic conscience." },
+        { type:'blank', q:"Sir Thomas __________ was executed in 1535 for refusing to accept Henry as head of the Church.", accept:["more"], answerLabel:"More", ex:"Thomas More had been Henry's Lord Chancellor and friend." },
+        { type:'mc', q:"What crime was Thomas More accused of for refusing the oath?", opts:["Treason","Theft","Heresy","Cowardice"], answer:"Treason", ex:"Refusing to accept the king's supremacy was treated as treason." }
+      ] },
+    { yr: "1536", icon: "🏚️", title: "Riches and Rebellion",
+      story: "Henry's new minister <span class='kt'>Thomas Cromwell</span> began the <span class='kt'>Dissolution of the Monasteries</span> — closing them and seizing their land and treasure for the Crown. In the <span class='kt'>North of England</span>, furious people rose up in the <span class='kt'>Pilgrimage of Grace</span>. That same year <span class='kt'>Anne Boleyn</span> was accused of treason and beheaded, and Henry married <span class='kt'>Jane Seymour</span>.",
+      pool: [
+        { type:'mc', q:"What did Cromwell's Dissolution of the Monasteries do?", opts:["Closed monasteries and seized their wealth","Built grand new churches","Freed all prisoners","Ended all taxes"], answer:"Closed monasteries and seized their wealth", ex:"From 1536–1540 the monasteries were shut and stripped for the Crown." },
+        { type:'mc', q:"The 1536 rebellion in the North against the religious changes was the…", opts:["Pilgrimage of Grace","Peasants' Revolt","Gunpowder Plot","Spanish Armada"], answer:"Pilgrimage of Grace", ex:"The Pilgrimage of Grace protested the closing of the monasteries." },
+        { type:'mc', q:"What happened to Anne Boleyn in 1536?", opts:["She was beheaded","She was divorced","She became Queen of Scotland","She fled to France"], answer:"She was beheaded", ex:"Anne Boleyn was executed on charges of treason in 1536." },
+        { type:'blank', q:"Henry's minister Thomas __________ ran the Dissolution of the Monasteries.", accept:["cromwell"], answerLabel:"Cromwell", ex:"Thomas Cromwell organised both the Break with Rome and the Dissolution." }
+      ] },
+    { yr: "1537", icon: "🧒", title: "The Longed-For Son",
+      story: "At last, in <span class='kt'>1537</span>, <span class='kt'>Jane Seymour</span> gave Henry the son he had craved: <span class='kt'>Prince Edward</span>. The court rejoiced — but within days Jane died. Of all six wives, Henry would choose to be buried beside Jane, the one who gave him his heir.",
+      pool: [
+        { type:'mc', q:"Which wife finally gave Henry a son, Edward?", opts:["Jane Seymour","Anne Boleyn","Catherine Howard","Catherine of Aragon"], answer:"Jane Seymour", ex:"Jane Seymour gave birth to Edward in 1537 but died days later." },
+        { type:'blank', q:"Jane Seymour gave birth to Henry's only son, Prince __________.", accept:["edward"], answerLabel:"Edward", ex:"Prince Edward later became Edward VI." },
+        { type:'mc', q:"What happened to Jane Seymour soon after Edward's birth?", opts:["She died","She was beheaded","She was divorced","She became regent"], answer:"She died", ex:"Jane died within days of the birth; Henry mourned her deeply." }
+      ] },
+    { yr: "1540–43", icon: "💍", title: "The Last Three Wives",
+      story: "Henry's final wives came quickly. <span class='kt'>Anne of Cleves</span>, a German princess, was married and annulled within months. Young <span class='kt'>Catherine Howard</span> was beheaded for adultery in <span class='kt'>1542</span>. In this same period even <span class='kt'>Thomas Cromwell</span> was executed (<span class='kt'>1540</span>). Finally, in <span class='kt'>1543</span>, Henry married <span class='kt'>Catherine Parr</span>, who would outlive him.",
+      pool: [
+        { type:'mc', q:"Which of Henry's wives SURVIVED him?", opts:["Catherine Parr","Catherine Howard","Anne of Cleves","Anne Boleyn"], answer:"Catherine Parr", ex:"Catherine Parr, the sixth wife, outlived Henry." },
+        { type:'mc', q:"Complete the rhyme: 'Divorced, beheaded, died, divorced, beheaded, ___'", opts:["survived","executed","exiled","crowned"], answer:"survived", ex:"The rhyme lists the fates of the six wives in order." },
+        { type:'mc', q:"Which loyal minister was himself executed in 1540?", opts:["Thomas Cromwell","Thomas Cranmer","Sir Thomas More","Cardinal Wolsey"], answer:"Thomas Cromwell", ex:"Even Cromwell, who served Henry so well, fell and was executed in 1540." },
+        { type:'blank', q:"Henry's fourth wife, __________ of Cleves, was a German princess he quickly divorced.", accept:["anne"], answerLabel:"Anne", ex:"Anne of Cleves' marriage was annulled within months." }
+      ] },
+    { yr: "1547", icon: "⚰️", title: "The End of a Reign",
+      story: "In <span class='kt'>1547</span>, after nearly 40 years on the throne, Henry VIII died — older, heavier and feared. His nine-year-old son became <span class='kt'>King Edward VI</span>. Henry left behind a new Church, a richer Crown, and three children who would each rule in turn: <span class='kt'>Edward</span>, <span class='kt'>Mary</span> and <span class='kt'>Elizabeth</span> — and a country changed forever.",
+      pool: [
+        { type:'mc', q:"Who succeeded Henry VIII in 1547?", opts:["Edward VI","Mary I","Elizabeth I","Henry IX"], answer:"Edward VI", ex:"Henry's nine-year-old son Edward VI became king in 1547." },
+        { type:'decade', q:"In which decade did Henry VIII die?", answer:1540, ex:"Henry died in 1547." },
+        { type:'mc', q:"Henry's three children who each ruled in turn were Edward, Mary and…", opts:["Elizabeth","Lady Jane","Anne","Catherine"], answer:"Elizabeth", ex:"Edward VI, Mary I and Elizabeth I all ruled after Henry." },
+        { type:'year', q:"Guess the year Henry VIII died (within 3 years).", answer:1547, tol:3, ex:"Henry VIII died in 1547." }
+      ] }
+];
+
+const THINK = [
+    "The Pope once called Henry the 'Defender of the Faith'. How — and why — did Henry's relationship with the Catholic Church change so completely?",
+    "“Henry only broke with Rome because he wanted a divorce.” How far do you agree? What other motives (money, power, religion) might also explain it?",
+    "Who do you think had the greatest influence over Henry: Wolsey, Cromwell or Cranmer? Use evidence to explain your choice.",
+    "What were the consequences of the Dissolution of the Monasteries for ordinary people in Tudor England?",
+    "Was Henry VIII a strong and successful king, or a selfish and ruthless one? Argue both sides, then give your verdict.",
+    "Henry executed two wives and several leading advisers. What does this tell us about how he used power — and why people obeyed him?"
+];
+
+const ACE_MSG = "🏆 Outstanding — you told that story like a true historian!";
+const GOOD_MSG = "🌟 Great work — you really followed the thread of the reign.";
+const OK_MSG = "👍 Good effort — play again and watch the story click into place.";
+const LOW_MSG = "📚 Now you know how it ends — tell the story again and beat your score!";
+
+/* ============ STORY ENGINE ============ */
+const norm = s => (s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function decadeLabel(d){ return d + 's'; }
+
+const elFlow = document.getElementById('sq-flow');
+const elBar = document.getElementById('sq-bar');
+const elMeta = document.getElementById('sq-meta');
+let sIdx = 0, sScore = 0;
+
+function renderIntro(){
+    elMeta.textContent = 'A story in ' + STAGES.length + ' chapters';
+    elBar.style.width = '0%';
+    elFlow.innerHTML = '<div class="chapter"><div class="qcard-box sq-intro">' +
+        '<div class="sq-intro-title">' + INTRO_TITLE + '</div>' +
+        '<div class="sq-intro-text">' + INTRO_TEXT + '</div>' +
+        '<button class="go" id="sq-begin">Begin the story ▶</button></div></div>';
+    document.getElementById('sq-begin').onclick = begin;
+}
+function begin(){ sIdx = 0; sScore = 0; elFlow.innerHTML = ''; const w = startStage(); w.scrollIntoView({behavior:'smooth', block:'center'}); }
+
+function updateProgress(){
+    elMeta.textContent = 'Chapter ' + (sIdx+1) + ' of ' + STAGES.length;
+    elBar.style.width = ((sIdx/STAGES.length)*100) + '%';
+}
+
+function startStage(){
+    updateProgress();
+    const idx = sIdx;
+    const stage = STAGES[idx];
+    const q = stage.pool[Math.floor(Math.random()*stage.pool.length)];
+    const wrap = document.createElement('div');
+    wrap.className = 'chapter';
+    let inner = '<div class="qcard-box"><div class="sq-chapter-tag">Chapter ' + (idx+1) + ' · ' + stage.yr + '</div>';
+    inner += '<div class="sq-q">' + q.q + '</div>';
+    if(q.type === 'mc'){
+        const opts = shuffle(q.opts.slice());
+        inner += '<div class="qopts">' + opts.map(o => '<button class="qopt" data-v="' + encodeURIComponent(o) + '">' + o + '</button>').join('') + '</div>';
+    } else if(q.type === 'decade'){
+        const a = q.answer;
+        const decs = shuffle([a-20, a-10, a, a+10]);
+        inner += '<div class="qopts">' + decs.map(d => '<button class="qopt" data-v="' + d + '">' + decadeLabel(d) + '</button>').join('') + '</div>';
+    } else if(q.type === 'blank'){
+        inner += '<div class="sq-input-row"><input type="text" class="sq-input" autocomplete="off" placeholder="Type your answer…"><button class="go sq-check">Check</button></div>';
+    } else if(q.type === 'year'){
+        inner += '<div class="sq-input-row"><input type="number" class="sq-input" placeholder="Guess a year…"><button class="go sq-check">Check</button></div>' +
+                 '<div class="sq-hint">Tip: get within ' + (q.tol||3) + ' years to score the point.</div>';
+    }
+    inner += '<div class="sq-feedback"></div></div>';
+    wrap.innerHTML = inner;
+    elFlow.appendChild(wrap);
+
+    const box = wrap.querySelector('.qcard-box');
+    const fb = wrap.querySelector('.sq-feedback');
+    let answered = false;
+
+    function done(correct, lead){
+        if(answered) return; answered = true;
+        if(correct) sScore++;
+        fb.className = 'sq-feedback show ' + (correct ? 'ok' : 'no');
+        fb.innerHTML = '<span class="lead">' + lead + '</span>' + (q.ex || '');
+        const card = document.createElement('div');
+        card.className = 'story-card';
+        card.innerHTML = '<div class="yr">' + stage.yr + '</div>' +
+            '<div class="sq-title">' + stage.icon + ' ' + stage.title + '</div>' +
+            '<div class="ev">' + stage.story + '</div>';
+        wrap.appendChild(card);
+        sIdx++;
+        if(sIdx >= STAGES.length){ finish(); }
+        else { startStage(); }
+        card.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+
+    if(q.type === 'mc' || q.type === 'decade'){
+        box.querySelectorAll('.qopt').forEach(b => { b.onclick = function(){
+            if(answered) return;
+            box.querySelectorAll('.qopt').forEach(x => x.disabled = true);
+            let correct, lead;
+            if(q.type === 'mc'){
+                const v = decodeURIComponent(b.dataset.v);
+                correct = (v === q.answer);
+                box.querySelectorAll('.qopt').forEach(x => { const xv = decodeURIComponent(x.dataset.v); if(xv === q.answer) x.classList.add('correct'); else if(x === b) x.classList.add('wrong'); });
+                lead = correct ? '✅ Correct!' : '❌ Not quite — the answer was <strong>' + q.answer + '</strong>.';
+            } else {
+                const v = parseInt(b.dataset.v);
+                correct = (v === q.answer);
+                box.querySelectorAll('.qopt').forEach(x => { const xv = parseInt(x.dataset.v); if(xv === q.answer) x.classList.add('correct'); else if(x === b) x.classList.add('wrong'); });
+                lead = correct ? '✅ Correct!' : '❌ Not quite — it was the <strong>' + decadeLabel(q.answer) + '</strong>.';
+            }
+            done(correct, lead);
+        }; });
+    } else {
+        const input = box.querySelector('.sq-input');
+        const checkBtn = box.querySelector('.sq-check');
+        function submit(){
+            if(answered) return;
+            let correct, lead;
+            if(q.type === 'blank'){
+                const nv = norm(input.value);
+                correct = !!nv && q.accept.some(a => { const na = norm(a); return nv === na || nv.indexOf(na) >= 0 || (na.indexOf(nv) >= 0 && nv.length >= 4); });
+                lead = correct ? '✅ Correct!' : '❌ Not quite — the answer was <strong>' + q.answerLabel + '</strong>.';
+            } else {
+                const g = parseInt(input.value), tol = q.tol || 3;
+                correct = !isNaN(g) && Math.abs(g - q.answer) <= tol;
+                if(correct) lead = (g === q.answer) ? '🎯 Spot on!' : '✅ Close enough — within ' + tol + ' years!';
+                else lead = '❌ Not quite — you were ' + (isNaN(g) ? '…' : Math.abs(g - q.answer)) + ' years off.';
+                lead += ' It was <strong>' + q.answer + '</strong>.';
+            }
+            input.disabled = true; checkBtn.disabled = true;
+            done(correct, lead);
+        }
+        checkBtn.onclick = submit;
+        input.addEventListener('keydown', function(e){ if(e.key === 'Enter') submit(); });
+        try { input.focus({preventScroll:true}); } catch(e) { }
+    }
+    return wrap;
+}
+
+function finish(){
+    const total = STAGES.length, pct = Math.round((sScore/total)*100);
+    elMeta.textContent = 'The End · ' + sScore + ' / ' + total;
+    elBar.style.width = '100%';
+    let msg = pct >= 90 ? ACE_MSG : pct >= 70 ? GOOD_MSG : pct >= 50 ? OK_MSG : LOW_MSG;
+    const think = THINK.map(t => '<div class="think"><span class="tmark">💭</span><span>' + t + '</span></div>').join('');
+    const block = document.createElement('div');
+    block.className = 'chapter';
+    block.innerHTML = '<div class="qcard-box sq-finish">' +
+        '<div class="score-big">' + sScore + ' / ' + total + '</div>' +
+        '<div class="score-pct">' + pct + '%</div>' +
+        '<div class="score-msg">' + msg + '</div>' +
+        '<div class="sec-label">💭 Now think like a historian</div>' +
+        '<div class="topic-sub">No single right answer — these reward explaining <em>why</em> things happened and the <em>consequences</em> that followed.</div>' +
+        think +
+        '<div style="margin-top:1.2rem;"><button class="go" id="sq-replay">Tell it again ↻</button></div></div>';
+    elFlow.appendChild(block);
+    document.getElementById('sq-replay').onclick = begin;
+}
+
+renderIntro();
+</script>
+<script src="study-audio.js"></script>
+</body>
+</html>

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The English Civil War — A Story</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --ink: #15242e;
+    --acc: #2f6f97; --acc-d: #163f5a;
+    --gold: #c79a2e; --gold-d: #8a6a12;
+    --shadow: rgba(0,0,0,0.15);
+}
+body { font-family: 'Karla', sans-serif; color: var(--ink); background: linear-gradient(135deg, #EAF1F6 0%, #DCE7F0 50%, #E9DCDA 100%); min-height: 100vh; padding: 2rem 1rem 3rem; position: relative; overflow-x: hidden; }
+body::before { content: ''; position: fixed; inset: 0; background-image: radial-gradient(circle at 15% 85%, rgba(47,111,151,0.12) 0%, transparent 45%), radial-gradient(circle at 85% 15%, rgba(176,32,60,0.10) 0%, transparent 45%); pointer-events: none; z-index: 0; }
+.wrap { max-width: 820px; margin: 0 auto; position: relative; z-index: 1; }
+.header { text-align: center; margin-bottom: 1.2rem; }
+h1 { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 700; color: var(--acc-d); text-shadow: 2px 2px 0 rgba(47,111,151,0.18); letter-spacing: 1px; line-height: 1.05; }
+.subtitle { font-size: 1rem; color: var(--gold-d); font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-top: 0.3rem; }
+.crest { font-size: 2.6rem; }
+.back-link { display: inline-block; text-decoration: none; color: var(--acc-d); font-weight: 700; font-size: 0.95rem; margin-bottom: 1rem; }
+.back-link:hover { text-decoration: underline; }
+
+/* progress */
+.sq-progress { margin-bottom: 1.3rem; }
+.sq-meta { font-weight: 700; color: var(--acc-d); font-size: 0.82rem; text-align: center; margin-bottom: 0.45rem; letter-spacing: 1.5px; text-transform: uppercase; }
+.qbar-wrap { height: 8px; background: rgba(0,0,0,0.08); border-radius: 50px; overflow: hidden; }
+.qbar { height: 100%; background: linear-gradient(90deg, var(--acc), var(--acc-d)); width: 0; transition: width 0.4s ease; }
+
+/* flowing chapters down the page */
+.chapter { margin-bottom: 1.5rem; }
+.kt { font-weight: 700; color: var(--acc-d); }
+.story-card { margin-top: 1rem; background: #fff; border-radius: 14px; padding: 1rem 1.2rem 1.05rem; box-shadow: 0 5px 18px var(--shadow); border-left: 5px solid var(--acc); animation: fade 0.5s ease; }
+.story-card .yr { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 1.25rem; color: var(--acc-d); }
+.sq-title { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 1.15rem; color: var(--acc-d); margin: 0.05rem 0 0.35rem; }
+.story-card .ev { font-size: 0.99rem; line-height: 1.62; }
+
+/* active question card */
+.qcard-box { background: rgba(255,255,255,0.62); border-radius: 18px; padding: 1.5rem 1.4rem; box-shadow: 0 8px 26px var(--shadow); border: 2px solid rgba(255,255,255,0.6); }
+.sq-chapter-tag { display: inline-block; background: linear-gradient(135deg, var(--acc), var(--acc-d)); color: #fff; font-weight: 700; font-size: 0.72rem; letter-spacing: 1.5px; text-transform: uppercase; padding: 0.22rem 0.85rem; border-radius: 50px; margin-bottom: 0.8rem; }
+.sq-q { font-family: 'Cormorant Garamond', serif; font-size: 1.55rem; font-weight: 700; color: var(--ink); line-height: 1.32; margin-bottom: 1.1rem; }
+.sq-q .blankline { color: var(--acc); font-weight: 700; letter-spacing: 1px; }
+
+.qopts { display: grid; grid-template-columns: 1fr; gap: 0.6rem; }
+.qopt { display: block; width: 100%; text-align: left; background: #fff; border: 2px solid rgba(0,0,0,0.1); border-radius: 12px; padding: 0.85rem 1rem; font-family: 'Karla', sans-serif; font-size: 1rem; color: #333; cursor: pointer; transition: all 0.16s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.06); font-weight: 500; line-height: 1.4; }
+.qopt:hover:not(:disabled) { border-color: var(--acc); transform: translateY(-1px); box-shadow: 0 4px 12px var(--shadow); }
+.qopt:disabled { cursor: default; }
+.qopt.correct { background: #e7f7ec; border-color: #2e9e5b; color: #1d6b3c; font-weight: 700; }
+.qopt.wrong { background: #fdeaea; border-color: #d9534f; color: #a4302c; }
+
+.sq-input-row { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+.sq-input { flex: 1; min-width: 160px; padding: 0.8rem 1rem; font-family: 'Karla', sans-serif; font-size: 1.05rem; border: 2px solid rgba(0,0,0,0.15); border-radius: 12px; outline: none; background: #fff; color: #222; }
+.sq-input:focus { border-color: var(--acc); box-shadow: 0 0 0 3px rgba(47,111,151,0.12); }
+.sq-input:disabled { background: #f3f3f3; }
+.sq-hint { font-size: 0.82rem; color: #777; margin-top: 0.55rem; }
+
+.sq-feedback { margin-top: 1.1rem; border-radius: 12px; padding: 0.9rem 1.05rem; font-size: 0.97rem; line-height: 1.55; display: none; }
+.sq-feedback.show { display: block; }
+.sq-feedback.ok { background: #e7f7ec; border-left: 5px solid #2e9e5b; color: #1d6b3c; }
+.sq-feedback.no { background: #fdeaea; border-left: 5px solid #d9534f; color: #8c2622; }
+.sq-feedback .lead { font-weight: 700; display: block; margin-bottom: 0.2rem; }
+.sq-next { margin-top: 1.1rem; text-align: center; }
+
+.sq-intro { text-align: center; }
+.sq-intro-title { font-family: 'Cormorant Garamond', serif; font-size: 1.9rem; font-weight: 700; color: var(--acc-d); margin-bottom: 0.5rem; }
+.sq-intro-text { color: #555; line-height: 1.6; margin-bottom: 1.3rem; font-size: 1rem; }
+
+.sq-finish { text-align: center; }
+.score-big { font-family: 'Cormorant Garamond', serif; font-size: 3.4rem; font-weight: 700; color: var(--acc-d); line-height: 1; }
+.score-pct { font-size: 1.1rem; color: var(--acc-d); font-weight: 700; }
+.score-msg { color: #555; margin: 0.5rem 0 0.4rem; }
+.sec-label { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 700; color: var(--gold-d); margin: 1.4rem 0 0.5rem; }
+.topic-sub { color: #666; font-size: 0.92rem; margin-bottom: 0.9rem; }
+.think { background: linear-gradient(135deg, #fff 0%, #fbf7ef 100%); border-left: 5px solid var(--gold); border-radius: 12px; padding: 0.9rem 1.1rem; margin-bottom: 0.7rem; box-shadow: 0 4px 14px var(--shadow); font-size: 0.97rem; line-height: 1.5; display: flex; gap: 0.7rem; align-items: flex-start; text-align: left; }
+.think .tmark { font-size: 1.3rem; line-height: 1.2; flex: none; }
+
+button.go { color: #fff; border: none; padding: 0.85rem 2rem; font-size: 1.02rem; font-weight: 700; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px var(--shadow); transition: all 0.25s ease; font-family: 'Karla', sans-serif; background: linear-gradient(135deg, var(--acc), var(--acc-d)); }
+button.go:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--shadow); }
+button.go:active { transform: translateY(0); }
+
+@keyframes fade { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 700px) { h1 { font-size: 2.2rem; } .sq-q { font-size: 1.35rem; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <a class="back-link" href="index.html">&larr; Back to study materials</a>
+    <div class="header">
+        <div class="crest">⚔️</div>
+        <h1>The English Civil War</h1>
+        <p class="subtitle">Lower 4 History · An Unfolding Story</p>
+    </div>
+
+    <div class="sq-progress">
+        <div class="sq-meta" id="sq-meta"></div>
+        <div class="qbar-wrap"><div class="qbar" id="sq-bar"></div></div>
+    </div>
+
+    <div id="sq-flow"></div>
+</div>
+
+<script>
+/* ============ THE STORY ============ */
+const INTRO_TITLE = "⚔️ The Road to Civil War";
+const INTRO_TEXT = "How did England end up putting its own king on trial? The story unfolds chapter by chapter — the causes, the war, and the execution of Charles I. Before each new twist, take a guess — multiple choice, fill-in-the-blank, guess-the-decade or guess-the-year — then watch the real story reveal what happened, and <em>why</em>. The questions change every time you play!";
+
+const STAGES = [
+    { yr: "1625", icon: "👑", title: "A King Who Answered Only to God",
+      story: "In <span class='kt'>1625</span>, <span class='kt'>Charles I</span> became King of England, Scotland and Ireland. He believed firmly in the <span class='kt'>Divine Right of Kings</span> — that God alone had made him king, so he answered to no one, not even <span class='kt'>Parliament</span>. This belief would set him on a collision course with his own people.",
+      pool: [
+        { type:'mc', q:"What did Charles I believe gave him the right to rule?", opts:["The Divine Right of Kings","A vote in Parliament","The will of the army","The choice of the Pope"], answer:"The Divine Right of Kings", ex:"Charles believed God alone gave him his power — so he answered to no one." },
+        { type:'blank', q:"Charles I believed in the Divine __________ of Kings.", accept:["right"], answerLabel:"Right", ex:"The Divine Right meant the king answered only to God." },
+        { type:'decade', q:"In which decade did Charles I become king?", answer:1620, ex:"Charles I became king in 1625." }
+      ] },
+    { yr: "1629", icon: "🚪", title: "Ruling Alone",
+      story: "Charles and <span class='kt'>Parliament</span> argued constantly over money and power. Fed up, in <span class='kt'>1629</span> Charles dismissed Parliament and ruled completely alone — a period of eleven years later called the <span class='kt'>Personal Rule</span> (or the 'Eleven Years' Tyranny').",
+      pool: [
+        { type:'mc', q:"What name is given to the years 1629–1640 when Charles ruled without Parliament?", opts:["The Personal Rule","The Restoration","The Commonwealth","The Armada Years"], answer:"The Personal Rule", ex:"Charles ruled alone for 11 years — the Personal Rule." },
+        { type:'mc', q:"What did Charles do in 1629 after arguing with Parliament?", opts:["Dismissed it and ruled alone","Joined it as an MP","Crowned a new king","Fled abroad"], answer:"Dismissed it and ruled alone", ex:"He sent Parliament home and governed without it for 11 years." },
+        { type:'blank', q:"The eleven years Charles ruled without Parliament are called the __________ Rule.", accept:["personal"], answerLabel:"Personal", ex:"Critics later called it the 'Eleven Years' Tyranny'." }
+      ] },
+    { yr: "1635", icon: "💰", title: "Money Without Permission",
+      story: "Ruling without Parliament, Charles still needed money. He revived <span class='kt'>Ship Money</span> — a tax once paid only by coastal towns for the navy — and in <span class='kt'>1635</span> forced even inland towns to pay it, without Parliament's consent. Many people saw it as illegal robbery.",
+      pool: [
+        { type:'mc', q:"Which unpopular tax did Charles force inland towns to pay without Parliament's consent?", opts:["Ship Money","Window Tax","The Poll Tax","Tithes"], answer:"Ship Money", ex:"Ship Money was meant for coastal defence, but Charles charged everyone." },
+        { type:'blank', q:"Charles raised money with an unpopular tax called __________ Money.", accept:["ship"], answerLabel:"Ship", ex:"Ship Money was charged without Parliament's permission." },
+        { type:'mc', q:"Why was Ship Money so resented?", opts:["It was charged without Parliament's consent","It was tiny and pointless","Only the king had to pay it","It paid for France's army"], answer:"It was charged without Parliament's consent", ex:"Taxing without Parliament's consent looked illegal to many." }
+      ] },
+    { yr: "1637", icon: "⛪", title: "A Quarrel Over Prayer",
+      story: "Religion deepened the crisis. Charles and Archbishop <span class='kt'>William Laud</span> pushed church changes many feared were too Catholic. In <span class='kt'>1637</span> they tried to force a new <span class='kt'>prayer book</span> on <span class='kt'>Scotland</span> — and the Scots rose in rebellion. War with Scotland would soon bankrupt the king.",
+      pool: [
+        { type:'mc', q:"Whose unpopular religious reforms angered Charles's opponents?", opts:["Archbishop Laud","Thomas Cromwell","Cardinal Wolsey","Oliver Cromwell"], answer:"Archbishop Laud", ex:"Archbishop Laud's reforms were seen as too Catholic." },
+        { type:'mc', q:"Forcing a new prayer book on which country sparked rebellion in 1637?", opts:["Scotland","Spain","France","Ireland"], answer:"Scotland", ex:"The Scots rebelled against the new prayer book Charles tried to impose." },
+        { type:'blank', q:"Charles's religious adviser was Archbishop __________.", accept:["laud"], answerLabel:"Laud", ex:"Archbishop Laud's changes angered Puritans and Scots alike." }
+      ] },
+    { yr: "1640", icon: "🏛️", title: "Parliament Returns",
+      story: "Bankrupt by the war with the <span class='kt'>Scots</span>, Charles had no choice. In <span class='kt'>1640</span>, after eleven years, he was forced to recall <span class='kt'>Parliament</span> to ask for money. But Parliament was furious — and full of demands of its own.",
+      pool: [
+        { type:'mc', q:"Why did Charles recall Parliament in 1640?", opts:["He was bankrupt and needed money to fight the Scots","He suddenly missed it","To hold a celebration","To crown a new heir"], answer:"He was bankrupt and needed money to fight the Scots", ex:"The war with Scotland left Charles desperate for money." },
+        { type:'decade', q:"In which decade was Charles forced to recall Parliament?", answer:1640, ex:"Parliament was recalled in 1640 after 11 years." },
+        { type:'mc', q:"After how long without Parliament was Charles forced to recall it?", opts:["Eleven years","One year","Fifty years","Six months"], answer:"Eleven years", ex:"The Personal Rule had lasted eleven years." }
+      ] },
+    { yr: "1642", icon: "🔥", title: "The Spark",
+      story: "The quarrel exploded. In <span class='kt'>1642</span> Charles burst into the <span class='kt'>House of Commons</span> to arrest <span class='kt'>five MPs</span> — but they had fled. With trust shattered, Charles left London and raised his royal <span class='kt'>standard at Nottingham</span>. The <span class='kt'>Civil War</span> had begun: <span class='kt'>Cavaliers</span> (Royalists) against <span class='kt'>Roundheads</span> (Parliamentarians).",
+      pool: [
+        { type:'mc', q:"What did Charles try to do in the House of Commons in 1642?", opts:["Arrest five leading MPs","Give a speech of apology","Sign a peace treaty","Resign as king"], answer:"Arrest five leading MPs", ex:"He tried to arrest five MPs but they had already escaped." },
+        { type:'mc', q:"Where did Charles raise his standard to begin the war?", opts:["Nottingham","London","Naseby","Edinburgh"], answer:"Nottingham", ex:"Charles raised his royal standard at Nottingham in 1642." },
+        { type:'mc', q:"Supporters of the King were nicknamed the…", opts:["Cavaliers","Roundheads","Puritans","Tories"], answer:"Cavaliers", ex:"Royalists were Cavaliers; Parliamentarians were Roundheads." },
+        { type:'blank', q:"Parliament's supporters were nicknamed the __________ for their short hair.", accept:["roundheads","roundhead"], answerLabel:"Roundheads", ex:"Roundheads fought for Parliament; Cavaliers for the King." }
+      ] },
+    { yr: "1644–45", icon: "⚔️", title: "The Tide Turns",
+      story: "At first the war swung both ways, but Parliament gained a deadly weapon: the <span class='kt'>New Model Army</span>, a professional force promoted on skill, not birth, with <span class='kt'>Oliver Cromwell</span> among its leaders. After victory at <span class='kt'>Marston Moor</span> in <span class='kt'>1644</span>, the New Model Army crushed the king at the <span class='kt'>Battle of Naseby</span> in <span class='kt'>1645</span>.",
+      pool: [
+        { type:'mc', q:"What was Parliament's professional, well-trained army called?", opts:["The New Model Army","The King's Guard","The Grand Armada","The Home Guard"], answer:"The New Model Army", ex:"The disciplined New Model Army won the war for Parliament." },
+        { type:'mc', q:"Which 1645 battle was the decisive Parliamentarian victory?", opts:["The Battle of Naseby","The Battle of Hastings","The Battle of Bosworth","The Battle of Trafalgar"], answer:"The Battle of Naseby", ex:"Naseby (1645) was the decisive battle of the war." },
+        { type:'mc', q:"Which Parliamentarian general rose to fame leading the army?", opts:["Oliver Cromwell","Archbishop Laud","Lord Darnley","Sir Thomas More"], answer:"Oliver Cromwell", ex:"Oliver Cromwell became Parliament's greatest commander." }
+      ] },
+    { yr: "1646–48", icon: "🏳️", title: "The King Defeated",
+      story: "Beaten in the field, <span class='kt'>Charles I</span> surrendered in <span class='kt'>1646</span>. But he refused to accept defeat, scheming and sparking a <span class='kt'>second civil war</span> in <span class='kt'>1648</span>. Defeated again, he had now lost Parliament's trust completely — and many wanted him punished.",
+      pool: [
+        { type:'mc', q:"What did Charles do after surrendering in 1646?", opts:["Plotted again, causing a second civil war","Accepted defeat peacefully","Fled to Spain","Joined Parliament"], answer:"Plotted again, causing a second civil war", ex:"Charles's renewed scheming led to a second civil war in 1648." },
+        { type:'decade', q:"In which decade did Charles I surrender and lose the war?", answer:1640, ex:"Charles surrendered in 1646 and was defeated again by 1648." },
+        { type:'mc', q:"Why were many no longer willing to trust Charles after 1648?", opts:["He kept plotting even after being defeated","He had actually won","He had left the country for good","He had become a Puritan"], answer:"He kept plotting even after being defeated", ex:"His continued scheming convinced many he could never be trusted." }
+      ] },
+    { yr: "1649", icon: "🪓", title: "The Execution of a King",
+      story: "In <span class='kt'>1649</span> the unthinkable happened. Charles I was put on <span class='kt'>trial for treason</span> against his own people, found guilty, and <span class='kt'>beheaded</span> outside the Banqueting House in <span class='kt'>London</span> on <span class='kt'>30 January</span>. He was the first English king ever executed by his own subjects. England became a republic — the <span class='kt'>Commonwealth</span>.",
+      pool: [
+        { type:'mc', q:"What happened to Charles I in 1649?", opts:["He was executed for treason","He fled to France","He won the war","He abdicated peacefully"], answer:"He was executed for treason", ex:"Charles was beheaded in London on 30 January 1649." },
+        { type:'mc', q:"What replaced the monarchy after 1649?", opts:["A republic called the Commonwealth","A new royal family","Rule by the Pope","An overseas empire"], answer:"A republic called the Commonwealth", ex:"England became the Commonwealth — a republic with no king." },
+        { type:'year', q:"Guess the year Charles I was executed (within 2 years).", answer:1649, tol:2, ex:"Charles I was executed in 1649 — the first English king executed by his subjects." },
+        { type:'blank', q:"Charles I was put on trial and executed for __________ against his own people.", accept:["treason"], answerLabel:"treason", ex:"It shocked the monarchies of Europe that a king could be tried for treason." }
+      ] },
+    { yr: "1653–60", icon: "🔄", title: "Republic and Restoration",
+      story: "<span class='kt'>Oliver Cromwell</span> ruled as <span class='kt'>Lord Protector</span> from <span class='kt'>1653</span>, but after his death the republic fell apart. In <span class='kt'>1660</span>, Parliament invited the monarchy back: Charles I's son returned from exile as <span class='kt'>Charles II</span>. This was the <span class='kt'>Restoration</span> — England wanted a king after all, but one who shared power with Parliament.",
+      pool: [
+        { type:'mc', q:"Who ruled England as 'Lord Protector' from 1653?", opts:["Oliver Cromwell","Charles II","Archbishop Laud","James I"], answer:"Oliver Cromwell", ex:"Cromwell ruled as Lord Protector after the king's execution." },
+        { type:'mc', q:"What was the 'Restoration' of 1660?", opts:["Bringing back the monarchy under Charles II","Rebuilding the city of London","Restoring the monasteries","Restoring Parliament's army"], answer:"Bringing back the monarchy under Charles II", ex:"In 1660 the monarchy returned under Charles II." },
+        { type:'decade', q:"In which decade was the monarchy restored?", answer:1660, ex:"The Restoration happened in 1660." },
+        { type:'blank', q:"In 1660 the monarchy was restored under Charles __________.", accept:["ii","the second","2","second"], answerLabel:"II", ex:"Charles I's son returned from exile to become Charles II." }
+      ] }
+];
+
+const THINK = [
+    "Which was the most important cause of the Civil War: money, religion or the struggle for power? Explain your choice with evidence.",
+    "Charles I was executed for treason against his own kingdom. Could it ever be justified to put a king on trial and execute him?",
+    "“The Civil War could have been avoided if Charles had simply worked with Parliament.” How far do you agree?",
+    "What were the consequences of executing the King — for England, and for how other European monarchs saw their own subjects?",
+    "Why do you think the monarchy was restored in 1660, just eleven years after Charles I was executed?",
+    "Was Oliver Cromwell a hero who defended people's rights, or just another ruler with too much power? Argue both sides."
+];
+
+const ACE_MSG = "🏆 Outstanding — you told that story like a true historian!";
+const GOOD_MSG = "🌟 Great work — you really followed the road to war.";
+const OK_MSG = "👍 Good effort — play again and watch the story click into place.";
+const LOW_MSG = "📚 Now you know how it ends — tell the story again and beat your score!";
+
+/* ============ STORY ENGINE ============ */
+const norm = s => (s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function decadeLabel(d){ return d + 's'; }
+
+const elFlow = document.getElementById('sq-flow');
+const elBar = document.getElementById('sq-bar');
+const elMeta = document.getElementById('sq-meta');
+let sIdx = 0, sScore = 0;
+
+function renderIntro(){
+    elMeta.textContent = 'A story in ' + STAGES.length + ' chapters';
+    elBar.style.width = '0%';
+    elFlow.innerHTML = '<div class="chapter"><div class="qcard-box sq-intro">' +
+        '<div class="sq-intro-title">' + INTRO_TITLE + '</div>' +
+        '<div class="sq-intro-text">' + INTRO_TEXT + '</div>' +
+        '<button class="go" id="sq-begin">Begin the story ▶</button></div></div>';
+    document.getElementById('sq-begin').onclick = begin;
+}
+function begin(){ sIdx = 0; sScore = 0; elFlow.innerHTML = ''; const w = startStage(); w.scrollIntoView({behavior:'smooth', block:'center'}); }
+
+function updateProgress(){
+    elMeta.textContent = 'Chapter ' + (sIdx+1) + ' of ' + STAGES.length;
+    elBar.style.width = ((sIdx/STAGES.length)*100) + '%';
+}
+
+function startStage(){
+    updateProgress();
+    const idx = sIdx;
+    const stage = STAGES[idx];
+    const q = stage.pool[Math.floor(Math.random()*stage.pool.length)];
+    const wrap = document.createElement('div');
+    wrap.className = 'chapter';
+    let inner = '<div class="qcard-box"><div class="sq-chapter-tag">Chapter ' + (idx+1) + ' · ' + stage.yr + '</div>';
+    inner += '<div class="sq-q">' + q.q + '</div>';
+    if(q.type === 'mc'){
+        const opts = shuffle(q.opts.slice());
+        inner += '<div class="qopts">' + opts.map(o => '<button class="qopt" data-v="' + encodeURIComponent(o) + '">' + o + '</button>').join('') + '</div>';
+    } else if(q.type === 'decade'){
+        const a = q.answer;
+        const decs = shuffle([a-20, a-10, a, a+10]);
+        inner += '<div class="qopts">' + decs.map(d => '<button class="qopt" data-v="' + d + '">' + decadeLabel(d) + '</button>').join('') + '</div>';
+    } else if(q.type === 'blank'){
+        inner += '<div class="sq-input-row"><input type="text" class="sq-input" autocomplete="off" placeholder="Type your answer…"><button class="go sq-check">Check</button></div>';
+    } else if(q.type === 'year'){
+        inner += '<div class="sq-input-row"><input type="number" class="sq-input" placeholder="Guess a year…"><button class="go sq-check">Check</button></div>' +
+                 '<div class="sq-hint">Tip: get within ' + (q.tol||3) + ' years to score the point.</div>';
+    }
+    inner += '<div class="sq-feedback"></div></div>';
+    wrap.innerHTML = inner;
+    elFlow.appendChild(wrap);
+
+    const box = wrap.querySelector('.qcard-box');
+    const fb = wrap.querySelector('.sq-feedback');
+    let answered = false;
+
+    function done(correct, lead){
+        if(answered) return; answered = true;
+        if(correct) sScore++;
+        fb.className = 'sq-feedback show ' + (correct ? 'ok' : 'no');
+        fb.innerHTML = '<span class="lead">' + lead + '</span>' + (q.ex || '');
+        const card = document.createElement('div');
+        card.className = 'story-card';
+        card.innerHTML = '<div class="yr">' + stage.yr + '</div>' +
+            '<div class="sq-title">' + stage.icon + ' ' + stage.title + '</div>' +
+            '<div class="ev">' + stage.story + '</div>';
+        wrap.appendChild(card);
+        sIdx++;
+        if(sIdx >= STAGES.length){ finish(); }
+        else { startStage(); }
+        card.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+
+    if(q.type === 'mc' || q.type === 'decade'){
+        box.querySelectorAll('.qopt').forEach(b => { b.onclick = function(){
+            if(answered) return;
+            box.querySelectorAll('.qopt').forEach(x => x.disabled = true);
+            let correct, lead;
+            if(q.type === 'mc'){
+                const v = decodeURIComponent(b.dataset.v);
+                correct = (v === q.answer);
+                box.querySelectorAll('.qopt').forEach(x => { const xv = decodeURIComponent(x.dataset.v); if(xv === q.answer) x.classList.add('correct'); else if(x === b) x.classList.add('wrong'); });
+                lead = correct ? '✅ Correct!' : '❌ Not quite — the answer was <strong>' + q.answer + '</strong>.';
+            } else {
+                const v = parseInt(b.dataset.v);
+                correct = (v === q.answer);
+                box.querySelectorAll('.qopt').forEach(x => { const xv = parseInt(x.dataset.v); if(xv === q.answer) x.classList.add('correct'); else if(x === b) x.classList.add('wrong'); });
+                lead = correct ? '✅ Correct!' : '❌ Not quite — it was the <strong>' + decadeLabel(q.answer) + '</strong>.';
+            }
+            done(correct, lead);
+        }; });
+    } else {
+        const input = box.querySelector('.sq-input');
+        const checkBtn = box.querySelector('.sq-check');
+        function submit(){
+            if(answered) return;
+            let correct, lead;
+            if(q.type === 'blank'){
+                const nv = norm(input.value);
+                correct = !!nv && q.accept.some(a => { const na = norm(a); return nv === na || nv.indexOf(na) >= 0 || (na.indexOf(nv) >= 0 && nv.length >= 4); });
+                lead = correct ? '✅ Correct!' : '❌ Not quite — the answer was <strong>' + q.answerLabel + '</strong>.';
+            } else {
+                const g = parseInt(input.value), tol = q.tol || 3;
+                correct = !isNaN(g) && Math.abs(g - q.answer) <= tol;
+                if(correct) lead = (g === q.answer) ? '🎯 Spot on!' : '✅ Close enough — within ' + tol + ' years!';
+                else lead = '❌ Not quite — you were ' + (isNaN(g) ? '…' : Math.abs(g - q.answer)) + ' years off.';
+                lead += ' It was <strong>' + q.answer + '</strong>.';
+            }
+            input.disabled = true; checkBtn.disabled = true;
+            done(correct, lead);
+        }
+        checkBtn.onclick = submit;
+        input.addEventListener('keydown', function(e){ if(e.key === 'Enter') submit(); });
+        try { input.focus({preventScroll:true}); } catch(e) { }
+    }
+    return wrap;
+}
+
+function finish(){
+    const total = STAGES.length, pct = Math.round((sScore/total)*100);
+    elMeta.textContent = 'The End · ' + sScore + ' / ' + total;
+    elBar.style.width = '100%';
+    let msg = pct >= 90 ? ACE_MSG : pct >= 70 ? GOOD_MSG : pct >= 50 ? OK_MSG : LOW_MSG;
+    const think = THINK.map(t => '<div class="think"><span class="tmark">💭</span><span>' + t + '</span></div>').join('');
+    const block = document.createElement('div');
+    block.className = 'chapter';
+    block.innerHTML = '<div class="qcard-box sq-finish">' +
+        '<div class="score-big">' + sScore + ' / ' + total + '</div>' +
+        '<div class="score-pct">' + pct + '%</div>' +
+        '<div class="score-msg">' + msg + '</div>' +
+        '<div class="sec-label">💭 Now think like a historian</div>' +
+        '<div class="topic-sub">No single right answer — these reward explaining <em>why</em> things happened and the <em>consequences</em> that followed.</div>' +
+        think +
+        '<div style="margin-top:1.2rem;"><button class="go" id="sq-replay">Tell it again ↻</button></div></div>';
+    elFlow.appendChild(block);
+    document.getElementById('sq-replay').onclick = begin;
+}
+
+renderIntro();
+</script>
+<script src="study-audio.js"></script>
+</body>
+</html>
