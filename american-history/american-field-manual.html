@@ -691,6 +691,20 @@ document.getElementById('btnLog').onclick=()=>{document.getElementById('unitView
 document.getElementById('btnUnits').onclick=()=>showUnit(current);
 document.getElementById('ownerName').oninput=(e)=>{state.name=e.target.value;save();};
 
+/* ---------------- download helper (mobile-safe) ----------------
+   Appends the anchor to the DOM (some mobile browsers require it) and
+   defers revoke so iOS Safari / Android Chrome finish the download
+   instead of aborting it on an already-revoked blob URL. */
+function downloadBlob(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.rel = 'noopener';
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 1500);
+}
+
 /* ---------------- export ---------------- */
 document.getElementById('btnExport').onclick=()=>{
   const escH = t => String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
@@ -723,8 +737,7 @@ table{border-collapse:collapse;width:100%;font-size:14px;} td,th{border:1px soli
   });
   h+='</body></html>';
   const blob=new Blob([h],{type:'text/html'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download='field-manual-report.html'; a.click(); URL.revokeObjectURL(a.href);
+  downloadBlob(blob, 'field-manual-report.html');
 };
 
 /* ---------------- init ---------------- */
@@ -734,10 +747,8 @@ table{border-collapse:collapse;width:100%;font-size:14px;} td,th{border:1px soli
 document.getElementById('btnSaveFile').onclick=()=>{
   const bundle = { app:'field-manual-progress', v:1, savedAt:new Date().toISOString(), state, photos };
   const blob = new Blob([JSON.stringify(bundle)], {type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
   const d=new Date(); const ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-  a.download='field-manual-progress-'+((state.name||'').trim().split(/\s+/)[0]||'journal').toLowerCase()+'-'+ds+'.json';
-  a.click(); URL.revokeObjectURL(a.href);
+  downloadBlob(blob, 'field-manual-progress-'+((state.name||'').trim().split(/\s+/)[0]||'journal').toLowerCase()+'-'+ds+'.json');
 };
 document.getElementById('btnLoadFile').onclick=()=>document.getElementById('fileLoad').click();
 document.getElementById('fileLoad').onchange=function(){
