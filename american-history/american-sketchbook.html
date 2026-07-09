@@ -723,8 +723,8 @@ h2{color:#1F4A38;border-bottom:3px solid #BC4B26;padding-bottom:4px;margin-top:3
 .meta{color:#555;font-size:14px;margin-bottom:8px;}
 .entry{white-space:pre-wrap;background:#fff;border:1px solid #ccc;padding:14px;margin:10px 0;}
 ul{padding-left:22px;} li.done{color:#1F4A38;font-weight:bold;}
-.phg{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
-.phg img{width:180px;height:180px;object-fit:cover;border:2px solid #1F4A38;}
+.phg{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px;margin:14px 0;}
+.phg img{width:100%;height:auto;border:2px solid #1F4A38;border-radius:4px;display:block;background:#fff;}
 table{border-collapse:collapse;width:100%;font-size:14px;} td,th{border:1px solid #bbb;padding:6px 8px;text-align:left;}
 .story{color:#333;font-size:15px;margin:8px 0 14px;}
 .sec-label{font-weight:bold;color:#1F4A38;margin-top:16px;margin-bottom:4px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;}
@@ -734,7 +734,7 @@ ol.qs{margin:4px 0;padding-left:22px;} ol.qs li{margin:5px 0;}
 details.vq{margin:4px 0;border:1px solid #cbbf9e;background:#fff;padding:6px 11px;border-radius:3px;}
 details.vq summary{cursor:pointer;font-weight:bold;color:#1F4A38;}
 details.vq p{margin:6px 0 2px;color:#333;}
-@media print{ .phg img{width:150px;height:150px;} h2{page-break-after:avoid;} details.vq p{display:block!important;} }
+@media print{ .phg{grid-template-columns:1fr 1fr;} .phg img{width:100%;height:auto;} h2{page-break-after:avoid;} .phg img{page-break-inside:avoid;} details.vq p{display:block!important;} }
 </style></head><body>
 <h1>THE GREAT AMERICAN SKETCHBOOK — Trip Journal & Portfolio</h1>
 <div class="meta">Student: <b>${escH(state.name)||'(unnamed)'}</b> · Exported ${new Date().toLocaleString()}</div>
