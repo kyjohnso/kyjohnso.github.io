@@ -726,20 +726,41 @@ ul{padding-left:22px;} li.done{color:#1F4A38;font-weight:bold;}
 .phg{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
 .phg img{width:180px;height:180px;object-fit:cover;border:2px solid #1F4A38;}
 table{border-collapse:collapse;width:100%;font-size:14px;} td,th{border:1px solid #bbb;padding:6px 8px;text-align:left;}
-@media print{ .phg img{width:150px;height:150px;} h2{page-break-after:avoid;} }
+.story{color:#333;font-size:15px;margin:8px 0 14px;}
+.sec-label{font-weight:bold;color:#1F4A38;margin-top:16px;margin-bottom:4px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;}
+.prompt{background:#eef2e9;border-left:4px solid #BC4B26;padding:9px 13px;margin:6px 0;font-size:14px;}
+.artnote{background:#F3E8C8;border-left:4px solid #E3A72F;padding:9px 13px;margin:6px 0;font-size:14px;}
+ol.qs{margin:4px 0;padding-left:22px;} ol.qs li{margin:5px 0;}
+details.vq{margin:4px 0;border:1px solid #cbbf9e;background:#fff;padding:6px 11px;border-radius:3px;}
+details.vq summary{cursor:pointer;font-weight:bold;color:#1F4A38;}
+details.vq p{margin:6px 0 2px;color:#333;}
+@media print{ .phg img{width:150px;height:150px;} h2{page-break-after:avoid;} details.vq p{display:block!important;} }
 </style></head><body>
 <h1>THE GREAT AMERICAN SKETCHBOOK — Trip Journal & Portfolio</h1>
 <div class="meta">Student: <b>${escH(state.name)||'(unnamed)'}</b> · Exported ${new Date().toLocaleString()}</div>
 <h2>Learning Log — ${(totalM/60).toFixed(1)} hours total</h2>
 <table><tr><th>Date</th><th>Minutes</th><th>Activity</th></tr>${state.log.map(e=>'<tr><td>'+escH(e.d)+'</td><td>'+escH(e.m)+'</td><td>'+escH(e.n)+'</td></tr>').join('')}</table>`;
-  UNITS.forEach(u=>{
+  const touched = u => (state.notes[u.id]||'').trim() || (photos[u.id]||[]).length || u.hunt.some((_,j)=>state.checks[u.id+'-'+j]);
+  const visited = UNITS.filter(touched);
+  h+=`<div class="meta">Stops logged: <b>${visited.length}</b> of ${UNITS.length}</div>`;
+  if(!visited.length){
+    h+=`<p>No stops logged yet. Tick off scavenger-hunt finds, write a journal entry, or add photos on any stop — then export again and it will appear here.</p>`;
+  }
+  visited.forEach(u=>{
     const pr=unitProgress(u);
     h+=`<h2>${escH(u.stamp||('Unit '+u.num))} — ${escH(u.title)}</h2>
-<div class="meta">${escH(u.where)} · Scavenger hunt ${pr.done}/${pr.total}</div>
-<ul>${u.hunt.map((it,j)=>'<li class="'+(state.checks[u.id+'-'+j]?'done':'')+'">'+(state.checks[u.id+'-'+j]?'☑ ':'☐ ')+escH(it)+'</li>').join('')}</ul>
-<div class="entry">${escH(state.notes[u.id])||'(not written yet)'}</div>`;
+<div class="meta">${escH(u.where)} · ${escH(u.era)} · Scavenger hunt ${pr.done}/${pr.total}</div>
+<div class="story">${escH(u.story)}</div>`;
+    if(u.art) h+=`<div class="artnote">${u.art}</div>`;
+    if(u.prompt) h+=`<div class="sec-label">Journal · ${escH(u.prompt.tag)}</div><div class="prompt">${escH(u.prompt.text)}</div>`;
+    h+=`<div class="entry">${escH(state.notes[u.id])||'(not written yet)'}</div>`;
+    h+=`<div class="sec-label">Scavenger hunt — ${pr.done}/${pr.total}</div>
+<ul>${u.hunt.map((it,j)=>'<li class="'+(state.checks[u.id+'-'+j]?'done':'')+'">'+(state.checks[u.id+'-'+j]?'☑ ':'☐ ')+escH(it)+'</li>').join('')}</ul>`;
+    const qs=[].concat(u.questions||[], u.think||[]);
+    if(qs.length) h+=`<div class="sec-label">Questions to argue about</div><ol class="qs">${qs.map(q=>'<li>'+escH(q)+'</li>').join('')}</ol>`;
+    if(u.vocab&&u.vocab.length) h+=`<div class="sec-label">Vocabulary self-check — tap a term to reveal its meaning</div>${u.vocab.map(v=>'<details class="vq"><summary>'+escH(v[0])+'</summary><p>'+escH(v[1])+'</p></details>').join('')}`;
     const ph=photos[u.id]||[];
-    if(ph.length) h+='<div class="phg">'+ph.map(d=>'<img src="'+d+'">').join('')+'</div>';
+    if(ph.length) h+='<div class="sec-label">Photos</div><div class="phg">'+ph.map(d=>'<img src="'+d+'">').join('')+'</div>';
   });
   h+='</body></html>';
   const blob=new Blob([h],{type:'text/html'});
