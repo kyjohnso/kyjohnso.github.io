@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Great American Sketchbook — A Road-Trip History of the United States</title>
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pine:#1F4A38; --pine-deep:#143528; --gold:#E3A72F; --vermilion:#BC4B26;
+  --sky:#8FB6C9; --cream:#F5EDDA; --paper:#FBF6E9; --ink:#262B22; --ink-soft:#4C5347;
+  --display:'Alfa Slab One', 'Rockwell', 'Georgia', serif;
+  --body:'Source Sans 3', 'Gill Sans', 'Segoe UI', system-ui, sans-serif;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--cream); color:var(--ink); font-family:var(--body); font-size:17px; line-height:1.55;}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important; animation:none!important;} }
+
+/* ---------- header : WPA poster ---------- */
+header{background:var(--pine); color:var(--cream); padding:34px 20px 0; position:relative; overflow:hidden;}
+.poster{max-width:880px; margin:0 auto; position:relative; z-index:2;}
+.eyebrow{font-family:var(--body); font-weight:700; letter-spacing:.28em; text-transform:uppercase; font-size:12px; color:var(--gold);}
+h1{font-family:var(--display); font-weight:400; font-size:clamp(34px,6vw,62px); line-height:1.02; margin:10px 0 6px; text-transform:uppercase;}
+h1 .accent{color:var(--gold);}
+.sub{font-size:16px; max-width:56ch; color:#DCE8D9;}
+.sunrise{position:absolute; right:-40px; bottom:-70px; width:340px; opacity:.35; z-index:1;}
+.belongs{margin:20px 0 0; display:flex; gap:10px; align-items:center; flex-wrap:wrap; font-size:15px;}
+.belongs input{background:transparent; border:none; border-bottom:2px solid var(--gold); color:var(--cream); font-family:var(--display); font-size:18px; padding:2px 6px; min-width:200px; outline:none;}
+.headbar{max-width:880px; margin:22px auto 0; display:flex; gap:8px; flex-wrap:wrap; padding-bottom:18px; align-items:center;}
+.headbar button{background:var(--gold); color:var(--pine-deep); border:none; font-family:var(--body); font-weight:700; font-size:14px; padding:8px 14px; cursor:pointer; border-radius:3px;}
+.headbar button.ghost{background:transparent; color:var(--cream); border:2px solid rgba(245,237,218,.5);}
+#saveStatus{font-size:13px; color:#C9D8C4; margin-left:auto;}
+
+/* ---------- route strip ---------- */
+.route{background:var(--pine-deep); padding:14px 12px 18px; overflow-x:auto;}
+.route-inner{display:flex; gap:0; min-width:760px; max-width:980px; margin:0 auto;}
+.stop.locked{opacity:.45;} .stop.locked .dot{background:transparent;border-style:dashed;} .stop{flex:1; text-align:center; position:relative; cursor:pointer; padding-top:16px;}
+.stop::before{content:''; position:absolute; top:21px; left:0; right:0; height:3px; background:#3C6A54;}
+.stop:first-child::before{left:50%;} .stop:last-child::before{right:50%;}
+.stop .dot{width:14px; height:14px; border-radius:50%; background:#3C6A54; border:3px solid var(--pine-deep); margin:0 auto; position:relative; z-index:1; transition:background .2s;}
+.stop.done .dot{background:var(--gold);}
+.stop.active .dot{background:var(--vermilion); transform:scale(1.35);}
+.stop small{display:block; margin-top:6px; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:#9FB8A6; font-weight:700;}
+.stop.active small{color:var(--cream);}
+
+/* ---------- layout ---------- */
+main{max-width:880px; margin:0 auto; padding:26px 18px 80px;}
+.unit-head{display:flex; align-items:flex-start; gap:18px; margin:14px 0 6px; flex-wrap:wrap;}
+.era-stamp{font-family:var(--display); font-size:13px; letter-spacing:.06em; color:var(--paper); background:var(--vermilion); padding:8px 12px; transform:rotate(-3deg); box-shadow:2px 2px 0 var(--ink); text-transform:uppercase; line-height:1.3; max-width:170px;}
+.unit-title h2{font-family:var(--display); font-weight:400; font-size:clamp(26px,4.5vw,40px); color:var(--pine); text-transform:uppercase; line-height:1.05;}
+.unit-title .where{font-weight:700; color:var(--vermilion); font-size:14px; letter-spacing:.14em; text-transform:uppercase; margin-top:4px;}
+.section{background:var(--paper); border:2px solid var(--ink); box-shadow:5px 5px 0 rgba(38,43,34,.18); margin:20px 0; padding:20px 22px;}
+.section h3{font-family:var(--display); font-weight:400; font-size:19px; color:var(--pine); text-transform:uppercase; letter-spacing:.03em; margin-bottom:10px; display:flex; align-items:center; gap:10px;}
+.section h3 .tick{color:var(--vermilion); font-size:22px;}
+.section p{margin-bottom:10px; color:var(--ink);}
+.section p:last-child{margin-bottom:0;}
+ul.qs{list-style:none;} ul.qs li{padding:7px 0 7px 26px; position:relative; border-bottom:1px dashed #CBBF9E;}
+ul.qs li:last-child{border-bottom:none;}
+ul.qs li::before{content:'?'; position:absolute; left:2px; top:6px; font-family:var(--display); color:var(--gold); font-size:17px;}
+label.hunt{display:flex; gap:10px; align-items:flex-start; padding:8px 6px; cursor:pointer; border-radius:4px;}
+label.hunt:hover{background:rgba(227,167,47,.14);}
+label.hunt input{width:19px; height:19px; accent-color:var(--vermilion); margin-top:3px; flex:none;}
+label.hunt.checked span{color:var(--ink-soft);}
+.huntcount{font-size:13px; font-weight:700; color:var(--vermilion); letter-spacing:.08em;}
+textarea{width:100%; min-height:130px; background:#FFFDF4; border:2px solid var(--ink); padding:12px; font-family:var(--body); font-size:16px; color:var(--ink); resize:vertical; line-height:1.5;}
+textarea:focus{outline:3px solid var(--gold);}
+.prompt-tag{display:inline-block; background:var(--sky); color:var(--pine-deep); font-weight:700; font-size:12px; letter-spacing:.14em; text-transform:uppercase; padding:3px 9px; margin-bottom:8px;}
+.links a{color:var(--vermilion); font-weight:600; text-decoration-thickness:2px; text-underline-offset:3px;}
+.links li{padding:5px 0;}
+.vocab{display:flex; flex-wrap:wrap; gap:8px;}
+.vocab span{background:var(--pine); color:var(--cream); font-size:13.5px; font-weight:600; padding:5px 11px; border-radius:2px;}
+.vocab b{color:var(--gold); font-weight:700;}
+.pager{display:flex; justify-content:space-between; margin-top:26px; gap:12px;}
+.pager button{font-family:var(--display); font-size:15px; background:var(--pine); color:var(--cream); border:none; padding:12px 18px; cursor:pointer; text-transform:uppercase;}
+.pager button:disabled{opacity:.35; cursor:default;}
+.artnote{border-left:6px solid var(--gold); background:#F3E8C8; padding:12px 16px; margin:12px 0; font-size:15.5px;}
+.artnote b{color:var(--vermilion);}
+/* log view */
+table{width:100%; border-collapse:collapse; font-size:15px;}
+th,td{border:1px solid #B9AE8C; padding:7px 9px; text-align:left;}
+th{background:var(--pine); color:var(--cream); font-weight:700;}
+.logform{display:flex; gap:8px; flex-wrap:wrap; margin:12px 0;}
+.logform input{border:2px solid var(--ink); padding:8px; font-family:var(--body); font-size:15px; background:#FFFDF4;}
+.logform input[type=number]{width:90px;}
+.logform input[type=text]{flex:1; min-width:180px;}
+.logform button{background:var(--vermilion); color:var(--cream); border:none; font-weight:700; padding:8px 16px; cursor:pointer;}
+.total{font-family:var(--display); color:var(--pine); font-size:18px; margin-top:10px;}
+.hidden{display:none;}
+footer{max-width:880px; margin:0 auto; padding:0 18px 50px; font-size:13.5px; color:var(--ink-soft);}
+@media(max-width:600px){ .section{padding:16px;} body{font-size:16px;} }
+
+/* ---------- photos ---------- */
+.photogrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;margin-top:12px;}
+.photogrid .ph{position:relative;aspect-ratio:1;overflow:hidden;border:2px solid var(--ink);border-radius:3px;background:#00000014;}
+.photogrid img{width:100%;height:100%;object-fit:cover;display:block;}
+.photogrid .del{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.72);color:#fff;border:none;width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:14px;line-height:1;}
+.addph{display:inline-flex;align-items:center;gap:8px;margin-top:12px;background:var(--gold);color:var(--pine-deep);font-weight:700;font-size:14px;padding:9px 14px;border-radius:3px;cursor:pointer;border:none;font-family:var(--body);}
+.addph input{display:none;}
+@media(max-width:520px){ main{padding:20px 12px 70px;} .era-stamp{max-width:none;transform:none;} }
+</style>
+</head>
+<body>
+
+<header>
+  <svg class="sunrise" viewBox="0 0 200 140" aria-hidden="true">
+    <circle cx="100" cy="120" r="46" fill="#E3A72F"/>
+    <g stroke="#E3A72F" stroke-width="7">
+      <line x1="100" y1="58" x2="100" y2="18"/><line x1="58" y1="78" x2="26" y2="52"/>
+      <line x1="142" y1="78" x2="174" y2="52"/><line x1="42" y1="112" x2="4" y2="100"/>
+      <line x1="158" y1="112" x2="196" y2="100"/>
+    </g>
+    <path d="M0 140 L60 92 L95 122 L135 84 L200 140 Z" fill="#143528"/>
+  </svg>
+  <div class="poster">
+    <div class="eyebrow">Summer 2026 · London to Denver · A Prologue + Ten Units</div>
+    <h1>The Great<br>American <span class="accent">Sketchbook</span></h1>
+    <p class="sub">A road-trip history of the United States for an artist. Every stop on this trip is a chapter of the American story — and every chapter comes with things to find, questions to argue about, and pages to fill with your own drawings and words.</p>
+    <div class="belongs"><span>This sketchbook belongs to</span><input id="ownerName" placeholder="your name here" aria-label="Your name"></div>
+  </div>
+  <div class="headbar">
+    <button id="btnUnits">The Journey</button>
+    <button id="btnLog" class="ghost">Learning Log</button>
+    <button id="btnExport" class="ghost">Export report</button>
+    <button id="btnSaveFile" class="ghost">Save progress</button>
+    <button id="btnLoadFile" class="ghost">Load progress</button>
+    <input id="fileLoad" type="file" accept=".json,application/json" style="display:none">
+    <span id="saveStatus"></span>
+  </div>
+</header>
+
+<nav class="route" aria-label="Trip stops"><div class="route-inner" id="routeStrip"></div></nav>
+
+<main>
+  <div id="unitView"></div>
+  <div id="logView" class="hidden">
+    <div class="unit-head"><div class="era-stamp">For the record</div>
+      <div class="unit-title"><h2>Learning Log</h2><div class="where">Proof of your hours — this is what makes it a real course</div></div></div>
+    <div class="section">
+      <p>Each day you spend time on this — reading, visiting, drawing, writing, arguing about big questions at dinner — log it here. Historians keep records. So do you.</p>
+      <div class="logform">
+        <input type="date" id="logDate">
+        <input type="number" id="logMins" placeholder="minutes" min="5" step="5">
+        <input type="text" id="logNote" placeholder="What did you do? (e.g. sketched Independence Hall, read about Ellis Island)">
+        <button id="logAdd">Add</button>
+      </div>
+      <table id="logTable"><thead><tr><th>Date</th><th>Minutes</th><th>What you did</th><th></th></tr></thead><tbody></tbody></table>
+      <div class="total" id="logTotal"></div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <p><b>The Capstone Gallery:</b> by the end of the trip, your sketchbook + these journal pages become a portfolio. The final unit explains the big project. Progress saves automatically when this page is opened inside Claude; if you're offline in the car, your typing stays on screen — just tap <i>Export report</i> before closing to keep a copy.</p>
+  <div id="unlockRow" style="margin-top:16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+    <span style="font-weight:700;">Parent unlock:</span>
+    <input id="pwInput" type="password" placeholder="password" style="border:2px solid var(--ink);background:#FFFDF4;padding:7px 10px;font-size:16px;font-family:var(--body);border-radius:3px;max-width:180px;">
+    <button id="pwBtn" style="background:var(--pine);color:var(--cream);border:none;font-family:var(--body);font-weight:700;font-size:13px;padding:8px 14px;border-radius:3px;cursor:pointer;">Unlock all</button>
+    <span id="pwMsg"></span>
+  </div>
+</footer>
+
+<script>
+const UNITS = [
+{
+ id:"london", unlock:"2026-07-09", short:"London", era:"1215 – 1776", stamp:"Unit 0 · Prologue: The Mother Country",
+ title:"Where America Was Invented", where:"London · July 10–12",
+ story:`Before you fly to America, you're standing in the country it broke up with. Every American colony began as paperwork in London: royal charters — the King's written permission — founded Virginia (1606), Massachusetts, and the rest from offices a short walk from where you are. The rights the colonists later fought for trace back to Magna Carta (1215), the first document to say even a king must obey the law; you can see an original at the British Library, free. Benjamin Franklin lived at 36 Craven Street, just off Trafalgar Square, for nearly sixteen years (1757–1775), working desperately to keep Britain and America together. He sailed home in 1775 when war became unavoidable — his London house is the only Franklin home still standing anywhere on Earth. The Revolution was, in a way, a family argument conducted in English, about English rights. London is full of the aftermath: outside the National Gallery stands a statue of George Washington on (legend says) soil shipped from Virginia — because he supposedly swore he'd never again set foot on British ground.`,
+ art:`<b>Artist's eye:</b> Here's a twist — the two most celebrated American painters of the Revolution era, Benjamin West and John Singleton Copley, both moved TO London and painted for King George III. West even became president of the Royal Academy. At the National Portrait Gallery, find George III's face: this is the man the Declaration of Independence was addressed to. Portraits were the propaganda posters of their day — notice what the painter wants you to feel about him.`,
+ questions:[
+  "The colonists rebelled by claiming their rights as English people, using England's own ideas against it. Is that hypocrisy or the highest compliment?",
+  "Franklin spent sixteen years in London trying to prevent the split, and failed. Can someone fail at their mission and still have been right to try?",
+  "If the Revolution had failed, Washington and Franklin would be remembered as traitors. Who decides whether a rebel is a hero — and when?"
+ ],
+ hunt:[
+  "Find the George Washington statue outside the National Gallery — the one standing on Virginia soil (allegedly)",
+  "Walk to 36 Craven Street and sketch the front door of Benjamin Franklin's house",
+  "See an original Magna Carta at the British Library (free, Treasures Gallery)",
+  "Find the plaque in Pickering Place (off St James's Street) marking the embassy of the independent Republic of Texas, 1842–1845",
+  "Sketch King George III — his statue on Cockspur Street or his portrait at the National Portrait Gallery",
+  "Count every American flag or bald eagle you can spot in one London day — note where they turn up"
+ ],
+ prompt:{tag:"Letter + royal letterhead", text:"The Declaration of Independence is basically a breakup letter mailed to a king in London. Design King George III's royal letterhead in your sketchbook, then write his reply here in about 100 words — in character. Is he furious, heartbroken, dismissive, or secretly relieved?"},
+ think:[
+  "Your family are Americans living in Britain — the colonists' story run in reverse. What do you understand about both countries that someone who never left home can't?",
+  "Is Britain and America's relationship today more like exes, siblings, or a parent and a grown-up child? Defend your pick with one piece of evidence from this trip."
+ ],
+ links:[
+  ["Benjamin Franklin House — 36 Craven Street","https://benjaminfranklinhouse.org"],
+  ["Magna Carta at the British Library","https://www.bl.uk"],
+  ["National Portrait Gallery — find the Georgians","https://www.npg.org.uk"]
+ ],
+ vocab:[["charter","the Crown's written permission to found a colony"],["monarchy","rule by a king or queen"],["empire","one country ruling many distant lands"],["grievance","a formal complaint — the Declaration lists 27 of them"]]
+},
+{
+ id:"nyc", unlock:"2026-07-12", short:"New York", era:"1624 – Today", stamp:"Unit 1 · Colonies & Immigration",
+ title:"Harbor of Nations", where:"New York City · July 12–14",
+ story:`Before it was New York it was New Amsterdam — a scrappy Dutch trading post bought, built, and argued over from 1624. The English took it in 1664 and renamed it for the Duke of York. By 1789 it was the first capital of the brand-new United States: George Washington took the very first presidential oath on a balcony at Federal Hall, a short walk from where you'll stand. Then came the ships. Between 1892 and 1954, more than 12 million people sailed past the Statue of Liberty (1886, a gift from France) into Ellis Island, carrying everything they owned. Their first sight of America was a copper woman holding a torch. In the 1920s, Harlem exploded with Black art, jazz, poetry, and painting — the Harlem Renaissance — proving that American culture is something immigrants and migrants keep remaking.`,
+ art:`<b>Artist's eye:</b> The Statue of Liberty is public sculpture doing politics — a French artist (Bartholdi) making an argument in copper about what America should be. As you travel, keep a running list titled "Art that argues."`,
+ questions:[
+  "The statue's poem calls immigrants 'the huddled masses.' Is that welcoming or a bit insulting? What would you write on the pedestal instead?",
+  "New York has been Lenape land, Dutch, English, and American. Who gets to say what a place 'really' is?",
+  "Why do you think the first US capital was a port city full of newcomers rather than a quiet inland town?"
+ ],
+ hunt:[
+  "Sketch the Statue of Liberty's face in under 3 minutes — no erasing",
+  "Find a building older than the United States (pre-1776) and note what it's made of",
+  "Spot 5 different languages on signs in one block — list them",
+  "At the 9/11 Memorial, find one name and its white rose (placed on birthdays) — write the name down respectfully",
+  "Find a fire escape, a water tower, and a cornice — the three shapes that make NYC's skyline in every painting of it",
+  "Ellis Island: find the Registry Room ceiling and count the tile pattern repeats"
+ ],
+ prompt:{tag:"Field sketch + 150 words", text:"Design your own 'Statue of Welcome' for 2026. Sketch it in your book, then describe here: what does she hold, what is she made of, and what one line is carved on her base?"},
+ think:[
+  "Your own family crossed an ocean to live in the UK. What would an 'Ellis Island photo' of your family's arrival look like?",
+  "Is a city a place or a collection of stories? Defend your answer with one thing you saw today."
+ ],
+ links:[
+  ["Tenement Museum — how immigrant families really lived","https://www.tenement.org"],
+  ["Ellis Island (National Park Service)","https://www.nps.gov/elis/index.htm"],
+  ["The Met — find the Hudson River School landscapes (gallery 759)","https://www.metmuseum.org"],
+  ["Khan Academy: US History (start the 'Gilded Age' immigration section)","https://www.khanacademy.org/humanities/us-history"]
+ ],
+ vocab:[["colony","land ruled by a faraway country"],["immigrant","a person who moves to a new country to live"],["renaissance","a 'rebirth' — an explosion of art and ideas"],["pedestal","the base a statue stands on"]]
+},
+{
+ id:"philly", unlock:"2026-07-15", short:"Philadelphia", era:"1776 & 1787", stamp:"Unit 2 · Revolution",
+ title:"The Argument", where:"Philadelphia · July 15 (en route to DC)",
+ story:`In one brick building in Philadelphia, Americans wrote the two most argued-about documents in the country's history. In summer 1776, delegates in Independence Hall declared independence from Britain with a radical sentence: "all men are created equal" — written by Thomas Jefferson, who enslaved people, which is a contradiction America has been wrestling with ever since. Eleven years later, in the same room with the windows nailed shut for secrecy (in a Philadelphia summer!), they wrote the Constitution — the oldest written national constitution still in use. Benjamin Franklin, printer, scientist, and Philadelphia's favorite genius, was there for both. The Liberty Bell, with its famous crack, didn't become a symbol until abolitionists — people fighting to end slavery — adopted it in the 1830s and gave it its name.`,
+ art:`<b>Artist's eye:</b> The Declaration is also a piece of graphic design — look at John Hancock's enormous signature. A signature is a self-portrait in one line. Design yours today and use it on every journal entry from now on.`,
+ questions:[
+  "'All men are created equal' was written by a man who enslaved people. Does the contradiction ruin the sentence, or make it a promise to keep?",
+  "Why did the delegates keep the Constitution debates secret? Would secrecy make the arguments better or worse?",
+  "The Liberty Bell is cracked. Why do you think Americans chose a broken object as a symbol of freedom?"
+ ],
+ hunt:[
+  "Stand in the room where both documents were signed — sketch one chair (Washington's has a sun carved on it: rising or setting? Franklin wondered too)",
+  "Find the crack in the Liberty Bell and draw its exact shape",
+  "Spot Benjamin Franklin three different ways in the city (statue, street name, image on something)",
+  "Find the misspelling 'Pensylvania' on the Liberty Bell",
+  "Try a cheesesteak and record the historic verdict: wit or witout onions?"
+ ],
+ prompt:{tag:"Design brief + 150 words", text:"You're hired to design a new symbol of liberty for the 250th birthday of the Declaration (July 4, 2026 — this very month!). Not a bell, not an eagle. Sketch it, then explain your choices of object, color, and material here."},
+ think:[
+  "Franklin said the delegates gave us 'a republic, if you can keep it.' What does keeping a republic actually require from ordinary people?",
+  "Could you and your brother write a 'family constitution' for the car? What would Article 1 be?"
+ ],
+ links:[
+  ["Independence Hall (NPS)","https://www.nps.gov/inde/index.htm"],
+  ["The Declaration, up close (National Archives)","https://www.archives.gov/founding-docs"],
+  ["Khan Academy: The American Revolution","https://www.khanacademy.org/humanities/us-history"]
+ ],
+ vocab:[["revolution","overthrowing one government for a new one"],["delegate","a person sent to speak for others"],["abolitionist","someone who fought to end slavery"],["constitution","the written rules for how a government works"]]
+},
+{
+ id:"dc", unlock:"2026-07-15", short:"Washington DC", era:"1790 – 1963", stamp:"Unit 3 · A Government & Its Promises",
+ title:"The Experiment", where:"Washington, DC · July 15–16",
+ story:`Washington is a city invented from scratch to hold a government — designed in 1791 by Pierre L'Enfant with grand avenues meant to impress the world. The Constitution split power three ways so no one could grab it all: Congress makes laws (the Capitol), the President carries them out (the White House), and courts judge them (the Supreme Court). You can see all three in one day. But DC is also where Americans come to demand the country keep its promises. At the Lincoln Memorial, read the Gettysburg Address carved on the wall — Lincoln redefining the Civil War as a fight for 'a new birth of freedom.' Then find the spot on those same steps where, exactly 100 years after Lincoln freed enslaved people, Martin Luther King Jr. told 250,000 people 'I have a dream.' Two speeches, one staircase, a century apart. Your DC days also hold two treasure-houses of a different kind. Out near Dulles airport, the Udvar-Hazy Center parks the Smithsonian's giant flying machines in one vast hangar — including the Space Shuttle Discovery, its nose still scorched from 39 trips through reentry fire. And downtown, National Geographic's brand-new Museum of Exploration opened in June 2026 — you'll visit a museum only two weeks old — built around 140 years of the photographs, maps, and expedition gear that taught Americans what the rest of the planet looks like.`,
+ art:`<b>Artist's eye:</b> DC is neoclassical on purpose — columns and marble borrowed from Greece and Rome to say 'we are a serious republic.' The Smithsonian museums are free. In the American Art Museum or the Portrait Gallery, find one portrait that feels honest and one that feels like propaganda. Sketch thumbnails of both. Then at the Museum of Exploration, study the Photo Ark: Joel Sartore photographs endangered animals as formal portraits — plain black or white backgrounds, every creature given the same dignity as a president. It's 'art that argues' again (remember Unit 1?): the argument is that a mouse matters as much as a tiger.`,
+ questions:[
+  "Why build the memorials to look like Greek temples? What is architecture trying to make you feel — and is that fair play?",
+  "Lincoln's memorial is a temple; MLK's spot is a small carved stone on a step. Which memorial style is more powerful, huge or humble?",
+  "If the three branches are supposed to check each other, what happens when two of them agree on something unjust?"
+ ],
+ hunt:[
+  "Find the carved marker on the Lincoln Memorial steps where Dr. King stood — stand on it and look out at the view he saw",
+  "See the actual Declaration, Constitution, and Bill of Rights at the National Archives — note how faded the ink is",
+  "In the National Museum of African American History & Culture, find one object smaller than your hand and write down its story",
+  "Count the columns on the Lincoln Memorial (hint: one for each state at his death — how many?)",
+  "Sketch the Capitol dome from the Mall in 5 minutes, then find out what the statue on top is called",
+  "Find Dorothy's ruby slippers or the Star-Spangled Banner flag at the American History museum",
+  "Udvar-Hazy: get close to Discovery's nose and sketch the scorched heat-shield tiles — real reentry burns; then capture the SR-71 Blackbird in just 3 lines (it looks fast standing still)",
+  "Museum of Exploration: walk through the giant yellow border at the entrance — Nat Geo's magazine frame — then design the cover of YOUR expedition: sketch today as a National Geographic cover",
+  "Photo Ark gallery: find the animal portrait that stares back at you hardest — note whether Sartore chose a black or white background, and guess why"
+ ],
+ prompt:{tag:"Memorial design + 150 words", text:"Design a memorial for something from YOUR lifetime that deserves remembering. Sketch it in your book. Here, explain: what shape, what material, what words carved where — and why humble or huge?"},
+ think:[
+  "The Gettysburg Address is only 272 words. Why do short things sometimes outlast long ones? (Count the words in your favorite song chorus.)",
+  "A dream and a plan are different things. Which was King's speech — and which do movements need more?"
+ ],
+ links:[
+  ["National Archives — founding documents","https://www.archives.gov/founding-docs"],
+  ["National Museum of African American History & Culture","https://nmaahc.si.edu"],
+  ["Smithsonian American Art Museum","https://americanart.si.edu"],
+  ["Udvar-Hazy Center (Air & Space annex)","https://airandspace.si.edu/visit/udvar-hazy-center"],
+  ["National Geographic Museum of Exploration","https://moe.nationalgeographic.org"],
+  ["Khan Academy: The Civil War & Reconstruction","https://www.khanacademy.org/humanities/us-history"]
+ ],
+ vocab:[["republic","government by elected representatives"],["checks and balances","each branch can limit the others"],["emancipation","being set free"],["civil rights","the rights every citizen is owed equally"]]
+},
+{
+ id:"tenn", unlock:"2026-07-17", short:"Tennessee", era:"Before 1540 – 1940s", stamp:"Unit 4 · First Nations & The Frontier",
+ title:"Older Than the Map", where:"Great Smoky Mountains · July 17–18",
+ story:`The Smokies are the homeland of the Cherokee, who lived, farmed, and governed here for centuries before any map said 'Tennessee.' In 1821 a Cherokee man named Sequoyah did something almost no single person in history has done: he invented a complete writing system, the Cherokee syllabary, and within years his nation had newspapers and a written constitution. It didn't protect them. In 1830 Congress passed the Indian Removal Act, and in 1838 the US Army forced around 16,000 Cherokee people west at gunpoint. Roughly 4,000 died on the march they called the Trail of Tears. Some hid in these very mountains — their descendants, the Eastern Band, live here still. A century later, during the Great Depression, the government returned to build differently: the New Deal's crews cut the trails you'll hike, and in 1934 these mountains became a national park — now the most visited in America.`,
+ art:`<b>Artist's eye:</b> Cherokee art speaks in pattern — river-cane baskets with designs that carry names and meanings, woven double-walled so they hold water. Find examples (Qualla Arts in Cherokee, NC, or online) and try designing your own repeating pattern that encodes a word.`,
+ questions:[
+  "The Cherokee did everything 'right' by American rules — writing, farming, courts — and were removed anyway. What does that tell you about whose rules they were?",
+  "Sequoyah couldn't read any language when he invented one. What does that suggest about where invention comes from?",
+  "The same government that removed the Cherokee later built this park 'for everyone.' Can a place be both a gift and a wound?"
+ ],
+ hunt:[
+  "Find the Cherokee syllabary (visitor centers display it) — copy 5 characters and their sounds into your sketchbook",
+  "Spot the blue haze that names the Smokies and try mixing its exact color (it's not gray, not blue — what is it?)",
+  "Find something built by New Deal crews in the 1930s — a stone bridge, wall, or trail marker",
+  "Sketch one mountain ridgeline in a single unbroken pencil line",
+  "Hear live Appalachian music (Dollywood counts!) and name the instruments you can pick out",
+  "Find a sign in both English and Cherokee"
+ ],
+ prompt:{tag:"Pattern + 150 words", text:"Design a woven-style repeating pattern that tells the story of YOUR family's journeys (US, UK, this trip). Sketch it, then decode it here: what does each shape and color stand for?"},
+ think:[
+  "Mountains outlast every government that claims them. Does land belong to people, or people to land?",
+  "Dolly Parton grew up poor in these hills and became world-famous without pretending to be from anywhere else. What's the difference between escaping where you're from and carrying it with you?"
+ ],
+ links:[
+  ["Trail of Tears National Historic Trail (NPS)","https://www.nps.gov/trte/index.htm"],
+  ["Great Smoky Mountains National Park","https://www.nps.gov/grsm/index.htm"],
+  ["Museum of the Cherokee People","https://mci.org"]
+ ],
+ vocab:[["syllabary","a writing system where each symbol is a syllable"],["removal","the forced relocation of Native nations"],["New Deal","1930s government programs to fight the Depression"],["Appalachia","the mountain region and culture of the eastern US"]]
+},
+{
+ id:"heart", unlock:"2026-07-19", short:"Heartland", era:"1785 – 1911", stamp:"Unit 5 · Lincoln Country & The Grid",
+ title:"The Crossroads", where:"Indianapolis → Effingham · July 19–20",
+ story:`Look out the car window in Indiana and Illinois and you'll see one of the biggest artworks in human history: the grid. In 1785, before most of this land was even settled by Americans, Congress ordered it surveyed into perfect one-mile squares — which is why the roads run dead straight and the fields are rectangles. The land was pre-drawn like graph paper, ready to sell. Into one of those squares came a poor family from Kentucky in 1816; their boy, Abraham Lincoln, grew up splitting rails and reading borrowed books in southern Indiana, a few hours from your route. Illinois calls itself the Land of Lincoln because this is where the self-taught lawyer argued his way to the presidency. And Indianapolis? In 1911 it hosted the first Indy 500, because before Detroit won, Indiana was where Americans raced to figure out what the automobile — the machine that would build this whole road trip — could do.`,
+ art:`<b>Artist's eye:</b> The grid is composition imposed on a continent. Grant Wood and the Regionalist painters made the Midwest's geometry — quilted fields, lone farmhouses — into fine art. From the car, do three 60-second 'window sketches': horizon line, field shapes, one vertical (silo, water tower, barn).`,
+ questions:[
+  "The grid made land easy to sell — and ignored rivers, hills, and everyone already living there. What do you gain and lose when you force neat lines onto a messy world?",
+  "Lincoln had less than a year of school, total. What actually educated him — and does that change what you think education is?",
+  "Why do Americans race cars in a circle for 500 miles? What is a race a symbol of?"
+ ],
+ hunt:[
+  "From the car: find three dead-straight roads that meet the horizon — the 1785 grid in the wild",
+  "Spot a barn quilt (painted quilt square on a barn) or a hand-painted barn ad",
+  "Count water towers between Indy and Effingham — each one is a town's name in the sky; sketch the best one",
+  "Find corn and soybean fields side by side and note how you tell them apart at 70 mph",
+  "Effingham: find the giant 198-ft cross visible from the interstate — America does roadside monuments BIG"
+ ],
+ prompt:{tag:"Window sketch series + 150 words", text:"After your three 60-second window sketches, write here: what does the Midwest's 'composition' feel like compared to Yorkshire's? Same job (farming), completely different picture — why?"},
+ think:[
+  "You've now crossed the Appalachians like settlers did. It took them weeks; it took you hours. Does speed change what you're able to notice?",
+  "Is a perfectly straight road beautiful, boring, or both?"
+ ],
+ links:[
+  ["Lincoln Boyhood National Memorial (NPS)","https://www.nps.gov/libo/index.htm"],
+  ["Khan Academy: The early republic & westward growth","https://www.khanacademy.org/humanities/us-history"]
+ ],
+ vocab:[["survey","measuring and mapping land"],["township","a six-by-six mile grid square"],["regionalism","art celebrating ordinary local American life"],["frontier","the edge of settled territory"]]
+},
+{
+ id:"chi", unlock:"2026-07-21", short:"Chicago", era:"1871 – 1930s", stamp:"Unit 6 · The Industrial City",
+ title:"The Engine", where:"Chicago · July 21–23",
+ story:`In October 1871 Chicago burned to the ground — over 17,000 buildings gone in two days. Then it did something astonishing: it treated the disaster as a blank canvas. With cheap land gone and steel newly available, Chicago's architects built UP, inventing the skyscraper (the Home Insurance Building, 1885, is usually called the first). In 1893 the city threw the World's Columbian Exposition, a gleaming white temporary city visited by 27 million people, where the first Ferris wheel turned and America showed off its future. The city's stockyards and factories pulled in workers from everywhere — including, from about 1916 onward, six million Black Southerners in the Great Migration, who remade Chicago with blues, gospel, and a fierce artistic tradition. Chicago is also where workers fought for the eight-hour day, and where Route 66 — the most famous road in America — begins.`,
+ art:`<b>Artist's eye:</b> The Art Institute of Chicago is one of the world's great museums — find Nighthawks (Hopper), American Gothic (Wood), and Seurat's Grande Jatte in one visit. Then go outside: the whole Loop is a sculpture garden (the Picasso, the Bean). Question of the day: when does a building become art?`,
+ questions:[
+  "Chicago rebuilt better because it burned. Do disasters create opportunity, or do we just tell it that way afterwards to feel better?",
+  "The 1893 Fair was dazzling and temporary — plaster painted to look like marble. Is a beautiful illusion a lie?",
+  "Six million people moved north in the Great Migration without any leader ordering it. How do millions of separate family decisions add up to history?"
+ ],
+ hunt:[
+  "Find your reflection in the Bean (Cloud Gate) and sketch what it does to the skyline",
+  "At the Art Institute: stand close to the Seurat until it's only dots, then back away until it's a park — note the exact distance where it changes",
+  "Ride to a skyscraper viewpoint and count how many buildings you can see under construction",
+  "Find the 'Route 66 BEGIN' sign on Adams Street",
+  "Try deep-dish pizza and rule: is it pizza or is it a pie? Cite evidence",
+  "Spot the difference between an 1890s skyscraper (heavy stone bottom, ornament on top) and a glass one — sketch one of each"
+ ],
+ prompt:{tag:"Poster + 150 words", text:"Design a WPA-style travel poster for Chicago (bold shapes, 3 colors, one slogan). Sketch it, then explain here which ONE image you chose to stand for the whole city, and what you left out — every poster is a choice about what not to show."},
+ think:[
+  "A city that burns and rebuilds, is it the same city? (Your dad knows this one as the Ship of Theseus — ask him.)",
+  "Hopper's Nighthawks shows people alone together in a diner at night. Can a city of millions be lonely? Did Chicago feel that way to you?"
+ ],
+ links:[
+  ["Art Institute of Chicago","https://www.artic.edu"],
+  ["Chicago Architecture Center","https://www.architecture.org"],
+  ["Khan Academy: The Gilded Age","https://www.khanacademy.org/humanities/us-history"]
+ ],
+ vocab:[["skyscraper","a tall steel-frame building — invented here"],["Great Migration","the movement of 6 million Black Americans out of the South"],["exposition","a giant world's fair"],["labor movement","workers organizing for fair hours and pay"]]
+},
+{
+ id:"plains", unlock:"2026-07-24", short:"The Plains", era:"1804 – 1890", stamp:"Unit 7 · Westward Expansion",
+ title:"The Trail", where:"Omaha → Kimball, Nebraska · July 24–25",
+ story:`You are now driving the most traveled corridor in American history. Lewis and Clark rowed up the Missouri past Omaha in 1804, mapping land the US had just bought from France (the Louisiana Purchase — 828,000 square miles for about 3 cents an acre). From the 1840s, wagon trains rolled west along the Platte River — the Oregon Trail ran right where I-80 runs now; you'll cover in a day what took them three weeks. In 1862 the Homestead Act offered 160 free acres to anyone who'd farm it five years — an incredible offer, made mostly with land taken from the Pawnee, Lakota, and other Plains nations. And in the 1860s, crews building the transcontinental railroad started west from Omaha, meeting the eastbound crews in Utah in 1869: the Golden Spike, and suddenly a continent crossable in a week. Every mile of your drive today, someone once measured in blisters.`,
+ art:`<b>Artist's eye:</b> When Plains nations lost the buffalo hides they painted on, artists like the Lakota kept their visual history going in old accounting books — 'ledger art,' bold figures over columns of numbers. Look it up tonight. Then: pioneers used landmarks as art and GPS combined — Chimney Rock and Scotts Bluff (near tonight's stop!) appear in hundreds of wagon-train sketches. Add yours to that 180-year sketch archive.`,
+ questions:[
+  "The Homestead Act gave free land to ordinary families — using land taken from Native nations. Can generosity and theft be the same act?",
+  "Pioneers threw pianos and heirlooms out of overloaded wagons along this route. What would your family jettison from the car, and what would you carry to the end no matter what?",
+  "The railroad shrank a 5-month journey to a week. What did America gain in speed and lose in... what, exactly?"
+ ],
+ hunt:[
+  "Cross the Missouri River at Omaha where Lewis & Clark camped — mark the moment",
+  "Spot Scotts Bluff or Chimney Rock rising off the plains, like 500,000 emigrants did — sketch it from the moving car",
+  "Find real wagon ruts (Scotts Bluff has them) — 180-year-old grooves in stone",
+  "Watch for a modern freight train and count the cars (they run over 100) — the railroad never stopped",
+  "Note the exact moment the land goes truly FLAT and the sky takes over the composition — write down the time and place",
+  "Find a homestead-era claim shanty, windmill, or abandoned farmhouse"
+ ],
+ prompt:{tag:"Two-panel sketch + 150 words", text:"Draw the same view twice: once as you see it from the car, once as a pioneer girl your age might have drawn it from a wagon in 1850. Then write here: what does she see that you can't, and what do you see that she couldn't?"},
+ think:[
+  "The plains sky is the biggest thing you'll see on this trip. Why do enormous empty spaces make some people feel free and others feel afraid?",
+  "Is I-80 the Oregon Trail wearing modern clothes? What's the 2026 version of a wagon train?"
+ ],
+ links:[
+  ["Homestead National Historical Park (NPS)","https://www.nps.gov/home/index.htm"],
+  ["Scotts Bluff National Monument","https://www.nps.gov/scbl/index.htm"],
+  ["Durham Museum, Omaha (in the great Union Station)","https://durhammuseum.org"]
+ ],
+ vocab:[["homestead","free public land earned by farming it"],["emigrant","a person leaving to settle elsewhere"],["transcontinental","crossing the whole continent"],["ledger art","Plains drawing tradition made in account books"]]
+},
+{
+ id:"colo", unlock:"2026-07-26", short:"Colorado", era:"1858 – 1915", stamp:"Unit 8 · Gold, Silver & Statehood",
+ title:"The Centennial State", where:"Windsor & Denver base · July 26 – Aug 9",
+ story:`In 1858 a few flakes of gold turned up near Denver, and within a year 100,000 people stampeded west with 'Pikes Peak or Bust!' painted on their wagons. Most went bust. But the ones who stayed built Denver, and when Colorado became a state on August 1, 1876 — exactly 100 years after the Declaration — it took the nickname the Centennial State. (You'll be moving from Windsor down to Denver right around August 1, 2026: you get to arrive in the capital during its 150th birthday week.) Mining built the mountains' towns and scarred them too. Out here the real treasure turned out to be water: in the dry West, the rule is 'first in time, first in right' — whoever used the river first owns the right to it, a law that still governs every farm and city you'll see. And in 1915, Rocky Mountain National Park was set aside an hour from your base — won almost single-handedly by Enos Mills, a self-taught innkeeper-naturalist who climbed Longs Peak nearly 300 times and, after a chance beach meeting with John Muir turned him into a campaigner, spent six years persuading Congress. (You'll meet Muir properly in Montana.)`,
+ art:`<b>Artist's eye:</b> Two weeks in one place = a proper series. Painters like Albert Bierstadt made the Rockies gigantic and golden to convince Easterners the West was paradise — landscape as advertising. Do a 'Fourteener a Day' mini-study: the same mountain view at different times of day, tiny quick color sketches. By Denver you'll have a Monet-style series.`,
+ questions:[
+  "100,000 people chased gold; most found none. Was the gold rush a failure for them, or did 'busting' still build something?",
+  "'First in time, first in right' — is being first a fair way to divide a river? Invent a fairer rule and defend it.",
+  "Bierstadt exaggerated his mountains to sell the West. Where's the line between an artist's vision and a lie?"
+ ],
+ hunt:[
+  "Attend the Rockies game and find the row of PURPLE seats at Coors Field — they mark exactly one mile above sea level",
+  "Find gold: the shining dome of the Colorado State Capitol is real gold leaf",
+  "Spot an irrigation ditch or canal near Windsor — the 'first in right' law flowing past your rental",
+  "Summit or see a 14er (a 14,000-ft peak) and record its name",
+  "Find an old mining town (Georgetown, Idaho Springs) and sketch a false-front building",
+  "See snow in August"
+ ],
+ prompt:{tag:"Series + 150 words", text:"After a week of daily mountain sketches, pick your best and worst. Write here: what changed between them? Bierstadt made mountains lie beautifully — did yours get more honest or more dramatic as you improved?"},
+ think:[
+  "Colorado's birthday is tied to the nation's (1876/1776). Do places have identities the way people do — and who writes them?",
+  "You're spending two weeks still after weeks of motion. Which teaches you more about a place: passing through or staying put?"
+ ],
+ links:[
+  ["History Colorado Center, Denver","https://www.historycolorado.org"],
+  ["Rocky Mountain National Park (NPS)","https://www.nps.gov/romo/index.htm"],
+  ["Denver Art Museum — outstanding Indigenous Arts collection","https://www.denverartmuseum.org"]
+ ],
+ vocab:[["gold rush","a mass migration chasing gold"],["statehood","becoming a full US state"],["prior appropriation","water law: first user keeps the right"],["fourteener","a peak over 14,000 feet — Colorado has 58"]]
+},
+{
+ id:"mont", unlock:"2026-08-06", short:"Montana", era:"1806 – 1916", stamp:"Unit 9 · Parks & Plains Wars",
+ title:"The Last Best Place", where:"Billings & Yellowstone · around Aug 6–9",
+ story:`Three of the biggest stories in American history sit within an hour or two of your YUNGBLUD concert. East of Billings: Pompeys Pillar, a sandstone tower where William Clark carved his name on July 25, 1806 — the only physical trace of the entire Lewis and Clark expedition you can still touch with your eyes. Southeast: Little Bighorn, where on June 25–26, 1876 — the very summer Colorado celebrated statehood — Lakota, Cheyenne, and Arapaho warriors led by Sitting Bull and Crazy Horse defeated Custer's 7th Cavalry defending their land and way of life. It was their greatest victory and, brutally, it triggered the final crushing of Plains resistance. And southwest: Yellowstone, which in 1872 became the first national park in the world — a genuinely new idea, that a nation could own wonder collectively and forever. The bison there, nearly extinct by 1900 (fewer than 1,000 left from 30 million), are the descendants of the ones that survived. And the park was only the beginning of a movement. John Muir — a Scottish-born wanderer who filled tiny field journals with sketches of glaciers and flowers — wrote about wild places so irresistibly that in 1903 President Theodore Roosevelt ditched his escort to camp three nights with him in Yosemite, waking happily under four inches of fresh snow. Roosevelt — a hunter who understood exactly what was vanishing — went on to protect around 230 million acres: five national parks, 150 national forests, dozens of bird reserves, and, using his favorite tool, the 1906 Antiquities Act, eighteen national monuments created by the stroke of a pen. In 1916 the National Park Service was founded to care for it all. The parks have been called America's best idea — the one American invention nearly every country on Earth has copied.`,
+ art:`<b>Artist's eye:</b> Yellowstone became a park partly because of an artist: Thomas Moran's watercolors of the canyon convinced Congress that reports of boiling rainbow pools weren't tall tales. His paintings changed the law. Sketch the Grand Prismatic Spring or the canyon and label your colors — Moran had to invent names for his. And take a leaf from Muir: he sketched constantly in his pocket journals, convinced that drawing a thing is the surest way to truly see it. Your sketchbook is in a 150-year tradition of art that protected places.`,
+ questions:[
+  "At Little Bighorn, both cavalry soldiers and Native warriors now have memorials on the same hill. Should a battlefield honor both sides? Can it?",
+  "Clark carved his name on the rock — next to centuries of Native petroglyphs already there. Is his signature history or graffiti? Are the petroglyphs? What's the difference?",
+  "Whose land was Yellowstone before it was 'everyone's'? Can a park be an apology?",
+  "Roosevelt hunted the very animals he fought to save. Is that a contradiction — or exactly why he understood what was at stake?"
+ ],
+ hunt:[
+  "Touch history: see W. Clark's actual 1806 signature at Pompeys Pillar",
+  "At Little Bighorn, find both memorials — the 7th Cavalry obelisk and the Indian Memorial — and note how differently they're designed",
+  "Yellowstone bingo: geyser, bison, hot spring, mudpot — sketch the Grand Prismatic's color bands and try naming each one",
+  "Time Old Faithful's eruption against the predicted time",
+  "Drive under the Roosevelt Arch at the North Entrance — Theodore Roosevelt laid its cornerstone in 1903; sketch it and copy down the 1872 mission carved across the top",
+  "Scream every word at YUNGBLUD (counts as cultural fieldwork: live music has carried American teenagers' rebellions from jazz to punk to now)",
+  "Spot the Crow (Apsáalooke) Nation lands your route crosses — whose homeland this still is"
+ ],
+ prompt:{tag:"Color study + 150 words", text:"Moran's paintings made Yellowstone a park — art literally changed the world. Write here: if you could put ONE of your drawings from this trip in front of Parliament or Congress to change one law, which drawing, and what law?"},
+ think:[
+  "1876 was America's proudest year (centennial!) and one of its most violent (Little Bighorn, and what followed). Can a country be its best and worst self in the same summer? Can a person?",
+  "The park idea says some places should belong to everyone and no one. What else should work that way? (Your dad has opinions about this — ask him about 'the commons.')"
+ ],
+ links:[
+  ["Little Bighorn Battlefield (NPS)","https://www.nps.gov/libi/index.htm"],
+  ["Pompeys Pillar National Monument (BLM)","https://www.blm.gov/visit/pompeys-pillar-national-monument"],
+  ["Yellowstone National Park (NPS)","https://www.nps.gov/yell/index.htm"],
+  ["Ken Burns — The National Parks: America's Best Idea (PBS)","https://www.pbs.org/kenburns/the-national-parks/"]
+ ],
+ vocab:[["national park","land preserved by the nation for everyone"],["petroglyph","an image carved into rock"],["cavalry","soldiers on horseback"],["conservation","protecting nature for the future"],["Antiquities Act","the 1906 law letting a president protect land instantly"]]
+},
+{
+ id:"cap", unlock:"2026-08-15", short:"Capstone", era:"1624 – 2026", stamp:"Unit 10 · Your Verdict",
+ title:"The Long Look Back", where:"Final week & the flight home · Aug 15–22",
+ story:`You've now traveled 400 years of American history in six weeks, roughly in order: colonies and immigrants (New York), revolution (Philadelphia), a government and its unkept-then-kept promises (Washington), the nations who were here first (the Smokies, the Plains, Little Bighorn), the machine age (Chicago), the great move west (Nebraska), and the strange new idea that wonder itself could be public property (Yellowstone). You've seen the same year — 1876 — look like a birthday party in Denver and a battlefield in Montana. Historians call this the problem of perspective: the story changes depending on where you're standing, and you have now physically stood in a dozen different places. Time to make something with all of it.`,
+ art:`<b>Artist's eye:</b> This is your exhibition. Real artists edit — a portfolio is choices, not everything.`,
+ questions:[
+  "What is the single most American thing you saw? (An object, a place, a meal, a person, a moment.) Defend your pick.",
+  "You watched the country from a British schoolgirl's seat and a US passport-holder's seat at the same time. What did the double view show you that a local would miss?",
+  "The Declaration turns 250 in July 2026 — you were in America for the birthday. What grade does the country get on 'all are created equal' so far, and what's the homework?"
+ ],
+ hunt:[
+  "Choose your 10 best sketches of the trip — one per unit",
+  "Collect 10 physical scraps: tickets, a pressed leaf, a napkin, a map corner — one per stop",
+  "Photograph every state 'Welcome to' sign you crossed (list the states you scored)",
+  "Get one sentence about America from each family member, including Dad driving",
+  "Export this journal (button up top!) so nothing is lost"
+ ],
+ prompt:{tag:"THE CAPSTONE — choose one", text:"Option A: 'America in Ten Posters' — a WPA-style poster series, one per unit, with a one-paragraph label each, mounted as a zine or small exhibition. Option B: an illustrated timeline scroll, 1624–2026, weaving your sketches with the events. Option C: 'Two 1876s' — a diptych artwork on Denver's party and Little Bighorn's battle, with a written artist statement. Sketch plans here, and note which option you choose and why."},
+ think:[
+  "Six weeks ago, what did you think America was? What is it now — in one honest sentence?",
+  "What would you show a Harrogate friend first: a photo, a sketch, or a story? Why does the medium matter?"
+ ],
+ links:[
+  ["Khan Academy US History — fill any gaps before writing your capstone","https://www.khanacademy.org/humanities/us-history"],
+  ["Crash Course US History (48 short episodes) — the whole sweep","https://www.youtube.com/playlist?list=PL8dPuuaLjXtMwmepBjTSG593eG7ObzO7s"],
+  ["Library of Congress — free historical photos & posters for reference","https://www.loc.gov"]
+ ],
+ vocab:[["perspective","the position a story is told from"],["primary source","evidence made at the time (your sketchbook is one now)"],["portfolio","a curated body of work"],["capstone","the final project that crowns a course"]]
+}
+];
+
+/* ---------------- state & storage ---------------- */
+let state = {name:"", checks:{}, notes:{}, log:[]};
+let current = 0;
+let storageOK = false;
+const KEY = 'sketchbook-history-2026';
+const statusEl = document.getElementById('saveStatus');
+
+
+/* storage adapter: Claude cloud -> browser localStorage -> memory only */
+async function storGet(k){
+  if(window.storage){ const r = await window.storage.get(k); return r && r.value; }
+  try{ return localStorage.getItem(k); }catch(e){ return null; }
+}
+async function storSet(k,v){
+  if(window.storage){ await window.storage.set(k,v); return 'cloud'; }
+  try{ localStorage.setItem(k,v); return 'local'; }catch(e){ return 'memory'; }
+}
+async function loadState(){
+  try{
+    const v = await storGet(KEY);
+    if(v){ state = Object.assign(state, JSON.parse(v)); }
+    statusEl.textContent = window.storage ? 'Saved ✓' : 'Saved on this device ✓';
+    try{ localStorage.getItem('x'); }catch(e){ if(!window.storage) statusEl.textContent = 'Offline — use Export to keep a copy'; }
+  }catch(e){ statusEl.textContent = 'Offline — use Export to keep a copy'; }
+}
+let saveTimer=null;
+function save(){
+  statusEl.textContent = 'Saving…';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async ()=>{
+    try{
+      const mode = await storSet(KEY, JSON.stringify(state));
+      statusEl.textContent = mode==='cloud' ? 'Saved ✓' : mode==='local' ? 'Saved on this device ✓' : 'Offline — use Export to keep a copy';
+    }catch(e){ statusEl.textContent='Offline — use Export to keep a copy'; }
+  }, 600);
+}
+
+
+/* ---------------- photos ---------------- */
+let photos = {};
+const PHKEY = KEY + ':ph:';
+async function loadPhotos(){
+  for(const u of UNITS){
+    try{ const v = await storGet(PHKEY+u.id); if(v) photos[u.id]=JSON.parse(v); }catch(e){}
+  }
+}
+async function savePhotos(id){
+  try{ await storSet(PHKEY+id, JSON.stringify(photos[id]||[])); }
+  catch(e){ statusEl.textContent='Photo space full on this device — Export your journal, then remove some photos'; }
+}
+function shrinkPhoto(file){
+  return new Promise(res=>{
+    const img=new Image();
+    img.onload=()=>{
+      const M=1280; const sc=Math.min(1, M/Math.max(img.width,img.height));
+      const w=Math.round(img.width*sc), h=Math.round(img.height*sc);
+      const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+      cv.getContext('2d').drawImage(img,0,0,w,h);
+      URL.revokeObjectURL(img.src);
+      res(cv.toDataURL('image/jpeg',0.72));
+    };
+    img.onerror=()=>res(null);
+    img.src=URL.createObjectURL(file);
+  });
+}
+function renderPhotos(id){
+  const g=document.getElementById('phgrid'); if(!g) return;
+  const list=photos[id]||[];
+  g.innerHTML=list.map((d,j)=>`<div class="ph"><img src="${d}" alt="photo ${j+1}"><button class="del" data-j="${j}" aria-label="delete photo">×</button></div>`).join('');
+  g.querySelectorAll('.del').forEach(b=>{
+    b.onclick=()=>{ if(confirm('Remove this photo?')){ photos[id].splice(Number(b.dataset.j),1); savePhotos(id); renderPhotos(id); } };
+  });
+}
+async function addPhotos(id, files){
+  photos[id]=photos[id]||[];
+  for(const f of files){
+    if(photos[id].length>=10){ alert('10 photos max per chapter — curate your best evidence.'); break; }
+    const d=await shrinkPhoto(f); if(d) photos[id].push(d);
+  }
+  await savePhotos(id); renderPhotos(id);
+}
+
+
+/* ---------------- render ---------------- */
+const strip = document.getElementById('routeStrip');
+
+/* ---------------- date gating ---------------- */
+function todayStr(){
+  const d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function isUnlocked(u){ return state.unlockAll || todayStr() >= u.unlock; }
+function fmtUnlock(u){
+  const [y,m,dd]=u.unlock.split('-').map(Number);
+  return new Date(y,m-1,dd).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
+}
+function unitProgress(u){
+  const total = u.hunt.length;
+  let done = 0;
+  u.hunt.forEach((_,i)=>{ if(state.checks[u.id+'-'+i]) done++; });
+  return {done,total};
+}
+function renderStrip(){
+  strip.innerHTML='';
+  UNITS.forEach((u,i)=>{
+    const p = unitProgress(u);
+    const d = document.createElement('div');
+    const lk=!isUnlocked(u);
+    d.className='stop'+(i===current?' active':'')+(p.done===p.total&&!lk?' done':'')+(lk?' locked':'');
+    d.innerHTML = '<div class="dot"></div><small>'+(lk?'🔒 ':'')+u.short+'</small>';
+    d.onclick=()=>{ showUnit(i); };
+    strip.appendChild(d);
+  });
+}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+function showUnit(i){
+  current=i; const u=UNITS[i];
+  document.getElementById('logView').classList.add('hidden');
+  const v=document.getElementById('unitView'); v.classList.remove('hidden');
+  if(!isUnlocked(u)){
+    v.innerHTML = `
+    <div class="section" style="text-align:center;padding:56px 20px;">
+      <div style="font-size:44px;user-select:none;">🔒</div>
+      <h2 style="margin:14px 0 6px;">${u.title}</h2>
+      <div class="where">${u.where}</div>
+      <p style="margin-top:18px;">This chapter unlocks on <b>${fmtUnlock(u)}</b> — when you actually get there. No skipping ahead: the road is the curriculum.</p>
+      <div class="pager" style="margin-top:26px;">
+        <button ${i===0?'disabled':''} onclick="showUnit(${i-1})">← ${i>0?UNITS[i-1].short:''}</button>
+        <button ${i===UNITS.length-1?'disabled':''} onclick="showUnit(${i+1})">${i<UNITS.length-1?UNITS[i+1].short:''} →</button>
+      </div>
+    </div>`;
+    renderStrip(); window.scrollTo({top:0}); return;
+  }
+  const p=unitProgress(u);
+  v.innerHTML = `
+  <div class="unit-head">
+    <div class="era-stamp">${u.stamp}<br>${u.era}</div>
+    <div class="unit-title"><h2>${u.title}</h2><div class="where">${u.where}</div></div>
+  </div>
+  <div class="section"><h3><span class="tick">★</span>The Story</h3><p>${u.story}</p><div class="artnote">${u.art}</div></div>
+  <div class="section"><h3><span class="tick">?</span>Big Questions</h3><ul class="qs">${u.questions.map(q=>'<li>'+q+'</li>').join('')}</ul></div>
+  <div class="section"><h3><span class="tick">✓</span>Scavenger Hunt <span class="huntcount" id="hc">${p.done}/${p.total} found</span></h3>
+    ${u.hunt.map((h,j)=>{
+      const k=u.id+'-'+j; const c=state.checks[k]?'checked':'';
+      return `<label class="hunt ${c}"><input type="checkbox" data-k="${k}" ${c?'checked':''}><span>${h}</span></label>`;
+    }).join('')}
+  </div>
+  <div class="section"><h3><span class="tick">✎</span>${u.id==='cap'?'The Capstone':'Field Sketch & Journal'}</h3>
+    <span class="prompt-tag">${u.prompt.tag}</span>
+    <p>${u.prompt.text}</p>
+    <textarea data-note="${u.id}" placeholder="Write here — it saves as you type…">${esc(state.notes[u.id]||'')}</textarea>
+    <div class="photogrid" id="phgrid"></div>
+    <label class="addph">📷 Add photos<input type="file" accept="image/*" multiple onchange="addPhotos('${u.id}', Array.from(this.files)).then(()=>{this.value='';})"></label>
+  </div>
+  <div class="section"><h3><span class="tick">☾</span>Think About Tonight</h3><ul class="qs">${u.think.map(q=>'<li>'+q+'</li>').join('')}</ul></div>
+  <div class="section links"><h3><span class="tick">➤</span>Read & Look</h3><ul class="qs">${u.links.map(l=>'<li><a href="'+l[1]+'" target="_blank" rel="noopener">'+l[0]+'</a></li>').join('')}</ul></div>
+  <div class="section"><h3><span class="tick">✦</span>Words to Know</h3><div class="vocab">${u.vocab.map(w=>'<span><b>'+w[0]+'</b> — '+w[1]+'</span>').join('')}</div></div>
+  <div class="pager">
+    <button ${i===0?'disabled':''} onclick="showUnit(${i-1})">← ${i>0?UNITS[i-1].short:''}</button>
+    <button ${i===UNITS.length-1?'disabled':''} onclick="showUnit(${i+1})">${i<UNITS.length-1?UNITS[i+1].short:''} →</button>
+  </div>`;
+  v.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+    cb.onchange=()=>{ state.checks[cb.dataset.k]=cb.checked; if(!cb.checked) delete state.checks[cb.dataset.k];
+      cb.parentElement.classList.toggle('checked', cb.checked);
+      const pr=unitProgress(u); document.getElementById('hc').textContent=pr.done+'/'+pr.total+' found';
+      renderStrip(); save(); };
+  });
+  v.querySelectorAll('textarea').forEach(t=>{ t.oninput=()=>{ state.notes[t.dataset.note]=t.value; save(); }; });
+  renderPhotos(u.id);
+  renderStrip();
+  window.scrollTo({top:0});
+}
+
+/* ---------------- learning log ---------------- */
+function renderLog(){
+  const tb=document.querySelector('#logTable tbody'); tb.innerHTML='';
+  let total=0;
+  state.log.forEach((e,i)=>{
+    total+=Number(e.m)||0;
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td>'+e.d+'</td><td>'+e.m+'</td><td>'+esc(e.n)+'</td><td><button data-i="'+i+'" style="border:none;background:none;color:#BC4B26;cursor:pointer;font-weight:700">✕</button></td>';
+    tb.appendChild(tr);
+  });
+  tb.querySelectorAll('button').forEach(b=>{ b.onclick=()=>{ state.log.splice(Number(b.dataset.i),1); renderLog(); save(); }; });
+  document.getElementById('logTotal').textContent = 'Total: '+total+' minutes  =  '+(total/60).toFixed(1)+' hours logged';
+}
+document.getElementById('logAdd').onclick=()=>{
+  const d=document.getElementById('logDate').value, m=document.getElementById('logMins').value, n=document.getElementById('logNote').value;
+  if(!d||!m) return;
+  state.log.push({d,m,n}); state.log.sort((a,b)=>a.d<b.d?-1:1);
+  document.getElementById('logMins').value=''; document.getElementById('logNote').value='';
+  renderLog(); save();
+};
+document.getElementById('btnLog').onclick=()=>{ document.getElementById('unitView').classList.add('hidden'); document.getElementById('logView').classList.remove('hidden'); renderLog(); };
+document.getElementById('btnUnits').onclick=()=>{ showUnit(current); };
+document.getElementById('ownerName').oninput=(e)=>{ state.name=e.target.value; save(); };
+
+/* ---------------- export ---------------- */
+document.getElementById('btnExport').onclick=()=>{
+  const escH = t => String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  let totalM=0; state.log.forEach(e=>totalM+=Number(e.m)||0);
+  let h = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>THE GREAT AMERICAN SKETCHBOOK — Trip Journal & Portfolio</title><style>
+body{font-family:Georgia,serif;background:#FBF6E9;color:#222;max-width:820px;margin:0 auto;padding:28px 20px;line-height:1.55;}
+h1{color:#1F4A38;font-size:26px;text-transform:uppercase;letter-spacing:.04em;}
+h2{color:#1F4A38;border-bottom:3px solid #BC4B26;padding-bottom:4px;margin-top:38px;font-size:20px;}
+.meta{color:#555;font-size:14px;margin-bottom:8px;}
+.entry{white-space:pre-wrap;background:#fff;border:1px solid #ccc;padding:14px;margin:10px 0;}
+ul{padding-left:22px;} li.done{color:#1F4A38;font-weight:bold;}
+.phg{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
+.phg img{width:180px;height:180px;object-fit:cover;border:2px solid #1F4A38;}
+table{border-collapse:collapse;width:100%;font-size:14px;} td,th{border:1px solid #bbb;padding:6px 8px;text-align:left;}
+@media print{ .phg img{width:150px;height:150px;} h2{page-break-after:avoid;} }
+</style></head><body>
+<h1>THE GREAT AMERICAN SKETCHBOOK — Trip Journal & Portfolio</h1>
+<div class="meta">Student: <b>${escH(state.name)||'(unnamed)'}</b> · Exported ${new Date().toLocaleString()}</div>
+<h2>Learning Log — ${(totalM/60).toFixed(1)} hours total</h2>
+<table><tr><th>Date</th><th>Minutes</th><th>Activity</th></tr>${state.log.map(e=>'<tr><td>'+escH(e.d)+'</td><td>'+escH(e.m)+'</td><td>'+escH(e.n)+'</td></tr>').join('')}</table>`;
+  UNITS.forEach(u=>{
+    const pr=unitProgress(u);
+    h+=`<h2>${escH(u.stamp||('Unit '+u.num))} — ${escH(u.title)}</h2>
+<div class="meta">${escH(u.where)} · Scavenger hunt ${pr.done}/${pr.total}</div>
+<ul>${u.hunt.map((it,j)=>'<li class="'+(state.checks[u.id+'-'+j]?'done':'')+'">'+(state.checks[u.id+'-'+j]?'☑ ':'☐ ')+escH(it)+'</li>').join('')}</ul>
+<div class="entry">${escH(state.notes[u.id])||'(not written yet)'}</div>`;
+    const ph=photos[u.id]||[];
+    if(ph.length) h+='<div class="phg">'+ph.map(d=>'<img src="'+d+'">').join('')+'</div>';
+  });
+  h+='</body></html>';
+  const blob=new Blob([h],{type:'text/html'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='american-sketchbook-report.html'; a.click(); URL.revokeObjectURL(a.href);
+};
+
+/* ---------------- init ---------------- */
+
+
+/* ---------------- progress file save / load ---------------- */
+document.getElementById('btnSaveFile').onclick=()=>{
+  const bundle = { app:'sketchbook-progress', v:1, savedAt:new Date().toISOString(), state, photos };
+  const blob = new Blob([JSON.stringify(bundle)], {type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  const d=new Date(); const ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  a.download='sketchbook-progress-'+((state.name||'').trim().split(/\s+/)[0]||'journal').toLowerCase()+'-'+ds+'.json';
+  a.click(); URL.revokeObjectURL(a.href);
+};
+document.getElementById('btnLoadFile').onclick=()=>document.getElementById('fileLoad').click();
+document.getElementById('fileLoad').onchange=function(){
+  const f=this.files[0]; this.value=''; if(!f) return;
+  const r=new FileReader();
+  r.onload=async ()=>{
+    try{
+      const b=JSON.parse(r.result);
+      if(!b || !b.state) throw new Error('bad file');
+      if(!confirm('Load progress from "'+f.name+'"? This replaces what is currently on this device.')) return;
+      state = Object.assign({name:"",checks:{},notes:{},log:[]}, b.state);
+      photos = b.photos||{};
+      await storSet(KEY, JSON.stringify(state));
+      for(const u of UNITS){ try{ await storSet(PHKEY+u.id, JSON.stringify(photos[u.id]||[])); }catch(e){} }
+      document.getElementById('ownerName').value = state.name||'';
+      refreshUnlockRow(); renderStrip(); showUnit(current);
+      statusEl.textContent='Progress loaded ✓';
+    }catch(e){ alert('That file could not be read as a progress file.'); }
+  };
+  r.readAsText(f);
+};
+
+/* ---------------- parent unlock ---------------- */
+function refreshUnlockRow(){
+  const b=document.getElementById('pwBtn'), i=document.getElementById('pwInput'), m=document.getElementById('pwMsg');
+  if(state.unlockAll){ b.textContent='Re-lock chapters'; i.style.display='none'; m.textContent='All chapters unlocked ✓'; }
+  else{ b.textContent='Unlock all'; i.style.display=''; m.textContent=''; }
+}
+document.getElementById('pwBtn').onclick=()=>{
+  const i=document.getElementById('pwInput'), m=document.getElementById('pwMsg');
+  if(state.unlockAll){
+    state.unlockAll=false; save(); refreshUnlockRow(); renderStrip(); showUnit(current); return;
+  }
+  if(i.value==='Dadschool'){
+    state.unlockAll=true; i.value=''; save(); refreshUnlockRow(); renderStrip(); showUnit(current);
+  } else { m.textContent='Not the password — ask Dad.'; setTimeout(()=>{ if(!state.unlockAll) m.textContent=''; },2500); }
+};
+document.getElementById('pwInput').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('pwBtn').click(); });
+
+loadState().then(loadPhotos).then(()=>{
+  document.getElementById('ownerName').value = state.name||'';
+  refreshUnlockRow();
+  showUnit(0);
+});
+</script>
+</body>
+</html>

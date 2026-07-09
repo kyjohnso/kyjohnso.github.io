@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AMERICA: The Field Manual — A Systems Engineer's History of the United States</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;600&family=Public+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#123A5C; --blue-deep:#0C2A44; --line:#7FA6C4; --paper:#F2F5F7; --card:#FFFFFF;
+  --orange:#E85D1F; --ink:#17242F; --ink-soft:#4A5A68; --ok:#1C7C54;
+  --display:'Space Grotesk','Segoe UI',system-ui,sans-serif;
+  --mono:'IBM Plex Mono','Consolas','Menlo',monospace;
+  --body:'Public Sans','Segoe UI',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55;}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;}}
+
+/* ---------- header : blueprint ---------- */
+header{
+  background:var(--blue);
+  background-image:
+    linear-gradient(rgba(127,166,196,.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(127,166,196,.16) 1px, transparent 1px);
+  background-size:28px 28px;
+  color:#EAF2F8; padding:34px 20px 0; border-bottom:6px solid var(--orange);
+}
+.hwrap{max-width:900px;margin:0 auto;}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:#9FC3DE;}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(32px,5.5vw,58px);line-height:1.04;margin:10px 0 8px;}
+h1 .o{color:var(--orange);}
+.sub{max-width:62ch;color:#C9DCEA;font-size:16px;}
+.spec{font-family:var(--mono);font-size:12.5px;color:#9FC3DE;margin-top:14px;display:flex;gap:22px;flex-wrap:wrap;}
+.spec b{color:#EAF2F8;}
+.belongs{margin-top:16px;font-family:var(--mono);font-size:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.belongs input{background:transparent;border:none;border-bottom:2px dashed var(--orange);color:#fff;font-family:var(--mono);font-size:16px;padding:2px 6px;min-width:200px;outline:none;}
+.headbar{max-width:900px;margin:20px auto 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding-bottom:18px;}
+.headbar button{font-family:var(--mono);font-weight:600;font-size:13px;padding:9px 14px;cursor:pointer;border-radius:3px;border:none;background:var(--orange);color:#fff;}
+.headbar button.ghost{background:transparent;border:1.5px solid #7FA6C4;color:#EAF2F8;}
+#saveStatus{font-family:var(--mono);font-size:12px;color:#9FC3DE;margin-left:auto;}
+
+/* ---------- telemetry route ---------- */
+.route{background:var(--blue-deep);padding:14px 12px 16px;overflow-x:auto;border-bottom:1px solid #26506F;}
+.route-inner{display:flex;min-width:780px;max-width:1000px;margin:0 auto;}
+.stop.locked{opacity:.45;} .stop.locked .dot{background:transparent;border-style:dashed;} .stop{flex:1;text-align:center;position:relative;cursor:pointer;padding-top:16px;}
+.stop::before{content:'';position:absolute;top:22px;left:0;right:0;height:2px;background:#2E5B7D;}
+.stop:first-child::before{left:50%;}.stop:last-child::before{right:50%;}
+.stop .dot{width:15px;height:15px;background:#2E5B7D;margin:0 auto;position:relative;z-index:1;transform:rotate(45deg);border:2px solid var(--blue-deep);transition:background .2s;}
+.stop.done .dot{background:var(--ok);}
+.stop.active .dot{background:var(--orange);transform:rotate(45deg) scale(1.3);}
+.stop small{display:block;margin-top:7px;font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:#7FA6C4;}
+.stop.active small{color:#fff;}
+
+/* ---------- layout ---------- */
+main{max-width:900px;margin:0 auto;padding:26px 18px 80px;}
+.unit-head{display:flex;gap:18px;align-items:center;margin:12px 0 4px;flex-wrap:wrap;}
+.patch{flex:none;width:88px;height:88px;border-radius:50%;background:var(--blue);border:3px solid var(--orange);color:#EAF2F8;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--mono);}
+.patch b{font-size:26px;color:var(--orange);}
+.patch span{font-size:9px;letter-spacing:.18em;}
+.unit-title h2{font-family:var(--display);font-weight:700;font-size:clamp(26px,4.5vw,38px);color:var(--blue);line-height:1.05;}
+.unit-title .where{font-family:var(--mono);color:var(--orange);font-size:13px;letter-spacing:.08em;text-transform:uppercase;margin-top:4px;}
+.unit-title .era{font-family:var(--mono);color:var(--ink-soft);font-size:12px;}
+.section{background:var(--card);border:1.5px solid #C6D3DD;border-left:6px solid var(--blue);border-radius:4px;margin:18px 0;padding:20px 22px;box-shadow:0 1px 3px rgba(18,58,92,.08);}
+.section h3{font-family:var(--mono);font-weight:600;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);margin-bottom:12px;}
+.section h3 .n{color:var(--orange);}
+.section p{margin-bottom:10px;}
+.section p:last-child{margin-bottom:0;}
+ul.qs{list-style:none;}
+ul.qs li{padding:8px 0 8px 28px;position:relative;border-bottom:1px dashed #D5DFE7;}
+ul.qs li:last-child{border-bottom:none;}
+ul.qs li::before{content:'>';position:absolute;left:4px;font-family:var(--mono);color:var(--orange);font-weight:600;}
+label.hunt{display:flex;gap:10px;align-items:flex-start;padding:8px 6px;cursor:pointer;border-radius:4px;font-size:16px;}
+label.hunt:hover{background:#EEF4F8;}
+label.hunt input{width:19px;height:19px;accent-color:var(--orange);margin-top:2px;flex:none;}
+label.hunt.checked span{color:var(--ink-soft);}
+.huntcount{font-family:var(--mono);font-size:12px;color:var(--ok);margin-left:8px;}
+textarea{width:100%;min-height:130px;background:#FBFDFE;border:1.5px solid #C6D3DD;border-radius:4px;padding:12px;font-family:var(--body);font-size:16px;line-height:1.5;resize:vertical;}
+textarea:focus{outline:3px solid rgba(232,93,31,.4);}
+.prompt-tag{display:inline-block;font-family:var(--mono);background:var(--blue);color:#fff;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:4px 10px;border-radius:2px;margin-bottom:10px;}
+.links a{color:var(--orange);font-weight:600;text-decoration-thickness:2px;text-underline-offset:3px;}
+.vocab{display:flex;flex-wrap:wrap;gap:8px;}
+.vocab span{background:#E4ECF2;border:1px solid #C6D3DD;font-size:13.5px;padding:5px 11px;border-radius:3px;font-family:var(--mono);}
+.vocab b{color:var(--blue);}
+.philo{border:1.5px dashed var(--orange);background:#FCF3ED;border-radius:4px;padding:14px 16px;margin:12px 0;}
+.philo .ptag{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--orange);text-transform:uppercase;font-weight:600;}
+.philo p{margin-top:6px;font-size:15.5px;}
+.pager{display:flex;justify-content:space-between;margin-top:26px;gap:12px;}
+.pager button{font-family:var(--mono);font-weight:600;font-size:13px;background:var(--blue);color:#fff;border:none;padding:12px 18px;cursor:pointer;border-radius:3px;}
+.pager button:disabled{opacity:.35;cursor:default;}
+table{width:100%;border-collapse:collapse;font-size:15px;}
+th,td{border:1px solid #C6D3DD;padding:7px 9px;text-align:left;}
+th{background:var(--blue);color:#fff;font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;}
+.logform{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0;}
+.logform input{border:1.5px solid #C6D3DD;border-radius:3px;padding:8px;font-family:var(--body);font-size:15px;}
+.logform input[type=number]{width:90px;}
+.logform input[type=text]{flex:1;min-width:180px;}
+.logform button{background:var(--orange);color:#fff;border:none;font-family:var(--mono);font-weight:600;padding:8px 16px;cursor:pointer;border-radius:3px;}
+.total{font-family:var(--mono);color:var(--blue);font-size:16px;margin-top:10px;font-weight:600;}
+.hidden{display:none;}
+footer{max-width:900px;margin:0 auto;padding:0 18px 50px;font-size:13.5px;color:var(--ink-soft);}
+@media(max-width:600px){.section{padding:16px;}body{font-size:16px;}}
+
+/* ---------- photos ---------- */
+.photogrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;margin-top:12px;}
+.photogrid .ph{position:relative;aspect-ratio:1;overflow:hidden;border:1.5px solid #C6D3DD;border-radius:3px;background:#00000014;}
+.photogrid img{width:100%;height:100%;object-fit:cover;display:block;}
+.photogrid .del{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.72);color:#fff;border:none;width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:14px;line-height:1;}
+.addph{display:inline-flex;align-items:center;gap:8px;margin-top:12px;background:var(--orange);color:#fff;font-weight:600;font-size:13px;font-family:var(--mono);padding:9px 14px;border-radius:3px;cursor:pointer;border:none;text-transform:uppercase;letter-spacing:.05em;}
+.addph input{display:none;}
+@media(max-width:520px){ main{padding:20px 12px 70px;} .era-stamp{max-width:none;transform:none;} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hwrap">
+    <div class="eyebrow">Document REV-1776 · Field use only · Summer 2026</div>
+    <h1>AMERICA:<br>The Field <span class="o">Manual</span></h1>
+    <p class="sub">A systems engineer's history of the United States. Treat the country as the biggest machine ever built: 400 years of hardware (bridges, railroads, dams, rockets), software (constitutions, laws, ideas), and bugs (plenty). Your mission: inspect it stop by stop, run the thought experiments, and file your reports.</p>
+    <div class="spec"><span>UNITS: <b>00–10</b></span><span>ROUTE: <b>LON → EWR → DEN</b></span><span>DURATION: <b>6 WEEKS</b></span><span>MODE: <b>GROUND</b></span></div>
+    <div class="belongs"><span>FIELD ENGINEER:</span><input id="ownerName" placeholder="type your name" aria-label="Your name"></div>
+  </div>
+  <div class="headbar">
+    <button id="btnUnits">Missions</button>
+    <button id="btnLog" class="ghost">Hours Log</button>
+    <button id="btnExport" class="ghost">Export report</button>
+    <button id="btnSaveFile" class="ghost">Save progress</button>
+    <button id="btnLoadFile" class="ghost">Load progress</button>
+    <input id="fileLoad" type="file" accept=".json,application/json" style="display:none">
+    <span id="saveStatus"></span>
+  </div>
+</header>
+
+<nav class="route" aria-label="Trip stops"><div class="route-inner" id="routeStrip"></div></nav>
+
+<main>
+  <div id="unitView"></div>
+  <div id="logView" class="hidden">
+    <div class="unit-head"><div class="patch"><b>⏱</b><span>HOURS</span></div>
+      <div class="unit-title"><h2>Hours Log</h2><div class="where">Engineers log their time — this is your proof of work</div></div></div>
+    <div class="section">
+      <p>Every session counts: reading, visiting, building, arguing philosophy in the back seat. Log date, minutes, and what you did. The total at the bottom is what turns this trip into a real course.</p>
+      <div class="logform">
+        <input type="date" id="logDate">
+        <input type="number" id="logMins" placeholder="minutes" min="5" step="5">
+        <input type="text" id="logNote" placeholder="What did you do? (e.g. toured U-505 submarine, read about the telegraph)">
+        <button id="logAdd">Log it</button>
+      </div>
+      <table id="logTable"><thead><tr><th>Date</th><th>Min</th><th>Activity</th><th></th></tr></thead><tbody></tbody></table>
+      <div class="total" id="logTotal"></div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <p><b>System note:</b> progress saves automatically when this page runs inside Claude. Offline in the car, your typing stays on screen for the session — hit <i>Export report</i> before closing to keep a permanent copy. The final unit contains your capstone mission briefing.</p>
+  <div id="unlockRow" style="margin-top:16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+    <span style="font-weight:700;">OVERRIDE CODE:</span>
+    <input id="pwInput" type="password" placeholder="password" style="border:1.5px solid #C6D3DD;background:#FBFDFE;padding:7px 10px;font-size:16px;font-family:var(--mono);border-radius:3px;max-width:180px;">
+    <button id="pwBtn" style="background:var(--blue);color:#fff;border:none;font-family:var(--mono);font-weight:600;font-size:12px;padding:8px 14px;border-radius:3px;cursor:pointer;text-transform:uppercase;letter-spacing:.05em;">Unlock all</button>
+    <span id="pwMsg"></span>
+  </div>
+</footer>
+
+<script>
+const UNITS = [
+{
+ id:"london", unlock:"2026-07-09", short:"London", era:"1215 – 1776", num:"00",
+ title:"The Source Code", where:"London · July 10–12",
+ story:`If America is software, London holds the source code it was forked from. Every colony booted from a royal charter — literally a license file issued by the Crown in London (Virginia's dates to 1606). The deepest constraint in the whole system is Magna Carta (1215): the first hard rule that even the king — the root user — is under the law. An original is at the British Library, free. Benjamin Franklin ran America's London office from 36 Craven Street for sixteen years, doing science on the side as a Fellow of the Royal Society (when renovators opened his basement in 1998 they found 1,200 human bones — relax: his housemate ran an anatomy school). And down the river at Greenwich, Britain solved the hardest engineering problem of the age: longitude. John Harrison's clocks let ships know where they were, which is what made a global empire operable — and it's why, to this day, every GPS coordinate you'll log on this entire trip is measured from a brass line in the Greenwich courtyard: longitude zero.`,
+ questions:[
+  "Magna Carta limited the king's own permissions. Why would anyone with root access ever agree to constraints on themselves? What forces that agreement?",
+  "The colonists spent a decade submitting patches — petitions, boycotts, appeals — before forking. How do you tell the difference between a system that's slow to fix and one that's unfixable?",
+  "The whole planet measures longitude from London because 25 nations voted for it in 1884 (France abstained and sulked). What does it actually take to make a standard stick?"
+ ],
+ hunt:[
+  "Stand on the Prime Meridian at Greenwich with one foot in each hemisphere — log the coordinates: longitude 0.0000°, the reference point for every GPS fix of this trip",
+  "Find Harrison's H4 at the Royal Observatory — the watch that solved longitude and won (most of) a £20,000 prize",
+  "Visit 36 Craven Street, Franklin's only surviving house anywhere — ask the staff about the bones in the basement",
+  "Inspect an original Magna Carta at the British Library — 800-year-old code still cited in court",
+  "Find the plaque in Pickering Place for the embassy of the Republic of Texas (1842–1845), an independent country's mission to the empire it later left for the US",
+  "Locate the George Washington statue by the National Gallery — standing, legend says, on imported Virginia soil so he never touches British ground"
+ ],
+ prompt:{tag:"Field report · 150 words", text:"You are a systems auditor in London, 1775. Write a 150-word report to King George III: identify the colonies' three biggest protocol violations OR legitimate grievances (your call which), and recommend PATCH or PERMIT FORK. In your notebook, diagram the empire as a network — London as server, colonies as clients — and mark where the connection is failing."},
+ philo:{tag:"Thought experiment · The Fork", text:"When a software community can't agree, it forks: copy the code, part ways, both versions live on. Reform patches a system in place; revolution forks it. John Locke — whose ideas Jefferson compiled into the Declaration — argued people may fork a government that breaks its contract. Question: what is the MINIMUM failure that justifies forking rather than one more patch? And who counts the votes when the system being voted on is the one that runs the voting?"},
+ think:[
+  "Longitude zero runs through Greenwich because of a vote, not a fact of nature. What else in your life feels natural but is really just a standard somebody won?",
+  "Your family runs on both systems, UK and US. Which differences between them are deep architecture (constitutions, rights) and which are just config settings (which side of the road, what you call chips)?"
+ ],
+ links:[
+  ["Royal Observatory Greenwich — Harrison's clocks & the Meridian","https://www.rmg.co.uk"],
+  ["Benjamin Franklin House — 36 Craven Street","https://benjaminfranklinhouse.org"],
+  ["Magna Carta at the British Library","https://www.bl.uk"]
+ ],
+ vocab:[["charter","a Crown-issued license to run a colony"],["meridian","a line of longitude — Greenwich is zero"],["precedent","a past ruling that constrains future ones"],["fork","copying a system to take it in a new direction"]]
+},
+{
+ id:"nyc", unlock:"2026-07-12", short:"New York", era:"1624 – TODAY", num:"01",
+ title:"City as Machine", where:"New York City · July 12–14",
+ story:`New York only works because of three inventions you'll use in your first hour. The safety elevator: in 1854 Elisha Otis stood on a hoisted platform, ordered the rope cut, and didn't fall — his safety brake made tall buildings livable, and without it no skyscraper exists. The suspension bridge: the Brooklyn Bridge (1883) was built by sinking giant airtight wooden boxes called caissons to the river bottom, with men digging inside them under air pressure; many got 'caisson disease' — the bends — before anyone understood why. And the subway (1904): 472 stations moving millions of people daily, a machine bigger than most cities. New York was also America's input port: 12 million immigrants processed through Ellis Island (1892–1954) in a pipeline of medical checks, legal checks, and 29 questions. The city is what all those inputs built.`,
+ questions:[
+  "The Brooklyn Bridge was finished by Emily Roebling, who ran the project for 11 years after her engineer husband got too sick from caisson work. She had no formal training. What does 'qualified' actually mean?",
+  "Ellis Island processed up to 10,000 people a day. Design a better intake pipeline: what would you check, and what would you refuse to check?",
+  "A city has no CEO, no blueprint, no off switch — yet it works. What keeps a system running when nobody is in charge of the whole thing?"
+ ],
+ hunt:[
+  "Ride an elevator in a very tall building and silently thank Mr. Otis — find the inspection certificate inside it",
+  "Walk the Brooklyn Bridge and spot the cables: count the main cables (4) and estimate the diagonal stays",
+  "Ride the subway and map your route: stations, transfers, total minutes — then figure out what the same trip costs in traffic above ground",
+  "At the 9/11 Memorial, find one name and note it respectfully — engineering failures have human costs, and this was an attack on two of the world's great structures",
+  "Find the oldest piece of infrastructure you can (bridge, tunnel, building) still doing its job — note its date",
+  "Count robots/automation in one day: turnstiles, ticket machines, delivery robots, airport gates. Where has automation replaced people, and where hasn't it?"
+ ],
+ prompt:{tag:"Field report · 150 words", text:"Pick ONE system you used today (subway, elevator, bridge, airport) and reverse-engineer it in writing: what are its inputs, outputs, failure modes, and the clever trick that makes it work? Diagram it in your notebook."},
+ philo:{tag:"Thought experiment · Emergence", text:"Nobody designed New York — 8 million people making small decisions produced it. Ant colonies work the same way: no ant knows the plan. Question: can something be intelligent if no part of it is? Could a city 'think'? Argue both sides in the car."},
+ think:[
+  "The subway map is a famous 'lie' — distances and shapes are wrong on purpose so it's easier to read. When is a wrong map better than a right one?",
+  "If you built a robot to run New York, what's the FIRST thing it would fix — and what would it break by fixing it?"
+ ],
+ links:[
+  ["How the Brooklyn Bridge caissons worked (search 'caisson' here)","https://www.nps.gov"],
+  ["Tenement Museum — the immigrant side of the machine","https://www.tenement.org"],
+  ["Khan Academy US History — immigration & the Gilded Age","https://www.khanacademy.org/humanities/us-history"]
+ ],
+ vocab:[["caisson","a pressurized underwater digging chamber"],["infrastructure","the systems a society runs on"],["emergence","complex behavior arising from simple parts"],["throughput","how much a system processes per unit time"]]
+},
+{
+ id:"philly", unlock:"2026-07-15", short:"Philadelphia", era:"1776 & 1787", num:"02",
+ title:"The Operating System", where:"Philadelphia · July 15 (en route to DC)",
+ story:`Philadelphia is where America's software was written. Version 1.0: the Declaration of Independence (1776) — less a law than a mission statement, compiling the philosopher John Locke's big idea (people have natural rights; government exists to protect them; if it fails, reboot it) into one sentence about life, liberty, and the pursuit of happiness. Version 2.0: the Constitution (1787), a genuine operating system — it defines processes (how laws pass), permissions (who can do what), and crucially, a patch mechanism: amendments. The designers knew they'd shipped bugs, so they built in a way to fix them without crashing the system — it's been patched 27 times and is the oldest written national constitution still running. The lead debugger in the room was Benjamin Franklin: printer, inventor of the lightning rod and bifocals, mapper of the Gulf Stream, and proof that 'scientist' and 'founder' can be the same job.`,
+ questions:[
+  "The Constitution has run for 239 years with 27 patches. Your phone's OS updates monthly. Should laws update faster — or is slowness a feature?",
+  "Franklin invented the lightning rod and refused to patent it, saying ideas should serve everyone freely. Was he right? Would YOU patent your best invention?",
+  "The Declaration says rights come from being human, not from government. If that's true, do robots ever get rights? What's the test?"
+ ],
+ hunt:[
+  "Stand in the room at Independence Hall where both documents were signed — the whole OS was written in one building",
+  "Find a lightning rod on a Philadelphia building — Franklin's invention still in production after 270 years",
+  "Find the crack in the Liberty Bell and diagnose it like an engineer: where did the failure start, and why did repairs make it worse (they did)?",
+  "Spot Franklin three ways in the city (statue, institution, street)",
+  "Order a cheesesteak using correct local syntax: 'one wit' or 'one witout'"
+ ],
+ prompt:{tag:"Spec document · 150 words", text:"Write 'The Car Constitution v1.0' for the remaining five weeks: 3 articles (rules), 1 bill of rights (what no one can take from you, e.g. headphone time), and an amendment process (how rules change without Dad just deciding). Get at least one family member to ratify it."},
+ philo:{tag:"Thought experiment · Ship of Theseus", text:"The Constitution has been amended 27 times. If you replace a ship's planks one at a time until none are original — is it the same ship? Is the Constitution of 2026 'the same' as 1787's? Is Lukas, whose cells replace themselves, the same Lukas who started this trip? Where does identity live?"},
+ think:[
+  "A mission statement (Declaration) and a rulebook (Constitution) are different documents. Which does a family need more? A robot?",
+  "Franklin was told the room's windows were nailed shut for secrecy during the convention. When does secrecy make a design better?"
+ ],
+ links:[
+  ["Independence Hall (NPS)","https://www.nps.gov/inde/index.htm"],
+  ["Read the actual patches: all 27 amendments","https://www.archives.gov/founding-docs"],
+  ["Khan Academy: The Constitution","https://www.khanacademy.org/humanities/us-history"]
+ ],
+ vocab:[["natural rights","rights you have just by being human (Locke)"],["amendment","an official patch to the Constitution"],["ratify","to formally approve"],["patent","legal ownership of an invention"]]
+},
+{
+ id:"dc", unlock:"2026-07-15", short:"Washington DC", era:"1790 – 1969", num:"03",
+ title:"Control Systems", where:"Washington, DC · July 15–16",
+ story:`In robotics, a system with no feedback runs away and crashes. The Constitution's designers knew this about power, so they built a feedback control system: Congress writes laws, the President executes them, the Supreme Court checks them — and each branch can brake the others. It's deliberately inefficient; the friction is the point. You can inspect all three units in one day. Then go where the feedback loop gets used: the Lincoln Memorial steps, where in 1963 Martin Luther King Jr. stood before 250,000 people and demanded the system honor its own spec — 'a promissory note' America had defaulted on, he called it. And for pure engineering joy: the Smithsonian's Air and Space Museum holds the 1903 Wright Flyer (the first machine to fly) and Apollo hardware from the missions that put humans on the Moon 66 years later. Sixty-six years, Kitty Hawk to Tranquility Base. All of it free to see — a deliberate choice that knowledge should be public infrastructure. Two more sites are on your manifest. Out by Dulles: the Udvar-Hazy Center, the Smithsonian's hangar for hardware too big for the Mall — the Space Shuttle Discovery (39 missions, ~148 million miles, every heat tile individually shaped and serial-numbered), an SR-71 Blackbird that flew Los Angeles to DC in 64 minutes on its 1990 retirement flight, a Concorde, and the Enola Gay, the B-29 that dropped the Hiroshima bomb — the most morally heavy machine in any museum on Earth. And downtown: National Geographic's Museum of Exploration, opened June 2026 — two weeks old when you walk in — including the Esri Geoverse, a 270-degree immersive theater, and the actual pressurized suit Sylvia Earle wore to walk the Pacific seafloor solo in 1979.`,
+ questions:[
+  "Checks and balances make government SLOW on purpose. When is friction a safety feature, and when is it just broken? Give one example of each from your own life.",
+  "King argued the system's own documents proved his case — he debugged America using its source code. Why is that more powerful than demanding a whole new system?",
+  "The Wright Flyer flew 120 feet. Apollo 11 flew 240,000 miles. Which was harder? Define 'harder' before you answer.",
+  "The Enola Gay is a masterpiece of engineering that killed some 80,000 people in one morning — and arguably ended a war that would have killed more. Its crew never apologized; its curators argued for decades over the label text. Where does an engineer's responsibility for a machine end: at the spec, the delivery, or the use?"
+ ],
+ hunt:[
+  "See all three branches in one day: Capitol, White House, Supreme Court — the full control loop",
+  "At Air & Space: find the actual 1903 Wright Flyer and touch a real Moon rock (there's one you're allowed to touch)",
+  "Stand on the carved marker on the Lincoln Memorial steps where Dr. King stood",
+  "At the National Archives, inspect the source code itself: Declaration, Constitution, Bill of Rights under glass",
+  "Find the International Spy Museum or NSA-adjacent exhibits and list 3 technologies invented for spying that you now use daily",
+  "Count security cameras on one block near the White House — who watches the watchers?",
+  "Udvar-Hazy: inspect Discovery's underside — every tile is a unique shape with a serial number (why couldn't they be identical?); find the SR-71's stats plaque and compute its LA-to-DC average speed from the 64-minute record",
+  "Museum of Exploration: run the Esri Geoverse (270° immersive theater) and the mapmaking Launchpad — Nat Geo has been the map authority since 1888; find Sylvia Earle's 1979 seafloor suit and work out what problems a one-person deep-ocean suit must solve (pressure, air, heat, comms — in what order of hardness?)",
+  "Photo Ark: Sartore is building a database of every captive species before extinctions outrun him — note the bison connection you'll meet in Montana; estimate how long photographing 20,000 species takes at his rate"
+ ],
+ prompt:{tag:"Systems diagram + 150 words", text:"Diagram the three branches as a feedback control system in your notebook (boxes, arrows, brakes). Then write: where's the single point of failure? If you were a hostile engineer trying to break this system, where would you push — and what safeguard would you add to stop yourself?"},
+ philo:{tag:"Thought experiment · Hobbes vs Locke", text:"Hobbes: without government, life is 'nasty, brutish, and short' — we trade freedom for safety. Locke: government is just a tool we hire, and we can fire it. Test case: the car. Is Dad's driving authority Hobbesian (absolute, for safety) or Lockean (by consent, revocable)? Ask him. Watch him sweat."},
+ think:[
+  "Six decades from first flight to the Moon. We haven't gone back since 1972. Does technology only move forward, or can civilizations forget how to do things?",
+  "If an AI could write perfectly fair laws instantly, should we let it? What exactly would we lose — name it precisely."
+ ],
+ links:[
+  ["National Air and Space Museum","https://airandspace.si.edu"],
+  ["Udvar-Hazy Center — Discovery, SR-71, Concorde","https://airandspace.si.edu/visit/udvar-hazy-center"],
+  ["National Geographic Museum of Exploration","https://moe.nationalgeographic.org"],
+  ["National Archives — the source documents","https://www.archives.gov/founding-docs"],
+  ["National Museum of African American History & Culture","https://nmaahc.si.edu"]
+ ],
+ vocab:[["feedback loop","output routed back to correct the system"],["separation of powers","splitting government into checking branches"],["veto","the President's brake on Congress"],["judicial review","courts checking laws against the Constitution"]]
+},
+{
+ id:"tenn", unlock:"2026-07-17", short:"Tennessee", era:"BEFORE 1540 – 1940s", num:"04",
+ title:"Encoding a Nation", where:"Great Smoky Mountains · July 17–18",
+ story:`Around 1821, a Cherokee man named Sequoyah pulled off one of the greatest solo engineering feats in history: he invented a complete writing system from scratch. He couldn't read any existing language — he just knew that the settlers' 'talking leaves' stored information, and he wanted that technology for his people. After 12 years of work he shipped an 85-character syllabary so well-designed that the Cherokee Nation went from zero to widespread literacy in a few years, faster than almost any society ever recorded, and launched its own newspaper. It didn't save them. In 1830 Congress passed the Indian Removal Act, and in 1838 the army force-marched around 16,000 Cherokee west; roughly 4,000 died on the Trail of Tears. Some escaped into these mountains — their descendants live here now. A century later the New Deal arrived with different machinery: the TVA's massive dams electrified the rural South, and CCC crews built the park you're hiking, the most visited in America.`,
+ questions:[
+  "The Cherokee had writing, courts, farms, a constitution — they beat America at its own game and were removed anyway by majority vote. So: can a democracy do evil democratically? What's supposed to stop it?",
+  "Sequoyah chose a syllabary (85 symbols, one per syllable) over an alphabet (26 letters, thousands of combinations). As an encoding problem, which design is better for fast learning? Why?",
+  "TVA dams flooded family farms to power millions. When may a system sacrifice a few for the many — and who gets to decide?"
+ ],
+ hunt:[
+  "Find the Cherokee syllabary displayed (visitor centers) — decode and copy your initials' sounds in Cherokee characters",
+  "Find a sign written in both English and Cherokee — a 200-year-old writing system still in production",
+  "Spot New Deal engineering: a CCC-built stone bridge, wall, or trail — check for 1930s date stamps",
+  "Identify the Smokies' 'smoke': it's a real phenomenon (plants releasing volatile organic compounds) — observe when it's thickest",
+  "Ride something at Dollywood and estimate the g-forces at the biggest drop (a water bottle on a string is a crude accelerometer — ask Dad)",
+  "Hear a banjo live and figure out mechanically why it's louder than a guitar"
+ ],
+ prompt:{tag:"Encoding challenge + 150 words", text:"Invent a mini writing system: 10 symbols that can encode a secret message to your sister. Design rules first (what does each symbol carry — a sound? a word?). Write a message, hand it over with the key, and report here: what did Sequoyah's problem feel like from the inside?"},
+ philo:{tag:"Thought experiment · The tyranny of the majority", text:"The Removal Act passed Congress fairly — majority rules. Philosopher problem: if 51% vote to take from the other 49%, is it just because it was voted? What's the difference between 'legal' and 'right'? This is why constitutions have rights that CAN'T be voted away. Which of your rights should be vote-proof?"},
+ think:[
+  "Sequoyah was laughed at for 12 years, and his own wife reportedly burned his early work. What keeps an inventor going with zero evidence it'll work? Is that rational?",
+  "Mountains are 200-million-year-old systems; nations are a few hundred. On what timescale should we judge whether a design 'works'?"
+ ],
+ links:[
+  ["Trail of Tears National Historic Trail (NPS)","https://www.nps.gov/trte/index.htm"],
+  ["Museum of the Cherokee People","https://mci.org"],
+  ["Great Smoky Mountains NP","https://www.nps.gov/grsm/index.htm"]
+ ],
+ vocab:[["syllabary","one symbol per syllable — Sequoyah's design"],["removal","forced relocation of Native nations"],["TVA","Tennessee Valley Authority — New Deal dam & power system"],["literacy","the ability to read and write"]]
+},
+{
+ id:"heart", unlock:"2026-07-19", short:"Heartland", era:"1785 – 1911", num:"05",
+ title:"The Algorithm on the Land", where:"Indianapolis → Effingham · July 19–20",
+ story:`Look out the window: those dead-straight roads and rectangular fields are the output of an algorithm written in 1785. The Land Ordinance commanded that the entire western territory be surveyed into 6-by-6-mile townships, subdivided into one-mile squares — before anyone knew what the land looked like. It was a program executed on a continent: simple rules, applied uniformly, ignoring rivers, hills, and everyone already living there. You'll drive on its output for a thousand miles. Into one square came the Lincolns in 1816; Abraham grew up in Indiana with under a year of total schooling and bootstrapped himself with borrowed books into a lawyer, then a president — a self-training system. And Indianapolis built a 2.5-mile test loop in 1909 because early cars kept breaking: the Indy 500 (first run 1911) was really a public stress-test, and inventions proven there — like the rearview mirror, first raced in 1911 — ended up on the car you're riding in.`,
+ questions:[
+  "The grid algorithm was simple, fast, and fair-looking — and blind to terrain and to the people already there. When do simple rules beat smart judgment, and when is 'simple' just another word for 'careless'?",
+  "Lincoln had almost no data (books) but unlimited training time. Modern AI has unlimited data and almost no time. Which produces better judgment?",
+  "The Indy 500 kills the occasional driver and improves the average car. Is a dangerous test track ethical? Who should be allowed to volunteer for risk?"
+ ],
+ hunt:[
+  "From the car: verify the 1785 algorithm — find three roads that run perfectly straight to the horizon, one mile apart",
+  "Spot the rearview mirror in your car and salute Indy 1911",
+  "Count water towers between Indy and Effingham — each is a town's pressure-storage system AND its name badge; explain to your sister why they're up high",
+  "Find a grain elevator and estimate its height — the skyscraper of the plains",
+  "Effingham: spot the 198-ft cross from I-57/I-70 — calculate roughly how far away you first saw it (time × speed)"
+ ],
+ prompt:{tag:"Field report + 150 words", text:"You're an engineer in 1785 asked to improve the land algorithm. Write the patch notes: 3 rules you'd change (think rivers, hills, existing inhabitants) and what each fix would cost in speed or simplicity. Every design is a trade — name yours."},
+ philo:{tag:"Thought experiment · The map and the territory", text:"The grid treated the map as more real than the land — squares first, terrain never. Philosopher Alfred Korzybski: 'the map is not the territory.' Where else do we obey the map over reality? (School grades vs. what you know? GPS vs. the road you can see?) Find one example today."},
+ think:[
+  "You crossed mountains in hours that took settlers weeks. Name one thing they knew about this land that you, at 70 mph, cannot possibly learn.",
+  "Is a race in a circle progress? What's actually being optimized at Indy — the car, the driver, or the crowd?"
+ ],
+ links:[
+  ["Lincoln Boyhood National Memorial (NPS)","https://www.nps.gov/libo/index.htm"],
+  ["Indianapolis Motor Speedway Museum","https://imsmuseum.org"],
+  ["Khan Academy: the early republic","https://www.khanacademy.org/humanities/us-history"]
+ ],
+ vocab:[["survey","measuring land into a formal map"],["township","one 6×6-mile grid cell"],["ordinance","a law or decree"],["stress test","pushing a system to failure on purpose to learn"]]
+},
+{
+ id:"chi", unlock:"2026-07-21", short:"Chicago", era:"1871 – 1930s", num:"06",
+ title:"Reboot City", where:"Chicago · July 21–23",
+ story:`Chicago is what a hard reboot looks like. In October 1871 fire destroyed 17,000 buildings in two days — and the city treated the wreckage as cleared disk space. With steel newly cheap and the Otis elevator proven, Chicago's engineers invented the skyscraper: hang the walls on a steel skeleton instead of stacking stone, and a building can go as high as the elevator dares (Home Insurance Building, 1885, is usually counted first). The city also pulled off one of history's most audacious hacks: its river flowed into Lake Michigan — the drinking water — carrying stockyard waste, so between 1892 and 1900 engineers reversed the entire river to flow the other way. Meanwhile the stockyards perfected the moving 'disassembly line' that Henry Ford later ran in reverse to build cars — the direct ancestor of every factory robot. And your best day of the trip might be the Museum of Science and Industry: a captured WWII German U-boat (U-505), a real coal mine, and a hall of machines, inside the last building standing from the 1893 World's Fair — where the first Ferris wheel turned, built to out-engineer the Eiffel Tower.`,
+ questions:[
+  "Chicago reversed a river rather than clean up its waste — a brilliant fix that shipped the problem downstream to other towns. What's the difference between solving a problem and relocating it? Find a modern example.",
+  "The disassembly line made meat cheap and work miserable — each worker one cut, thousands of times a day. The assembly line did the same for cars. Was automation the cure for that misery or its perfection?",
+  "The 1893 Ferris wheel existed purely to beat the Eiffel Tower. How much of engineering history is just showing off — and is that bad?"
+ ],
+ hunt:[
+  "MSI: go inside U-505 — a real captured submarine — and find the Enigma machine story; note how codebreaking (early computing!) won that fight",
+  "Stand under the Bean (Cloud Gate) and figure out its engineering: how do you make 168 steel plates look seamless?",
+  "Compare skeletons: find an 1890s skyscraper (stone-look, heavy base) and a glass one, and explain to your family what's actually holding each up",
+  "Find the Chicago River and determine which way it flows today — then confirm that's the 'wrong' (engineered) way",
+  "Find the 'Route 66 BEGIN' sign on Adams Street — start of the most famous road program in America",
+  "Deep-dish pizza: measure the depth and rule scientifically whether it exceeds pizza tolerances"
+ ],
+ prompt:{tag:"Failure analysis + 150 words", text:"Pick the trip's best engineering hack so far (river reversal? skyscraper? caissons?) and write its failure analysis: what problem, what fix, what NEW problem the fix created. Engineers call these second-order effects. End with: what's the second-order effect of the technology YOU use most?"},
+ philo:{tag:"Thought experiment · Same city?", text:"Chicago burned and was rebuilt with different buildings, on the same spot, by many of the same people. Is post-fire Chicago the SAME city? (Ship of Theseus again — but now the planks were replaced all at once.) Does identity survive a reboot? Does yours, every morning?"},
+ think:[
+  "Upton Sinclair wrote The Jungle to expose workers' suffering in the stockyards; the public instead panicked about dirty meat, and got food-safety laws. He said he 'aimed at the public's heart and hit its stomach.' Can you control what your work does once it's released?",
+  "The Great Migration: six million people, no leader, no plan — just families choosing. How does that kind of history differ from the kind generals and presidents make?"
+ ],
+ links:[
+  ["Museum of Science and Industry (U-505, coal mine)","https://www.msichicago.org"],
+  ["Chicago Architecture Center — how skyscrapers work","https://www.architecture.org"],
+  ["Khan Academy: The Gilded Age & industrialization","https://www.khanacademy.org/humanities/us-history"]
+ ],
+ vocab:[["steel frame","the skeleton that makes skyscrapers possible"],["assembly line","moving work past fixed workers — ancestor of robotics"],["second-order effect","the new problem your solution creates"],["reboot","restarting a system fresh after failure"]]
+},
+{
+ id:"plains", unlock:"2026-07-24", short:"The Plains", era:"1804 – 1890", num:"07",
+ title:"Bandwidth Across a Continent", where:"Omaha → Kimball, Nebraska · July 24–25",
+ story:`Today you drive the corridor where America solved its bandwidth problem. In 1804, information crossed the continent at the speed of Lewis and Clark's boats — they passed Omaha mapping land the US had just bought (the Louisiana Purchase: 828,000 square miles at 3 cents an acre, maybe the best deal in history). By the 1840s, wagon trains crawled the Oregon Trail along the Platte River — exactly where I-80 now runs — at 15 miles a day; you'll do their three weeks before lunch. Then came the upgrades. The telegraph (coast-to-coast 1861) moved information at light speed and instantly killed the Pony Express. The transcontinental railroad — Union Pacific building west FROM OMAHA — met the eastbound line in Utah in 1869, and the continent shrank from five months to one week. The railroads even redesigned time itself: before 1883, every town kept its own clock; trains needed synchronization, so railroads invented the time zones your watch still obeys. Networks don't just carry a civilization. They shape it.`,
+ questions:[
+  "The telegraph made the Pony Express obsolete in 18 months. List three technologies alive today that you predict get 'Pony Expressed' in your lifetime — and defend one prediction with a mechanism, not a vibe.",
+  "The Homestead Act (1862) was incentive design: 160 free acres IF you farm it 5 years. Design your own incentive: what offer would get people to settle Mars, and what would go wrong?",
+  "Railroads privately invented time zones and everyone just... obeyed. Who should get to define standards everyone must follow — companies, governments, or engineers?"
+ ],
+ hunt:[
+  "Cross the Missouri at Omaha — Lewis & Clark's data highway, and mile zero of the Union Pacific",
+  "Count cars on one freight train (they exceed 100) and estimate its length — the 1869 network still running at full load",
+  "Spot Scotts Bluff or Chimney Rock — the pioneers' navigation waypoints, visible for days at 15 mi/day; clock how many minutes YOU can see it at 75 mph",
+  "Find genuine 180-year-old wagon ruts at Scotts Bluff — erosion data from a million wheels",
+  "Play the classic Oregon Trail game tonight (link below) and log your cause of death — it's a resource-allocation simulator from 1985",
+  "Record the moment the land goes flat and note your GPS position — you're crossing onto the Great Plains"
+ ],
+ prompt:{tag:"Optimization problem + 150 words", text:"You're a wagon-train captain, 1850: 2,000 lbs capacity, 5 months, family of five. Write your loadout (food, tools, spares, one 'useless' precious thing) and your decision rule for what gets thrown out when the oxen weaken. Then: what's the 2026 equivalent of this problem? (Hint: Dad packed the car.)"},
+ philo:{tag:"Thought experiment · Fair starts", text:"The Homestead Act handed out free land — first come, first served — on land taken from the Pawnee and Lakota. Philosopher's question: can a race be fair if the track was stolen? And is 'first come, first served' EVER a just rule, or just an easy one? (Hold this thought — Colorado's water law is next.)"},
+ think:[
+  "The plains sky is the largest thing you'll see all summer. Pioneers reported it made some people feel free and others go quietly mad. Which are you? Why would the same input produce opposite outputs?",
+  "I-80 sits on the Oregon Trail, which followed the Platte, which bison trails found first. Do we ever really choose our routes, or do we inherit them?"
+ ],
+ links:[
+  ["Homestead National Historical Park (NPS)","https://www.nps.gov/home/index.htm"],
+  ["Scotts Bluff National Monument — the ruts","https://www.nps.gov/scbl/index.htm"],
+  ["Play the original Oregon Trail (free, Internet Archive)","https://archive.org/details/msdos_Oregon_Trail_The_1990"]
+ ],
+ vocab:[["bandwidth","how much information a channel can carry"],["telegraph","instant text messaging, 1844 edition"],["transcontinental","spanning the continent"],["standard time","synchronized clocks — invented by railroads, 1883"]]
+},
+{
+ id:"colo", unlock:"2026-07-26", short:"Colorado", era:"1858 – TODAY", num:"08",
+ title:"Gold, Water & Atomic Time", where:"Windsor & Denver base · July 26 – Aug 9",
+ story:`Colorado runs on three resources, in historical order: gold, water, and precision. Gold: flakes found near Denver in 1858 triggered a 100,000-person stampede ('Pikes Peak or Bust'); most went bust, but the survivors built Denver, and Colorado became a state on August 1, 1876 — you'll be relocating from Windsor to Denver right around August 1, 2026, arriving in the capital during its 150th-birthday week. Water: out here the scarce resource isn't land, it's the river, governed by a protocol called prior appropriation — 'first in time, first in right.' Whoever used the water first holds the senior claim forever; every ditch you see near Windsor is running that 150-year-old code. Precision: in Boulder, 45 minutes from your base, NIST operates atomic clocks so accurate they'd drift less than a second in hundreds of millions of years — the machines that define official US time and make GPS possible (your sat-nav works by comparing atomic-clock timestamps from satellites). Gold made Colorado; water sustains it; the state's greatest treasure now is arguably the most accurate measurement of time on Earth.`,
+ questions:[
+  "Prior appropriation is a protocol: first user wins, forever. It's simple, predictable — and locks in whoever showed up in 1870. Design a better water-sharing protocol and name who your version hurts (every protocol hurts someone).",
+  "GPS satellites' clocks run fast relative to Earth's (Einstein: less gravity + high speed = time itself differs) and must be corrected or maps would drift ~10 km per day. What does it mean that your position depends on the theory of relativity being true?",
+  "100,000 gold rushers; most found nothing. Was the rush irrational? What's today's gold rush, and are you in it?"
+ ],
+ hunt:[
+  "Coors Field: find the single row of PURPLE seats — exactly one mile (5,280 ft) above sea level; also note how far fly balls carry in thin air (real physics, real home runs)",
+  "Find an irrigation ditch near Windsor and trace where it comes from — you're looking at prior appropriation in hardware",
+  "Spot the gold-leaf dome of the Colorado State Capitol — actual gold, from actual Colorado mines",
+  "Visit or view a 14,000-ft peak; at the top, explain why the air is thinner and your crisps bag from Denver is now inflated",
+  "Boulder day trip: NIST (atomic clock) or NCAR (climate supercomputers) — stand near the machines that define time / model the planet",
+  "Rocky Mountain NP (1 hr away): drive Trail Ridge Road, highest continuous paved road in the US (12,183 ft) — the park exists because Enos Mills, a self-taught innkeeper who climbed Longs Peak ~300 times, lobbied Congress for six years and won in 1915",
+  "Estimate tonight's altitude effect: time how long water takes to boil vs. at sea level, and explain why"
+ ],
+ prompt:{tag:"Protocol design + 150 words", text:"Two weeks in one base = time for a real project. Write a spec for a robot that manages Windsor's irrigation ditches fairly: its sensors, its decision rule, and — hardest part — the ethical constraint you hard-code so it can't be bribed, gamed, or 'technically correct but cruel.' What CAN'T you encode?"},
+ philo:{tag:"Thought experiment · Who owns a river?", text:"A river is used by farmers, cities, fish, and people not born yet. Options: first-come (Colorado law), auction (richest wins), equal shares (even to those who waste it), or need (who decides need?). There's no clean answer — that's the point. Hold a family vote, then ask: should the fish have had a vote?"},
+ think:[
+  "You've been in motion for two weeks and will now be still for two. What does a system reveal when it stops? What do you notice about America only when parked in it?",
+  "Colorado's identity: born on the nation's 100th birthday, a mile high, first in water rights. Do places have personalities — or do we just pattern-match?"
+ ],
+ links:[
+  ["NIST Boulder — how atomic clocks work","https://www.nist.gov/pml/time-and-frequency-division"],
+  ["History Colorado Center, Denver","https://www.historycolorado.org"],
+  ["Rocky Mountain National Park","https://www.nps.gov/romo/index.htm"]
+ ],
+ vocab:[["prior appropriation","first water user keeps the right"],["protocol","an agreed rule-set a system runs on"],["atomic clock","timekeeping by atoms' vibrations — GPS depends on it"],["altitude","height above sea level (Denver: exactly 1 mile)"]]
+},
+{
+ id:"mont", unlock:"2026-08-06", short:"Montana", era:"1806 – 1995", num:"09",
+ title:"Feedback Loops & Firepower", where:"Billings & Yellowstone · around Aug 6–9",
+ story:`Everything within two hours of your YUNGBLUD concert is a lesson in systems. East of Billings: Pompeys Pillar, where William Clark carved his name on July 25, 1806 — the only physical trace of the whole Lewis and Clark expedition still in place, cut into a rock already covered in far older Native petroglyphs. Southeast: Little Bighorn, June 25–26, 1876, where Lakota, Cheyenne, and Arapaho warriors under Sitting Bull and Crazy Horse destroyed Custer's 7th Cavalry — and here's the detail engineers notice: many warriors carried repeating rifles, while the cavalry carried single-shot carbines; the army had rejected repeaters partly to save ammunition costs. Procurement decisions have consequences. Southwest: Yellowstone, the world's first national park (1872), sitting on a supervolcano that powers 10,000 geysers and hot springs. And its greatest experiment ran in 1995: wolves, exterminated by the 1920s, were reintroduced — and the whole system rewired itself. Elk moved, overgrazed valleys regrew, songbirds and beavers returned, beaver dams changed the rivers. One species, restored, cascaded through everything: a trophic cascade, the most famous feedback-loop demonstration in ecology. The park system needed governance too, and its two architects disagreed on the spec: John Muir wanted preservation — leave wild systems untouched, valuable in themselves — while Gifford Pinchot, first chief of the Forest Service, wanted conservation — manage resources for maximum sustained use. That fork still runs through every environmental argument on the planet. Theodore Roosevelt, after camping rough with Muir in Yosemite in 1903, deployed both: roughly 230 million acres protected — five parks, 150 national forests — plus the 1906 Antiquities Act, effectively a one-line API letting any president create a national monument by proclamation, no vote of Congress required. Presidents of both parties have been calling that function for 120 years, and lawyers still argue over its parameters. The National Park Service (1916) is the maintenance department for the whole install base.`,
+ questions:[
+  "The wolf reintroduction shows one component can rewire a whole system. What's the 'wolf' in a school? In a family? In the internet? (What single removal or addition cascades everywhere?)",
+  "The army chose cheaper single-shot rifles; men died partly because of a budget line. When you build things, who pays for your cost-cutting? How would you make that visible in the design process?",
+  "Both the 7th Cavalry and the Native warriors now have memorials on the same hill at Little Bighorn. Can one battlefield honestly tell two opposite stories? Should it try?",
+  "Muir: don't touch it. Pinchot: manage it for use. The wolf reintroduction was humans engineering 'wildness' back into existence — so which philosophy was that? Once humans are in the loop, is a genuinely hands-off option even real?"
+ ],
+ hunt:[
+  "Touch (with your eyes) W. Clark's actual 1806 signature at Pompeys Pillar — and find the older petroglyphs beside it",
+  "At Little Bighorn: compare the 1881 cavalry obelisk with the 2003 Indian Memorial — two designs, two stories, one hill",
+  "Yellowstone: time an Old Faithful eruption against the ranger prediction and compute the error",
+  "Drive under the Roosevelt Arch at the North Entrance (Gardiner) — cornerstone laid by TR himself in 1903; the phrase carved on top is the park's 1872 mission statement, still the system's README",
+  "Find evidence of the wolf cascade: young willows/aspens by rivers, or a beaver dam — regrowth the wolves indirectly caused",
+  "Spot a bison and pay respect: fewer than 1,000 were left alive around 1900, down from 30 million — this one descends from the survivors",
+  "At the concert: observe the crowd as a system — how do 10,000 people synchronize (clapping, jumping) with no conductor? That's emergence again, and you're a node in it"
+ ],
+ prompt:{tag:"Systems map + 150 words", text:"Draw the Yellowstone wolf cascade as a graph in your notebook: wolves → elk behavior → willows → beavers → rivers → birds, with +/− on each arrow. Then write: pick ONE thing you'd change about your own daily system (school, screens, sleep) and predict its cascade, three arrows deep. Be honest about arrow #3."},
+ philo:{tag:"Thought experiment · The commons + a Popper test", text:"The bison nearly vanished because they belonged to no one — everyone's to take, no one's to protect (the 'tragedy of the commons'). Yellowstone flips it: owned by everyone, protected for everyone. Which other things should work that way — air? code? AI models? Bonus (Dad's favorite philosopher, Karl Popper): the wolf story is beautiful — TOO beautiful? A real scientist asks 'what evidence would prove this wrong?' Look up 'trophic cascade debate' tonight and find out scientists genuinely argue about it. Believing beautiful stories without testing them is how you get fooled."},
+ think:[
+  "1876: the nation's 100th birthday party AND Little Bighorn, weeks apart. Can a country be its best and worst self simultaneously? Can you?",
+  "Yellowstone's supervolcano will erupt again someday — on geological time. How should humans plan for certain-but-unscheduled events? Do we?"
+ ],
+ links:[
+  ["Yellowstone National Park (NPS)","https://www.nps.gov/yell/index.htm"],
+  ["Little Bighorn Battlefield (NPS)","https://www.nps.gov/libi/index.htm"],
+  ["Pompeys Pillar National Monument (BLM)","https://www.blm.gov/visit/pompeys-pillar-national-monument"],
+  ["Ken Burns — The National Parks: America's Best Idea (PBS)","https://www.pbs.org/kenburns/the-national-parks/"]
+ ],
+ vocab:[["trophic cascade","one species' effects rippling through a food web"],["commons","a resource shared by all — and easily ruined by all"],["procurement","how organizations decide what equipment to buy"],["supervolcano","Yellowstone's engine — a magma system under the park"],["preservation","Muir: protect nature untouched, for its own sake"],["Antiquities Act","1906 law: a president can protect land by proclamation"]]
+},
+{
+ id:"cap", unlock:"2026-08-15", short:"Capstone", era:"1624 – 2026", num:"10",
+ title:"Final Report", where:"Final week & the flight home · Aug 15–22",
+ story:`Mission review. In six weeks you inspected 400 years of the American machine, roughly in build order: the input port (New York), the operating system (Philadelphia), the control loops (Washington), a nation encoded and a nation removed (Cherokee country), an algorithm stamped on the land (the grid), a city that rebooted (Chicago), the bandwidth upgrades that shrank a continent (the Plains), a state running on gold, water protocols, and atomic time (Colorado), and an ecosystem rewired by one species (Yellowstone) beside a battlefield that tells two stories at once (Little Bighorn). You saw the same year — 1876 — as a birthday in Denver and a disaster in Montana. Engineers end every project the same way: with a report that's honest about what worked, what failed, and what they'd build differently. That's your capstone.`,
+ questions:[
+  "Final verdict: is America best understood as a machine (designed, fixable, upgradeable) or an organism (grown, evolving, nobody in control)? You've seen the evidence — commit to an answer and defend it.",
+  "You hold a US passport and a UK life. You watched America as both insider and outsider. Name one thing each view sees that the other cannot.",
+  "The Declaration turned 250 while you were here. If the founders reviewed the running system today: which feature would amaze them most, and which bug would embarrass them most?"
+ ],
+ hunt:[
+  "Collect your 10 best field diagrams/notes — one per unit",
+  "List every state you entered (photograph the 'Welcome to' signs you caught)",
+  "Gather one 'system artifact' per stop: subway card, ticket stub, geyser timetable…",
+  "Interview each family member: 'What's the most impressive and least impressive system you saw?' Log the answers",
+  "Export this report (button up top) — data you don't back up is data you've already lost"
+ ],
+ prompt:{tag:"THE CAPSTONE — choose one mission", text:"Mission A: 'A User Manual for a Republic' — write the documentation for America-as-OS: quick-start guide, core processes, known bugs, patch history, troubleshooting. Mission B: design ROBOT RANGER — full spec for a robot that protects a national park: sensors, behaviors, the wolf-cascade knowledge it needs, and three hard-coded ethical rules (justify each). Mission C: 'Three Claims, Three Tests' — pick three big claims you heard on this trip (from museums, guides, or this manual!) and design a Popper-style test for each: what evidence would prove it WRONG? Draft your plan here."},
+ philo:{tag:"Final thought experiment", text:"Six weeks ago you knew America from movies. Now you've measured it. Question: did you learn the territory, or just draw a better map? Is a better map the most anyone ever gets? Write your answer somewhere you'll find it at 16."},
+ think:[
+  "What one question from this trip do you refuse to consider settled? Keep it open on purpose — open questions are engines.",
+  "What will you tell your friends first: a fact, a story, or an argument? Notice which you chose. That's the kind of thinker you're becoming."
+ ],
+ links:[
+  ["Crash Course US History — 48 episodes to fill your gaps","https://www.youtube.com/playlist?list=PL8dPuuaLjXtMwmepBjTSG593eG7ObzO7s"],
+  ["Khan Academy US History — the full course","https://www.khanacademy.org/humanities/us-history"],
+  ["Library of Congress — primary sources for your capstone","https://www.loc.gov"]
+ ],
+ vocab:[["capstone","the final project crowning a course"],["falsifiable","testable in a way that could prove it wrong (Popper)"],["primary source","evidence created at the time — your notebook now qualifies"],["postmortem","an honest end-of-project review"]]
+}
+];
+
+/* ---------------- state & storage ---------------- */
+let state = {name:"", checks:{}, notes:{}, log:[]};
+let current = 0;
+const KEY = 'field-manual-history-2026';
+const statusEl = document.getElementById('saveStatus');
+
+
+/* storage adapter: Claude cloud -> browser localStorage -> memory only */
+async function storGet(k){
+  if(window.storage){ const r = await window.storage.get(k); return r && r.value; }
+  try{ return localStorage.getItem(k); }catch(e){ return null; }
+}
+async function storSet(k,v){
+  if(window.storage){ await window.storage.set(k,v); return 'cloud'; }
+  try{ localStorage.setItem(k,v); return 'local'; }catch(e){ return 'memory'; }
+}
+async function loadState(){
+  try{
+    const v = await storGet(KEY);
+    if(v){ state = Object.assign(state, JSON.parse(v)); }
+    statusEl.textContent = window.storage ? 'SAVED ✓' : 'SAVED ON THIS DEVICE ✓';
+    try{ localStorage.getItem('x'); }catch(e){ if(!window.storage) statusEl.textContent = 'OFFLINE — use Export'; }
+  }catch(e){ statusEl.textContent = 'OFFLINE — use Export'; }
+}
+let saveTimer=null;
+function save(){
+  statusEl.textContent='SAVING…';
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(async ()=>{
+    try{
+      if(window.storage){ await window.storage.set(KEY, JSON.stringify(state)); statusEl.textContent='SAVED ✓'; }
+      else{ statusEl.textContent='OFFLINE — use Export'; }
+    }catch(e){ statusEl.textContent='OFFLINE — use Export'; }
+  },600);
+}
+
+
+/* ---------------- photos ---------------- */
+let photos = {};
+const PHKEY = KEY + ':ph:';
+async function loadPhotos(){
+  for(const u of UNITS){
+    try{ const v = await storGet(PHKEY+u.id); if(v) photos[u.id]=JSON.parse(v); }catch(e){}
+  }
+}
+async function savePhotos(id){
+  try{ await storSet(PHKEY+id, JSON.stringify(photos[id]||[])); }
+  catch(e){ statusEl.textContent='PHOTO STORAGE FULL — export report, then delete some photos'; }
+}
+function shrinkPhoto(file){
+  return new Promise(res=>{
+    const img=new Image();
+    img.onload=()=>{
+      const M=1280; const sc=Math.min(1, M/Math.max(img.width,img.height));
+      const w=Math.round(img.width*sc), h=Math.round(img.height*sc);
+      const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+      cv.getContext('2d').drawImage(img,0,0,w,h);
+      URL.revokeObjectURL(img.src);
+      res(cv.toDataURL('image/jpeg',0.72));
+    };
+    img.onerror=()=>res(null);
+    img.src=URL.createObjectURL(file);
+  });
+}
+function renderPhotos(id){
+  const g=document.getElementById('phgrid'); if(!g) return;
+  const list=photos[id]||[];
+  g.innerHTML=list.map((d,j)=>`<div class="ph"><img src="${d}" alt="photo ${j+1}"><button class="del" data-j="${j}" aria-label="delete photo">×</button></div>`).join('');
+  g.querySelectorAll('.del').forEach(b=>{
+    b.onclick=()=>{ if(confirm('Remove this photo?')){ photos[id].splice(Number(b.dataset.j),1); savePhotos(id); renderPhotos(id); } };
+  });
+}
+async function addPhotos(id, files){
+  photos[id]=photos[id]||[];
+  for(const f of files){
+    if(photos[id].length>=10){ alert('10 photos max per chapter — curate your best evidence.'); break; }
+    const d=await shrinkPhoto(f); if(d) photos[id].push(d);
+  }
+  await savePhotos(id); renderPhotos(id);
+}
+
+
+/* ---------------- render ---------------- */
+const strip=document.getElementById('routeStrip');
+
+/* ---------------- date gating ---------------- */
+function todayStr(){
+  const d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function isUnlocked(u){ return state.unlockAll || todayStr() >= u.unlock; }
+function fmtUnlock(u){
+  const [y,m,dd]=u.unlock.split('-').map(Number);
+  return new Date(y,m-1,dd).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
+}
+function unitProgress(u){ let done=0; u.hunt.forEach((_,i)=>{ if(state.checks[u.id+'-'+i]) done++; }); return {done,total:u.hunt.length}; }
+function renderStrip(){
+  strip.innerHTML='';
+  UNITS.forEach((u,i)=>{
+    const p=unitProgress(u);
+    const d=document.createElement('div');
+    const lk=!isUnlocked(u);
+    d.className='stop'+(i===current?' active':'')+(p.done===p.total&&!lk?' done':'')+(lk?' locked':'');
+    d.innerHTML='<div class="dot"></div><small>'+u.short+'</small>';
+    d.onclick=()=>showUnit(i);
+    strip.appendChild(d);
+  });
+}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+function showUnit(i){
+  current=i; const u=UNITS[i];
+  document.getElementById('logView').classList.add('hidden');
+  const v=document.getElementById('unitView'); v.classList.remove('hidden');
+  if(!isUnlocked(u)){
+    v.innerHTML = `
+    <div class="section" style="text-align:center;padding:56px 20px;">
+      <div style="font-size:44px;user-select:none;">🔒</div>
+      <h2 style="margin:14px 0 6px;">${u.title}</h2>
+      <div class="where">${u.where}</div>
+      <p style="margin-top:18px;">This chapter unlocks on <b>${fmtUnlock(u)}</b> — when you actually get there. No skipping ahead: the road is the curriculum.</p>
+      <div class="pager" style="margin-top:26px;">
+        <button ${i===0?'disabled':''} onclick="showUnit(${i-1})">← ${i>0?UNITS[i-1].short:''}</button>
+        <button ${i===UNITS.length-1?'disabled':''} onclick="showUnit(${i+1})">${i<UNITS.length-1?UNITS[i+1].short:''} →</button>
+      </div>
+    </div>`;
+    renderStrip(); window.scrollTo({top:0}); return;
+  }
+  const p=unitProgress(u);
+  v.innerHTML=`
+  <div class="unit-head">
+    <div class="patch"><b>${u.num}</b><span>MISSION</span></div>
+    <div class="unit-title"><h2>${u.title}</h2><div class="where">${u.where}</div><div class="era">TIMEFRAME: ${u.era}</div></div>
+  </div>
+  <div class="section"><h3><span class="n">01</span> · Briefing</h3><p>${u.story}</p></div>
+  <div class="philo"><div class="ptag">⚙ Thought Experiment · ${u.philo.tag.split('·')[1]||''}</div><p>${u.philo.text}</p></div>
+  <div class="section"><h3><span class="n">02</span> · Interrogate the System</h3><ul class="qs">${u.questions.map(q=>'<li>'+q+'</li>').join('')}</ul></div>
+  <div class="section"><h3><span class="n">03</span> · Field Objectives <span class="huntcount" id="hc">${p.done}/${p.total} complete</span></h3>
+    ${u.hunt.map((h,j)=>{const k=u.id+'-'+j;const c=state.checks[k]?'checked':'';
+      return `<label class="hunt ${c}"><input type="checkbox" data-k="${k}" ${c?'checked':''}><span>${h}</span></label>`;}).join('')}
+  </div>
+  <div class="section"><h3><span class="n">04</span> · ${u.id==='cap'?'Capstone Mission':'File Your Report'}</h3>
+    <span class="prompt-tag">${u.prompt.tag}</span>
+    <p>${u.prompt.text}</p>
+    <textarea data-note="${u.id}" placeholder="Type your report — it saves as you write…">${esc(state.notes[u.id]||'')}</textarea>
+    <div class="photogrid" id="phgrid"></div>
+    <label class="addph">📷 Add photos<input type="file" accept="image/*" multiple onchange="addPhotos('${u.id}', Array.from(this.files)).then(()=>{this.value='';})"></label>
+  </div>
+  <div class="section"><h3><span class="n">05</span> · Back-Seat Debates</h3><ul class="qs">${u.think.map(q=>'<li>'+q+'</li>').join('')}</ul></div>
+  <div class="section links"><h3><span class="n">06</span> · Further Intel</h3><ul class="qs">${u.links.map(l=>'<li><a href="'+l[1]+'" target="_blank" rel="noopener">'+l[0]+'</a></li>').join('')}</ul></div>
+  <div class="section"><h3><span class="n">07</span> · Technical Vocabulary</h3><div class="vocab">${u.vocab.map(w=>'<span><b>'+w[0]+'</b> — '+w[1]+'</span>').join('')}</div></div>
+  <div class="pager">
+    <button ${i===0?'disabled':''} onclick="showUnit(${i-1})">← ${i>0?UNITS[i-1].short:''}</button>
+    <button ${i===UNITS.length-1?'disabled':''} onclick="showUnit(${i+1})">${i<UNITS.length-1?UNITS[i+1].short:''} →</button>
+  </div>`;
+  v.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+    cb.onchange=()=>{ state.checks[cb.dataset.k]=cb.checked; if(!cb.checked) delete state.checks[cb.dataset.k];
+      cb.parentElement.classList.toggle('checked',cb.checked);
+      const pr=unitProgress(u); document.getElementById('hc').textContent=pr.done+'/'+pr.total+' complete';
+      renderStrip(); save(); };
+  });
+  v.querySelectorAll('textarea').forEach(t=>{ t.oninput=()=>{ state.notes[t.dataset.note]=t.value; save(); }; });
+  renderPhotos(u.id);
+  renderStrip();
+  window.scrollTo({top:0});
+}
+
+/* ---------------- log ---------------- */
+function renderLog(){
+  const tb=document.querySelector('#logTable tbody'); tb.innerHTML=''; let total=0;
+  state.log.forEach((e,i)=>{ total+=Number(e.m)||0;
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td>'+e.d+'</td><td>'+e.m+'</td><td>'+esc(e.n)+'</td><td><button data-i="'+i+'" style="border:none;background:none;color:#E85D1F;cursor:pointer;font-weight:700">✕</button></td>';
+    tb.appendChild(tr); });
+  tb.querySelectorAll('button').forEach(b=>{ b.onclick=()=>{ state.log.splice(Number(b.dataset.i),1); renderLog(); save(); }; });
+  document.getElementById('logTotal').textContent='TOTAL: '+total+' min = '+(total/60).toFixed(1)+' hours logged';
+}
+document.getElementById('logAdd').onclick=()=>{
+  const d=document.getElementById('logDate').value,m=document.getElementById('logMins').value,n=document.getElementById('logNote').value;
+  if(!d||!m)return;
+  state.log.push({d,m,n}); state.log.sort((a,b)=>a.d<b.d?-1:1);
+  document.getElementById('logMins').value='';document.getElementById('logNote').value='';
+  renderLog(); save();
+};
+document.getElementById('btnLog').onclick=()=>{document.getElementById('unitView').classList.add('hidden');document.getElementById('logView').classList.remove('hidden');renderLog();};
+document.getElementById('btnUnits').onclick=()=>showUnit(current);
+document.getElementById('ownerName').oninput=(e)=>{state.name=e.target.value;save();};
+
+/* ---------------- export ---------------- */
+document.getElementById('btnExport').onclick=()=>{
+  const escH = t => String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  let totalM=0; state.log.forEach(e=>totalM+=Number(e.m)||0);
+  let h = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AMERICA: THE FIELD MANUAL — Mission Report</title><style>
+body{font-family:Georgia,serif;background:#F2F5F7;color:#222;max-width:820px;margin:0 auto;padding:28px 20px;line-height:1.55;}
+h1{color:#123A5C;font-size:26px;text-transform:uppercase;letter-spacing:.04em;}
+h2{color:#123A5C;border-bottom:3px solid #E85D1F;padding-bottom:4px;margin-top:38px;font-size:20px;}
+.meta{color:#555;font-size:14px;margin-bottom:8px;}
+.entry{white-space:pre-wrap;background:#fff;border:1px solid #ccc;padding:14px;margin:10px 0;}
+ul{padding-left:22px;} li.done{color:#123A5C;font-weight:bold;}
+.phg{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
+.phg img{width:180px;height:180px;object-fit:cover;border:2px solid #123A5C;}
+table{border-collapse:collapse;width:100%;font-size:14px;} td,th{border:1px solid #bbb;padding:6px 8px;text-align:left;}
+@media print{ .phg img{width:150px;height:150px;} h2{page-break-after:avoid;} }
+</style></head><body>
+<h1>AMERICA: THE FIELD MANUAL — Mission Report</h1>
+<div class="meta">Field engineer: <b>${escH(state.name)||'(unnamed)'}</b> · Exported ${new Date().toLocaleString()}</div>
+<h2>Hours Log — ${(totalM/60).toFixed(1)} hours total</h2>
+<table><tr><th>Date</th><th>Minutes</th><th>Activity</th></tr>${state.log.map(e=>'<tr><td>'+escH(e.d)+'</td><td>'+escH(e.m)+'</td><td>'+escH(e.n)+'</td></tr>').join('')}</table>`;
+  UNITS.forEach(u=>{
+    const pr=unitProgress(u);
+    h+=`<h2>${escH(u.stamp||('Unit '+u.num))} — ${escH(u.title)}</h2>
+<div class="meta">${escH(u.where)} · Scavenger hunt ${pr.done}/${pr.total}</div>
+<ul>${u.hunt.map((it,j)=>'<li class="'+(state.checks[u.id+'-'+j]?'done':'')+'">'+(state.checks[u.id+'-'+j]?'☑ ':'☐ ')+escH(it)+'</li>').join('')}</ul>
+<div class="entry">${escH(state.notes[u.id])||'(not written yet)'}</div>`;
+    const ph=photos[u.id]||[];
+    if(ph.length) h+='<div class="phg">'+ph.map(d=>'<img src="'+d+'">').join('')+'</div>';
+  });
+  h+='</body></html>';
+  const blob=new Blob([h],{type:'text/html'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='field-manual-report.html'; a.click(); URL.revokeObjectURL(a.href);
+};
+
+/* ---------------- init ---------------- */
+
+
+/* ---------------- progress file save / load ---------------- */
+document.getElementById('btnSaveFile').onclick=()=>{
+  const bundle = { app:'field-manual-progress', v:1, savedAt:new Date().toISOString(), state, photos };
+  const blob = new Blob([JSON.stringify(bundle)], {type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  const d=new Date(); const ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  a.download='field-manual-progress-'+((state.name||'').trim().split(/\s+/)[0]||'journal').toLowerCase()+'-'+ds+'.json';
+  a.click(); URL.revokeObjectURL(a.href);
+};
+document.getElementById('btnLoadFile').onclick=()=>document.getElementById('fileLoad').click();
+document.getElementById('fileLoad').onchange=function(){
+  const f=this.files[0]; this.value=''; if(!f) return;
+  const r=new FileReader();
+  r.onload=async ()=>{
+    try{
+      const b=JSON.parse(r.result);
+      if(!b || !b.state) throw new Error('bad file');
+      if(!confirm('Load progress from "'+f.name+'"? This replaces what is currently on this device.')) return;
+      state = Object.assign({name:"",checks:{},notes:{},log:[]}, b.state);
+      photos = b.photos||{};
+      await storSet(KEY, JSON.stringify(state));
+      for(const u of UNITS){ try{ await storSet(PHKEY+u.id, JSON.stringify(photos[u.id]||[])); }catch(e){} }
+      document.getElementById('ownerName').value = state.name||'';
+      refreshUnlockRow(); renderStrip(); showUnit(current);
+      statusEl.textContent='Progress loaded ✓';
+    }catch(e){ alert('That file could not be read as a progress file.'); }
+  };
+  r.readAsText(f);
+};
+
+/* ---------------- parent unlock ---------------- */
+function refreshUnlockRow(){
+  const b=document.getElementById('pwBtn'), i=document.getElementById('pwInput'), m=document.getElementById('pwMsg');
+  if(state.unlockAll){ b.textContent='RE-LOCK UNITS'; i.style.display='none'; m.textContent='ALL UNITS UNLOCKED ✓'; }
+  else{ b.textContent='Unlock all'; i.style.display=''; m.textContent=''; }
+}
+document.getElementById('pwBtn').onclick=()=>{
+  const i=document.getElementById('pwInput'), m=document.getElementById('pwMsg');
+  if(state.unlockAll){
+    state.unlockAll=false; save(); refreshUnlockRow(); renderStrip(); showUnit(current); return;
+  }
+  if(i.value==='Dadschool'){
+    state.unlockAll=true; i.value=''; save(); refreshUnlockRow(); renderStrip(); showUnit(current);
+  } else { m.textContent='ACCESS DENIED — ask Dad.'; setTimeout(()=>{ if(!state.unlockAll) m.textContent=''; },2500); }
+};
+document.getElementById('pwInput').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('pwBtn').click(); });
+
+loadState().then(loadPhotos).then(()=>{
+  document.getElementById('ownerName').value=state.name||'';
+  showUnit(0);
+});
+</script>
+</body>
+</html>
