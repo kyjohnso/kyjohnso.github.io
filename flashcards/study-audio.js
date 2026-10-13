@@ -174,7 +174,7 @@ window.StudyAudio = StudyAudio;
 const MOODMAP = {
   'circuit-lab.html':'tech',
   'graph-lab.html':'classical','angle-lab.html':'classical','pythagoras-lab.html':'classical','circle-lab.html':'classical',
-  'factor-lab.html':'classical','fraction-lab.html':'classical','number-lab.html':'classical','balance-lab.html':'classical',
+  'factor-lab.html':'classical','fraction-lab.html':'classical','number-lab.html':'classical','balance-lab.html':'classical','rearrange-lab.html':'classical',
   'atom-lab.html':'twilight','element-lab.html':'twilight','compound-lab.html':'twilight','acid-lab.html':'twilight',
   'cell-lab.html':'tribal','bioenergetics-lab.html':'tribal','ecosystem-lab.html':'tribal','predator-prey-sim.html':'tribal',
   'photosynthesis-adventure.html':'tribal','geography-revision.html':'tribal',

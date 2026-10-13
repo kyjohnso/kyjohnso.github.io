@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rearrange Lab — Drop it in the right slot</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{ --paper:#F2F7FA; --grid-line:#D5E4EC; --ink:#1F3540; --ink-soft:#5A7280; --panel:#fff;
+    --copper:#C2622E; --amber:#FFB02E; --green:#2E8B6A; --red:#D6493E; --blue:#3A7CA5; --shadow:rgba(31,53,64,.14); }
+  body{ font-family:'Karla',sans-serif; color:var(--ink); background:linear-gradient(135deg,#E8F1F6,#F4F1E8); min-height:100vh; padding:1.25rem; overflow-x:hidden; }
+  .wrap{ max-width:880px; margin:0 auto; }
+  header{ text-align:center; margin-bottom:1rem; }
+  h1{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(1.7rem,4vw,2.4rem); }
+  .subtitle{ color:var(--ink-soft); margin-top:.25rem; max-width:640px; margin-left:auto; margin-right:auto; }
+  .subtitle b{ color:var(--ink); }
+  .card{ background:var(--panel); border-radius:16px; box-shadow:0 6px 18px var(--shadow); padding:1rem; margin-bottom:1rem; }
+  .toolbar{ display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; justify-content:center; }
+  .toolbar .lbl{ font-weight:700; font-size:.8rem; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.1em; }
+  .btn{ font-family:'Karla',sans-serif; font-weight:700; font-size:.85rem; border:2px solid var(--ink); border-radius:999px;
+    background:#fff; color:var(--ink); padding:.45rem 1rem; cursor:pointer; transition:all .15s; touch-action:manipulation; }
+  .btn:hover{ background:var(--ink); color:#fff; } .btn.on{ background:var(--ink); color:#fff; }
+  .btn:focus-visible{ outline:3px solid var(--amber); outline-offset:2px; }
+  .btn:disabled{ opacity:.4; cursor:default; }
+  .lvl{ font-size:.8rem; padding:.3rem .7rem; }
+
+  /* ---- card meta ---- */
+  .meta{ display:flex; justify-content:space-between; align-items:center; gap:.6rem; flex-wrap:wrap; margin-bottom:.6rem; }
+  .meta .prompt{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:1.05rem; }
+  .meta .prompt b{ color:var(--copper); }
+  .meta .count{ font-size:.8rem; font-weight:700; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.1em; }
+  .dots{ display:flex; gap:.3rem; }
+  .dots .dot{ width:11px; height:11px; border-radius:50%; background:var(--grid-line); transition:transform .2s, background .2s; }
+  .dots .dot.now{ background:var(--ink); transform:scale(1.25); } .dots .dot.done{ background:var(--green); }
+
+  /* ---- banner: what is happening ---- */
+  .banner{ min-height:3.6rem; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.15rem;
+    border-radius:14px; padding:.5rem .8rem; margin:.2rem 0 .6rem; background:var(--paper); color:var(--ink-soft);
+    transition:background .25s, color .25s; text-align:center; border:2px solid transparent; }
+  .bn-main{ font-family:'Space Grotesk',sans-serif; font-size:clamp(1.05rem,3.6vw,1.55rem); font-weight:700; display:flex; gap:.6rem; align-items:center; flex-wrap:wrap; justify-content:center; }
+  .bn-main .pill{ display:inline-block; padding:.05em .55em; border-radius:999px; border:2px solid currentColor; background:rgba(255,255,255,.6); }
+  .bn-main .arrow{ font-size:1.2em; }
+  .bn-sub{ font-size:.92rem; font-weight:700; line-height:1.35; }
+  .bn-merge{ font-size:.9rem; font-weight:700; opacity:.85; font-family:'Space Grotesk',sans-serif; }
+  .banner.pre{ background:#FFF6E3; color:var(--copper); border-color:var(--amber); }
+  .banner.live{ background:#DDF2E9; color:var(--green); border-color:var(--green); }
+  .banner.live .bb, .banner.done .bb{ animation:pop .45s cubic-bezier(.3,1.6,.5,1); }
+  .banner.bad{ background:#FBE3E1; color:var(--red); border-color:var(--red); }
+  .banner.done{ background:#DDF2E9; color:var(--green); }
+  .banner.hint{ background:#FFF6E3; color:var(--copper); border-color:var(--amber); }
+  .banner.win{ background:#DDF2E9; color:var(--green); font-size:1.1rem; }
+  @keyframes pop{ 0%{transform:scale(.4)} 60%{transform:scale(1.25)} 100%{transform:scale(1)} }
+
+  /* ---- the flip card ---- */
+  .eqcard{ perspective:1400px; margin-bottom:.2rem; }
+  .flip{ display:grid; transition:transform .75s cubic-bezier(.4,0,.2,1); transform-style:preserve-3d; }
+  .eqcard.solved .flip{ transform:rotateX(180deg); }
+  .face{ grid-area:1/1; backface-visibility:hidden; -webkit-backface-visibility:hidden; border-radius:14px; }
+  .face.front{ background:var(--paper); padding:1.4rem .5rem 2.6rem; }
+  .face.back{ transform:rotateX(180deg); background:#DDF2E9; border:3px solid var(--green);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.5rem; padding:1rem; text-align:center; overflow:hidden; }
+  .back .big-eq{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(1.4rem,5.5vw,2.4rem); color:var(--green); overflow-wrap:anywhere; }
+  .back .big-eq .subj{ color:var(--copper); }
+  .back .solved-meta{ font-weight:700; color:var(--ink-soft); }
+  .back .result-screen h3{ font-family:'Space Grotesk',sans-serif; font-size:1.3rem; margin:.3rem 0; }
+  .back .result-screen .emoji{ font-size:2.2rem; }
+
+  .eqrow{ display:flex; align-items:center; justify-content:center; gap:.4em; flex-wrap:nowrap;
+    font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(1.05rem,4.2vw,1.9rem); }
+  .side{ position:relative; display:flex; align-items:center; justify-content:center; min-width:3em; min-height:2.6em;
+    padding:.25em .3em; border-radius:14px; }
+  .terms{ display:inline-flex; align-items:center; gap:.3em; flex-wrap:wrap; justify-content:center; }
+  .sfrac{ display:inline-flex; flex-direction:column; align-items:center; }
+  .sfrac .vinc{ width:100%; height:4px; background:var(--ink); border-radius:2px; margin:.3em 0; }
+
+  /* ---- the equals sign ---- */
+  .eq{ font-size:1.5em; padding:0 .2em; position:relative; transition:transform .2s, color .2s; z-index:1; }
+  .eq.armed{ color:var(--green); animation:eqpulse 1s ease-in-out infinite; }
+  .eq.burst{ animation:eqburst .5s cubic-bezier(.3,1.6,.5,1); }
+  @keyframes eqpulse{ 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+  @keyframes eqburst{ 0%{transform:scale(1)} 40%{transform:scale(1.9) rotate(12deg); text-shadow:0 0 22px rgba(46,139,106,.8)} 100%{transform:scale(1)} }
+
+  /* ---- the bins: where a dragged chip has to be dropped ---- */
+  .side.binmode{ font-size:.92em; }
+  .bins{ display:flex; align-items:stretch; gap:.35em; animation:binsin .3s cubic-bezier(.3,1.4,.5,1); }
+  @keyframes binsin{ 0%{transform:scale(.6); opacity:0} 100%{transform:none; opacity:1} }
+  .bin-frac{ display:flex; flex-direction:column; }
+  .bin{ position:relative; border:3px dashed var(--ink-soft); border-radius:14px; padding:1.25em .45em .45em; min-width:4.6em; min-height:3.4em;
+    display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.6); transition:transform .15s, background .15s, border-color .15s; }
+  .bin .bin-lbl{ position:absolute; top:.25em; left:0; right:0; text-align:center; font-family:'Karla',sans-serif; font-size:.5em; font-weight:700;
+    text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); white-space:nowrap; }
+  .bin.num{ border-bottom-left-radius:0; border-bottom-right-radius:0; border-bottom:none; }
+  .bin.den{ border-top-left-radius:0; border-top-right-radius:0; border-top:none; }
+  .bin-bar{ height:4px; background:var(--ink); border-radius:2px; }
+  .bin-empty{ font-size:.55em; color:var(--ink-soft); font-family:'Karla',sans-serif; font-weight:700; opacity:.6; }
+  .bin.over{ border-style:solid; border-color:var(--green); background:#DDF2E9; transform:scale(1.05); z-index:2; }
+  .bin.over.wrong{ border-color:var(--red); background:#FBE3E1; }
+  .bin.hint-target{ border-style:solid; border-color:var(--amber); background:#FFF6E3; animation:hintbob 1s ease-in-out infinite; }
+
+  /* ---- chips ---- */
+  .chip{ display:inline-flex; align-items:center; gap:.18em; padding:.22em .5em; min-height:2.3em; border-radius:14px; border:3px solid;
+    cursor:grab; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; touch-action:none; background:#fff; position:relative; line-height:1.15;
+    transition:transform .15s, box-shadow .15s, opacity .2s; }
+  .chip.num{ border-color:var(--amber); background:#FFF6E3; color:#8a5a12; }
+  .chip.sym{ border-color:var(--blue); background:#E9F2F8; color:var(--blue); }
+  .chip.subj{ border-color:var(--copper); background:#FBEDE4; color:var(--copper); }
+  .chip.zero{ border-style:dashed; color:var(--ink-soft); background:transparent; cursor:default; border-color:var(--grid-line); }
+  .chip:not(.zero):hover{ transform:translateY(-3px) rotate(-2deg); box-shadow:0 8px 16px var(--shadow); }
+  .chip:focus-visible{ outline:3px solid var(--amber); outline-offset:3px; }
+  .chip.lifted{ opacity:.25; transform:scale(.92); }
+  .chip:active{ cursor:grabbing; }
+  .sg{ font-size:.95em; opacity:.85; }
+  .vv{ padding:0 .03em; }
+  .fac{ display:inline-flex; align-items:center; justify-content:center; min-width:1.35em; padding:0 .22em; border-radius:8px;
+    border:2px dashed currentColor; cursor:grab; transition:transform .12s, background .12s; }
+  .fac:hover{ background:rgba(255,255,255,.85); transform:scale(1.1); }
+  .fac.lifted{ opacity:.25; }
+  .tfrac{ display:inline-flex; flex-direction:column; align-items:center; line-height:1.1; }
+  .tfrac .tnum, .tfrac .tden{ display:inline-flex; align-items:center; gap:.1em; }
+  .tbar{ width:100%; min-width:1.2em; height:3px; background:currentColor; margin:2px 0; border-radius:2px; }
+  .tnum{ display:inline-flex; align-items:center; gap:.1em; }
+
+  .chip.land{ animation:land .55s cubic-bezier(.3,1.6,.5,1); }
+  @keyframes land{ 0%{transform:scale(.3) rotate(-25deg); opacity:0} 60%{transform:scale(1.18) rotate(4deg); opacity:1} 100%{transform:none} }
+  .chip.merge{ animation:merge .6s cubic-bezier(.3,1.6,.5,1); }
+  @keyframes merge{ 0%{transform:scaleX(1.6) scaleY(.5)} 45%{transform:scaleX(.8) scaleY(1.25)} 100%{transform:none} }
+  .shake{ animation:shake .45s !important; }
+  @keyframes shake{ 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px) rotate(-3deg)} 40%,80%{transform:translateX(8px) rotate(3deg)} }
+  .hinted{ animation:hintbob 1s ease-in-out infinite !important; box-shadow:0 0 0 4px rgba(255,176,46,.75), 0 8px 20px rgba(255,176,46,.5) !important; }
+  @keyframes hintbob{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+
+  /* ---- the flying ghost ---- */
+  .ghost{ position:fixed; left:0; top:0; z-index:1000; pointer-events:none; perspective:700px; transform:translate(-50%,-50%);
+    font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(1.3rem,4.5vw,1.9rem); }
+  .ginner{ display:grid; transform-style:preserve-3d; transition:transform .45s cubic-bezier(.3,1.5,.5,1); }
+  .ghost.flipped .ginner{ transform:rotateY(180deg); }
+  .gface{ grid-area:1/1; backface-visibility:hidden; -webkit-backface-visibility:hidden; padding:.3em .75em; border-radius:16px; border:3px solid;
+    background:#fff; box-shadow:0 16px 34px rgba(0,0,0,.28); white-space:nowrap; display:flex; align-items:center; justify-content:center; }
+  .gfront{ border-color:var(--ink); color:var(--ink); transform:rotate(-5deg) scale(1.08); }
+  .gback{ transform:rotateY(180deg) rotate(5deg) scale(1.08); border-color:var(--green); background:#DDF2E9; color:var(--green); }
+  .ghost.bad .gback{ border-color:var(--red); background:#FBE3E1; color:var(--red); }
+
+  /* ---- "do it to both sides" tags ---- */
+  .bs-tag{ position:absolute; left:50%; top:100%; transform:translateX(-50%); font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:.7em;
+    color:var(--green); background:#DDF2E9; border:2px solid var(--green); border-radius:999px; padding:.05em .55em; white-space:nowrap;
+    pointer-events:none; animation:tagfloat 1.6s ease-out forwards; }
+  @keyframes tagfloat{ 0%{opacity:0; transform:translate(-50%,-8px) scale(.5)} 20%{opacity:1; transform:translate(-50%,6px) scale(1.15)}
+    75%{opacity:1; transform:translate(-50%,10px) scale(1)} 100%{opacity:0; transform:translate(-50%,26px) scale(.9)} }
+
+  .controls{ display:flex; gap:.5rem; justify-content:center; flex-wrap:wrap; margin-top:.4rem; }
+  .legend{ display:flex; gap:.9rem; justify-content:center; font-size:.8rem; color:var(--ink-soft); margin-top:.8rem; flex-wrap:wrap; }
+  .legend span{ display:inline-flex; align-items:center; gap:.35rem; }
+  .swatch{ width:16px; height:16px; border-radius:4px; border:2px solid; }
+  .swatch.dashed{ border-style:dashed; border-color:var(--ink); }
+  .howto{ display:grid; grid-template-columns:repeat(3,1fr); gap:.6rem; margin-top:.9rem; }
+  .how{ background:var(--paper); border-radius:12px; padding:.6rem .7rem; font-size:.82rem; line-height:1.4; color:var(--ink-soft); }
+  .how b{ display:block; font-family:'Space Grotesk',sans-serif; font-size:1rem; color:var(--ink); margin-bottom:.15rem; }
+  @media (max-width:560px){ .howto{ grid-template-columns:1fr; } }
+
+  .trace h2{ font-family:'Space Grotesk',sans-serif; font-size:.8rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); margin-bottom:.6rem; }
+  .trace-line{ font-family:'Space Grotesk',sans-serif; font-size:1.05rem; padding:.25rem 0; display:flex; justify-content:space-between; align-items:baseline; gap:1rem; }
+  .trace-line .op{ color:var(--blue); font-size:.82rem; font-family:'Karla',sans-serif; font-weight:700; text-align:right; }
+  .trace-line.now{ color:var(--ink); } .trace-line.past{ color:var(--ink-soft); }
+  .trace-line i{ color:var(--copper); font-style:normal; }
+
+  .confetti{ position:fixed; top:-14px; width:10px; height:16px; z-index:999; pointer-events:none; border-radius:2px; animation:fall linear forwards; }
+  @keyframes fall{ to{ transform:translateY(110vh) rotate(720deg); } }
+  footer{ text-align:center; color:var(--ink-soft); font-size:.78rem; margin-top:.5rem; }
+  @media (max-width:520px){ .face.front{ padding:1.1rem .25rem 2.4rem; } .side{ min-width:2.4em; padding:.2em .15em; } .bin{ min-width:4em; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🔀 Rearrange Lab</h1>
+    <p class="subtitle">Grab a number and carry it across the <b>=</b>. Three slots open up on the other side — drop it in the one that <b>undoes</b> what it was doing. Keep going until the letter is on its own.</p>
+  </header>
+
+  <div class="card">
+    <div class="toolbar">
+      <span class="lbl">Deck</span>
+      <button class="btn lvl on" data-lvl="1">One-step</button>
+      <button class="btn lvl" data-lvl="2">Two-step</button>
+      <button class="btn lvl" data-lvl="3">x on both sides</button>
+      <button class="btn lvl" data-lvl="4">Formulas</button>
+      <button class="btn lvl" data-lvl="5">Multi-step formulas</button>
+      <button class="btn lvl" data-lvl="mix">🎲 Mix</button>
+      <button class="btn" id="btnNew" style="margin-left:auto">↻ New card</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="meta">
+      <span class="count" id="cardCount">Card 1 of 6</span>
+      <div class="dots" id="dots"></div>
+      <span class="prompt" id="prompt">Solve for <b>x</b></span>
+    </div>
+
+    <div class="eqcard" id="eqcard">
+      <div class="flip">
+        <div class="face front">
+          <div class="eqrow" id="eqrow">
+            <div class="side" id="sideL"></div>
+            <div class="eq" id="eq">=</div>
+            <div class="side" id="sideR"></div>
+          </div>
+        </div>
+        <div class="face back" id="solvedFace">
+          <div class="big-eq" id="solvedEq"></div>
+          <div class="solved-meta" id="solvedMeta"></div>
+          <div id="solvedBtns"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="banner" id="banner"><div class="bn-main" id="bnMain"></div><div class="bn-sub" id="bnSub"></div><div class="bn-merge" id="bnMerge"></div></div>
+    <div class="controls">
+      <button class="btn" id="btnHint">💡 Hint</button>
+      <button class="btn" id="btnUndo">↩ Undo</button>
+      <button class="btn" id="btnReset">⟲ Reset card</button>
+    </div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#FBEDE4;border-color:var(--copper)"></span> the letter to get on its own</span>
+      <span><span class="swatch" style="background:#FFF6E3;border-color:var(--amber)"></span> numbers</span>
+      <span><span class="swatch" style="background:#E9F2F8;border-color:var(--blue)"></span> other letters</span>
+      <span><span class="swatch dashed"></span> stuck on by × or ÷ — drag it on its own</span>
+    </div>
+    <div class="howto">
+      <div class="how"><b>+ / − slot</b>Undoes adding or taking away. The sign flips: + 5 becomes − 5.</div>
+      <div class="how"><b>Top of the line</b>Multiplies the other side. Undoes a ÷ — a ÷ 4 becomes × 4.</div>
+      <div class="how"><b>Under the line</b>Divides the other side. Undoes a × — a × 3 becomes ÷ 3.</div>
+    </div>
+  </div>
+
+  <div class="card trace">
+    <h2>Your working</h2>
+    <div id="trace"></div>
+  </div>
+
+  <footer>Rearrange Lab · part of the little tutoring tools family</footer>
+</div>
+
+<!-- ===================== MODEL (pure, no DOM) ===================== -->
+<script id="model">
+"use strict";
+/* An equation is {L, R}. Each side is {t:[term...], dv:[symbol...]} meaning (sum of terms) ÷ (product of dv).
+   A term is {c:{n,d}, v:[symbols]} e.g. 3x → c=3/1 v=['x'];  x/4 → c=1/4 v=['x'];  −u → c=−1 v=['u'];  5 → c=5 v=[];  at² → v=['a','t','t'] */
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b];}return a||1;}
+function fr(n,d){ d=(d===undefined?1:d); if(d<0){n=-n;d=-d;} const g=gcd(n,d)||1; return {n:n/g,d:d/g}; }
+const fadd=(a,b)=>fr(a.n*b.d+b.n*a.d,a.d*b.d), fmul=(a,b)=>fr(a.n*b.n,a.d*b.d), fdiv=(a,b)=>fr(a.n*b.d,a.d*b.n),
+      fneg=a=>fr(-a.n,a.d), fabs=a=>fr(Math.abs(a.n),a.d);
+const randint=(a,b)=>a+Math.floor(Math.random()*(b-a+1)), pick=a=>a[Math.floor(Math.random()*a.length)];
+const T=(n,d,v)=>({c:fr(n,d===undefined?1:d), v:(v||[]).slice()});
+const SD=(t,dv)=>({t, dv:(dv||[]).slice()});
+const clone=o=>JSON.parse(JSON.stringify(o));
+const sig=v=>v.slice().sort().join('');
+const isZero=t=>t.c.n===0&&!t.v.length;
+const other=s=>s==='L'?'R':'L';
+const paren=n=>n<0?'(−'+Math.abs(n)+')':String(n);
+const SUP={2:'²',3:'³'};
+function groups(v){ const out=[]; v.forEach(s=>{ const g=out.find(o=>o.v===s); if(g) g.n++; else out.push({v:s,n:1}); }); return out; }
+const powStr=(v,n)=>n===1?v:v+(SUP[n]||'^'+n);
+const varsStr=v=>groups(v).map(g=>powStr(g.v,g.n)).join('');
+const countOf=(arr,v)=>arr.filter(x=>x===v).length;
+const BIN_FOR={term:'add', num:'den', den:'num', var:'den', div:'num'};   // the slot that undoes each kind of piece
+
+/* ---- text ---- */
+function termBody(t){ // magnitude only: "5", "3x", "x/4", "2πr", "7/2", "at²/2"
+  const an=Math.abs(t.c.n), d=t.c.d;
+  if(!t.v.length) return an+(d!==1?'/'+d:'');
+  return (an===1?'':an)+varsStr(t.v)+(d!==1?'/'+d:'');
+}
+function termStr(t){ return (t.c.n<0?'−':'')+termBody(t); }
+function termSigned(t){ return (t.c.n<0?'− ':'+ ')+termBody(t); }
+function sideStr(s){
+  let out=''; s.t.forEach((t,i)=>{ out += i===0 ? termStr(t) : ' '+termSigned(t); });
+  if(s.dv.length) out=(s.t.length>1?'('+out+')':out)+'/'+varsStr(s.dv);
+  return out;
+}
+const eqStr=st=>sideStr(st.L)+' = '+sideStr(st.R);
+
+/* ---- tidy: merge like terms ---- */
+function tidy(side){
+  const out=[];
+  for(const t of side.t){ const k=sig(t.v); const f=out.find(o=>sig(o.v)===k); if(f) f.c=fadd(f.c,t.c); else out.push({c:t.c,v:t.v.slice()}); }
+  side.t=out.filter(t=>t.c.n!==0);
+  if(side.t.length>1 && side.t[0].c.n<0){ const j=side.t.findIndex(t=>t.c.n>0); if(j>0) side.t.unshift(side.t.splice(j,1)[0]); } // lead with a positive term: "v − at" not "−at + v"
+  if(!side.t.length) side.t=[T(0)];
+  return side;
+}
+function tidyAll(st){ tidy(st.L); tidy(st.R); return st; }
+
+/* ---- a move: {kind:'term'|'num'|'den'|'var'|'div', side, i?, v?} ---- */
+function describe(st,mv){
+  const src=st[mv.side], info=Object.assign({},mv,{allowed:true, why:'', bin:BIN_FOR[mv.kind]});
+  const t=src.t[mv.i];
+  if(mv.kind==='term'){
+    info.mag=termBody(t); info.front=termSigned(t); info.back=termSigned({c:fneg(t.c),v:t.v}); info.verb=t.c.n>0?'added on':'taken away';
+    info.op=(t.c.n>0?'subtract ':'add ')+info.mag+(t.c.n>0?' from':' to')+' both sides';
+    info.tag=(t.c.n>0?'− ':'+ ')+info.mag;
+    if(isZero(t)){ info.allowed=false; info.why='Zero has nothing to move.'; }
+    else if(src.dv.length){ info.allowed=false; info.why=`The whole of this side is divided by ${varsStr(src.dv)} — you can't pull one piece out of a fraction. Move the ${varsStr(src.dv)} across first.`; }
+  } else if(mv.kind==='num'){
+    const n=t.c.n; info.mag=paren(n); info.what=varsStr(t.v); info.verb='multiplying '+info.what;
+    info.front='× '+info.mag; info.back='÷ '+info.mag; info.op=`divide both sides by ${info.mag}`; info.tag='÷ '+info.mag;
+    if(src.t.length>1){ info.allowed=false; info.why=`The ${info.mag} is only multiplying ${info.what}, not the whole side — ${sideStr(src)} isn't ${info.mag} × (…). Move the other terms across first.`; }
+  } else if(mv.kind==='den'){
+    const d=t.c.d; info.mag=String(d); info.what=varsStr(t.v)||'that number'; info.verb='dividing '+info.what;
+    info.front='÷ '+d; info.back='× '+d; info.op=`multiply both sides by ${d}`; info.tag='× '+d;
+    if(src.t.length>1){ info.allowed=false; info.why=`The ÷${d} only applies to ${info.what}, not the whole side. Move the other terms across first.`; }
+  } else if(mv.kind==='var'){
+    info.mag=powStr(mv.v,countOf(t.v,mv.v)); info.what=varsStr(t.v); info.verb='multiplying '+varsStr(t.v.filter(x=>x!==mv.v));
+    info.front='× '+info.mag; info.back='÷ '+info.mag; info.op=`divide both sides by ${info.mag}`; info.tag='÷ '+info.mag;
+    if(src.t.length>1){ info.allowed=false; info.why=`${info.mag} is only multiplying ${info.what}, not the whole side. Move the other terms across first.`; }
+  } else { // div
+    info.mag=powStr(mv.v,countOf(src.dv,mv.v)); info.what='this side'; info.verb='dividing this side';
+    info.front='÷ '+info.mag; info.back='× '+info.mag; info.op=`multiply both sides by ${info.mag}`; info.tag='× '+info.mag;
+  }
+  return info;
+}
+/* why a particular wrong slot doesn't undo the piece */
+function wrongBinMsg(info,bin){
+  const m=info.mag;
+  if(info.kind==='term'){
+    const opp = info.verb==='added on' ? 'adding is subtracting' : 'taking away is adding';
+    return bin==='num' ? `${info.front} is ${info.verb}, not dividing — so multiplying by ${m} won't undo it. The opposite of ${opp}: use the + / − slot.`
+                       : `${info.front} is ${info.verb}, not multiplying — so dividing by ${m} won't undo it. The opposite of ${opp}: use the + / − slot.`;
+  }
+  if(info.kind==='num'||info.kind==='var'){
+    return bin==='num' ? `${m} is ${info.verb}. Multiplying the other side by ${m} as well makes it worse — the opposite of × is ÷. Drop it under the line.`
+                       : `${m} isn't added on, it's ${info.verb}. You can't just take it away — the opposite of × ${m} is ÷ ${m}. Drop it under the line.`;
+  }
+  return bin==='den' ? `${info.what} is already divided by ${m}. Dividing the other side too doesn't undo it — the opposite of ÷ is ×. Drop it on top of the line.`
+                     : `${m} is dividing, not taken away. The opposite of ÷ ${m} is × ${m}. Drop it on top of the line.`;
+}
+function previewFor(info,bin){   // what the ghost would read if dropped in this slot
+  if(bin===info.bin) return info.back;
+  if(bin==='num') return '× '+info.mag; if(bin==='den') return '÷ '+info.mag;
+  return '− '+info.mag;
+}
+
+function apply(st,mv){   // returns the new (untidied) equation
+  st=clone(st); const src=st[mv.side], dst=st[other(mv.side)];
+  if(mv.kind==='term'){
+    const t=src.t.splice(mv.i,1)[0]; if(!src.t.length) src.t=[T(0)];
+    dst.t=dst.t.filter(x=>!isZero(x)); dst.t.push({c:fneg(t.c),v:t.v});
+  } else if(mv.kind==='num'){
+    const t=src.t[mv.i], k=fr(t.c.n); t.c=fdiv(t.c,k);
+    const clean = dst.t.every(x=>fdiv(x.c,k).d===1);          // 6 ÷ 2 = 3 stays whole → divide each term; otherwise write ÷9 under the whole side
+    if(dst.t.length===1 || clean) dst.t.forEach(x=>x.c=fdiv(x.c,k));
+    else { if(k.n<0) dst.t.forEach(x=>x.c=fneg(x.c)); dst.dv.push(String(Math.abs(k.n))); }
+  } else if(mv.kind==='den'){
+    const t=src.t[mv.i], k=fr(t.c.d); t.c=fmul(t.c,k); dst.t.forEach(x=>x.c=fmul(x.c,k));
+  } else if(mv.kind==='var'){
+    const t=src.t[mv.i], n=countOf(t.v,mv.v); t.v=t.v.filter(x=>x!==mv.v);
+    if(dst.t.every(x=>countOf(x.v,mv.v)>=n)) dst.t.forEach(x=>{ for(let i=0;i<n;i++) x.v.splice(x.v.indexOf(mv.v),1); });
+    else for(let i=0;i<n;i++) dst.dv.push(mv.v);
+  } else if(mv.kind==='div'){
+    let n=countOf(src.dv,mv.v); src.dv=src.dv.filter(x=>x!==mv.v);
+    while(n>0 && dst.dv.includes(mv.v)){ dst.dv.splice(dst.dv.indexOf(mv.v),1); n--; }
+    dst.t.forEach(x=>{ if(!isZero(x)) for(let i=0;i<n;i++) x.v.push(mv.v); });
+  }
+  return st;
+}
+
+function isolated(side,sub){ return side.t.length===1 && !side.dv.length && side.t[0].c.n===1 && side.t[0].c.d===1 && side.t[0].v.length===1 && side.t[0].v[0]===sub; }
+function hasSub(side,sub){ return side.t.some(t=>t.v.includes(sub)) || side.dv.includes(sub); }
+function solvedSide(st,sub){ if(isolated(st.L,sub)&&!hasSub(st.R,sub)) return 'L'; if(isolated(st.R,sub)&&!hasSub(st.L,sub)) return 'R'; return null; }
+
+function suggest(st,sub){
+  const li=st.L.t.findIndex(t=>t.v.includes(sub)), ri=st.R.t.findIndex(t=>t.v.includes(sub));
+  if(li>=0&&ri>=0){
+    if(st.R.dv.length&&!st.L.dv.length) return {kind:'term',side:'L',i:li};
+    if(st.L.dv.length&&!st.R.dv.length) return {kind:'term',side:'R',i:ri};
+    const lc=Math.abs(st.L.t[li].c.n/st.L.t[li].c.d), rc=Math.abs(st.R.t[ri].c.n/st.R.t[ri].c.d);
+    return rc<=lc ? {kind:'term',side:'R',i:ri} : {kind:'term',side:'L',i:li};
+  }
+  const sName = li>=0?'L':ri>=0?'R':null;
+  if(!sName){ if(st.L.dv.includes(sub)) return {kind:'div',side:'L',v:sub}; if(st.R.dv.includes(sub)) return {kind:'div',side:'R',v:sub}; return null; }
+  const S=st[sName];
+  if(S.dv.length) return {kind:'div',side:sName,v:S.dv[0]};
+  if(S.t.length>1){ return {kind:'term',side:sName,i:S.t.findIndex(t=>!t.v.includes(sub))}; }
+  const t=S.t[0];
+  if(t.c.d!==1) return {kind:'den',side:sName,i:0};
+  if(Math.abs(t.c.n)!==1) return {kind:'num',side:sName,i:0};
+  const extra=t.v.find(v=>v!==sub); if(extra) return {kind:'var',side:sName,i:0,v:extra};
+  if(t.c.n===-1) return {kind:'num',side:sName,i:0};
+  const O=st[other(sName)]; if(O.dv.includes(sub)) return {kind:'div',side:other(sName),v:sub};
+  return null;
+}
+function par(st,sub){
+  let s=clone(st), n=0;
+  while(n<12){ if(solvedSide(s,sub)) return n; const mv=suggest(s,sub); if(!mv||!describe(s,mv).allowed) return n; s=tidyAll(apply(s,mv)); n++; }
+  return n;
+}
+
+/* ---- card generators ---- */
+const nz=n=>n===0?1:n;
+function genX(lv){
+  let s=randint(1,9); if(Math.random()<.2) s=-s;
+  let L,R;
+  if(lv===1){
+    const f=randint(0,3);
+    if(f===0){ const b=nz(randint(-9,9)); L=SD([T(1,1,['x']),T(b)]); R=SD([T(nz(s+b))]); }
+    else if(f===1){ const a=randint(2,9); L=SD([T(a,1,['x'])]); R=SD([T(a*s)]); }
+    else if(f===2){ const d=randint(2,6); L=SD([T(1,d,['x'])]); R=SD([T(nz(s))]); }
+    else { const b=nz(randint(-9,9)); L=SD([T(nz(s+b))]); R=SD([T(1,1,['x']),T(b)]); }
+  } else if(lv===2){
+    const f=randint(0,3), a=randint(2,6), b=nz(randint(-9,9));
+    if(f===0){ L=SD([T(a,1,['x']),T(b)]); R=SD([T(a*s+b)]); }
+    else if(f===1){ const d=randint(2,5); let k=randint(1,6); if(k+b===0) k++; L=SD([T(1,d,['x']),T(b)]); R=SD([T(k+b)]); }
+    else if(f===2){ L=SD([T(b),T(a,1,['x'])]); R=SD([T(a*s+b)]); }
+    else { L=SD([T(a*s+b)]); R=SD([T(a,1,['x']),T(b)]); }
+  } else {
+    let a,c; do{ a=randint(1,6); c=randint(1,6); }while(a===c);
+    const b=nz(randint(-8,8)), d=a*s+b-c*s;
+    L=SD([T(a,1,['x']),T(b)]); R= d===0 ? SD([T(c,1,['x'])]) : SD([T(c,1,['x']),T(d)]);
+  }
+  return {L,R,sub:'x',prompt:'Solve for <b>x</b>'};
+}
+const FORMULAS=[
+  {eq:()=>({L:SD([T(1,1,['v'])]), R:SD([T(1,1,['u']),T(1,1,['a','t'])])}), subs:['a','u','t'], name:'speed'},
+  {eq:()=>({L:SD([T(1,1,['y'])]), R:SD([T(1,1,['m','x']),T(1,1,['c'])])}), subs:['x','m','c'], name:'straight line'},
+  {eq:()=>({L:SD([T(1,1,['F'])]), R:SD([T(1,1,['m','a'])])}), subs:['m','a'], name:'force'},
+  {eq:()=>({L:SD([T(1,1,['s'])]), R:SD([T(1,1,['d'])],['t'])}), subs:['d','t'], name:'speed = distance ÷ time'},
+  {eq:()=>({L:SD([T(1,1,['P'])]), R:SD([T(2,1,['l']),T(2,1,['w'])])}), subs:['l','w'], name:'perimeter of a rectangle'},
+  {eq:()=>({L:SD([T(1,1,['A'])]), R:SD([T(1,2,['b','h'])])}), subs:['b','h'], name:'area of a triangle'},
+  {eq:()=>({L:SD([T(1,1,['C'])]), R:SD([T(2,1,['π','r'])])}), subs:['r'], name:'circumference'},
+  {eq:()=>({L:SD([T(1,1,['F'])]), R:SD([T(9,5,['C']),T(32)])}), subs:['C'], name:'°C to °F'},
+  {eq:()=>({L:SD([T(1,1,['a'])]), R:SD([T(1,1,['v']),T(-1,1,['u'])],['t'])}), subs:['v','u','t'], name:'acceleration'},
+  {eq:()=>({L:SD([T(1,1,['V'])]), R:SD([T(1,1,['I','R'])])}), subs:['I','R'], name:"Ohm's law"},
+  {eq:()=>({L:SD([T(1,1,['E'])]), R:SD([T(1,1,['m','g','h'])])}), subs:['m','h'], name:'potential energy'},
+  {eq:()=>({L:SD([T(1,1,['ρ'])]), R:SD([T(1,1,['m'])],['V'])}), subs:['m','V'], name:'density'},
+  {eq:()=>({L:SD([T(1,1,['P'])]), R:SD([T(1,1,['W'])],['t'])}), subs:['W','t'], name:'power'},
+  {eq:()=>({L:SD([T(1,1,['E'])]), R:SD([T(1,2,['m','v','v'])])}), subs:['m'], name:'kinetic energy'},
+  {eq:()=>({L:SD([T(1,1,['v','v'])]), R:SD([T(1,1,['u','u']),T(2,1,['a','s'])])}), subs:['a','s'], name:'v² = u² + 2as'},
+  {eq:()=>({L:SD([T(1,1,['s'])]), R:SD([T(1,1,['u','t']),T(1,2,['a','t','t'])])}), subs:['u','a'], name:'s = ut + ½at²'},
+  {eq:()=>({L:SD([T(1,1,['I'])]), R:SD([T(1,100,['P','R','T'])])}), subs:['P','R','T'], name:'simple interest'},
+  {eq:()=>({L:SD([T(1,1,['Q'])]), R:SD([T(1,1,['m','c','ΔT'])])}), subs:['m','c'], name:'heat energy'},
+  {eq:()=>({L:SD([T(1,1,['P'])]), R:SD([T(1,1,['I','I','R'])])}), subs:['R'], name:'electrical power'},
+  {eq:()=>({L:SD([T(1,1,['P','V'])]), R:SD([T(1,1,['n','R','T'])])}), subs:['T','V'], name:'ideal gas'},
+];
+const FORMULA_CARDS=[]; FORMULAS.forEach(f=>f.subs.forEach(sub=>{ const st=f.eq(); FORMULA_CARDS.push({f,sub,par:par(st,sub)}); }));
+function genFormula(multi){
+  const pool=FORMULA_CARDS.filter(c=> multi ? c.par>=3 : c.par<=2);
+  const c=pick(pool), st=c.f.eq();
+  return {L:st.L, R:st.R, sub:c.sub, prompt:`Make <b>${c.sub}</b> the subject <span style="color:var(--ink-soft);font-weight:500">(${c.f.name})</span>`};
+}
+function genCard(level){
+  const lv = level==='mix' ? pick([1,2,3,4,5]) : +level;
+  const c = lv>=4 ? genFormula(lv===5) : genX(lv);
+  c.par = par({L:c.L,R:c.R}, c.sub);
+  return c;
+}
+if(typeof module!=='undefined') module.exports={fr,T,SD,tidyAll,describe,apply,suggest,par,solvedSide,genCard,eqStr,FORMULAS,FORMULA_CARDS,clone,BIN_FOR,wrongBinMsg,previewFor};
+</script>
+
+<!-- ===================== UI ===================== -->
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const ROUND=6;
+let level=1, round=null, card=null, state=null, history=[], solved=false, busy=false;
+let hintKey=null, hintArmed=false, drag=null;
+
+/* ---------- rendering ---------- */
+function mk(tag,cls,text){ const e=document.createElement(tag); if(cls) e.className=cls; if(text!==undefined) e.textContent=text; return e; }
+
+function chipEl(t,i,side,first,alone){
+  const chip=mk('div','chip'); chip.dataset.kind='term'; chip.dataset.side=side; chip.dataset.i=i; chip.dataset.sig=sig(t.v);
+  if(isZero(t)){ chip.classList.add('zero'); chip.appendChild(mk('span','vv','0')); return chip; }
+  chip.classList.add(t.v.includes(card.sub)?'subj':t.v.length?'sym':'num');
+  chip.tabIndex=0; chip.setAttribute('role','button');
+  const neg=t.c.n<0, an=Math.abs(t.c.n);
+  const hasSubj = t.v.includes(card.sub);                      // only the subject's own term has × and ÷ pieces to peel off
+  const signInFac = alone && neg && hasSubj;                   // "−3x = 9": the −3 is one draggable factor
+  const showNumFac = hasSubj && (an!==1 || signInFac);
+  if(!signInFac && !(first&&!neg)) chip.appendChild(mk('span','sg',neg?'−':'+'));
+  const top=mk('span','tnum');
+  if(t.v.length){
+    if(showNumFac){ const f=mk('span','fac num', signInFac ? (an===1?'−':'−'+an) : String(an)); f.dataset.kind='num';
+      f.title=`×${paren(t.c.n)} — drag me across on my own`; top.appendChild(f); }
+    else if(an!==1) top.appendChild(mk('span','vv',String(an)));
+    groups(t.v).forEach(g=>{ const vs=mk('span','vv',powStr(g.v,g.n)); if(hasSubj && g.v!==card.sub){ vs.classList.add('fac','var'); vs.dataset.kind='var'; vs.dataset.v=g.v; vs.title=`×${powStr(g.v,g.n)} — drag me across on my own`; } top.appendChild(vs); });
+  } else top.appendChild(mk('span','vv',String(an)));
+  if(t.c.d!==1){
+    const fracEl=mk('span','tfrac'); const den=mk('span','tden');
+    const f = hasSubj ? mk('span','fac den',String(t.c.d)) : mk('span','vv',String(t.c.d));
+    if(hasSubj){ f.dataset.kind='den'; f.title=`÷${t.c.d} — drag me across on my own`; } den.appendChild(f);
+    fracEl.append(top, mk('span','tbar'), den); chip.appendChild(fracEl);
+  } else chip.appendChild(top);
+  chip.setAttribute('aria-label', termSigned(t)+' — press Enter to move it across');
+  return chip;
+}
+function divChipEl(v,n,side){
+  const chip=mk('div','chip dchip '+(v===card.sub?'subj':'sym'),powStr(v,n)); chip.dataset.kind='div'; chip.dataset.side=side; chip.dataset.v=v;
+  chip.tabIndex=0; chip.setAttribute('role','button'); chip.title=`÷${powStr(v,n)} — drag me across`; return chip;
+}
+function termsEl(side,name){ const terms=mk('div','terms'); side.t.forEach((t,i)=>terms.appendChild(chipEl(t,i,name,i===0,side.t.length===1))); return terms; }
+function dvEl(side,name){ const den=mk('div','terms'); groups(side.dv).forEach(g=>den.appendChild(divChipEl(g.v,g.n,name))); return den; }
+function renderSide(side,name){
+  const el=$('side'+name); el.innerHTML=''; el.classList.remove('binmode');
+  const terms=termsEl(side,name);
+  if(side.dv.length){ const fr_=mk('div','sfrac'); fr_.append(terms, mk('div','vinc'), dvEl(side,name)); el.appendChild(fr_); }
+  else el.appendChild(terms);
+}
+/* the destination side opens into three slots while something is being carried over */
+function renderBins(name){
+  const side=state[name], el=$('side'+name); el.innerHTML=''; el.classList.add('binmode');
+  const bins=mk('div','bins'), frac=mk('div','bin-frac');
+  const num=mk('div','bin num'); num.dataset.bin='num'; num.appendChild(mk('span','bin-lbl','× top')); num.appendChild(termsEl(side,name));
+  const den=mk('div','bin den'); den.dataset.bin='den'; den.appendChild(mk('span','bin-lbl','÷ bottom'));
+  if(side.dv.length) den.appendChild(dvEl(side,name)); else den.appendChild(mk('span','bin-empty','drop here'));
+  frac.append(num, mk('div','bin-bar'), den);
+  const add=mk('div','bin add'); add.dataset.bin='add'; add.appendChild(mk('span','bin-lbl','+ / −')); add.appendChild(mk('span','bin-empty','drop here'));
+  if(name==='L') bins.append(add,frac); else bins.append(frac,add);
+  el.appendChild(bins);
+}
+function render(opts){
+  opts=opts||{};
+  renderSide(state.L,'L'); renderSide(state.R,'R');
+  if(opts.land){ const sideEl=$('side'+opts.land);
+    if(opts.kind==='term'){ const chips=sideEl.querySelectorAll('.chip[data-kind="term"]'); if(chips.length) chips[chips.length-1].classList.add('land'); }
+    else sideEl.querySelectorAll('.chip').forEach(c=>c.classList.add('land'));
+    if(opts.srcSide){ $('side'+opts.srcSide).querySelectorAll('.chip').forEach(c=>c.classList.add('land')); } }
+  if(opts.merge){ $('side'+opts.merge).querySelectorAll('.chip[data-kind="term"]').forEach(c=>{ if(c.dataset.sig===opts.sig) c.classList.add('merge'); }); }
+  renderTrace(); renderMeta();
+  $('btnUndo').disabled = history.length<=1 || solved;
+}
+function renderTrace(){
+  const t=$('trace'); t.innerHTML='';
+  history.forEach((h,i)=>{
+    const line=mk('div','trace-line '+(i===history.length-1?'now':'past'));
+    const txt=eqStr(h.st).split(card.sub).join(`<i>${card.sub}</i>`);
+    line.innerHTML=`<span>${txt}</span><span class="op">${h.op==='start'?'':h.op}</span>`; t.appendChild(line);
+  });
+}
+function renderMeta(){
+  $('cardCount').textContent=`Card ${round.idx+1} of ${ROUND}`;
+  $('prompt').innerHTML=card.prompt;
+  const d=$('dots'); d.innerHTML='';
+  for(let i=0;i<ROUND;i++){ const dot=mk('span','dot'); if(i<round.idx) dot.classList.add('done'); else if(i===round.idx) dot.classList.add(solved?'done':'now'); d.appendChild(dot); }
+}
+
+/* ---------- banner ---------- */
+function showBanner(mode,info,sub){
+  const b=$('banner'); b.className='banner '+mode; const m=$('bnMain'); $('bnMerge').textContent='';
+  if(mode==='idle'){ m.innerHTML='Drag a number across the <span class="pill">=</span>'; $('bnSub').textContent=sub||'Tap any chip to see what it is doing.'; return; }
+  if(mode==='win'){ m.innerHTML=info; $('bnSub').textContent=sub||''; return; }
+  const back = mode==='pre' ? '?' : (info.allowed ? `<span class="pill bb">${info.preview||info.back}</span>` : '🚫');
+  m.innerHTML=`<span class="pill bf">${info.front}</span><span class="arrow">➜</span>${back}`;
+  $('bnSub').textContent = sub!==undefined ? sub : (mode==='pre' ? 'Which slot undoes it? Drop it in to find out.' : mode==='bad' ? info.why : info.op);
+}
+function setMergeLine(txt){ $('bnMerge').textContent=txt?('then '+txt):''; }
+
+/* ---------- moves ---------- */
+function moveFrom(chip,fac){
+  const side=chip.dataset.side;
+  if(chip.dataset.kind==='div') return {kind:'div',side,v:chip.dataset.v};
+  const i=+chip.dataset.i;
+  if(fac){ const k=fac.dataset.kind; return k==='var'?{kind:'var',side,i,v:fac.dataset.v}:{kind:k,side,i}; }
+  return {kind:'term',side,i};
+}
+function findEl(mv){
+  if(mv.kind==='div') return document.querySelector(`.chip[data-kind="div"][data-side="${mv.side}"][data-v="${mv.v}"]`);
+  const chip=document.querySelector(`.chip[data-kind="term"][data-side="${mv.side}"][data-i="${mv.i}"]`);
+  if(!chip||mv.kind==='term') return chip;
+  if(mv.kind==='var') return chip.querySelector(`.fac.var[data-v="${mv.v}"]`);
+  return chip.querySelector('.fac.'+mv.kind);
+}
+function clearHints(){ document.querySelectorAll('.hinted').forEach(e=>e.classList.remove('hinted')); hintArmed=false; hintKey=null; }
+function pulseEq(){ const e=$('eq'); e.classList.remove('burst'); void e.offsetWidth; e.classList.add('burst'); }
+function addBothTags(txt){ ['L','R'].forEach(s=>{ const tag=mk('span','bs-tag',txt); $('side'+s).appendChild(tag); setTimeout(()=>tag.remove(),1700); }); }
+function reject(el,info,msg){
+  if(el){ el.classList.add('shake','incorrect'); setTimeout(()=>el.classList.remove('shake','incorrect'),500); }
+  showBanner('bad',info,msg);
+}
+
+function commit(mv,info){
+  if(busy||solved) return; busy=true; clearHints();
+  const pre=apply(state,mv), post=tidyAll(clone(pre)), dst=other(mv.side);
+  const needsMerge = JSON.stringify(pre)!==JSON.stringify(post);
+  showBanner('done',info,'✓ '+info.op); addBothTags(info.tag); pulseEq();
+  state=pre; render({land:dst, kind:mv.kind, srcSide: mv.kind==='term'?null:mv.side});
+  const finish=()=>{
+    state=post; history.push({st:clone(post),op:info.op});
+    const moved=pre[dst].t[pre[dst].t.length-1];
+    render(needsMerge?{merge:dst,sig:sig(moved.v)}:{});
+    busy=false; afterMove();
+  };
+  if(needsMerge){
+    const moved=pre[dst].t[pre[dst].t.length-1], k=sig(moved.v);
+    const existing=pre[dst].t.slice(0,-1).find(x=>sig(x.v)===k), result=post[dst].t.find(x=>sig(x.v)===k);
+    const txt = existing ? `${termStr(existing)} ${termSigned(moved)} = ${result?termStr(result):'0'}` : '';
+    setTimeout(()=>{ setMergeLine(txt); finish(); }, 750);
+  } else finish();
+}
+function afterMove(){ const s=solvedSide(state,card.sub); if(s) celebrate(s); }
+
+/* ---------- drag & drop into bins ---------- */
+function makeGhost(info){
+  const g=mk('div','ghost'+(info.allowed?'':' bad'));
+  g.innerHTML=`<div class="ginner"><div class="gface gfront">${info.front}</div><div class="gface gback">${info.allowed?info.back:'🚫'}</div></div>`;
+  document.body.appendChild(g); return g;
+}
+function hitBin(x,y){ const el=document.elementFromPoint(x,y); return el && el.closest ? el.closest('.bin') : null; }
+function setOverBin(d,binEl){
+  document.querySelectorAll('.bin.over').forEach(b=>b.classList.remove('over','wrong'));
+  d.overBin = binEl ? binEl.dataset.bin : null;
+  const gb=d.ghost.querySelector('.gback');
+  if(!binEl){ d.ghost.classList.remove('flipped'); showBanner('pre',d.info); return; }
+  const info=d.info, right = info.allowed && d.overBin===info.bin;
+  binEl.classList.add('over'); if(!right) binEl.classList.add('wrong');
+  gb.textContent = info.allowed ? previewFor(info,d.overBin)+(right?'':' ✗') : '🚫';
+  d.ghost.classList.toggle('bad',!right); d.ghost.classList.add('flipped'); pulseEq();
+  if(!info.allowed) showBanner('bad',info);
+  else if(right) showBanner('live',info);
+  else showBanner('bad',info,wrongBinMsg(info,d.overBin));
+}
+function endBinMode(){ document.querySelectorAll('.side.binmode').forEach(s=>{ const name=s.id.slice(-1); renderSide(state[name],name); }); }
+
+$('eqrow').addEventListener('pointerdown',e=>{
+  if(busy||solved||drag) return;
+  const chip=e.target.closest('.chip'); if(!chip||chip.classList.contains('zero')) return;
+  const fac=e.target.closest('.fac');
+  const mv=moveFrom(chip,fac), info=describe(state,mv);
+  drag={mv,info,el:fac||chip,x0:e.clientX,y0:e.clientY,moved:false,ghost:null,overBin:null,id:e.pointerId};
+  e.preventDefault();
+});
+document.addEventListener('pointermove',e=>{
+  if(!drag||e.pointerId!==drag.id) return;
+  if(!drag.moved){ if(Math.hypot(e.clientX-drag.x0,e.clientY-drag.y0)<6) return;
+    drag.moved=true; clearHints(); drag.ghost=makeGhost(drag.info); drag.el.classList.add('lifted'); $('eq').classList.add('armed');
+    renderBins(other(drag.mv.side)); showBanner('pre',drag.info); }
+  drag.ghost.style.left=e.clientX+'px'; drag.ghost.style.top=e.clientY+'px';
+  const bin=hitBin(e.clientX,e.clientY), name=bin?bin.dataset.bin:null;
+  if(name!==drag.overBin) setOverBin(drag,bin);
+});
+function endDrag(e){
+  if(!drag||e.pointerId!==drag.id) return;
+  const d=drag; drag=null;
+  if(!d.moved){ // a tap: explain the chip
+    if(d.info.allowed) showBanner('hint',Object.assign({},d.info,{back:'?'}),`${d.info.front} is ${d.info.verb}. Drag it across and drop it in the slot that undoes that.`); else reject(d.el,d.info);
+    return; }
+  d.ghost.remove(); $('eq').classList.remove('armed'); endBinMode(); d.el.classList.remove('lifted');
+  if(!d.overBin){ showBanner('idle',null,'Nothing moved — drop it into one of the three slots on the other side.'); return; }
+  if(!d.info.allowed){ reject(d.el,d.info); return; }
+  if(d.overBin===d.info.bin) commit(d.mv,d.info);
+  else reject(d.el,d.info,wrongBinMsg(d.info,d.overBin));
+}
+document.addEventListener('pointerup',endDrag); document.addEventListener('pointercancel',endDrag);
+
+/* keyboard: Enter/Space on a chip flies it into the right slot */
+$('eqrow').addEventListener('keydown',e=>{
+  if(e.key!=='Enter'&&e.key!==' ') return; const chip=e.target.closest('.chip'); if(!chip||chip.classList.contains('zero')) return;
+  e.preventDefault(); const fac=e.target.closest('.fac'); animateFly(fac||chip, moveFrom(chip,fac));
+});
+
+function animateFly(el,mv){
+  if(busy||solved||!el) return;
+  const info=describe(state,mv); if(!info.allowed){ reject(el,info); return; }
+  busy=true; clearHints();
+  const r=el.getBoundingClientRect(), g=makeGhost(info);
+  g.style.left=(r.left+r.width/2)+'px'; g.style.top=(r.top+r.height/2)+'px';
+  el.classList.add('lifted'); $('eq').classList.add('armed'); renderBins(other(mv.side)); showBanner('pre',info);
+  const bin=document.querySelector(`#side${other(mv.side)} .bin[data-bin="${info.bin}"]`), br=bin.getBoundingClientRect();
+  requestAnimationFrame(()=>{ g.style.transition='left .9s cubic-bezier(.4,0,.2,1), top .9s cubic-bezier(.4,0,.2,1)';
+    g.style.left=(br.left+br.width/2)+'px'; g.style.top=(br.top+br.height/2)+'px'; });
+  setTimeout(()=>{ bin.classList.add('over'); g.classList.add('flipped'); pulseEq(); showBanner('live',info); },500);
+  setTimeout(()=>{ g.remove(); $('eq').classList.remove('armed'); endBinMode(); busy=false; commit(mv,info); },1050);
+}
+
+/* ---------- hint ---------- */
+$('btnHint').addEventListener('click',()=>{
+  if(busy||solved) return;
+  const mv=suggest(state,card.sub); if(!mv){ showBanner('idle',null,'No obvious move from here — try Undo or Reset.'); return; }
+  const key=JSON.stringify(mv);
+  if(hintArmed&&hintKey===key){ animateFly(findEl(mv),mv); return; }
+  clearHints(); const el=findEl(mv); if(el) el.classList.add('hinted'); hintKey=key; hintArmed=true;
+  const info=describe(state,mv);
+  showBanner('hint',Object.assign({},info,{back:'?'}),`Try ${info.front} — it is ${info.verb}, so which slot undoes that? Press Hint again to watch it happen.`);
+});
+
+/* ---------- celebrate / deck ---------- */
+function confetti(){
+  const cols=['#C2622E','#FFB02E','#2E8B6A','#3A7CA5','#D6493E','#9ec7e0'];
+  for(let i=0;i<70;i++){ const p=mk('i','confetti'); p.style.left=Math.random()*100+'vw'; p.style.background=pick(cols);
+    p.style.animationDelay=(Math.random()*.5)+'s'; p.style.animationDuration=(1.4+Math.random()*1.2)+'s';
+    p.style.width=(6+Math.random()*8)+'px'; document.body.appendChild(p); setTimeout(()=>p.remove(),3200); }
+}
+function celebrate(sName){
+  solved=true; const moves=history.length-1, last=round.idx===ROUND-1;
+  round.solvedCount++; round.moves+=moves; round.par+=card.par;
+  const ans=sideStr(state[other(sName)]);
+  $('solvedEq').innerHTML=`<span class="subj">${card.sub}</span> = ${ans}`;
+  const under = moves<=card.par ? ' 🏆 on par!' : '';
+  $('solvedMeta').textContent=`Solved in ${moves} move${moves===1?'':'s'} · par ${card.par}${under}`;
+  if(last){
+    $('solvedBtns').innerHTML=`<div class="result-screen"><div class="emoji">${round.moves<=round.par?'🏅':'🎉'}</div><h3>Round complete!</h3>
+      <p style="color:var(--ink-soft)">${ROUND} cards in ${round.moves} moves (par ${round.par}).</p>
+      <button class="btn" id="newRound" style="margin-top:.5rem">New round</button></div>`;
+    $('newRound').onclick=newRound;
+  } else { $('solvedBtns').innerHTML=`<button class="btn" id="nextCard" style="margin-top:.4rem">Next card →</button>`; $('nextCard').onclick=()=>{ round.idx++; newCard(); }; }
+  showBanner('win',`🎉 <b>${card.sub}</b> is on its own!`, `${card.sub} = ${ans}`);
+  $('eqcard').classList.add('solved'); $('solvedFace').classList.add('correct'); confetti(); renderMeta();
+  $('btnUndo').disabled=true;
+  setTimeout(()=>{ const b=$('nextCard')||$('newRound'); if(b) b.focus(); },800);
+}
+function newCard(){
+  card=genCard(level); state={L:card.L,R:card.R}; history=[{st:clone(state),op:'start'}]; solved=false; busy=false; clearHints();
+  $('eqcard').classList.remove('solved'); $('solvedFace').classList.remove('correct');
+  showBanner('idle'); render();
+}
+function newRound(){ round={idx:0,solvedCount:0,moves:0,par:0}; newCard(); }
+
+document.querySelectorAll('[data-lvl]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-lvl]').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  level=b.dataset.lvl==='mix'?'mix':+b.dataset.lvl; newRound();
+}));
+$('btnNew').addEventListener('click',()=>{ if(!busy) newCard(); });
+$('btnUndo').addEventListener('click',()=>{
+  if(busy||solved||history.length<=1) return; history.pop(); state=clone(history[history.length-1].st); clearHints(); render();
+  showBanner('idle',null,'Undid one move.');
+});
+$('btnReset').addEventListener('click',()=>{
+  if(busy) return; history=[history[0]]; state=clone(history[0].st); solved=false; clearHints();
+  $('eqcard').classList.remove('solved'); $('solvedFace').classList.remove('correct'); render(); showBanner('idle',null,'Back to the start of this card.');
+});
+
+newRound();
+</script>
+<script src="study-audio.js"></script>
+</body>
+</html>
