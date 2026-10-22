@@ -18,6 +18,27 @@
     <h1>kyjohnso dot com</h1>
     <p>This is my space for projects exploring AI, machine learning, 3D rendering, art, and making complex systems accessible. Recent work focuses on reinforcement learning, neural rendering, and practical LLM applications.</p>
 
+    <div class="centered-text" id="reflector-bench">
+        <h2>Reflector Bench</h2>
+        <h3>Geometric-optics RF ray trace in the browser</h3>
+        <p>
+            <a href="./reflector_bench/index.html">Reflector Bench</a> is a single-file three.js app for exploring how a
+            parabolic reflector behaves when the feed is moved off focus or the aperture is partially blocked. It ray traces
+            from a movable phase center to a parametric paraboloid and on to an aperture plane (with shadowing from any
+            primitives you drop into the scene), then computes the far-field pattern as a direct sum over the ray hits using
+            path-length phase, aperture-offset phase, frequency, and edge taper. Alongside the ray-traced result it evaluates
+            Ruze's analytic lateral-feed-displacement model (a Bessel series) and shows difference maps, an error histogram,
+            and timings so the two can be compared directly. Objects are manipulated with Blender-style G/R/S transforms.
+        </p>
+        <a href="./reflector_bench/index.html">
+            <img src="./docs/assets/images/reflector_bench_ray_trace_vs_ruze.png" alt="Reflector Bench: ray-traced paraboloid with a spherical occluder, 3D far-field pattern surface, and side-by-side comparison against the Ruze analytic model" class="media-image" loading="lazy">
+        </a>
+        <p>
+            Everything is inlined into one HTML file: no CDN, no fonts service, no telemetry.
+            <a href="./reflector_bench/index.html">Open Reflector Bench &rarr;</a>
+        </p>
+    </div>
+
     <div class="centered-text">
         <h2>Interactive Study Materials</h2>
         <p>
