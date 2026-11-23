@@ -84,8 +84,10 @@ table.mini th { background: #f6f0fa; color: var(--acc-d); }
 .pn-corner { font-size: 0.72rem; color: #888; text-align: center; line-height: 1.2; }
 .pn-cell { min-height: 84px; flex-direction: column; font-size: 1.5rem; font-family: 'Cormorant Garamond', serif; border: 2px solid transparent; transition: background 0.3s; }
 .pn-cell small { font-family: 'Karla', sans-serif; font-size: 0.72rem; font-weight: 700; margin-top: 0.15rem; }
-.pn-cell.dom { background: #e7f7ec; color: #1d6b3c; border-color: #9fd6b3; }
-.pn-cell.rec { background: #fdeaea; color: #a4302c; border-color: #f0b3b1; }
+.pn-cell.ok { background: #e7f7ec; color: #1d6b3c; border-color: #9fd6b3; }
+.pn-cell.bad { background: #fdeaea; color: #a4302c; border-color: #f0b3b1; }
+.pn-cell.fred { background: #f9d3d6; color: #b0202e; border-color: #e88c95; }
+.pn-cell.fwhite { background: #ffffff; color: #6b6b6b; border-color: #d6d6d6; }
 .pn-cell.car { background: #fff5dc; color: #8a6a12; border-color: #ecd291; }
 .pn-summary { margin-top: 1rem; background: #faf8fc; border-radius: 10px; padding: 0.8rem 1rem; font-size: 0.95rem; line-height: 1.6; }
 .pn-summary b { color: var(--dna-d); }
@@ -771,9 +773,9 @@ document.querySelectorAll('.tab').forEach(function(tab){
 /* ============ PUNNETT LAB ============ */
 (function(){
     const TRAITS = {
-        flower: { D:'R', r:'r', dom:'Red', rec:'White', recDisorder:false },
-        cf:     { D:'F', r:'f', dom:'Healthy', rec:'Has CF', recDisorder:true },
-        poly:   { D:'P', r:'p', dom:'Polydactyly', rec:'Normal', recDisorder:false },
+        flower: { D:'R', r:'r', dom:'Red', rec:'White', domCls:'fred', recCls:'fwhite', recDisorder:false },
+        cf:     { D:'F', r:'f', dom:'Healthy', rec:'Has CF', domCls:'ok', recCls:'bad', recDisorder:true },
+        poly:   { D:'P', r:'p', dom:'Polydactyly', rec:'Normal', domCls:'bad', recCls:'ok', recDisorder:false },
     };
     const traitSel = document.getElementById('pn-trait'), p1 = document.getElementById('pn-p1'), p2 = document.getElementById('pn-p2');
     const grid = document.getElementById('pn-grid'), sum = document.getElementById('pn-summary');
@@ -795,9 +797,9 @@ document.querySelectorAll('.tab').forEach(function(tab){
                 const g = [x,y].sort(function(m,n){ return m===t.D ? -1 : n===t.D ? 1 : 0; }).join('');
                 counts[g] = (counts[g]||0) + 1;
                 let cls, label;
-                if(g === t.r+t.r){ cls = 'rec'; label = t.rec; rec++; }
+                if(g === t.r+t.r){ cls = t.recCls; label = t.rec; rec++; }
                 else if(t.recDisorder && g === t.D+t.r){ cls = 'car'; label = 'Carrier'; car++; dom++; }
-                else { cls = 'dom'; label = t.dom; dom++; }
+                else { cls = t.domCls; label = t.dom; dom++; }
                 html += '<div class="pn-cell '+cls+'">'+g+'<small>'+label+'</small></div>';
             });
         });
