@@ -93,11 +93,19 @@ table.mini th { background: #f6f0fa; color: var(--acc-d); }
 .pn-summary b { color: var(--dna-d); }
 
 /* 3D DNA */
-.dna3d-wrap { position: relative; width: 100%; height: 400px; border-radius: 12px; overflow: hidden; background: radial-gradient(circle at 50% 40%, #2b1d3d 0%, #140c20 100%); touch-action: none; }
+.dna3d-wrap { position: relative; width: 100%; height: 460px; border-radius: 12px; overflow: hidden; background: radial-gradient(circle at 50% 40%, #2b1d3d 0%, #140c20 100%); touch-action: none; }
 .dna3d-wrap canvas { display: block; width: 100% !important; height: 100% !important; cursor: grab; }
-.dna3d-tip { position: absolute; top: 10px; left: 12px; color: #fff; font-weight: 700; font-size: 0.9rem; background: rgba(0,0,0,0.45); padding: 0.3rem 0.65rem; border-radius: 8px; pointer-events: none; opacity: 0; transition: opacity 0.2s; z-index: 2; }
+.dna3d-tip { position: absolute; bottom: 10px; left: 12px; color: #fff; font-weight: 700; font-size: 0.9rem; background: rgba(0,0,0,0.45); padding: 0.3rem 0.65rem; border-radius: 8px; pointer-events: none; opacity: 0; transition: opacity 0.2s; z-index: 2; }
 .dna3d-legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; justify-content: center; margin-top: 0.7rem; font-size: 0.85rem; font-weight: 700; color: #555; }
 .dna3d-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 0.35rem; vertical-align: -1px; }
+
+.dna3d-level { position: absolute; top: 10px; left: 12px; color: #fff; font-family: 'Cormorant Garamond', serif; font-size: 1.45rem; font-weight: 700; pointer-events: none; z-index: 2; text-shadow: 0 2px 6px rgba(0,0,0,0.6); }
+.dna3d-level span { font-family: 'Karla', sans-serif; font-size: 0.75rem; opacity: 0.7; margin-left: 0.3rem; }
+.dna3d-hint { position: absolute; top: 14px; right: 12px; color: rgba(255,255,255,0.65); font-size: 0.78rem; font-weight: 700; pointer-events: none; z-index: 2; }
+.dna3d-crumbs { display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; justify-content: center; margin-bottom: 0.7rem; }
+.dna3d-crumbs .sep { color: #bbb; font-weight: 700; }
+.crumb { border: 2px solid rgba(0,0,0,0.1); background: #fff; border-radius: 50px; padding: 0.3rem 0.7rem; font-family: 'Karla', sans-serif; font-weight: 700; font-size: 0.8rem; cursor: pointer; color: #555; }
+.crumb.on { background: var(--dna); color: #fff; border-color: transparent; }
 
 /* temperature lab */
 .tl-row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 1rem; align-items: center; }
@@ -240,21 +248,20 @@ button.go:hover, button.small:hover { transform: translateY(-2px); }
         </div>
 
         <div class="lab-card">
-            <h3>🧬 3D DNA Model — drag to spin, scroll or pinch to zoom</h3>
-            <div class="dna3d-wrap" id="dna3d"><div class="dna3d-tip" id="dna3d-tip"></div></div>
-            <div class="dna3d-legend">
-                <span><i style="background:#2ecc71"></i>A — adenine</span>
-                <span><i style="background:#e74c3c"></i>T — thymine</span>
-                <span><i style="background:#3498db"></i>C — cytosine</span>
-                <span><i style="background:#f1c40f"></i>G — guanine</span>
-                <span><i style="background:#9b7bb8"></i>backbone</span>
+            <h3>🔭 3D Zoom: from Cell to Gene — scroll, pinch or use the buttons to zoom right in</h3>
+            <div class="dna3d-crumbs" id="dna3d-crumbs"></div>
+            <div class="dna3d-wrap" id="dna3d">
+                <div class="dna3d-level" id="dna3d-level"></div>
+                <div class="dna3d-tip" id="dna3d-tip"></div>
+                <div class="dna3d-hint" id="dna3d-hint"></div>
             </div>
+            <div class="dna3d-legend" id="dna3d-legend"></div>
             <div class="fc-actions" style="margin:0.7rem 0 0.2rem;">
+                <button class="small" id="dna3d-out">− Zoom out</button>
+                <button class="small" id="dna3d-in">+ Zoom in</button>
                 <button class="small" id="dna3d-spin">⏸ Pause spin</button>
-                <button class="small" id="dna3d-gene">✨ Show a gene</button>
             </div>
-            <div class="cap" id="dna3d-read">Tap or hover over a rung to see its base pair.</div>
-            <div class="cap">DNA is a <strong>double helix</strong>: two strands twisted around each other like a twisted ladder. The sides of the ladder are the <strong>backbone</strong>; the rungs are pairs of <strong>bases</strong>. The bases always pair up the same way — <strong>A with T</strong> and <strong>C with G</strong>. The <strong>order</strong> of the bases is the genetic code, and a <strong>gene</strong> is one section of it.</div>
+            <div class="cap" id="dna3d-read" style="font-style:normal;color:#444;font-size:0.93rem;"></div>
         </div>
 
         <div class="note-card">
@@ -964,91 +971,260 @@ new Quiz(document.getElementById('quiz-master'), [].concat(BANKS.dna, BANKS.bio,
 <script src="https://unpkg.com/three@0.143.0/build/three.min.js"></script>
 <script src="https://unpkg.com/three@0.143.0/examples/js/controls/OrbitControls.js"></script>
 <script>
-/* ============ 3D DNA MODEL ============ */
+/* ============ 3D ZOOM: ONE MODEL, FROM CELL TO DNA ============
+   This is a single nested model. The nucleus really contains the chromosomes; the chromosome's
+   yellow gene band really contains DNA wound round proteins; and that DNA thread really is a
+   double helix. Nothing is swapped — outer skins just turn see-through once you are close. */
 (function(){
     const wrap = document.getElementById('dna3d');
+    const readEl = document.getElementById('dna3d-read'), levelEl = document.getElementById('dna3d-level');
+    const tip = document.getElementById('dna3d-tip'), hint = document.getElementById('dna3d-hint');
+    const legendEl = document.getElementById('dna3d-legend'), crumbsEl = document.getElementById('dna3d-crumbs');
     if(!window.THREE || !THREE.OrbitControls){
-        wrap.insertAdjacentHTML('beforeend', '<div style="color:#fff;padding:2rem;text-align:center;">The 3D model needs an internet connection to load.</div>');
+        wrap.insertAdjacentHTML('beforeend', '<div style="color:#fff;padding:2rem;text-align:center;position:relative;z-index:3;">The 3D model needs an internet connection to load.</div>');
         return;
     }
-    const tip = document.getElementById('dna3d-tip'), read = document.getElementById('dna3d-read');
+    const V = THREE.Vector3, YEL = 0xffd43b;
+    const DMAX = 40, DMIN = 0.0045;
+
+    const STAGES = [
+        { name: 'Cell', icon: '🫧', go: 30, from: 8,
+          text: 'This is an <b>animal cell</b>. The purple ball in the middle is the <b>nucleus</b> — it controls the cell and holds the genetic material. The orange shapes are mitochondria. <b>Keep zooming in towards the nucleus.</b>',
+          legend: [['#f6b8c8','cell membrane'],['#a46cc4','nucleus'],['#e67e22','mitochondria'],['#7fb3d5','cytoplasm']] },
+        { name: 'Nucleus', icon: '🟣', go: 5.2, from: 1.6,
+          text: 'You\'re inside the <b>nucleus</b>. It holds the <b>chromosomes</b> — 46 in a human body cell (23 pairs), though only a few are drawn here. They are shown as X shapes, which is how they look when a cell is getting ready to divide. <b>Zoom in to the chromosome in the middle</b> — it has a yellow band.',
+          legend: [['#c9a3e0','nuclear membrane'],['#9b59b6','chromosomes'],['#5b2c6f','nucleolus'],['#ffd43b','gene']] },
+        { name: 'Chromosome', icon: '❌', go: 1.1, from: 0.2,
+          text: 'A <b>chromosome</b> is one very long molecule of <b>DNA</b>, coiled up and coiled again. The two halves of the X are identical copies joined in the middle. The <b>yellow band is one gene</b>. <b>Zoom in to the gene</b> to see what the coil is made of.',
+          legend: [['#8e44ad','coiled DNA'],['#ffd43b','gene']] },
+        { name: 'DNA wrapped round histones', icon: '🧵', go: 0.14, from: 0.022,
+          text: 'Inside the coil, the DNA is <b>wrapped round proteins called histones</b> (the blue reels), like thread round cotton reels. Each reel has the DNA wound nearly twice round it, and the reels are packed into the coil. That\'s how about <b>2 metres of DNA</b> fits inside every nucleus! The yellow thread is the gene\'s DNA. <b>Zoom in to the thread.</b>',
+          legend: [['#ffd43b','DNA of the gene'],['#9fc3e6','histone proteins']] },
+        { name: 'DNA double helix', icon: '🧬', go: 0.015, from: 0,
+          text: 'The thread is the <b>DNA double helix</b> — two strands twisted like a ladder. The rungs are pairs of <b>bases</b>, which always pair <b>A with T</b> and <b>C with G</b>. The <b>order of the bases</b> is the genetic code. You\'re looking at a tiny part of the gene: a real gene is <b>thousands of base pairs</b> long. Hover or tap a rung to see its base pair.',
+          legend: [['#2ecc71','A — adenine'],['#e74c3c','T — thymine'],['#3498db','C — cytosine'],['#f1c40f','G — guanine'],['#e0b84a','backbone']] },
+    ];
+
+    /* ---------- three.js setup ---------- */
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 200);
-    camera.position.set(0, 0, 33);
+    const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 1000);
+    camera.position.set(0, 4, 30).setLength(30);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    wrap.appendChild(renderer.domElement);
+    wrap.insertBefore(renderer.domElement, wrap.firstChild);
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true; controls.enablePan = false;
-    controls.minDistance = 8; controls.maxDistance = 55;
-
+    controls.enableDamping = true; controls.enablePan = false; controls.zoomSpeed = 0.9;
+    controls.minDistance = DMIN; controls.maxDistance = DMAX;
     scene.add(new THREE.AmbientLight(0xffffff, 0.55));
     const key = new THREE.DirectionalLight(0xffffff, 0.9); key.position.set(6, 10, 12); scene.add(key);
     const rim = new THREE.DirectionalLight(0xc9a7ff, 0.5); rim.position.set(-8, -4, -10); scene.add(rim);
 
-    // B-DNA-ish proportions: 10 base pairs per turn, rungs through the middle
-    const N = 30, RISE = 0.62, R = 2.1, TWIST = Math.PI * 2 / 10;
-    const SEQ = 'ATGCCGTAGCTTACGGATCCATGGCTAGCATTGC';
+    const pivot = new THREE.Group(); scene.add(pivot);      // spins about the zoom point
+    const model = new THREE.Group(); pivot.add(model);      // the whole cell; shifted so the zoom point is at the origin
+
+    function std(c, o){ o = o || {}; return new THREE.MeshStandardMaterial({ color: c, roughness: o.rough !== undefined ? o.rough : 0.5, emissive: o.emissive || 0x000000, side: THREE.DoubleSide }); }
+    function glass(c, op){ return new THREE.MeshStandardMaterial({ color: c, transparent: true, opacity: op, roughness: 0.3, side: THREE.DoubleSide, depthWrite: false }); }
+    const up = new V(0, 1, 0);
+    function rod(a, b, r, m, seg){
+        const d = new V().subVectors(b, a), len = d.length();
+        const mesh = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, seg || 10), m);
+        mesh.position.copy(a).addScaledVector(d, 0.5); mesh.quaternion.setFromUnitVectors(up, d.normalize());
+        return mesh;
+    }
+    function capsule(a, b, r, m){
+        const d = new V().subVectors(b, a), len = d.length();
+        const mesh = new THREE.Mesh(new THREE.CapsuleGeometry(r, Math.max(0.01, len - 2*r), 6, 14), m);
+        mesh.position.copy(a).addScaledVector(d, 0.5); mesh.quaternion.setFromUnitVectors(up, d.normalize());
+        return mesh;
+    }
+    let seed = 7; function rnd(){ seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
+    function rand(a, b){ return a + rnd() * (b - a); }
+    function randInBall(rMin, rMax){ return new V(rand(-1,1), rand(-1,1), rand(-1,1)).normalize().multiplyScalar(rand(rMin, rMax)); }
+    function pts(list, color, size, op){
+        const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(list, 3));
+        return new THREE.Points(g, new THREE.PointsMaterial({ color: color, size: size, sizeAttenuation: false, transparent: true, opacity: op, depthWrite: false }));
+    }
+
+    /* ---------- the cell ---------- */
+    const mem = new THREE.Mesh(new THREE.SphereGeometry(9, 56, 36), glass(0xf6b8c8, 0.2)); mem.scale.set(1, 0.8, 0.92); model.add(mem);
+    const mito = std(0xe67e22);
+    for(let i = 0; i < 9; i++){
+        let p; do { p = randInBall(4.2, 6.6); } while(Math.abs(p.y) > 5);
+        const dir = randInBall(1, 1).multiplyScalar(0.65);
+        model.add(capsule(p.clone().sub(dir), p.clone().add(dir), 0.32, mito));
+    }
+    (function(){ const l = []; for(let i = 0; i < 500; i++){ let p; do { p = randInBall(3.5, 7.8); } while(Math.abs(p.y) > 6.3); l.push(p.x, p.y, p.z); } model.add(pts(l, 0x7fb3d5, 1.6, 0.6)); })();
+
+    /* ---------- the nucleus: a see-through membrane with the chromosomes really inside ---------- */
+    const envMat = glass(0xa46cc4, 0.5);
+    model.add(new THREE.Mesh(new THREE.SphereGeometry(3, 56, 36), envMat));
+    (function(){ const l = []; for(let i = 0; i < 160; i++){ const p = randInBall(3, 3); l.push(p.x, p.y, p.z); } model.add(pts(l, 0xe8d4f5, 1.5, 0.5)); })();
+    const nucleolus = new THREE.Mesh(new THREE.SphereGeometry(0.55, 28, 20), std(0x5b2c6f)); nucleolus.position.set(1.5, -1.0, -0.6); model.add(nucleolus);
+
+    /* ---------- chromosomes: each arm is a tube coiled round the arm's axis ---------- */
+    const S2 = 0.074;                       // chromosome units → cell units
+    const COIL_R = 0.62, TUBE_R = 0.3, TPU = 2.4;
+    function makeArm(start, end){
+        const axis = new V().subVectors(end, start), len = axis.length(); axis.normalize();
+        const u = new V(0, 0, 1).cross(axis).normalize(), v = new V().crossVectors(axis, u);
+        const turns = Math.round(len * TPU);
+        return { start: start, axis: axis, len: len, u: u, v: v, turns: turns,
+            at: function(t){
+                const a = t * turns * Math.PI * 2, r = COIL_R * (Math.min(1, t * 6, (1 - t) * 6) * 0.5 + 0.5);
+                return new V().copy(start).addScaledVector(axis, t * len).addScaledVector(u, r * Math.cos(a)).addScaledVector(v, r * Math.sin(a));
+            } };
+    }
+    function armTube(arm, t0, t1, perTurn, radial, m){
+        const n = Math.max(4, Math.ceil((t1 - t0) * arm.turns * perTurn)), p = [];
+        for(let k = 0; k <= n; k++) p.push(arm.at(t0 + (t1 - t0) * k / n));
+        return new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(p), n * 2, TUBE_R, radial, false), m);
+    }
+    const ARMS = [[-0.55, 0, -3.0, 4.6], [-0.55, 0, -3.3, -6.6], [0.55, 0, 3.0, 4.6], [0.55, 0, 3.3, -6.6]];
+    // background chromosomes (lower detail, same construction)
+    const cols = [0x9b59b6, 0x7d3c98, 0xaf7ac5, 0x6c3483, 0xc39bd3];
+    for(let i = 0; i < 10; i++){
+        const g = new THREE.Group(), m = std(cols[i % 5], { rough: 0.55 });
+        ARMS.forEach(function(a){ g.add(armTube(makeArm(new V(a[0], a[1], 0), new V(a[2], a[3], 0)), 0, 1, 8, 6, m)); });
+        g.add(new THREE.Mesh(new THREE.SphereGeometry(0.85, 12, 8), m));
+        let p; do { p = randInBall(1.3, 2.4); } while(p.distanceTo(nucleolus.position) < 1.0 || p.length() < 1.2);
+        g.position.copy(p); g.rotation.set(rand(0, 6.3), rand(0, 6.3), rand(0, 6.3)); g.scale.setScalar(S2 * rand(0.75, 1));
+        model.add(g);
+    }
+    // OUR chromosome, at the centre of the nucleus
+    const chromo = new THREE.Group(); chromo.scale.setScalar(S2); chromo.rotation.set(0.25, 0.4, 0.15); model.add(chromo);
+    const purple = std(0x8e44ad, { rough: 0.55 }); purple.transparent = true;
+    const geneSkin = new THREE.MeshStandardMaterial({ color: YEL, roughness: 0.5, emissive: 0x443300, transparent: true, side: THREE.DoubleSide });
+    const GT0 = 0.45, GT1 = 0.6;
+    let geneArm = null;
+    ARMS.forEach(function(a, i){
+        const arm = makeArm(new V(a[0], a[1], 0), new V(a[2], a[3], 0));
+        if(i === 3){
+            geneArm = arm;
+            chromo.add(armTube(arm, 0, GT0, 16, 10, purple));
+            chromo.add(armTube(arm, GT0, GT1, 24, 14, geneSkin));
+            chromo.add(armTube(arm, GT1, 1, 16, 10, purple));
+        } else chromo.add(armTube(arm, 0, 1, 16, 10, purple));
+    });
+    chromo.add(new THREE.Mesh(new THREE.SphereGeometry(0.85, 20, 14), std(0x6c3483)));
+
+    /* ---------- inside the gene band: DNA wound round protein "cotton reels" along the coil ---------- */
+    const SPOOL_R = 0.19, SPOOL_H = 0.15, WRAP_R = 0.222, THREAD_R = 0.03, SPACING = 0.46;
+    const spoolMat = std(0x9fc3e6, { rough: 0.6 }); spoolMat.transparent = true;
+    const threadPts = [];
+    (function(){
+        const N = 3000, ts = [], cum = [0];
+        for(let k = 0; k <= N; k++) ts.push(GT0 + (GT1 - GT0) * k / N);
+        for(let k = 1; k <= N; k++) cum.push(cum[k-1] + geneArm.at(ts[k]).distanceTo(geneArm.at(ts[k-1])));
+        const total = cum[N];
+        let idx = 0, si = 0;
+        for(let s = SPACING * 0.6; s < total - SPACING * 0.4; s += SPACING, si++){
+            while(cum[idx] < s) idx++;
+            const t = ts[idx], c = geneArm.at(t);
+            const T = new V().subVectors(geneArm.at(t + 1e-4), geneArm.at(t - 1e-4)).normalize();
+            const onAxis = new V().copy(geneArm.start).addScaledVector(geneArm.axis, new V().subVectors(c, geneArm.start).dot(geneArm.axis));
+            const u = new V().subVectors(c, onAxis); u.addScaledVector(T, -u.dot(T)).normalize();
+            const v = new V().crossVectors(T, u);
+            const spool = new THREE.Mesh(new THREE.CylinderGeometry(SPOOL_R, SPOOL_R, SPOOL_H, 24), spoolMat);
+            spool.position.copy(c); spool.quaternion.setFromUnitVectors(up, T); chromo.add(spool);
+            const turns = 1.7, steps = 44;
+            for(let k = 0; k <= steps; k++){
+                const th = Math.PI + k / steps * turns * Math.PI * 2;
+                threadPts.push(new V().copy(c).addScaledVector(T, -0.065 + 0.13 * k / steps)
+                    .addScaledVector(u, WRAP_R * Math.cos(th)).addScaledVector(v, WRAP_R * Math.sin(th)));
+            }
+        }
+    })();
+    const thread = new THREE.CatmullRomCurve3(threadPts);
+    const TL = thread.getLength();
+
+    /* ---------- the thread really is a double helix: build it along the thread near the middle ---------- */
+    const HR = 0.025, RISE = 0.3 * HR, NB = 81, U0 = 0.5;       // helix radius (inside the thread), rise per base pair
+    const du = RISE / TL, uA = U0 - (NB / 2 + 2) * du, uB = U0 + (NB / 2 + 2) * du;
+    const threadMat = std(YEL, { emissive: 0x332600, rough: 0.5 }); threadMat.transparent = true;
+    const threadSkin = new THREE.MeshStandardMaterial({ color: YEL, roughness: 0.5, emissive: 0x332600, transparent: true, side: THREE.DoubleSide });
+    function subTube(a, b, m, radial){
+        const n = Math.max(8, Math.ceil((b - a) * TL / 0.02)), p = [];
+        for(let k = 0; k <= n; k++) p.push(thread.getPointAt(a + (b - a) * k / n));
+        return new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(p), n * 2, THREAD_R, radial, false), m);
+    }
+    chromo.add(subTube(0, uA, threadMat, 8));
+    chromo.add(subTube(uA, uB, threadSkin, 16));
+    chromo.add(subTube(uB, 1, threadMat, 8));
+
     const PAIR = { A:'T', T:'A', C:'G', G:'C' };
     const COL = { A:0x2ecc71, T:0xe74c3c, C:0x3498db, G:0xf1c40f };
     const NAME = { A:'adenine', T:'thymine', C:'cytosine', G:'guanine' };
-    const helix = new THREE.Group(); scene.add(helix);
-    const y0 = -(N-1) * RISE / 2;
-    const pts1 = [], pts2 = [], rungs = [];
-    const sugarGeo = new THREE.SphereGeometry(0.34, 18, 14);
-    const sugarMat = new THREE.MeshStandardMaterial({ color: 0x9b7bb8, roughness: 0.45, metalness: 0.1 });
-    const up = new THREE.Vector3(0, 1, 0);
-    function rod(a, b, radius, mat){
-        const d = new THREE.Vector3().subVectors(b, a), len = d.length();
-        const m = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, len, 14), mat);
-        m.position.copy(a).addScaledVector(d, 0.5);
-        m.quaternion.setFromUnitVectors(up, d.normalize());
-        return m;
-    }
-    for(let i = 0; i < N; i++){
-        const a = i * TWIST, y = y0 + i * RISE;
-        const p1 = new THREE.Vector3(R*Math.cos(a), y, R*Math.sin(a));
-        const p2 = new THREE.Vector3(R*Math.cos(a+Math.PI), y, R*Math.sin(a+Math.PI));
-        pts1.push(p1); pts2.push(p2);
-        [p1, p2].forEach(function(p){ const s = new THREE.Mesh(sugarGeo, sugarMat); s.position.copy(p); helix.add(s); });
-        const b1 = SEQ[i % SEQ.length], b2 = PAIR[b1], mid = new THREE.Vector3(0, y, 0);
-        const m1 = new THREE.MeshStandardMaterial({ color: COL[b1], roughness: 0.4, emissive: 0x000000 });
-        const m2 = new THREE.MeshStandardMaterial({ color: COL[b2], roughness: 0.4, emissive: 0x000000 });
-        const r1 = rod(p1, mid, 0.2, m1), r2 = rod(mid, p2, 0.2, m2);
-        const info = { i: i, b1: b1, b2: b2, mats: [m1, m2] };
-        r1.userData = info; r2.userData = info;
-        helix.add(r1); helix.add(r2); rungs.push(r1, r2);
-    }
-    [pts1, pts2].forEach(function(pts){
-        const curve = new THREE.CatmullRomCurve3(pts);
-        const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, N*8, 0.17, 10, false),
-            new THREE.MeshStandardMaterial({ color: 0x7d5a9e, roughness: 0.5 }));
-        helix.add(tube);
-    });
-    helix.rotation.z = 0.35;
+    let SEQ = ''; const BASES = 'ATGC'; seed = 42; for(let i = 0; i < NB; i++) SEQ += BASES[Math.floor(rnd() * 4)];
+    const rungs = [], strand1 = [], strand2 = [];
+    (function(){
+        const sugarGeo = new THREE.SphereGeometry(HR * 0.16, 12, 10), sugarMat = std(0xe0b84a, { rough: 0.45 });
+        const baseMats = {}; Object.keys(COL).forEach(function(b){ baseMats[b] = COL[b]; });
+        let N = null;
+        for(let k = 0; k < NB; k++){
+            const uu = U0 + (k - (NB - 1) / 2) * du;
+            const C = thread.getPointAt(uu), T = thread.getTangentAt(uu).normalize();
+            if(!N){ N = new V(1, 0, 0); if(Math.abs(N.dot(T)) > 0.9) N.set(0, 1, 0); }
+            N.addScaledVector(T, -N.dot(T)).normalize();
+            const B = new V().crossVectors(T, N), phi = k * Math.PI * 2 / 10;
+            const off = new V().addScaledVector(N, Math.cos(phi) * HR).addScaledVector(B, Math.sin(phi) * HR);
+            const p1 = C.clone().add(off), p2 = C.clone().sub(off);
+            strand1.push(p1); strand2.push(p2);
+            [p1, p2].forEach(function(p){ const s = new THREE.Mesh(sugarGeo, sugarMat); s.position.copy(p); chromo.add(s); });
+            const b1 = SEQ[k], b2 = PAIR[b1];
+            const m1 = std(COL[b1], { rough: 0.4 }), m2 = std(COL[b2], { rough: 0.4 });
+            const r1 = rod(p1, C, HR * 0.095, m1, 8), r2 = rod(C, p2, HR * 0.095, m2, 8);
+            const info = { b1: b1, b2: b2, mats: [m1, m2] };
+            r1.userData = info; r2.userData = info; chromo.add(r1); chromo.add(r2); rungs.push(r1, r2);
+        }
+        const bb = std(0xc9a13b, { rough: 0.45 });
+        [strand1, strand2].forEach(function(s){ chromo.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(s), NB * 6, HR * 0.08, 8, false), bb)); });
+    })();
 
-    // "gene" highlight: a glowing sleeve around one section
-    const G0 = 9, G1 = 20, gLen = (G1 - G0) * RISE + 0.8;
-    const gene = new THREE.Mesh(new THREE.CylinderGeometry(R+0.75, R+0.75, gLen, 40, 1, true),
-        new THREE.MeshBasicMaterial({ color: 0xffe066, transparent: true, opacity: 0.18, side: THREE.DoubleSide, depthWrite: false }));
-    gene.position.y = y0 + (G0 + G1) / 2 * RISE; gene.visible = false; helix.add(gene);
-    const ringMat = new THREE.MeshBasicMaterial({ color: 0xffe066 });
-    [G0, G1].forEach(function(k, j){
-        const ring = new THREE.Mesh(new THREE.TorusGeometry(R+0.75, 0.05, 8, 60), ringMat);
-        ring.rotation.x = Math.PI/2; ring.position.y = gene.position.y + (j ? 1 : -1) * gLen/2; gene.add(ring); ring.position.y -= gene.position.y;
-    });
+    /* ---------- centre the whole cell on the middle of the helix, so zooming in heads straight for it ---------- */
+    model.updateMatrixWorld(true);
+    const target = chromo.localToWorld(thread.getPointAt(U0).clone());
+    model.position.copy(target).multiplyScalar(-1);
 
-    let spinning = true, inView = true;
-    const spinBtn = document.getElementById('dna3d-spin'), geneBtn = document.getElementById('dna3d-gene');
+    /* ---------- see-through skins (the only thing that changes as you zoom) ---------- */
+    const lg = Math.log;
+    function ramp(d, far, near){ const t = Math.min(1, Math.max(0, (lg(far) - lg(d)) / (lg(far) - lg(near)))); return t * t * (3 - 2 * t); }
+    function skins(d){
+        envMat.opacity = 0.5 - 0.38 * ramp(d, 9, 4);                 // nucleus gets clearer as you approach
+        geneSkin.opacity = 1 - ramp(d, 0.3, 0.15);            // gene band turns see-through → reels inside
+        geneSkin.depthWrite = geneSkin.opacity > 0.95; geneSkin.visible = geneSkin.opacity > 0.01;
+        purple.opacity = 1 - 0.85 * ramp(d, 0.3, 0.15);               // rest of our chromosome goes ghostly once you're inside it
+        purple.depthWrite = purple.opacity > 0.95;
+        threadMat.opacity = 1 - 0.75 * ramp(d, 0.026, 0.013);         // nearby DNA thread goes ghostly near the helix
+        threadMat.depthWrite = threadMat.opacity > 0.95;
+        spoolMat.opacity = 1 - 0.55 * ramp(d, 0.026, 0.013);
+        spoolMat.depthWrite = spoolMat.opacity > 0.95;
+        threadSkin.opacity = 1 - ramp(d, 0.026, 0.013);         // thread turns see-through → helix inside
+        threadSkin.depthWrite = threadSkin.opacity > 0.95; threadSkin.visible = threadSkin.opacity > 0.01;
+    }
+
+    /* ---------- UI ---------- */
+    const geneCode = SEQ.slice(30, 51);
+    crumbsEl.innerHTML = STAGES.map(function(s, i){ return (i ? '<span class="sep">›</span>' : '') + '<button class="crumb" data-l="' + i + '">' + s.icon + ' ' + s.name + '</button>'; }).join('');
+    let zoomTo = null, spinning = true, stage = -1;
+    crumbsEl.querySelectorAll('.crumb').forEach(function(b){ b.onclick = function(){ zoomTo = STAGES[+b.dataset.l].go; }; });
+    document.getElementById('dna3d-in').onclick = function(){ zoomTo = Math.max(DMIN, (zoomTo || camera.position.length()) * 0.5); };
+    document.getElementById('dna3d-out').onclick = function(){ zoomTo = Math.min(DMAX, (zoomTo || camera.position.length()) * 2); };
+    const spinBtn = document.getElementById('dna3d-spin');
     spinBtn.onclick = function(){ spinning = !spinning; spinBtn.textContent = spinning ? '⏸ Pause spin' : '▶ Spin'; };
-    geneBtn.onclick = function(){
-        gene.visible = !gene.visible;
-        geneBtn.textContent = gene.visible ? '✨ Hide the gene' : '✨ Show a gene';
-        if(gene.visible){
-            const code = []; for(let k = G0; k <= G1; k++) code.push(SEQ[k % SEQ.length]);
-            read.innerHTML = '<b>A gene</b> is a section of DNA. The highlighted gene\'s code (one strand) reads: <b style="letter-spacing:2px;">' + code.join('') + '</b> — the order of the bases is the instructions for making a protein.';
-        } else read.textContent = 'Tap or hover over a rung to see its base pair.';
-    };
+    renderer.domElement.addEventListener('wheel', function(){ zoomTo = null; }, { passive: true });
+    renderer.domElement.addEventListener('pointerdown', function(){ zoomTo = null; });
+
+    function setStage(d){
+        let s = 0; while(s < 4 && d < STAGES[s].from) s++;
+        if(s === stage) return;
+        stage = s; const S = STAGES[s];
+        levelEl.innerHTML = S.icon + ' ' + S.name + ' <span>' + (s + 1) + ' / 5</span>';
+        readEl.innerHTML = S.text + (s === 4 ? '<br>The bases along one strand here read: <b style="letter-spacing:2px;">' + geneCode + '…</b>' : '');
+        legendEl.innerHTML = S.legend.map(function(e){ return '<span><i style="background:' + e[0] + '"></i>' + e[1] + '</span>'; }).join('');
+        hint.textContent = s < 4 ? 'keep zooming in ↓' : 'zoom out ↑ to go back';
+        crumbsEl.querySelectorAll('.crumb').forEach(function(b){ b.classList.toggle('on', +b.dataset.l === s); });
+        if(s !== 4) setHover(null);
+    }
 
     const ray = new THREE.Raycaster(), mouse = new THREE.Vector2();
     let hovered = null;
@@ -1060,10 +1236,10 @@ new Quiz(document.getElementById('quiz-master'), [].concat(BANKS.dna, BANKS.bio,
             info.mats.forEach(function(m){ m.emissive.setHex(0x555555); });
             tip.textContent = info.b1 + ' – ' + info.b2 + '  (' + NAME[info.b1] + ' pairs with ' + NAME[info.b2] + ')';
             tip.style.opacity = 1;
-            if(!gene.visible) read.innerHTML = 'Base pair: <b>' + info.b1 + ' – ' + info.b2 + '</b> — ' + NAME[info.b1] + ' always pairs with ' + NAME[info.b2] + '.';
         } else tip.style.opacity = 0;
     }
     function pick(e){
+        if(stage !== 4) return;
         const r = renderer.domElement.getBoundingClientRect();
         mouse.x = ((e.clientX - r.left) / r.width) * 2 - 1;
         mouse.y = -((e.clientY - r.top) / r.height) * 2 + 1;
@@ -1082,14 +1258,24 @@ new Quiz(document.getElementById('quiz-master'), [].concat(BANKS.dna, BANKS.bio,
         camera.aspect = w / h; camera.updateProjectionMatrix();
     }
     new ResizeObserver(resize).observe(wrap); resize();
+    let inView = true;
     if('IntersectionObserver' in window) new IntersectionObserver(function(es){ inView = es[0].isIntersecting; }).observe(wrap);
 
     let last = performance.now();
     function loop(now){
         const dt = Math.min(0.05, (now - last) / 1000); last = now;
         if(inView && wrap.offsetParent !== null){
-            if(spinning) helix.rotation.y += dt * 0.5;
+            if(zoomTo !== null){        // glide in log space, so every scale takes the same time
+                const d = camera.position.length(), ld = lg(d), lt = lg(zoomTo);
+                camera.position.setLength(Math.exp(ld + (lt - ld) * Math.min(1, dt * 3)));
+                if(Math.abs(ld - lt) < 0.01) zoomTo = null;
+            }
+            if(spinning) pivot.rotation.y += dt * 0.2;
             controls.update();
+            const d = camera.position.length();
+            // light cutaway: clear anything right in front of you, so nearby parts don't block the view
+            camera.near = d * 0.3; camera.far = d * 40 + 30; camera.updateProjectionMatrix();
+            skins(d); setStage(d);
             renderer.render(scene, camera);
         }
         requestAnimationFrame(loop);
