@@ -92,6 +92,13 @@ table.mini th { background: #f6f0fa; color: var(--acc-d); }
 .pn-summary { margin-top: 1rem; background: #faf8fc; border-radius: 10px; padding: 0.8rem 1rem; font-size: 0.95rem; line-height: 1.6; }
 .pn-summary b { color: var(--dna-d); }
 
+/* 3D DNA */
+.dna3d-wrap { position: relative; width: 100%; height: 400px; border-radius: 12px; overflow: hidden; background: radial-gradient(circle at 50% 40%, #2b1d3d 0%, #140c20 100%); touch-action: none; }
+.dna3d-wrap canvas { display: block; width: 100% !important; height: 100% !important; cursor: grab; }
+.dna3d-tip { position: absolute; top: 10px; left: 12px; color: #fff; font-weight: 700; font-size: 0.9rem; background: rgba(0,0,0,0.45); padding: 0.3rem 0.65rem; border-radius: 8px; pointer-events: none; opacity: 0; transition: opacity 0.2s; z-index: 2; }
+.dna3d-legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; justify-content: center; margin-top: 0.7rem; font-size: 0.85rem; font-weight: 700; color: #555; }
+.dna3d-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 0.35rem; vertical-align: -1px; }
+
 /* temperature lab */
 .tl-row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 1rem; align-items: center; }
 .tl-slider { width: 100%; accent-color: var(--yeast); }
@@ -232,13 +239,31 @@ button.go:hover, button.small:hover { transform: translateY(-2px); }
             <div class="cap">The <strong>nucleus</strong> holds <strong>chromosomes</strong>. Each chromosome is one very long coiled molecule of <strong>DNA</strong>. A <strong>gene</strong> (yellow) is a short section of DNA that codes for one characteristic.</div>
         </div>
 
+        <div class="lab-card">
+            <h3>🧬 3D DNA Model — drag to spin, scroll or pinch to zoom</h3>
+            <div class="dna3d-wrap" id="dna3d"><div class="dna3d-tip" id="dna3d-tip"></div></div>
+            <div class="dna3d-legend">
+                <span><i style="background:#2ecc71"></i>A — adenine</span>
+                <span><i style="background:#e74c3c"></i>T — thymine</span>
+                <span><i style="background:#3498db"></i>C — cytosine</span>
+                <span><i style="background:#f1c40f"></i>G — guanine</span>
+                <span><i style="background:#9b7bb8"></i>backbone</span>
+            </div>
+            <div class="fc-actions" style="margin:0.7rem 0 0.2rem;">
+                <button class="small" id="dna3d-spin">⏸ Pause spin</button>
+                <button class="small" id="dna3d-gene">✨ Show a gene</button>
+            </div>
+            <div class="cap" id="dna3d-read">Tap or hover over a rung to see its base pair.</div>
+            <div class="cap">DNA is a <strong>double helix</strong>: two strands twisted around each other like a twisted ladder. The sides of the ladder are the <strong>backbone</strong>; the rungs are pairs of <strong>bases</strong>. The bases always pair up the same way — <strong>A with T</strong> and <strong>C with G</strong>. The <strong>order</strong> of the bases is the genetic code, and a <strong>gene</strong> is one section of it.</div>
+        </div>
+
         <div class="note-card">
             <h3>📦 DNA, genes, chromosomes &amp; the nucleus</h3>
             <ul>
                 <li>The <span class="kt">nucleus</span> controls the cell and contains the genetic material.</li>
                 <li><span class="kt">Chromosomes</span> are long threads of coiled DNA found in the nucleus. Human body cells have <span class="kt">46 chromosomes (23 pairs)</span> — one of each pair from your mother, one from your father.</li>
                 <li><span class="kt">DNA</span> is the chemical that carries the genetic code. It is a <span class="kt">double helix</span> (a twisted ladder).</li>
-                <li>A <span class="kt">gene</span> is a section of DNA that codes for a particular characteristic (e.g. eye colour) — it is the instructions for making a protein.</li>
+                <li>A <span class="kt">gene</span> is a section of DNA that codes for a particular characteristic — it is the instructions for making a protein. (Most characteristics, like eye colour, are actually controlled by several genes working together.)</li>
                 <li>Sex cells (<span class="kt">gametes</span> — sperm and egg) have only <span class="kt">23 chromosomes</span>, one from each pair. At fertilisation they join to make 46 again.</li>
                 <li>Size order, biggest → smallest: <span class="kt">nucleus → chromosome → gene → (DNA base)</span>.</li>
             </ul>
@@ -398,7 +423,8 @@ button.go:hover, button.small:hover { transform: translateY(-2px); }
         <div class="note-card">
             <h3>🦠 Fermentation</h3>
             <p><span class="kt">Yeast</span> is a single-celled <b>fungus</b>. When it has sugar but no oxygen it does <span class="kt">anaerobic respiration</span>, called <span class="kt">fermentation</span>:</p>
-            <div class="eq">glucose → ethanol + carbon dioxide (+ energy)</div>
+            <div class="eq">glucose → ethanol + carbon dioxide</div>
+            <p style="text-align:center;font-size:0.88rem;color:#777;margin-top:-0.3rem;">Energy is released, but don't write it in the equation — it isn't a substance.</p>
             <ul>
                 <li><span class="kt">Bread</span>: yeast ferments the sugars in the dough. The <b>carbon dioxide</b> bubbles make the dough <b>rise</b>. The dough is left somewhere <b>warm</b> so the yeast works faster. The ethanol <b>evaporates</b> when the bread is baked.</li>
                 <li><span class="kt">Beer and wine (brewing)</span>: yeast ferments sugars in grain or grapes. Here the <b>ethanol (alcohol)</b> is the useful product; the CO₂ can make it fizzy.</li>
@@ -412,7 +438,7 @@ button.go:hover, button.small:hover { transform: translateY(-2px); }
                 <li><span class="kt">Enzymes</span> are proteins that act as <span class="kt">biological catalysts</span> — they speed up chemical reactions without being used up.</li>
                 <li>Each enzyme has an <span class="kt">active site</span> with a special shape. Only one substrate fits — the <span class="kt">lock and key</span> model.</li>
                 <li><b>Too cold</b>: molecules move slowly, fewer collisions → <b>slow</b> reaction. The enzyme isn't damaged — warm it up and it works again.</li>
-                <li><b>Optimum temperature</b>: the temperature where the enzyme works fastest (about <b>37 °C</b> for human enzymes; yeast works best around 30–40 °C).</li>
+                <li><b>Optimum temperature</b>: the temperature where the enzyme works fastest (about <b>37 °C</b> for human enzymes; yeast works best at around 35–40 °C).</li>
                 <li><b>Too hot</b>: the active site <span class="kt">changes shape permanently</span> — the enzyme is <span class="kt">denatured</span> and can no longer catalyse the reaction. This can't be undone.</li>
             </ul>
         </div>
@@ -454,7 +480,7 @@ button.go:hover, button.small:hover { transform: translateY(-2px); }
 
         <div class="note-card">
             <h3>🤔 Look – cover – check</h3>
-            <details class="lcc"><summary>Write the word equation for fermentation.</summary><div class="ans"><b>glucose → ethanol + carbon dioxide</b> (+ energy released)</div></details>
+            <details class="lcc"><summary>Write the word equation for fermentation.</summary><div class="ans"><b>glucose → ethanol + carbon dioxide</b> (energy is released, but it isn't written in the equation)</div></details>
             <details class="lcc"><summary>Why does bread dough rise, and why is it left somewhere warm?</summary><div class="ans">Yeast ferments sugars and makes <b>carbon dioxide</b> gas, which gets trapped and makes the dough rise. Warmth speeds up the yeast's <b>enzymes</b> so it ferments faster (but not too hot or they denature).</div></details>
             <details class="lcc"><summary>What happens to an enzyme at a very high temperature?</summary><div class="ans">The shape of its <b>active site changes permanently</b> — it is <b>denatured</b> — so the substrate no longer fits and it can no longer catalyse reactions.</div></details>
             <details class="lcc"><summary>Why does yeast make fewer bubbles at 5 °C than at 35 °C?</summary><div class="ans">At low temperatures the molecules have less energy and move more slowly, so there are fewer collisions between enzymes and substrate — the reaction is <b>slower</b>. The enzymes are not denatured.</div></details>
@@ -476,11 +502,11 @@ button.go:hover, button.small:hover { transform: translateY(-2px); }
             <h3>🔁 The steps</h3>
             <ol class="steps">
                 <li><b>Observation</b> — notice something (e.g. "bread rises faster on a warm day").</li>
-                <li><b>Question / hypothesis</b> — a possible explanation that can be tested ("yeast ferments faster when it is warmer because its enzymes work faster").</li>
+                <li><b>Hypothesis</b> — a possible explanation for the observation that can be tested ("yeast ferments faster when it is warmer because its enzymes work faster").</li>
                 <li><b>Prediction</b> — what you think will happen, often "the more…, the more…" ("as temperature increases up to 40 °C, the number of bubbles will increase").</li>
                 <li><b>Experiment</b> — a <b>fair test</b>: change one variable, measure another, keep everything else the same.</li>
                 <li><b>Results</b> — record in a table, repeat and calculate a <b>mean</b>, draw a graph.</li>
-                <li><b>Conclusion</b> — describe the pattern and say whether it <b>supports the prediction</b>. Explain it using science.</li>
+                <li><b>Conclusion</b> — describe the pattern and say whether it <b>supports the prediction</b> (and so the hypothesis). Explain it using science.</li>
                 <li><b>Evaluation</b> — how could the experiment be improved? Were there any anomalous results?</li>
             </ol>
         </div>
@@ -491,7 +517,8 @@ button.go:hover, button.small:hover { transform: translateY(-2px); }
                 <li><span class="kt">Independent variable</span> — the one you <b>change</b> (goes on the x-axis / first column of your table).</li>
                 <li><span class="kt">Dependent variable</span> — the one you <b>measure</b> (y-axis).</li>
                 <li><span class="kt">Control variables</span> — everything you <b>keep the same</b> to make it a <span class="kt">fair test</span>.</li>
-                <li><span class="kt">Repeatable / reliable</span> — repeat readings give similar results. <b>Repeat</b> and take a <b>mean</b> to improve this.</li>
+                <li><span class="kt">Repeatable</span> — if you repeat the experiment with the same method and equipment, you get similar results. <b>Repeating</b> lets you check this and spot anomalies; taking a <b>mean</b> of the repeats reduces the effect of random errors.</li>
+                <li><span class="kt">Reproducible</span> — someone else (or a different method or equipment) gets similar results.</li>
                 <li><span class="kt">Anomalous result</span> — a result that doesn't fit the pattern. Ignore it when calculating the mean, and repeat that reading.</li>
                 <li><span class="kt">Accurate</span> — close to the true value. <span class="kt">Precise</span> — repeat readings are close together.</li>
                 <li><span class="kt">Mean</span> = add the results up ÷ how many there are.</li>
@@ -503,7 +530,7 @@ button.go:hover, button.small:hover { transform: translateY(-2px); }
             <details class="lcc"><summary>In a yeast experiment testing 20, 30, 40 and 50 °C, name the independent, dependent and one control variable.</summary><div class="ans">Independent: <b>temperature</b>. Dependent: <b>number of CO₂ bubbles per minute</b>. Control: e.g. <b>mass of yeast</b>, mass of sugar, volume of water, time measured for.</div></details>
             <details class="lcc"><summary>What is the difference between a hypothesis and a prediction?</summary><div class="ans">A <b>hypothesis</b> is a possible <b>explanation</b> for an observation. A <b>prediction</b> says what you expect to <b>happen</b> in the experiment if the hypothesis is correct.</div></details>
             <details class="lcc"><summary>Results: 12, 14, 31, 13 bubbles. What's the mean?</summary><div class="ans">31 is <b>anomalous</b> — leave it out. Mean = (12 + 14 + 13) ÷ 3 = <b>13</b> bubbles.</div></details>
-            <details class="lcc"><summary>Why do scientists repeat experiments?</summary><div class="ans">To check the results are <b>repeatable (reliable)</b>, to spot anomalous results, and to calculate a mean.</div></details>
+            <details class="lcc"><summary>Why do scientists repeat experiments?</summary><div class="ans">To check the results are <b>repeatable</b>, to spot anomalous results, and to calculate a mean.</div></details>
         </div>
 
         <div class="quiz-launch">
@@ -566,7 +593,7 @@ const CARDS = [
     ['dna','Phenotype','The characteristic you can see that results from the genotype, e.g. red flowers.'],
     ['dna','Homozygous','Having two identical alleles for a gene, e.g. RR or rr.'],
     ['dna','Heterozygous','Having two different alleles for a gene, e.g. Rr.'],
-    ['dna','Carrier','Someone with one copy of a recessive allele for a disorder. They don\'t have the disorder but can pass it on.'],
+    ['dna','Carrier','Someone with one copy of a recessive allele for a disorder. They don\'t have the disorder but can pass the allele on to their children.'],
     ['dna','Punnett square','A grid used to show all the possible combinations of alleles from two parents and work out probabilities.'],
     ['dna','Gamete','A sex cell (sperm or egg). It has only one allele of each gene and 23 chromosomes in humans.'],
     ['dna','Genetic inheritance','Passing on characteristics from parents to offspring through genes.'],
@@ -579,7 +606,7 @@ const CARDS = [
     ['bio','Genetically modified (GM)','An organism that has had its genes changed by genetic engineering.'],
     ['bio','Insulin','A hormone that controls blood sugar. People with diabetes need it; it can be made by GM bacteria.'],
     ['bio','Plasmid','A small ring of DNA found in bacteria. Used to carry a new gene into a bacterium.'],
-    ['bio','Clone','An organism that is genetically identical to its parent.'],
+    ['bio','Clone','An organism that is genetically identical to the organism it came from (e.g. its parent, or the other embryos from the same split embryo).'],
     ['bio','Asexual reproduction','Reproduction with one parent and no gametes. The offspring are genetically identical clones.'],
     ['bio','Cutting','A piece of a plant (stem and leaves) that is grown into a new, identical plant.'],
     ['bio','Tissue culture','Growing new plants from a few cells on a jelly with nutrients and hormones.'],
@@ -607,7 +634,8 @@ const CARDS = [
     ['sci','Fair test','An experiment where only the independent variable is changed and everything else is kept the same.'],
     ['sci','Anomalous result','A result that doesn\'t fit the pattern of the others.'],
     ['sci','Mean','An average: add up the values and divide by how many there are.'],
-    ['sci','Reliable / repeatable','When you repeat the experiment you get similar results.'],
+    ['sci','Repeatable','When you repeat the experiment with the same method and equipment, you get similar results.'],
+    ['sci','Reproducible','When someone else, or a different method or equipment, gets similar results.'],
     ['sci','Conclusion','A statement describing what the results show and whether they support the prediction.'],
 ];
 
@@ -647,7 +675,7 @@ const BANKS = {
         Q('What is used to cut the insulin gene out of human DNA?', 'Enzymes', ['Scissors', 'Yeast', 'Limewater'], 'Special enzymes act as "molecular scissors".'),
         Q('Insulin from GM bacteria is used to treat…', 'Diabetes', ['Cystic fibrosis', 'Polydactyly', 'Colds'], 'People with diabetes can\'t control blood sugar without insulin.'),
         Q('Why are GM bacteria good at making insulin?', 'They reproduce very quickly, so lots of insulin is made', ['They are bigger than human cells', 'They don\'t contain any DNA', 'They can photosynthesise'], 'Each new bacterium has the gene — huge numbers in a fermenter.'),
-        Q('A clone is…', 'Genetically identical to its parent', ['A mix of genes from two parents', 'Always an animal', 'A type of gamete'], 'Clones are made by asexual reproduction or cloning techniques.'),
+        Q('A clone is…', 'Genetically identical to the organism it came from', ['A mix of genes from two parents', 'Always an animal', 'A type of gamete'], 'Clones are made by asexual reproduction or cloning techniques.'),
         Q('Asexual reproduction involves…', 'One parent and no mixing of genes', ['Two parents and gametes', 'A sperm and an egg', 'Selective breeding'], 'So the offspring are genetically identical (clones).'),
         Q('How do you clone a plant using a cutting?', 'Cut a stem with leaves, dip in rooting powder and plant it', ['Cross two plants together', 'Insert a gene into a plasmid', 'Ferment it with yeast'], 'Rooting powder contains hormones that help roots grow.'),
         Q('Dolly the sheep was famous for being…', 'The first mammal cloned from an adult cell', ['The first genetically modified animal', 'Made by selective breeding', 'A carrier of cystic fibrosis'], 'Cloned in 1996 by putting a body-cell nucleus into an egg cell.'),
@@ -680,7 +708,7 @@ const BANKS = {
         Q('Which is the best <em>prediction</em>?', 'As temperature increases to 40 °C, the yeast will make more bubbles', ['Yeast is a fungus', 'I used 5 g of yeast', 'Bubbles are made of gas'], 'A prediction says what you expect to happen.'),
         Q('What is a <em>fair test</em>?', 'Only the independent variable is changed; everything else is kept the same', ['Every variable is changed at once', 'The test is done only once', 'The teacher checks the results'], 'This makes sure only the IV is causing any change.'),
         Q('Results: 10, 11, 25, 12. Which is anomalous?', '25', ['10', '11', '12'], '25 doesn\'t fit the pattern — repeat it and leave it out of the mean.'),
-        Q('Why do scientists repeat experiments?', 'To check results are repeatable and calculate a mean', ['To use up equipment', 'Because the first result is always wrong', 'To change the independent variable'], 'Repeats help spot anomalies and make results more reliable.'),
+        Q('Why do scientists repeat experiments?', 'To check results are repeatable and calculate a mean', ['To use up equipment', 'Because the first result is always wrong', 'To change the independent variable'], 'Repeats let you check the results are repeatable, spot anomalies and calculate a mean.'),
         Q('What is the correct order?', 'Observation → hypothesis → prediction → experiment → conclusion', ['Conclusion → experiment → prediction → observation', 'Experiment → observation → conclusion → hypothesis', 'Prediction → conclusion → observation → experiment'], 'Observe, explain, predict, test, conclude.'),
         Q('The mean of 4, 6 and 8 is…', '6', ['18', '8', '4'], '(4 + 6 + 8) ÷ 3 = 6.'),
     ],
@@ -932,6 +960,142 @@ new Quiz(document.getElementById('quiz-bio'), BANKS.bio, 10);
 new Quiz(document.getElementById('quiz-yeast'), BANKS.yeast, 10);
 new Quiz(document.getElementById('quiz-sci'), BANKS.sci, 8);
 new Quiz(document.getElementById('quiz-master'), [].concat(BANKS.dna, BANKS.bio, BANKS.yeast, BANKS.sci), 20);
+</script>
+<script src="https://unpkg.com/three@0.143.0/build/three.min.js"></script>
+<script src="https://unpkg.com/three@0.143.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+/* ============ 3D DNA MODEL ============ */
+(function(){
+    const wrap = document.getElementById('dna3d');
+    if(!window.THREE || !THREE.OrbitControls){
+        wrap.insertAdjacentHTML('beforeend', '<div style="color:#fff;padding:2rem;text-align:center;">The 3D model needs an internet connection to load.</div>');
+        return;
+    }
+    const tip = document.getElementById('dna3d-tip'), read = document.getElementById('dna3d-read');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 200);
+    camera.position.set(0, 0, 33);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    wrap.appendChild(renderer.domElement);
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true; controls.enablePan = false;
+    controls.minDistance = 8; controls.maxDistance = 55;
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+    const key = new THREE.DirectionalLight(0xffffff, 0.9); key.position.set(6, 10, 12); scene.add(key);
+    const rim = new THREE.DirectionalLight(0xc9a7ff, 0.5); rim.position.set(-8, -4, -10); scene.add(rim);
+
+    // B-DNA-ish proportions: 10 base pairs per turn, rungs through the middle
+    const N = 30, RISE = 0.62, R = 2.1, TWIST = Math.PI * 2 / 10;
+    const SEQ = 'ATGCCGTAGCTTACGGATCCATGGCTAGCATTGC';
+    const PAIR = { A:'T', T:'A', C:'G', G:'C' };
+    const COL = { A:0x2ecc71, T:0xe74c3c, C:0x3498db, G:0xf1c40f };
+    const NAME = { A:'adenine', T:'thymine', C:'cytosine', G:'guanine' };
+    const helix = new THREE.Group(); scene.add(helix);
+    const y0 = -(N-1) * RISE / 2;
+    const pts1 = [], pts2 = [], rungs = [];
+    const sugarGeo = new THREE.SphereGeometry(0.34, 18, 14);
+    const sugarMat = new THREE.MeshStandardMaterial({ color: 0x9b7bb8, roughness: 0.45, metalness: 0.1 });
+    const up = new THREE.Vector3(0, 1, 0);
+    function rod(a, b, radius, mat){
+        const d = new THREE.Vector3().subVectors(b, a), len = d.length();
+        const m = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, len, 14), mat);
+        m.position.copy(a).addScaledVector(d, 0.5);
+        m.quaternion.setFromUnitVectors(up, d.normalize());
+        return m;
+    }
+    for(let i = 0; i < N; i++){
+        const a = i * TWIST, y = y0 + i * RISE;
+        const p1 = new THREE.Vector3(R*Math.cos(a), y, R*Math.sin(a));
+        const p2 = new THREE.Vector3(R*Math.cos(a+Math.PI), y, R*Math.sin(a+Math.PI));
+        pts1.push(p1); pts2.push(p2);
+        [p1, p2].forEach(function(p){ const s = new THREE.Mesh(sugarGeo, sugarMat); s.position.copy(p); helix.add(s); });
+        const b1 = SEQ[i % SEQ.length], b2 = PAIR[b1], mid = new THREE.Vector3(0, y, 0);
+        const m1 = new THREE.MeshStandardMaterial({ color: COL[b1], roughness: 0.4, emissive: 0x000000 });
+        const m2 = new THREE.MeshStandardMaterial({ color: COL[b2], roughness: 0.4, emissive: 0x000000 });
+        const r1 = rod(p1, mid, 0.2, m1), r2 = rod(mid, p2, 0.2, m2);
+        const info = { i: i, b1: b1, b2: b2, mats: [m1, m2] };
+        r1.userData = info; r2.userData = info;
+        helix.add(r1); helix.add(r2); rungs.push(r1, r2);
+    }
+    [pts1, pts2].forEach(function(pts){
+        const curve = new THREE.CatmullRomCurve3(pts);
+        const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, N*8, 0.17, 10, false),
+            new THREE.MeshStandardMaterial({ color: 0x7d5a9e, roughness: 0.5 }));
+        helix.add(tube);
+    });
+    helix.rotation.z = 0.35;
+
+    // "gene" highlight: a glowing sleeve around one section
+    const G0 = 9, G1 = 20, gLen = (G1 - G0) * RISE + 0.8;
+    const gene = new THREE.Mesh(new THREE.CylinderGeometry(R+0.75, R+0.75, gLen, 40, 1, true),
+        new THREE.MeshBasicMaterial({ color: 0xffe066, transparent: true, opacity: 0.18, side: THREE.DoubleSide, depthWrite: false }));
+    gene.position.y = y0 + (G0 + G1) / 2 * RISE; gene.visible = false; helix.add(gene);
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0xffe066 });
+    [G0, G1].forEach(function(k, j){
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(R+0.75, 0.05, 8, 60), ringMat);
+        ring.rotation.x = Math.PI/2; ring.position.y = gene.position.y + (j ? 1 : -1) * gLen/2; gene.add(ring); ring.position.y -= gene.position.y;
+    });
+
+    let spinning = true, inView = true;
+    const spinBtn = document.getElementById('dna3d-spin'), geneBtn = document.getElementById('dna3d-gene');
+    spinBtn.onclick = function(){ spinning = !spinning; spinBtn.textContent = spinning ? '⏸ Pause spin' : '▶ Spin'; };
+    geneBtn.onclick = function(){
+        gene.visible = !gene.visible;
+        geneBtn.textContent = gene.visible ? '✨ Hide the gene' : '✨ Show a gene';
+        if(gene.visible){
+            const code = []; for(let k = G0; k <= G1; k++) code.push(SEQ[k % SEQ.length]);
+            read.innerHTML = '<b>A gene</b> is a section of DNA. The highlighted gene\'s code (one strand) reads: <b style="letter-spacing:2px;">' + code.join('') + '</b> — the order of the bases is the instructions for making a protein.';
+        } else read.textContent = 'Tap or hover over a rung to see its base pair.';
+    };
+
+    const ray = new THREE.Raycaster(), mouse = new THREE.Vector2();
+    let hovered = null;
+    function setHover(info){
+        if(hovered === info) return;
+        if(hovered) hovered.mats.forEach(function(m){ m.emissive.setHex(0x000000); });
+        hovered = info;
+        if(info){
+            info.mats.forEach(function(m){ m.emissive.setHex(0x555555); });
+            tip.textContent = info.b1 + ' – ' + info.b2 + '  (' + NAME[info.b1] + ' pairs with ' + NAME[info.b2] + ')';
+            tip.style.opacity = 1;
+            if(!gene.visible) read.innerHTML = 'Base pair: <b>' + info.b1 + ' – ' + info.b2 + '</b> — ' + NAME[info.b1] + ' always pairs with ' + NAME[info.b2] + '.';
+        } else tip.style.opacity = 0;
+    }
+    function pick(e){
+        const r = renderer.domElement.getBoundingClientRect();
+        mouse.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+        mouse.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+        ray.setFromCamera(mouse, camera);
+        const hit = ray.intersectObjects(rungs, false)[0];
+        setHover(hit ? hit.object.userData : null);
+    }
+    renderer.domElement.addEventListener('pointermove', pick);
+    renderer.domElement.addEventListener('pointerdown', pick);
+    renderer.domElement.addEventListener('pointerleave', function(e){ if(e.pointerType === 'mouse') setHover(null); });
+
+    function resize(){
+        const w = wrap.clientWidth, h = wrap.clientHeight;
+        if(!w || !h) return;
+        renderer.setSize(w, h, false);
+        camera.aspect = w / h; camera.updateProjectionMatrix();
+    }
+    new ResizeObserver(resize).observe(wrap); resize();
+    if('IntersectionObserver' in window) new IntersectionObserver(function(es){ inView = es[0].isIntersecting; }).observe(wrap);
+
+    let last = performance.now();
+    function loop(now){
+        const dt = Math.min(0.05, (now - last) / 1000); last = now;
+        if(inView && wrap.offsetParent !== null){
+            if(spinning) helix.rotation.y += dt * 0.5;
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+})();
 </script>
 <script src="study-audio.js"></script>
 </body>
