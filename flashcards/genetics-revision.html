@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Year 9 Biology: Genetics &amp; Biotech</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --ink: #262338;
+    --dna: #8e44ad; --dna-d: #5e2a78;
+    --bio: #2e9e5b; --bio-d: #1b6b3a;
+    --yeast: #e08a1e; --yeast-d: #a65f08;
+    --sci: #1f8ac0; --sci-d: #0a5a86;
+    --card: #d6457a; --card-d: #9c2453;
+    --gold: #c79a2e; --gold-d: #8a6a12;
+    --shadow: rgba(0,0,0,0.15);
+}
+body { font-family: 'Karla', sans-serif; color: var(--ink); background: linear-gradient(135deg, #F1E9F7 0%, #E4F3EA 45%, #FCEFD9 100%); min-height: 100vh; padding: 2rem 1rem 3rem; overflow-x: hidden; }
+.wrap { max-width: 900px; margin: 0 auto; }
+.header { text-align: center; margin-bottom: 1.2rem; }
+.helix { font-size: 2.6rem; }
+h1 { font-family: 'Cormorant Garamond', serif; font-size: 3.1rem; font-weight: 700; color: var(--dna-d); text-shadow: 2px 2px 0 rgba(142,68,173,0.18); line-height: 1.05; }
+.subtitle { font-size: 0.95rem; color: var(--bio-d); font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-top: 0.4rem; }
+.back-link { display: inline-block; text-decoration: none; color: var(--dna-d); font-weight: 700; font-size: 0.95rem; margin-bottom: 1rem; }
+.back-link:hover { text-decoration: underline; }
+
+.exam-banner { background: #fff; border-left: 6px solid var(--gold); border-radius: 14px; padding: 1.1rem 1.3rem; margin-bottom: 1.6rem; box-shadow: 0 6px 22px var(--shadow); font-size: 0.95rem; line-height: 1.55; }
+.exam-banner strong { color: var(--gold-d); }
+.pill { display: inline-block; background: var(--gold); color: #fff; font-weight: 700; font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; padding: 0.18rem 0.7rem; border-radius: 50px; margin-bottom: 0.5rem; }
+.exam-banner ul { margin: 0.4rem 0 0 1.2rem; }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 1.6rem; }
+.tab { background: rgba(255,255,255,0.7); border: 2px solid rgba(0,0,0,0.08); color: #555; font-family: 'Karla', sans-serif; font-weight: 700; font-size: 0.93rem; padding: 0.6rem 1rem; border-radius: 50px; cursor: pointer; transition: all 0.2s ease; }
+.tab:hover { transform: translateY(-2px); box-shadow: 0 4px 12px var(--shadow); }
+.tab.active { color: #fff; border-color: transparent; background: linear-gradient(135deg, var(--acc), var(--acc-d)); box-shadow: 0 4px 14px var(--shadow); }
+
+.panel { display: none; animation: fade 0.4s ease; }
+.panel.active { display: block; }
+@keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.topic-head { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 700; color: var(--acc-d); margin-bottom: 0.2rem; }
+.topic-sub { color: #666; font-size: 0.95rem; margin-bottom: 1.2rem; }
+
+.note-card, .diagram-card, .lab-card { background: #fff; border-radius: 14px; padding: 1.2rem 1.3rem; margin-bottom: 1rem; box-shadow: 0 5px 18px var(--shadow); border-left: 5px solid var(--acc); }
+.note-card h3, .diagram-card h3, .lab-card h3 { font-size: 1.15rem; color: var(--acc-d); margin-bottom: 0.6rem; }
+.note-card ul { list-style: none; }
+.note-card li { padding: 0.28rem 0 0.28rem 1.4rem; position: relative; line-height: 1.5; font-size: 0.96rem; }
+.note-card li::before { content: '▸'; position: absolute; left: 0.2rem; color: var(--acc); font-weight: 700; }
+.note-card p { line-height: 1.55; font-size: 0.96rem; margin-bottom: 0.5rem; }
+.kt { font-weight: 700; color: var(--acc-d); }
+ol.steps { counter-reset: s; list-style: none; }
+ol.steps li { counter-increment: s; position: relative; padding: 0.4rem 0 0.4rem 2.3rem; line-height: 1.5; font-size: 0.96rem; }
+ol.steps li::before { content: counter(s); position: absolute; left: 0; top: 0.35rem; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--acc); color: #fff; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+.two-col > div { background: #faf8fc; border-radius: 10px; padding: 0.8rem 0.9rem; font-size: 0.93rem; line-height: 1.5; }
+.two-col h4 { margin-bottom: 0.3rem; }
+.good h4 { color: #1d6b3c; } .bad h4 { color: #a4302c; }
+.diagram-card { text-align: center; }
+.diagram-card svg { max-width: 100%; height: auto; }
+.cap { font-size: 0.86rem; color: #666; margin-top: 0.6rem; font-style: italic; line-height: 1.45; }
+.eq { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 700; text-align: center; color: var(--acc-d); background: #fdf6ec; border-radius: 10px; padding: 0.6rem; margin: 0.4rem 0 0.6rem; }
+table.mini { border-collapse: collapse; width: 100%; font-size: 0.92rem; margin-top: 0.3rem; }
+table.mini th, table.mini td { border: 1px solid #e3dceb; padding: 0.45rem 0.55rem; text-align: left; vertical-align: top; line-height: 1.4; }
+table.mini th { background: #f6f0fa; color: var(--acc-d); }
+
+/* look-cover-check */
+.lcc { margin-bottom: 0.6rem; border-radius: 10px; background: #faf8fc; overflow: hidden; }
+.lcc summary { cursor: pointer; padding: 0.7rem 0.9rem; font-weight: 700; font-size: 0.95rem; line-height: 1.4; list-style: none; }
+.lcc summary::-webkit-details-marker { display: none; }
+.lcc summary::before { content: '❓ '; }
+.lcc[open] summary::before { content: '💡 '; }
+.lcc .ans { padding: 0 0.9rem 0.8rem 2.1rem; font-size: 0.93rem; line-height: 1.5; color: #333; }
+.lcc .ans b { color: var(--acc-d); }
+
+/* Punnett lab */
+.pn-controls { display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center; margin-bottom: 1rem; }
+.pn-controls label { font-size: 0.85rem; font-weight: 700; color: #555; display: flex; flex-direction: column; gap: 0.25rem; }
+.pn-controls select { font-family: 'Karla', sans-serif; font-size: 0.95rem; padding: 0.45rem 0.6rem; border-radius: 10px; border: 2px solid rgba(0,0,0,0.12); background: #fff; }
+.pn-grid { display: grid; grid-template-columns: 64px 1fr 1fr; grid-template-rows: 54px 1fr 1fr; gap: 6px; max-width: 360px; margin: 0 auto; }
+.pn-grid > div { display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: 700; }
+.pn-gam { background: #f1e8f7; color: var(--dna-d); font-size: 1.35rem; font-family: 'Cormorant Garamond', serif; }
+.pn-corner { font-size: 0.72rem; color: #888; text-align: center; line-height: 1.2; }
+.pn-cell { min-height: 84px; flex-direction: column; font-size: 1.5rem; font-family: 'Cormorant Garamond', serif; border: 2px solid transparent; transition: background 0.3s; }
+.pn-cell small { font-family: 'Karla', sans-serif; font-size: 0.72rem; font-weight: 700; margin-top: 0.15rem; }
+.pn-cell.dom { background: #e7f7ec; color: #1d6b3c; border-color: #9fd6b3; }
+.pn-cell.rec { background: #fdeaea; color: #a4302c; border-color: #f0b3b1; }
+.pn-cell.car { background: #fff5dc; color: #8a6a12; border-color: #ecd291; }
+.pn-summary { margin-top: 1rem; background: #faf8fc; border-radius: 10px; padding: 0.8rem 1rem; font-size: 0.95rem; line-height: 1.6; }
+.pn-summary b { color: var(--dna-d); }
+
+/* temperature lab */
+.tl-row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 1rem; align-items: center; }
+.tl-slider { width: 100%; accent-color: var(--yeast); }
+.tl-read { display: flex; justify-content: space-between; font-weight: 700; color: var(--yeast-d); margin: 0.3rem 0 0.6rem; font-size: 0.95rem; }
+.tl-status { border-radius: 10px; padding: 0.7rem 0.9rem; font-size: 0.93rem; line-height: 1.5; margin-top: 0.6rem; background: #fdf6ec; }
+#tl-canvas { width: 100%; max-width: 240px; display: block; margin: 0 auto; }
+
+button.go, button.small { color: #fff; border: none; padding: 0.8rem 1.8rem; font-size: 1rem; font-weight: 700; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px var(--shadow); transition: all 0.25s ease; font-family: 'Karla', sans-serif; background: linear-gradient(135deg, var(--acc), var(--acc-d)); }
+button.small { padding: 0.5rem 1.1rem; font-size: 0.88rem; }
+button.go:hover, button.small:hover { transform: translateY(-2px); }
+
+/* flashcards */
+.fc-bar { display: flex; flex-wrap: wrap; gap: 0.45rem; justify-content: center; margin-bottom: 0.8rem; }
+.chip { border: 2px solid rgba(0,0,0,0.1); background: #fff; border-radius: 50px; padding: 0.4rem 0.9rem; font-family: 'Karla', sans-serif; font-weight: 700; font-size: 0.85rem; cursor: pointer; color: #555; }
+.chip.on { color: #fff; border-color: transparent; background: var(--c); }
+.fc-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 1.2rem; }
+.fc-count { text-align: center; color: #666; font-size: 0.88rem; margin-bottom: 0.8rem; }
+.fc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+.fc { perspective: 1000px; height: 190px; cursor: pointer; }
+.fc-inner { position: relative; width: 100%; height: 100%; transition: transform 0.55s; transform-style: preserve-3d; }
+.fc.flipped .fc-inner { transform: rotateY(180deg); }
+.fc-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 14px; padding: 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: 0 5px 16px var(--shadow); }
+.fc-front { background: #fff; border-top: 6px solid var(--c); }
+.fc-front .term { font-family: 'Cormorant Garamond', serif; font-size: 1.55rem; font-weight: 700; color: var(--cd); line-height: 1.15; }
+.fc-front .tag { font-size: 0.68rem; letter-spacing: 1px; text-transform: uppercase; color: #999; margin-top: 0.5rem; font-weight: 700; }
+.fc-back { background: linear-gradient(135deg, var(--c), var(--cd)); color: #fff; transform: rotateY(180deg); font-size: 0.9rem; line-height: 1.45; }
+.fc-hint { position: absolute; bottom: 0.45rem; font-size: 0.62rem; letter-spacing: 1px; opacity: 0.55; font-weight: 700; }
+
+/* quiz */
+.quiz-launch { text-align: center; background: rgba(255,255,255,0.6); border-radius: 16px; padding: 1.5rem; margin-top: 0.5rem; box-shadow: 0 5px 18px var(--shadow); }
+.quiz-launch .qt { font-family: 'Cormorant Garamond', serif; font-size: 1.7rem; font-weight: 700; color: var(--acc-d); margin-bottom: 0.3rem; }
+.quiz-launch .qd { color: #555; font-size: 0.92rem; margin-bottom: 1rem; }
+.qmeta { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: #666; margin-bottom: 0.5rem; }
+.qbar-wrap { height: 8px; background: rgba(0,0,0,0.08); border-radius: 50px; overflow: hidden; margin-bottom: 1.1rem; }
+.qbar { height: 100%; background: linear-gradient(90deg, var(--acc), var(--acc-d)); width: 0; transition: width 0.3s ease; }
+.qcard { background: #fff; border-radius: 14px; padding: 1.3rem; box-shadow: 0 6px 20px var(--shadow); border-left: 6px solid var(--acc); margin-bottom: 1rem; text-align: center; }
+.qtext { font-size: 1.12rem; font-weight: 700; line-height: 1.4; }
+.qopts { display: grid; gap: 0.6rem; }
+.qopt { width: 100%; text-align: left; background: #fff; border: 2px solid rgba(0,0,0,0.1); border-radius: 12px; padding: 0.8rem 1rem; font-family: 'Karla', sans-serif; font-size: 1rem; color: #333; cursor: pointer; transition: all 0.16s ease; line-height: 1.4; }
+.qopt:hover:not(:disabled) { border-color: var(--acc); transform: translateY(-1px); }
+.qopt:disabled { cursor: default; }
+.qopt.correct { background: #e7f7ec; border-color: #2e9e5b; color: #1d6b3c; font-weight: 700; }
+.qopt.wrong { background: #fdeaea; border-color: #d9534f; color: #a4302c; font-weight: 700; }
+.qexplain { margin-top: 1rem; border-radius: 12px; padding: 0.85rem 1.05rem; font-size: 0.96rem; line-height: 1.5; display: none; text-align: left; }
+.qexplain.show { display: block; }
+.qexplain.ok { background: #e7f7ec; border-left: 5px solid #2e9e5b; color: #1d6b3c; }
+.qexplain.no { background: #fdeaea; border-left: 5px solid #d9534f; color: #8c2622; }
+.qexplain .lead { font-weight: 700; display: block; margin-bottom: 0.15rem; }
+.qnext { margin-top: 1.1rem; text-align: center; }
+.score-big { font-family: 'Cormorant Garamond', serif; font-size: 3.4rem; font-weight: 700; color: var(--acc-d); line-height: 1; }
+.score-pct { font-size: 1.1rem; color: var(--acc-d); font-weight: 700; }
+.score-msg { color: #555; margin: 0.5rem 0 1.2rem; }
+
+.answer-block { background: #fff; border-radius: 14px; padding: 1.1rem 1.3rem; margin-bottom: 1rem; box-shadow: 0 5px 18px var(--shadow); border-left: 5px solid var(--acc); }
+.answer-block h3 { color: var(--acc-d); margin-bottom: 0.5rem; font-size: 1.12rem; }
+.answer-block .qa { padding: 0.45rem 0; border-bottom: 1px dashed #e6e0ec; font-size: 0.94rem; line-height: 1.5; }
+.answer-block .qa:last-child { border-bottom: none; }
+.answer-block .qn { display: inline-block; min-width: 2.2rem; font-weight: 700; color: var(--acc-d); }
+.note-small { font-size: 0.85rem; color: #777; font-style: italic; margin-top: 0.4rem; }
+
+@media (max-width: 640px) {
+    h1 { font-size: 2.3rem; }
+    .topic-head { font-size: 1.9rem; }
+    .two-col, .tl-row { grid-template-columns: 1fr; }
+    .tab { font-size: 0.85rem; padding: 0.5rem 0.8rem; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+    <a href="index.html" class="back-link">← Back to Study Materials</a>
+    <div class="header">
+        <div class="helix">🧬</div>
+        <h1>Genetics &amp; Biotech</h1>
+        <div class="subtitle">Year 9 Biology · Checkpoint Revision</div>
+    </div>
+
+    <div class="exam-banner">
+        <span class="pill">How to revise</span><br>
+        <strong>Read the explainer</strong> for each topic, try the <strong>look–cover–check</strong> questions, then do the <strong>quiz</strong>. Use the <strong>Flashcards</strong> tab to learn the glossary words. Finish with the <strong>Master Quiz</strong>.
+        <ul>
+            <li>Also: go back over your exercise book and finish the mind map from class.</li>
+            <li>Test yourself on the glossary at the front of your book.</li>
+        </ul>
+    </div>
+
+    <div class="tabs">
+        <button class="tab active" data-panel="dna" style="--acc:var(--dna);--acc-d:var(--dna-d);">🧬 Inheritance</button>
+        <button class="tab" data-panel="bio" style="--acc:var(--bio);--acc-d:var(--bio-d);">🐄 Breeding &amp; Biotech</button>
+        <button class="tab" data-panel="yeast" style="--acc:var(--yeast);--acc-d:var(--yeast-d);">🍞 Yeast &amp; Enzymes</button>
+        <button class="tab" data-panel="sci" style="--acc:var(--sci);--acc-d:var(--sci-d);">🔬 Scientific Method</button>
+        <button class="tab" data-panel="cards" style="--acc:var(--card);--acc-d:var(--card-d);">🃏 Flashcards</button>
+        <button class="tab" data-panel="master" style="--acc:var(--gold);--acc-d:var(--gold-d);">🏆 Master Quiz</button>
+    </div>
+
+    <!-- ================= INHERITANCE ================= -->
+    <div class="panel active" id="panel-dna" style="--acc:var(--dna);--acc-d:var(--dna-d);">
+        <div class="topic-head">🧬 Genetic Inheritance</div>
+        <div class="topic-sub">DNA, genes &amp; chromosomes · dominant &amp; recessive alleles · Punnett squares · carriers · inherited disorders</div>
+
+        <div class="diagram-card">
+            <h3>From cell to gene — zooming in</h3>
+            <svg viewBox="0 0 760 220" xmlns="http://www.w3.org/2000/svg" font-family="Karla, sans-serif">
+                <!-- cell -->
+                <ellipse cx="95" cy="105" rx="80" ry="70" fill="#f3eaf9" stroke="#8e44ad" stroke-width="3"/>
+                <circle cx="105" cy="100" r="30" fill="#dcc3ee" stroke="#5e2a78" stroke-width="2.5"/>
+                <text x="95" y="200" text-anchor="middle" font-size="15" font-weight="700" fill="#5e2a78">Cell</text>
+                <path d="M182,100 L222,100" stroke="#999" stroke-width="2" marker-end="url(#ar)"/>
+                <!-- nucleus -->
+                <circle cx="290" cy="105" r="62" fill="#dcc3ee" stroke="#5e2a78" stroke-width="3"/>
+                <g stroke="#8e44ad" stroke-width="7" stroke-linecap="round">
+                    <path d="M262,80 L280,120 M280,80 L262,120"/>
+                    <path d="M300,78 L316,112 M316,78 L300,112"/>
+                    <path d="M268,128 L282,146 M282,128 L268,146"/>
+                    <path d="M306,124 L320,148 M320,124 L306,148"/>
+                </g>
+                <text x="290" y="200" text-anchor="middle" font-size="15" font-weight="700" fill="#5e2a78">Nucleus</text>
+                <path d="M360,100 L400,100" stroke="#999" stroke-width="2" marker-end="url(#ar)"/>
+                <!-- chromosome -->
+                <g stroke-linecap="round">
+                    <path d="M430,40 L480,170" stroke="#8e44ad" stroke-width="16"/>
+                    <path d="M480,40 L430,170" stroke="#a569c4" stroke-width="16"/>
+                    <path d="M441,68 L451,94" stroke="#f1c40f" stroke-width="16"/>
+                </g>
+                <text x="455" y="200" text-anchor="middle" font-size="15" font-weight="700" fill="#5e2a78">Chromosome</text>
+                <path d="M505,100 L545,100" stroke="#999" stroke-width="2" marker-end="url(#ar)"/>
+                <!-- DNA helix -->
+                <g fill="none" stroke-width="3">
+                    <path d="M570,30 C620,55 620,80 570,105 C520,130 520,155 570,180" stroke="#5e2a78" transform="translate(60,0)"/>
+                    <path d="M570,30 C520,55 520,80 570,105 C620,130 620,155 570,180" stroke="#c06cdf" transform="translate(60,0)"/>
+                </g>
+                <rect x="595" y="40" width="70" height="55" rx="8" fill="rgba(241,196,15,0.25)" stroke="#d4a90c" stroke-dasharray="4 3"/>
+                <g stroke="#bbb" stroke-width="2"><path d="M597,55 L663,55 M600,70 L660,70 M610,85 L650,85 M610,125 L650,125 M600,140 L660,140 M597,155 L663,155"/></g>
+                <text x="700" y="72" font-size="13" font-weight="700" fill="#a07d08">gene</text>
+                <text x="630" y="200" text-anchor="middle" font-size="15" font-weight="700" fill="#5e2a78">DNA</text>
+                <defs><marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#999"/></marker></defs>
+            </svg>
+            <div class="cap">The <strong>nucleus</strong> holds <strong>chromosomes</strong>. Each chromosome is one very long coiled molecule of <strong>DNA</strong>. A <strong>gene</strong> (yellow) is a short section of DNA that codes for one characteristic.</div>
+        </div>
+
+        <div class="note-card">
+            <h3>📦 DNA, genes, chromosomes &amp; the nucleus</h3>
+            <ul>
+                <li>The <span class="kt">nucleus</span> controls the cell and contains the genetic material.</li>
+                <li><span class="kt">Chromosomes</span> are long threads of coiled DNA found in the nucleus. Human body cells have <span class="kt">46 chromosomes (23 pairs)</span> — one of each pair from your mother, one from your father.</li>
+                <li><span class="kt">DNA</span> is the chemical that carries the genetic code. It is a <span class="kt">double helix</span> (a twisted ladder).</li>
+                <li>A <span class="kt">gene</span> is a section of DNA that codes for a particular characteristic (e.g. eye colour) — it is the instructions for making a protein.</li>
+                <li>Sex cells (<span class="kt">gametes</span> — sperm and egg) have only <span class="kt">23 chromosomes</span>, one from each pair. At fertilisation they join to make 46 again.</li>
+                <li>Size order, biggest → smallest: <span class="kt">nucleus → chromosome → gene → (DNA base)</span>.</li>
+            </ul>
+        </div>
+
+        <div class="note-card">
+            <h3>🔤 Alleles, genotypes &amp; phenotypes</h3>
+            <ul>
+                <li>An <span class="kt">allele</span> is a different version of the same gene (e.g. the gene for flower colour has a red allele and a white allele). You get <span class="kt">two alleles</span> for each gene — one from each parent.</li>
+                <li><span class="kt">Dominant</span> allele (capital letter, e.g. <b>R</b>): only <span class="kt">one copy</span> is needed for the characteristic to show.</li>
+                <li><span class="kt">Recessive</span> allele (small letter, e.g. <b>r</b>): <span class="kt">two copies</span> are needed for the characteristic to show. It is "hidden" if a dominant allele is there.</li>
+                <li><span class="kt">Genotype</span> = the alleles you have (e.g. Rr). <span class="kt">Phenotype</span> = the characteristic you can see (e.g. red flowers).</li>
+                <li><span class="kt">Homozygous</span> = two the same (RR or rr). <span class="kt">Heterozygous</span> = two different (Rr).</li>
+                <li>A <span class="kt">carrier</span> has <span class="kt">one copy of a recessive allele</span> for a disorder. They don't have the disorder themselves but can pass the allele to their children.</li>
+            </ul>
+        </div>
+
+        <div class="lab-card">
+            <h3>🧪 Punnett Square Lab — build your own cross</h3>
+            <div class="pn-controls">
+                <label>Trait
+                    <select id="pn-trait">
+                        <option value="flower">Flower colour (R = red, r = white)</option>
+                        <option value="cf">Cystic fibrosis (F = healthy, f = CF)</option>
+                        <option value="poly">Polydactyly (P = extra digits, p = normal)</option>
+                    </select>
+                </label>
+                <label>Parent 1 <select id="pn-p1"></select></label>
+                <label>Parent 2 <select id="pn-p2"></select></label>
+            </div>
+            <div class="pn-grid" id="pn-grid"></div>
+            <div class="pn-summary" id="pn-summary"></div>
+            <div class="cap">How to draw one: split each parent's two alleles into their <strong>gametes</strong> (along the top and side), then fill each box with one allele from the top and one from the side. Each box = a <strong>1 in 4 (25%)</strong> chance.</div>
+        </div>
+
+        <div class="note-card">
+            <h3>🧮 Probability from a Punnett square</h3>
+            <ul>
+                <li>4 boxes, so each box is <span class="kt">¼ = 25%</span>. Count the boxes that match what the question asks.</li>
+                <li><span class="kt">Rr × Rr</span> → RR, Rr, Rr, rr → <span class="kt">3 : 1</span> ratio → 75% show dominant, 25% recessive.</li>
+                <li><span class="kt">RR × rr</span> → all Rr → <span class="kt">100%</span> show the dominant characteristic.</li>
+                <li><span class="kt">Rr × rr</span> → Rr, Rr, rr, rr → <span class="kt">1 : 1</span> → 50% each.</li>
+                <li>Probability is a <span class="kt">chance for each child</span>. A 1 in 4 chance doesn't mean exactly 1 in every 4 children will have it!</li>
+            </ul>
+        </div>
+
+        <div class="note-card">
+            <h3>🩺 Inherited disorders</h3>
+            <p>Some diseases are <b>caught</b> from other people (infectious). <span class="kt">Inherited (genetic) disorders</span> are passed from parents to children in their <b>genes</b> — you can't catch them.</p>
+            <table class="mini">
+                <tr><th>Disorder</th><th>Caused by</th><th>Effects</th></tr>
+                <tr><td><b>Cystic fibrosis</b></td><td><b>Recessive</b> allele (ff). Needs two copies, so two healthy <b>carrier</b> parents (Ff × Ff) have a <b>1 in 4</b> chance of a child with CF.</td><td>Cell membranes don't work properly → thick, sticky <b>mucus</b> in the lungs and digestive system. Breathing problems, chest infections, difficulty digesting food.</td></tr>
+                <tr><td><b>Polydactyly</b></td><td><b>Dominant</b> allele (P). Only one copy needed. <b>You can't be a carrier</b> — if you have the allele, you have the condition.</td><td>Extra fingers or toes.</td></tr>
+                <tr><td><b>Haemophilia</b></td><td>Recessive allele (on the X chromosome, so mostly affects boys).</td><td>Blood doesn't clot properly.</td></tr>
+            </table>
+        </div>
+
+        <div class="note-card">
+            <h3>🤔 Look – cover – check</h3>
+            <details class="lcc"><summary>Explain the difference between a dominant and a recessive allele.</summary><div class="ans">A <b>dominant</b> allele only needs <b>one copy</b> for the characteristic to appear. A <b>recessive</b> allele needs <b>two copies</b> — it is only expressed if there is no dominant allele.</div></details>
+            <details class="lcc"><summary>Two parents are both carriers of cystic fibrosis (Ff). What is the chance their child has CF?</summary><div class="ans">Punnett square: FF, Ff, Ff, ff. Only <b>ff</b> has CF → <b>1 in 4 (25%)</b>. There's also a 2 in 4 (50%) chance the child is a carrier, and 1 in 4 that they have no faulty allele at all.</div></details>
+            <details class="lcc"><summary>Why can't someone be a carrier of polydactyly?</summary><div class="ans">Polydactyly is caused by a <b>dominant</b> allele, so only one copy is needed to have the condition. Anyone with the allele has polydactyly — carriers only exist for <b>recessive</b> disorders.</div></details>
+            <details class="lcc"><summary>A red-flowered plant (RR) is crossed with a white-flowered plant (rr). Predict the offspring.</summary><div class="ans">Gametes: R, R and r, r → every box is <b>Rr</b>. <b>All (100%) are red</b>, because R is dominant. They are all heterozygous.</div></details>
+            <details class="lcc"><summary>Put in order of size, smallest first: chromosome, nucleus, gene, cell.</summary><div class="ans"><b>gene → chromosome → nucleus → cell</b></div></details>
+        </div>
+
+        <div class="quiz-launch">
+            <div class="qt">🧬 Inheritance Quiz</div>
+            <div class="qd">10 random questions on DNA, alleles, Punnett squares and inherited disorders.</div>
+            <div id="quiz-dna"></div>
+        </div>
+    </div>
+
+    <!-- ================= BREEDING & BIOTECH ================= -->
+    <div class="panel" id="panel-bio" style="--acc:var(--bio);--acc-d:var(--bio-d);">
+        <div class="topic-head">🐄 Breeding &amp; Biotech</div>
+        <div class="topic-sub">Selective breeding · genetic engineering (insulin) · cloning &amp; asexual reproduction</div>
+
+        <div class="note-card">
+            <h3>🐕 Selective breeding (artificial selection)</h3>
+            <p>Humans choose which plants or animals breed, to produce organisms with <span class="kt">desired characteristics</span>. People have done this for thousands of years — dogs, cats, horses, cattle, wheat.</p>
+            <ol class="steps">
+                <li>Choose the <b>desired characteristic</b> (e.g. lots of milk, disease resistance, big fruit, gentle nature).</li>
+                <li>Select <b>parents</b> that show the characteristic most strongly.</li>
+                <li><b>Breed</b> them together.</li>
+                <li>Select the <b>offspring</b> with the best characteristics and breed them again.</li>
+                <li><b>Repeat for many generations</b> until all the offspring show the characteristic.</li>
+            </ol>
+            <div class="two-col" style="margin-top:0.6rem;">
+                <div class="good"><h4>👍 Advantages</h4>Produces organisms with the characteristics we want (more food, better crops, useful animals). Doesn't need complex technology like genetic engineering.</div>
+                <div class="bad"><h4>👎 Disadvantages</h4>Reduces <b>variation</b> (smaller gene pool) → more likely to be wiped out by a new <b>disease</b>, and more <b>inherited disorders</b> from inbreeding. <b>Takes many generations</b> (slow).</div>
+            </div>
+        </div>
+
+        <div class="note-card">
+            <h3>💉 Genetic engineering — making human insulin</h3>
+            <p><span class="kt">Genetic engineering</span> = changing an organism's genes by <b>cutting a useful gene out of one organism and putting it into another</b>. The organism that receives it is <b>genetically modified (GM)</b>.</p>
+            <ol class="steps">
+                <li>The human <b>insulin gene</b> is cut out of human DNA using <b>enzymes</b> ("molecular scissors").</li>
+                <li>A <b>plasmid</b> (small ring of DNA) is taken from a bacterium and cut open with the same enzyme.</li>
+                <li>The insulin gene is <b>inserted into the plasmid</b> (stuck in with another enzyme).</li>
+                <li>The plasmid is put back into a <b>bacterium</b>.</li>
+                <li>The bacteria <b>reproduce</b> very quickly in a big vat (fermenter) — every copy has the insulin gene.</li>
+                <li>The bacteria make human <b>insulin</b>, which is collected, purified and given to people with <b>diabetes</b>.</li>
+            </ol>
+            <div class="two-col" style="margin-top:0.6rem;">
+                <div class="good"><h4>👍 Advantages</h4>Lots of insulin made quickly and cheaply; it's identical to human insulin. GM crops can resist pests/drought or contain extra vitamins (e.g. Golden Rice).</div>
+                <div class="bad"><h4>👎 Disadvantages</h4>Worries about long-term effects on health; genes might spread to wild plants; ethical objections ("playing God"); can be expensive to develop.</div>
+            </div>
+        </div>
+
+        <div class="note-card">
+            <h3>🌱 Cloning &amp; asexual reproduction</h3>
+            <ul>
+                <li><span class="kt">Asexual reproduction</span> needs <b>one parent</b>, no gametes and no mixing of genes — the offspring are <span class="kt">genetically identical</span> to the parent. Examples: bacteria splitting, yeast budding, strawberry runners, potato tubers.</li>
+                <li>A <span class="kt">clone</span> is a genetically identical copy of an organism.</li>
+                <li><span class="kt">Plant cuttings</span>: cut a piece of stem with leaves from a parent plant, dip in <b>rooting powder</b> (plant hormones), plant in damp compost, keep warm and covered. It grows roots → a clone.</li>
+                <li><span class="kt">Tissue culture</span>: a few cells from the parent plant are grown on a jelly with nutrients and hormones → thousands of identical plants.</li>
+                <li><span class="kt">Animal cloning</span>: <b>embryo transplants</b> (split an early embryo, put the parts into surrogate mothers) and <b>adult cell cloning</b> — <b>Dolly the sheep (1996)</b>, made by putting the nucleus of a body cell into an egg cell with its nucleus removed.</li>
+            </ul>
+            <div class="two-col" style="margin-top:0.6rem;">
+                <div class="good"><h4>👍 Advantages</h4>Quick and cheap way to get lots of plants; you know exactly what you'll get (copies of the best plant); can save endangered species.</div>
+                <div class="bad"><h4>👎 Disadvantages</h4>No <b>variation</b> → one disease could wipe them all out; cloned animals may have health problems; ethical concerns.</div>
+            </div>
+        </div>
+
+        <div class="note-card">
+            <h3>⚖️ Don't mix them up!</h3>
+            <table class="mini">
+                <tr><th></th><th>Selective breeding</th><th>Genetic engineering</th><th>Cloning</th></tr>
+                <tr><td><b>What happens</b></td><td>Choose parents, breed, repeat</td><td>Move a gene from one organism to another</td><td>Make identical copies</td></tr>
+                <tr><td><b>Speed</b></td><td>Slow — many generations</td><td>Fast — one generation</td><td>Fast</td></tr>
+                <tr><td><b>Example</b></td><td>Dairy cows, dog breeds</td><td>Insulin-making bacteria</td><td>Cuttings, Dolly the sheep</td></tr>
+            </table>
+        </div>
+
+        <div class="note-card">
+            <h3>🤔 Look – cover – check</h3>
+            <details class="lcc"><summary>Describe the steps of selective breeding.</summary><div class="ans">Choose the desired characteristic → select parents that show it best → breed them → choose the best offspring and breed them → <b>repeat over many generations</b>.</div></details>
+            <details class="lcc"><summary>Give one disadvantage of selective breeding.</summary><div class="ans">It reduces <b>variation</b> in the gene pool, so the organisms are more likely to be killed by a new disease and to suffer inherited disorders. It also takes many generations.</div></details>
+            <details class="lcc"><summary>How are bacteria used to make human insulin?</summary><div class="ans">The human insulin gene is cut out with enzymes and inserted into a bacterial <b>plasmid</b>. The plasmid goes back into a bacterium, which <b>reproduces rapidly</b> in a fermenter. The bacteria make insulin, which is purified and used to treat <b>diabetes</b>.</div></details>
+            <details class="lcc"><summary>Why are plants grown from cuttings genetically identical to the parent?</summary><div class="ans">Cuttings are a type of <b>asexual reproduction</b> — there's only one parent and no mixing of genes from two gametes, so the new plant has exactly the same genes (a clone).</div></details>
+        </div>
+
+        <div class="quiz-launch">
+            <div class="qt">🐄 Breeding &amp; Biotech Quiz</div>
+            <div class="qd">10 random questions on selective breeding, genetic engineering and cloning.</div>
+            <div id="quiz-bio"></div>
+        </div>
+    </div>
+
+    <!-- ================= YEAST & ENZYMES ================= -->
+    <div class="panel" id="panel-yeast" style="--acc:var(--yeast);--acc-d:var(--yeast-d);">
+        <div class="topic-head">🍞 Yeast, Fermentation &amp; Enzymes</div>
+        <div class="topic-sub">Fermentation · uses of yeast · enzymes and temperature · investigating fermentation</div>
+
+        <div class="note-card">
+            <h3>🦠 Fermentation</h3>
+            <p><span class="kt">Yeast</span> is a single-celled <b>fungus</b>. When it has sugar but no oxygen it does <span class="kt">anaerobic respiration</span>, called <span class="kt">fermentation</span>:</p>
+            <div class="eq">glucose → ethanol + carbon dioxide (+ energy)</div>
+            <ul>
+                <li><span class="kt">Bread</span>: yeast ferments the sugars in the dough. The <b>carbon dioxide</b> bubbles make the dough <b>rise</b>. The dough is left somewhere <b>warm</b> so the yeast works faster. The ethanol <b>evaporates</b> when the bread is baked.</li>
+                <li><span class="kt">Beer and wine (brewing)</span>: yeast ferments sugars in grain or grapes. Here the <b>ethanol (alcohol)</b> is the useful product; the CO₂ can make it fizzy.</li>
+                <li>Fermentation is controlled by <span class="kt">enzymes</span> inside the yeast — so it depends on <b>temperature</b>.</li>
+            </ul>
+        </div>
+
+        <div class="note-card">
+            <h3>🔑 Enzymes</h3>
+            <ul>
+                <li><span class="kt">Enzymes</span> are proteins that act as <span class="kt">biological catalysts</span> — they speed up chemical reactions without being used up.</li>
+                <li>Each enzyme has an <span class="kt">active site</span> with a special shape. Only one substrate fits — the <span class="kt">lock and key</span> model.</li>
+                <li><b>Too cold</b>: molecules move slowly, fewer collisions → <b>slow</b> reaction. The enzyme isn't damaged — warm it up and it works again.</li>
+                <li><b>Optimum temperature</b>: the temperature where the enzyme works fastest (about <b>37 °C</b> for human enzymes; yeast works best around 30–40 °C).</li>
+                <li><b>Too hot</b>: the active site <span class="kt">changes shape permanently</span> — the enzyme is <span class="kt">denatured</span> and can no longer catalyse the reaction. This can't be undone.</li>
+            </ul>
+        </div>
+
+        <div class="lab-card">
+            <h3>🌡️ Yeast Temperature Lab — drag the thermometer</h3>
+            <div class="tl-row">
+                <div>
+                    <svg id="tl-graph" viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg" font-family="Karla, sans-serif" style="width:100%;height:auto;"></svg>
+                    <input type="range" min="0" max="70" value="20" id="tl-temp" class="tl-slider" aria-label="Temperature">
+                    <div class="tl-read"><span id="tl-t">20 °C</span><span id="tl-r">CO₂ bubbles: 0 / min</span></div>
+                </div>
+                <canvas id="tl-canvas" width="240" height="320"></canvas>
+            </div>
+            <div class="tl-status" id="tl-status"></div>
+        </div>
+
+        <div class="note-card">
+            <h3>🔬 Investigating fermentation</h3>
+            <p>A typical practical: mix <b>yeast + sugar + water</b> in a test tube or flask, connect a delivery tube into water (or put a balloon on top), and place it in water baths at different temperatures.</p>
+            <ul>
+                <li><span class="kt">Independent variable</span> (what you change): <b>temperature</b>.</li>
+                <li><span class="kt">Dependent variable</span> (what you measure): <b>number of CO₂ bubbles per minute</b> (or how much the balloon inflates / volume of gas collected).</li>
+                <li><span class="kt">Control variables</span> (keep the same): amount of yeast, amount and type of sugar, volume of water, time, size of tube.</li>
+                <li>Test for CO₂: bubble it through <span class="kt">limewater</span> → it turns <b>cloudy (milky)</b>.</li>
+                <li>Typical result: bubbles increase from cold up to about <b>35–40 °C</b>, then drop quickly as the enzymes denature; at boiling the yeast is killed — no bubbles.</li>
+            </ul>
+        </div>
+
+        <div class="note-card">
+            <h3>🧺 Enzymes we use</h3>
+            <table class="mini">
+                <tr><th>Use</th><th>Enzyme</th><th>What it does</th></tr>
+                <tr><td>Biological washing powder (removing stains)</td><td>Proteases &amp; lipases</td><td>Break down protein and fat stains into small, water-soluble substances that wash away. Work at low temperatures.</td></tr>
+                <tr><td>Making fruit juice</td><td>Pectinase</td><td>Digests pectin in plant cell walls → fruit is easier to squeeze and releases more juice.</td></tr>
+                <tr><td>Making baby food</td><td>Proteases</td><td>"Pre-digest" proteins into amino acids, making the food easier for babies to absorb.</td></tr>
+            </table>
+        </div>
+
+        <div class="note-card">
+            <h3>🤔 Look – cover – check</h3>
+            <details class="lcc"><summary>Write the word equation for fermentation.</summary><div class="ans"><b>glucose → ethanol + carbon dioxide</b> (+ energy released)</div></details>
+            <details class="lcc"><summary>Why does bread dough rise, and why is it left somewhere warm?</summary><div class="ans">Yeast ferments sugars and makes <b>carbon dioxide</b> gas, which gets trapped and makes the dough rise. Warmth speeds up the yeast's <b>enzymes</b> so it ferments faster (but not too hot or they denature).</div></details>
+            <details class="lcc"><summary>What happens to an enzyme at a very high temperature?</summary><div class="ans">The shape of its <b>active site changes permanently</b> — it is <b>denatured</b> — so the substrate no longer fits and it can no longer catalyse reactions.</div></details>
+            <details class="lcc"><summary>Why does yeast make fewer bubbles at 5 °C than at 35 °C?</summary><div class="ans">At low temperatures the molecules have less energy and move more slowly, so there are fewer collisions between enzymes and substrate — the reaction is <b>slower</b>. The enzymes are not denatured.</div></details>
+        </div>
+
+        <div class="quiz-launch">
+            <div class="qt">🍞 Yeast &amp; Enzymes Quiz</div>
+            <div class="qd">10 random questions on fermentation, enzymes and temperature.</div>
+            <div id="quiz-yeast"></div>
+        </div>
+    </div>
+
+    <!-- ================= SCIENTIFIC METHOD ================= -->
+    <div class="panel" id="panel-sci" style="--acc:var(--sci);--acc-d:var(--sci-d);">
+        <div class="topic-head">🔬 The Scientific Method</div>
+        <div class="topic-sub">Observations · hypotheses · predictions · experiments · results · conclusions</div>
+
+        <div class="note-card">
+            <h3>🔁 The steps</h3>
+            <ol class="steps">
+                <li><b>Observation</b> — notice something (e.g. "bread rises faster on a warm day").</li>
+                <li><b>Question / hypothesis</b> — a possible explanation that can be tested ("yeast ferments faster when it is warmer because its enzymes work faster").</li>
+                <li><b>Prediction</b> — what you think will happen, often "the more…, the more…" ("as temperature increases up to 40 °C, the number of bubbles will increase").</li>
+                <li><b>Experiment</b> — a <b>fair test</b>: change one variable, measure another, keep everything else the same.</li>
+                <li><b>Results</b> — record in a table, repeat and calculate a <b>mean</b>, draw a graph.</li>
+                <li><b>Conclusion</b> — describe the pattern and say whether it <b>supports the prediction</b>. Explain it using science.</li>
+                <li><b>Evaluation</b> — how could the experiment be improved? Were there any anomalous results?</li>
+            </ol>
+        </div>
+
+        <div class="note-card">
+            <h3>📊 Variables &amp; key words</h3>
+            <ul>
+                <li><span class="kt">Independent variable</span> — the one you <b>change</b> (goes on the x-axis / first column of your table).</li>
+                <li><span class="kt">Dependent variable</span> — the one you <b>measure</b> (y-axis).</li>
+                <li><span class="kt">Control variables</span> — everything you <b>keep the same</b> to make it a <span class="kt">fair test</span>.</li>
+                <li><span class="kt">Repeatable / reliable</span> — repeat readings give similar results. <b>Repeat</b> and take a <b>mean</b> to improve this.</li>
+                <li><span class="kt">Anomalous result</span> — a result that doesn't fit the pattern. Ignore it when calculating the mean, and repeat that reading.</li>
+                <li><span class="kt">Accurate</span> — close to the true value. <span class="kt">Precise</span> — repeat readings are close together.</li>
+                <li><span class="kt">Mean</span> = add the results up ÷ how many there are.</li>
+            </ul>
+        </div>
+
+        <div class="note-card">
+            <h3>🤔 Look – cover – check</h3>
+            <details class="lcc"><summary>In a yeast experiment testing 20, 30, 40 and 50 °C, name the independent, dependent and one control variable.</summary><div class="ans">Independent: <b>temperature</b>. Dependent: <b>number of CO₂ bubbles per minute</b>. Control: e.g. <b>mass of yeast</b>, mass of sugar, volume of water, time measured for.</div></details>
+            <details class="lcc"><summary>What is the difference between a hypothesis and a prediction?</summary><div class="ans">A <b>hypothesis</b> is a possible <b>explanation</b> for an observation. A <b>prediction</b> says what you expect to <b>happen</b> in the experiment if the hypothesis is correct.</div></details>
+            <details class="lcc"><summary>Results: 12, 14, 31, 13 bubbles. What's the mean?</summary><div class="ans">31 is <b>anomalous</b> — leave it out. Mean = (12 + 14 + 13) ÷ 3 = <b>13</b> bubbles.</div></details>
+            <details class="lcc"><summary>Why do scientists repeat experiments?</summary><div class="ans">To check the results are <b>repeatable (reliable)</b>, to spot anomalous results, and to calculate a mean.</div></details>
+        </div>
+
+        <div class="quiz-launch">
+            <div class="qt">🔬 Scientific Method Quiz</div>
+            <div class="qd">8 random questions on variables, predictions and results.</div>
+            <div id="quiz-sci"></div>
+        </div>
+    </div>
+
+    <!-- ================= FLASHCARDS ================= -->
+    <div class="panel" id="panel-cards" style="--acc:var(--card);--acc-d:var(--card-d);">
+        <div class="topic-head">🃏 Glossary Flashcards</div>
+        <div class="topic-sub">Tap a card to flip it. Filter by topic, shuffle, and test yourself — say the definition before you flip!</div>
+        <div class="fc-bar" id="fc-filters"></div>
+        <div class="fc-actions">
+            <button class="small" id="fc-shuffle">🔀 Shuffle</button>
+            <button class="small" id="fc-flipall">🔄 Flip all</button>
+            <button class="small" id="fc-reset">↩️ Reset</button>
+        </div>
+        <div class="fc-count" id="fc-count"></div>
+        <div class="fc-grid" id="fc-grid"></div>
+    </div>
+
+    <!-- ================= MASTER QUIZ ================= -->
+    <div class="panel" id="panel-master" style="--acc:var(--gold);--acc-d:var(--gold-d);">
+        <div class="topic-head">🏆 Master Quiz</div>
+        <div class="topic-sub">Everything combined — just like the real test</div>
+        <div class="note-card">
+            <h3>🎯 The big one</h3>
+            <ul>
+                <li><span class="kt">20 random questions</span> from every topic: inheritance, Punnett squares, breeding &amp; biotech, yeast &amp; enzymes and the scientific method.</li>
+                <li>Different questions every time — keep going until you score 90%+.</li>
+            </ul>
+        </div>
+        <div class="quiz-launch">
+            <div class="qt">🏆 Master Quiz</div>
+            <div class="qd">20 questions from all topics.</div>
+            <div id="quiz-master"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+/* ============ FLASHCARD GLOSSARY ============ */
+const TOPICS = {
+    dna:   { name: 'Inheritance', c: '#8e44ad', cd: '#5e2a78' },
+    bio:   { name: 'Breeding & Biotech', c: '#2e9e5b', cd: '#1b6b3a' },
+    yeast: { name: 'Yeast & Enzymes', c: '#e08a1e', cd: '#a65f08' },
+    sci:   { name: 'Scientific Method', c: '#1f8ac0', cd: '#0a5a86' },
+};
+const CARDS = [
+    ['dna','Nucleus','The part of the cell that contains the genetic material (chromosomes) and controls the cell.'],
+    ['dna','Chromosome','A long, coiled thread of DNA found in the nucleus. Humans have 46 (23 pairs) in each body cell.'],
+    ['dna','DNA','The chemical that carries the genetic code. Shaped like a double helix (twisted ladder).'],
+    ['dna','Gene','A short section of DNA that codes for a particular characteristic (it carries the instructions for a protein).'],
+    ['dna','Allele','A different version of the same gene, e.g. the allele for red or for white flowers.'],
+    ['dna','Dominant allele','Only one copy is needed for the characteristic to show. Written as a capital letter (R).'],
+    ['dna','Recessive allele','Two copies are needed for the characteristic to show. Written as a lower-case letter (r).'],
+    ['dna','Genotype','The alleles an organism has for a gene, e.g. Rr.'],
+    ['dna','Phenotype','The characteristic you can see that results from the genotype, e.g. red flowers.'],
+    ['dna','Homozygous','Having two identical alleles for a gene, e.g. RR or rr.'],
+    ['dna','Heterozygous','Having two different alleles for a gene, e.g. Rr.'],
+    ['dna','Carrier','Someone with one copy of a recessive allele for a disorder. They don\'t have the disorder but can pass it on.'],
+    ['dna','Punnett square','A grid used to show all the possible combinations of alleles from two parents and work out probabilities.'],
+    ['dna','Gamete','A sex cell (sperm or egg). It has only one allele of each gene and 23 chromosomes in humans.'],
+    ['dna','Genetic inheritance','Passing on characteristics from parents to offspring through genes.'],
+    ['dna','Inherited disorder','A condition passed from parents to offspring in their genes (can\'t be caught), e.g. cystic fibrosis.'],
+    ['dna','Cystic fibrosis','An inherited disorder caused by a recessive allele. Causes thick, sticky mucus in the lungs and digestive system.'],
+    ['dna','Polydactyly','An inherited disorder caused by a dominant allele, giving extra fingers or toes.'],
+    ['bio','Selective breeding','Humans choosing parents with desired characteristics to breed, over many generations (artificial selection).'],
+    ['bio','Variation','Differences between individuals. Selective breeding and cloning reduce it.'],
+    ['bio','Genetic engineering','Changing an organism\'s genes by cutting a gene from one organism and inserting it into another.'],
+    ['bio','Genetically modified (GM)','An organism that has had its genes changed by genetic engineering.'],
+    ['bio','Insulin','A hormone that controls blood sugar. People with diabetes need it; it can be made by GM bacteria.'],
+    ['bio','Plasmid','A small ring of DNA found in bacteria. Used to carry a new gene into a bacterium.'],
+    ['bio','Clone','An organism that is genetically identical to its parent.'],
+    ['bio','Asexual reproduction','Reproduction with one parent and no gametes. The offspring are genetically identical clones.'],
+    ['bio','Cutting','A piece of a plant (stem and leaves) that is grown into a new, identical plant.'],
+    ['bio','Tissue culture','Growing new plants from a few cells on a jelly with nutrients and hormones.'],
+    ['bio','Dolly the sheep','The first mammal cloned from an adult body cell (1996).'],
+    ['yeast','Yeast','A single-celled fungus used to make bread, beer and wine.'],
+    ['yeast','Fermentation','Anaerobic respiration in yeast: glucose → ethanol + carbon dioxide.'],
+    ['yeast','Anaerobic respiration','Releasing energy from glucose without oxygen.'],
+    ['yeast','Ethanol','The alcohol made by fermentation. Useful in brewing; evaporates when bread is baked.'],
+    ['yeast','Enzyme','A protein that is a biological catalyst — it speeds up reactions without being used up.'],
+    ['yeast','Catalyst','A substance that speeds up a chemical reaction without being used up.'],
+    ['yeast','Active site','The part of an enzyme where the substrate fits (lock and key).'],
+    ['yeast','Substrate','The molecule an enzyme acts on.'],
+    ['yeast','Optimum temperature','The temperature at which an enzyme works fastest (about 37 °C for human enzymes).'],
+    ['yeast','Denatured','When an enzyme\'s active site changes shape permanently (e.g. too hot), so it no longer works.'],
+    ['yeast','Limewater','Turns cloudy (milky) when carbon dioxide is bubbled through it.'],
+    ['yeast','Pectinase','Enzyme that breaks down pectin in plant cell walls — used to get more fruit juice.'],
+    ['yeast','Protease','Enzyme that breaks down proteins into amino acids (washing powder, baby food).'],
+    ['yeast','Lipase','Enzyme that breaks down fats (lipids) — used in biological washing powder.'],
+    ['sci','Observation','Noticing something using your senses or instruments — the starting point of science.'],
+    ['sci','Hypothesis','A possible explanation for an observation that can be tested.'],
+    ['sci','Prediction','A statement of what you think will happen in an experiment.'],
+    ['sci','Independent variable','The variable you change.'],
+    ['sci','Dependent variable','The variable you measure.'],
+    ['sci','Control variable','A variable you keep the same to make it a fair test.'],
+    ['sci','Fair test','An experiment where only the independent variable is changed and everything else is kept the same.'],
+    ['sci','Anomalous result','A result that doesn\'t fit the pattern of the others.'],
+    ['sci','Mean','An average: add up the values and divide by how many there are.'],
+    ['sci','Reliable / repeatable','When you repeat the experiment you get similar results.'],
+    ['sci','Conclusion','A statement describing what the results show and whether they support the prediction.'],
+];
+
+/* ============ QUIZ BANKS ============ */
+function Q(q, a, wrong, ex){ return { q: q, a: a, opts: [a].concat(wrong), ex: ex }; }
+const BANKS = {
+    dna: [
+        Q('Where in a cell are chromosomes found?', 'In the nucleus', ['In the cytoplasm', 'In the cell membrane', 'In the cell wall'], 'Chromosomes are kept in the nucleus, which controls the cell.'),
+        Q('What is a <em>gene</em>?', 'A section of DNA that codes for a characteristic', ['A whole chromosome', 'A type of cell', 'The nucleus of a sex cell'], 'A gene is a short section of DNA — the instructions for one characteristic.'),
+        Q('Put these in order of size, <em>smallest first</em>.', 'gene → chromosome → nucleus → cell', ['cell → nucleus → chromosome → gene', 'chromosome → gene → nucleus → cell', 'nucleus → gene → cell → chromosome'], 'A gene is part of a chromosome, which is in the nucleus, which is in the cell.'),
+        Q('How many chromosomes are in a normal human body cell?', '46 (23 pairs)', ['23', '92', '46 pairs'], '46 chromosomes in 23 pairs. Sex cells (gametes) have 23.'),
+        Q('What is an <em>allele</em>?', 'A different version of a gene', ['A type of chromosome', 'A faulty cell', 'Another word for DNA'], 'e.g. the flower-colour gene has a red allele (R) and a white allele (r).'),
+        Q('A dominant allele…', 'Only needs one copy for the characteristic to show', ['Needs two copies to show', 'Is always harmful', 'Is always written in lower case'], 'Dominant = one copy is enough. Recessive = two copies needed.'),
+        Q('Which genotype is <em>heterozygous</em>?', 'Rr', ['RR', 'rr', 'R'], 'Heterozygous means two different alleles.'),
+        Q('A plant has genotype Rr (R = red, r = white). What colour are its flowers?', 'Red', ['White', 'Pink', 'Half red, half white'], 'R is dominant, so one copy is enough — the flowers are red.'),
+        Q('RR (red) × rr (white). What fraction of offspring will be red?', 'All of them (100%)', ['3 in 4 (75%)', '1 in 2 (50%)', 'None of them'], 'Every box is Rr, and R is dominant — all red.'),
+        Q('Rr × Rr. What is the chance of a white (rr) offspring?', '1 in 4 (25%)', ['1 in 2 (50%)', '3 in 4 (75%)', '0%'], 'RR, Rr, Rr, rr — one box out of four is rr.'),
+        Q('Rr × rr. What is the ratio of red to white offspring?', '1 : 1', ['3 : 1', '1 : 3', 'All red'], 'Rr, Rr, rr, rr — two red, two white.'),
+        Q('Pp × Pp, where P (polydactyly) is dominant. What percentage will have polydactyly?', '75%', ['25%', '50%', '100%'], 'PP, Pp, Pp have it; only pp doesn\'t → 3 out of 4.'),
+        Q('What is a <em>carrier</em>?', 'Someone with one copy of a recessive allele for a disorder, who doesn\'t have it themselves', ['Someone who has the disorder', 'Someone with two dominant alleles', 'Someone who can catch the disorder from others'], 'Carriers are healthy but can pass the recessive allele on.'),
+        Q('Two carriers of cystic fibrosis (Ff × Ff) have a child. Chance the child has CF?', '1 in 4', ['1 in 2', '3 in 4', 'No chance'], 'Only ff has CF — 1 box of 4. There\'s a 2 in 4 chance of a carrier.'),
+        Q('Cystic fibrosis is caused by…', 'A recessive allele', ['A dominant allele', 'A virus', 'Bacteria in the lungs'], 'You need two copies of the recessive allele (ff) to have CF.'),
+        Q('Which is a symptom of cystic fibrosis?', 'Thick, sticky mucus in the lungs', ['Extra fingers or toes', 'Blood that doesn\'t clot', 'High temperature'], 'CF makes thick mucus in the lungs and digestive system. Extra digits = polydactyly.'),
+        Q('Why can\'t you be a carrier of polydactyly?', 'It\'s caused by a dominant allele, so one copy means you have it', ['It can\'t be inherited', 'It only affects animals', 'It\'s caused by a recessive allele'], 'Carriers only exist for recessive disorders.'),
+        Q('Which of these is an <em>inherited</em> disorder?', 'Haemophilia', ['Flu', 'Chickenpox', 'Food poisoning'], 'Haemophilia is passed on in genes. The others are infectious diseases.'),
+        Q('The alleles an organism has (e.g. Rr) are called its…', 'Genotype', ['Phenotype', 'Chromosome', 'Gamete'], 'Genotype = alleles. Phenotype = what you see.'),
+    ],
+    bio: [
+        Q('Selective breeding is…', 'Humans choosing parents with desired characteristics to breed', ['Moving a gene from one organism to another', 'Making identical copies of an organism', 'Natural selection in the wild'], 'Also called artificial selection.'),
+        Q('What is the FIRST step in selective breeding?', 'Choose the desired characteristic', ['Breed the offspring together', 'Cut out the gene', 'Take a cutting'], 'Decide what you want, then select parents that show it.'),
+        Q('Why does selective breeding take a long time?', 'It must be repeated over many generations', ['The DNA has to be cut with enzymes', 'Bacteria reproduce slowly', 'It only works in winter'], 'You select and breed again and again until all offspring show the characteristic.'),
+        Q('Which is a <em>disadvantage</em> of selective breeding?', 'It reduces variation, so a new disease could wipe out the population', ['It needs very complex technology', 'It always produces clones', 'It increases the gene pool'], 'Smaller gene pool → more disease risk and more inherited disorders.'),
+        Q('Which is an example of selective breeding?', 'Breeding cows that produce lots of milk', ['Bacteria making human insulin', 'Dolly the sheep', 'Taking a cutting of a geranium'], 'Insulin bacteria = genetic engineering; Dolly and cuttings = cloning.'),
+        Q('Genetic engineering means…', 'Transferring a gene from one organism into another', ['Breeding the best animals together', 'Growing plants from cuttings', 'Using yeast to make bread'], 'The organism that receives the gene is genetically modified (GM).'),
+        Q('Which organism is used to make human insulin?', 'Genetically engineered bacteria', ['Yeast in bread', 'Cloned sheep', 'Selectively bred cows'], 'The human insulin gene is put into bacteria, which then make insulin.'),
+        Q('What is a <em>plasmid</em>?', 'A small ring of DNA in a bacterium', ['A type of enzyme', 'The nucleus of a plant cell', 'A sex cell'], 'The insulin gene is inserted into a plasmid, which carries it into the bacterium.'),
+        Q('What is used to cut the insulin gene out of human DNA?', 'Enzymes', ['Scissors', 'Yeast', 'Limewater'], 'Special enzymes act as "molecular scissors".'),
+        Q('Insulin from GM bacteria is used to treat…', 'Diabetes', ['Cystic fibrosis', 'Polydactyly', 'Colds'], 'People with diabetes can\'t control blood sugar without insulin.'),
+        Q('Why are GM bacteria good at making insulin?', 'They reproduce very quickly, so lots of insulin is made', ['They are bigger than human cells', 'They don\'t contain any DNA', 'They can photosynthesise'], 'Each new bacterium has the gene — huge numbers in a fermenter.'),
+        Q('A clone is…', 'Genetically identical to its parent', ['A mix of genes from two parents', 'Always an animal', 'A type of gamete'], 'Clones are made by asexual reproduction or cloning techniques.'),
+        Q('Asexual reproduction involves…', 'One parent and no mixing of genes', ['Two parents and gametes', 'A sperm and an egg', 'Selective breeding'], 'So the offspring are genetically identical (clones).'),
+        Q('How do you clone a plant using a cutting?', 'Cut a stem with leaves, dip in rooting powder and plant it', ['Cross two plants together', 'Insert a gene into a plasmid', 'Ferment it with yeast'], 'Rooting powder contains hormones that help roots grow.'),
+        Q('Dolly the sheep was famous for being…', 'The first mammal cloned from an adult cell', ['The first genetically modified animal', 'Made by selective breeding', 'A carrier of cystic fibrosis'], 'Cloned in 1996 by putting a body-cell nucleus into an egg cell.'),
+        Q('A disadvantage of cloning plants is…', 'No variation, so one disease could kill them all', ['It is very slow', 'You don\'t know what the plants will look like', 'It needs two parents'], 'All identical → all equally vulnerable.'),
+        Q('Which process is FASTEST at producing a new characteristic?', 'Genetic engineering', ['Selective breeding', 'Natural selection', 'Evolution'], 'Genetic engineering can change an organism in one generation.'),
+    ],
+    yeast: [
+        Q('What type of organism is yeast?', 'A single-celled fungus', ['A bacterium', 'A plant', 'A virus'], 'Yeast is a microscopic fungus.'),
+        Q('Which is the word equation for fermentation?', 'glucose → ethanol + carbon dioxide', ['glucose + oxygen → carbon dioxide + water', 'carbon dioxide + water → glucose + oxygen', 'ethanol → glucose + oxygen'], 'Fermentation is anaerobic respiration in yeast — no oxygen involved.'),
+        Q('Fermentation is a type of…', 'Anaerobic respiration', ['Aerobic respiration', 'Photosynthesis', 'Digestion'], 'Anaerobic = without oxygen.'),
+        Q('Which gas makes bread dough rise?', 'Carbon dioxide', ['Oxygen', 'Nitrogen', 'Hydrogen'], 'Yeast makes CO₂ bubbles that get trapped in the dough.'),
+        Q('What happens to the ethanol when bread is baked?', 'It evaporates', ['It turns into sugar', 'It makes the bread rise', 'It stays in the bread'], 'The heat of the oven evaporates the alcohol.'),
+        Q('Why is bread dough left in a warm place?', 'Yeast enzymes work faster, so fermentation is faster', ['To kill the yeast', 'To evaporate the water', 'To stop carbon dioxide being made'], 'Warm — but not too hot, or the enzymes denature.'),
+        Q('In making beer and wine, the useful product of fermentation is…', 'Ethanol (alcohol)', ['Oxygen', 'Glucose', 'Water'], 'Brewing uses the ethanol; baking uses the CO₂.'),
+        Q('Enzymes are…', 'Biological catalysts that speed up reactions', ['Types of fat', 'Cells that fight disease', 'Sugars made by plants'], 'Enzymes are proteins and aren\'t used up in the reaction.'),
+        Q('The part of an enzyme the substrate fits into is called the…', 'Active site', ['Nucleus', 'Plasmid', 'Cell wall'], 'Lock and key — only the right substrate fits.'),
+        Q('What happens to an enzyme at a very high temperature?', 'Its shape changes permanently — it is denatured', ['It works faster and faster', 'It turns into a sugar', 'It goes to sleep but recovers'], 'The active site changes shape, so it can no longer catalyse reactions.'),
+        Q('Why is fermentation slow at 5 °C?', 'Molecules move slowly, so fewer collisions', ['The enzymes are denatured', 'There is no sugar', 'The yeast is dead'], 'Cold slows enzymes down but doesn\'t damage them.'),
+        Q('At about what temperature does yeast ferment fastest?', 'About 35–40 °C', ['About 0 °C', 'About 70 °C', 'About 100 °C'], 'This is around the optimum temperature for its enzymes.'),
+        Q('Which test shows carbon dioxide is produced?', 'Limewater turns cloudy', ['A glowing splint relights', 'A squeaky pop with a lit splint', 'Iodine turns blue-black'], 'CO₂ turns limewater milky.'),
+        Q('Which enzyme is used to get more juice out of fruit?', 'Pectinase', ['Lipase', 'Amylase', 'Insulin'], 'Pectinase breaks down pectin in plant cell walls.'),
+        Q('Biological washing powder contains…', 'Proteases and lipases', ['Pectinase only', 'Yeast', 'Insulin'], 'They break protein and fat stains into water-soluble substances.'),
+        Q('Why are proteases added to baby food?', 'To break proteins into amino acids, making it easier to absorb', ['To make it sweeter', 'To make it rise', 'To kill bacteria'], 'The proteins are "pre-digested".'),
+    ],
+    sci: [
+        Q('The variable you <em>change</em> in an experiment is the…', 'Independent variable', ['Dependent variable', 'Control variable', 'Anomalous variable'], 'Independent = change it. Dependent = measure it.'),
+        Q('In a yeast temperature experiment, the dependent variable is…', 'Number of CO₂ bubbles per minute', ['Temperature', 'Mass of yeast', 'Volume of water'], 'You measure the bubbles; you change the temperature.'),
+        Q('Which is a control variable in a yeast temperature experiment?', 'Amount of sugar', ['Temperature', 'Number of bubbles', 'The result'], 'Keep sugar, yeast and water the same so it\'s a fair test.'),
+        Q('A <em>hypothesis</em> is…', 'A possible explanation that can be tested', ['A table of results', 'A graph', 'A list of equipment'], 'A prediction then says what will happen if the hypothesis is right.'),
+        Q('Which is the best <em>prediction</em>?', 'As temperature increases to 40 °C, the yeast will make more bubbles', ['Yeast is a fungus', 'I used 5 g of yeast', 'Bubbles are made of gas'], 'A prediction says what you expect to happen.'),
+        Q('What is a <em>fair test</em>?', 'Only the independent variable is changed; everything else is kept the same', ['Every variable is changed at once', 'The test is done only once', 'The teacher checks the results'], 'This makes sure only the IV is causing any change.'),
+        Q('Results: 10, 11, 25, 12. Which is anomalous?', '25', ['10', '11', '12'], '25 doesn\'t fit the pattern — repeat it and leave it out of the mean.'),
+        Q('Why do scientists repeat experiments?', 'To check results are repeatable and calculate a mean', ['To use up equipment', 'Because the first result is always wrong', 'To change the independent variable'], 'Repeats help spot anomalies and make results more reliable.'),
+        Q('What is the correct order?', 'Observation → hypothesis → prediction → experiment → conclusion', ['Conclusion → experiment → prediction → observation', 'Experiment → observation → conclusion → hypothesis', 'Prediction → conclusion → observation → experiment'], 'Observe, explain, predict, test, conclude.'),
+        Q('The mean of 4, 6 and 8 is…', '6', ['18', '8', '4'], '(4 + 6 + 8) ÷ 3 = 6.'),
+    ],
+};
+
+/* ============ QUIZ ENGINE ============ */
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function Quiz(mount, bank, len){ this.mount = mount; this.bank = bank; this.len = len; this.renderIntro(); }
+Quiz.prototype.renderIntro = function(){
+    const self = this;
+    this.mount.innerHTML = '<button class="go">Start Quiz ▶</button>';
+    this.mount.querySelector('button').onclick = function(){ self.start(); };
+};
+Quiz.prototype.start = function(){
+    this.questions = shuffle(this.bank.slice()).slice(0, Math.min(this.len, this.bank.length))
+        .map(item => ({ q: item.q, correct: item.a, opts: shuffle(item.opts.slice()), ex: item.ex }));
+    this.idx = 0; this.score = 0; this.answered = false;
+    this.mount.innerHTML =
+        '<div class="qmeta"><span class="q-counter"></span><span class="q-score"></span></div>' +
+        '<div class="qbar-wrap"><div class="qbar"></div></div>' +
+        '<div class="q-prompt"></div><div class="qopts"></div><div class="qexplain"></div><div class="qnext"></div>';
+    this.render();
+};
+Quiz.prototype.render = function(){
+    const self = this, q = this.questions[this.idx];
+    this.answered = false;
+    this.mount.querySelector('.q-counter').textContent = 'Question ' + (this.idx+1) + ' of ' + this.questions.length;
+    this.mount.querySelector('.q-score').textContent = 'Score: ' + this.score;
+    this.mount.querySelector('.qbar').style.width = ((this.idx/this.questions.length)*100) + '%';
+    this.mount.querySelector('.q-prompt').innerHTML = '<div class="qcard"><div class="qtext">' + q.q + '</div></div>';
+    const optsEl = this.mount.querySelector('.qopts');
+    optsEl.innerHTML = q.opts.map((o,p)=>'<button class="qopt" data-p="'+p+'">'+o+'</button>').join('');
+    optsEl.querySelectorAll('.qopt').forEach(function(b){ b.onclick = function(){ self.answer(parseInt(b.dataset.p)); }; });
+    const ex = this.mount.querySelector('.qexplain'); ex.className = 'qexplain'; ex.innerHTML = '';
+    this.mount.querySelector('.qnext').innerHTML = '';
+};
+Quiz.prototype.answer = function(pos){
+    if(this.answered) return; this.answered = true;
+    const self = this, q = this.questions[this.idx];
+    const btns = this.mount.querySelectorAll('.qopt');
+    const correctPos = q.opts.indexOf(q.correct);
+    btns.forEach(function(b){ b.disabled = true; });
+    btns[correctPos].classList.add('correct');
+    const ex = this.mount.querySelector('.qexplain');
+    if(pos === correctPos){
+        this.score++;
+        ex.className = 'qexplain ok show';
+        ex.innerHTML = '<span class="lead">Correct! ✓</span>' + q.ex;
+    } else {
+        btns[pos].classList.add('wrong');
+        ex.className = 'qexplain no show';
+        ex.innerHTML = '<span class="lead">Not quite — the answer is highlighted in green.</span>' + q.ex;
+    }
+    this.mount.querySelector('.q-score').textContent = 'Score: ' + this.score;
+    const last = this.idx === this.questions.length - 1;
+    this.mount.querySelector('.qnext').innerHTML = '<button class="go">' + (last ? 'See Results 🏁' : 'Next ▶') + '</button>';
+    this.mount.querySelector('.qnext button').onclick = function(){ self.next(); };
+};
+Quiz.prototype.next = function(){
+    this.idx++;
+    if(this.idx >= this.questions.length){ this.results(); }
+    else { this.render(); this.mount.scrollIntoView({behavior:'smooth', block:'center'}); }
+};
+Quiz.prototype.results = function(){
+    const self = this, total = this.questions.length, pct = Math.round((this.score/total)*100);
+    let msg;
+    if(pct>=90) msg='🏆 Outstanding — test-ready!';
+    else if(pct>=70) msg='🌟 Great work — almost there.';
+    else if(pct>=50) msg='👍 Good effort — re-read the explainer for the tricky ones.';
+    else msg='📚 Keep revising and try again!';
+    this.mount.innerHTML =
+        '<div style="text-align:center;"><div class="score-big">' + this.score + ' / ' + total + '</div>' +
+        '<div class="score-pct">' + pct + '%</div><div class="score-msg">' + msg + '</div>' +
+        '<button class="go">Try Again ↻</button></div>';
+    this.mount.querySelector('button').onclick = function(){ self.start(); };
+    this.mount.scrollIntoView({behavior:'smooth', block:'center'});
+};
+
+/* ============ TABS ============ */
+document.querySelectorAll('.tab').forEach(function(tab){
+    tab.onclick = function(){
+        document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+        document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+        tab.classList.add('active');
+        document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+});
+
+/* ============ PUNNETT LAB ============ */
+(function(){
+    const TRAITS = {
+        flower: { D:'R', r:'r', dom:'Red', rec:'White', recDisorder:false },
+        cf:     { D:'F', r:'f', dom:'Healthy', rec:'Has CF', recDisorder:true },
+        poly:   { D:'P', r:'p', dom:'Polydactyly', rec:'Normal', recDisorder:false },
+    };
+    const traitSel = document.getElementById('pn-trait'), p1 = document.getElementById('pn-p1'), p2 = document.getElementById('pn-p2');
+    const grid = document.getElementById('pn-grid'), sum = document.getElementById('pn-summary');
+    function fillParents(keep){
+        const t = TRAITS[traitSel.value], gts = [t.D+t.D, t.D+t.r, t.r+t.r];
+        const i1 = keep ? p1.selectedIndex : 1, i2 = keep ? p2.selectedIndex : 1;
+        [p1,p2].forEach(function(sel){ sel.innerHTML = gts.map(function(g){ return '<option>'+g+'</option>'; }).join(''); });
+        p1.selectedIndex = i1 < 0 ? 1 : i1; p2.selectedIndex = i2 < 0 ? 1 : i2;
+    }
+    function frac(n){ return ['0','1 in 4','2 in 4 (1 in 2)','3 in 4','4 in 4 (all)'][n] + ' — ' + (n*25) + '%'; }
+    function draw(){
+        const t = TRAITS[traitSel.value], a = p1.value.split(''), b = p2.value.split('');
+        let html = '<div class="pn-corner">Parent 2 →<br>Parent 1 ↓</div>' + b.map(function(x){ return '<div class="pn-gam">'+x+'</div>'; }).join('');
+        let dom = 0, rec = 0, car = 0;
+        const counts = {};
+        a.forEach(function(x){
+            html += '<div class="pn-gam">'+x+'</div>';
+            b.forEach(function(y){
+                const g = [x,y].sort(function(m,n){ return m===t.D ? -1 : n===t.D ? 1 : 0; }).join('');
+                counts[g] = (counts[g]||0) + 1;
+                let cls, label;
+                if(g === t.r+t.r){ cls = 'rec'; label = t.rec; rec++; }
+                else if(t.recDisorder && g === t.D+t.r){ cls = 'car'; label = 'Carrier'; car++; dom++; }
+                else { cls = 'dom'; label = t.dom; dom++; }
+                html += '<div class="pn-cell '+cls+'">'+g+'<small>'+label+'</small></div>';
+            });
+        });
+        grid.innerHTML = html;
+        const gtText = Object.keys(counts).sort().map(function(g){ return '<b>'+g+'</b> ×'+counts[g]; }).join(', ');
+        let s = 'Genotypes: ' + gtText + '<br>' +
+            '<b>' + t.dom + '</b>: ' + frac(dom) + ' &nbsp;·&nbsp; <b>' + t.rec + '</b>: ' + frac(rec);
+        if(t.recDisorder) s += '<br>Carriers (healthy but have one f): ' + frac(car);
+        if(traitSel.value === 'poly') s += '<br><i>Polydactyly is dominant — there are no carriers.</i>';
+        if(dom && rec) s += '<br>Phenotype ratio ' + t.dom + ' : ' + t.rec + ' = <b>' + (dom/ Math.min(dom,rec)) + ' : ' + (rec/Math.min(dom,rec)) + '</b>';
+        sum.innerHTML = s;
+    }
+    traitSel.onchange = function(){ fillParents(true); draw(); };
+    p1.onchange = draw; p2.onchange = draw;
+    fillParents(false); draw();
+})();
+
+/* ============ YEAST TEMPERATURE LAB ============ */
+(function(){
+    const OPT = 37, DEAD = 56;
+    function rate(T){
+        if(T <= 0) return 0;
+        if(T <= OPT) return Math.pow(T/OPT, 1.7);
+        return Math.max(0, 1 - Math.pow((T-OPT)/(DEAD-OPT), 2));
+    }
+    const svg = document.getElementById('tl-graph'), slider = document.getElementById('tl-temp');
+    const X = function(T){ return 40 + T/70*265; }, Y = function(r){ return 165 - r*140; };
+    let path = '';
+    for(let T=0; T<=70; T+=0.5) path += (T===0?'M':'L') + X(T).toFixed(1) + ',' + Y(rate(T)).toFixed(1);
+    let ticks = '';
+    for(let T=0; T<=70; T+=10) ticks += '<line x1="'+X(T)+'" y1="165" x2="'+X(T)+'" y2="170" stroke="#999"/><text x="'+X(T)+'" y="182" font-size="10" text-anchor="middle" fill="#777">'+T+'</text>';
+    svg.innerHTML =
+        '<rect x="'+X(DEAD)+'" y="20" width="'+(X(70)-X(DEAD))+'" height="145" fill="rgba(217,83,79,0.08)"/>' +
+        '<text x="'+((X(DEAD)+X(70))/2)+'" y="34" font-size="10" text-anchor="middle" fill="#a4302c">denatured</text>' +
+        '<line x1="40" y1="165" x2="305" y2="165" stroke="#555"/><line x1="40" y1="20" x2="40" y2="165" stroke="#555"/>' + ticks +
+        '<text x="172" y="197" font-size="11" text-anchor="middle" fill="#555" font-weight="700">Temperature (°C)</text>' +
+        '<text x="14" y="95" font-size="11" text-anchor="middle" fill="#555" font-weight="700" transform="rotate(-90 14 95)">Rate (bubbles)</text>' +
+        '<line x1="'+X(OPT)+'" y1="25" x2="'+X(OPT)+'" y2="165" stroke="#e08a1e" stroke-dasharray="3 3"/>' +
+        '<text x="'+X(OPT)+'" y="18" font-size="10" text-anchor="middle" fill="#a65f08" font-weight="700">optimum</text>' +
+        '<path d="'+path+'" fill="none" stroke="#a65f08" stroke-width="3"/>' +
+        '<circle id="tl-dot" r="7" fill="#e08a1e" stroke="#fff" stroke-width="2"/>';
+    const dot = document.getElementById('tl-dot');
+    const tOut = document.getElementById('tl-t'), rOut = document.getElementById('tl-r'), status = document.getElementById('tl-status');
+    let cur = 0;
+    function update(){
+        const T = +slider.value; cur = rate(T);
+        dot.setAttribute('cx', X(T)); dot.setAttribute('cy', Y(cur));
+        tOut.textContent = T + ' °C';
+        rOut.textContent = 'CO₂ bubbles: ' + Math.round(cur*40) + ' / min';
+        let s;
+        if(T < 10) s = '🥶 <b>Too cold.</b> The yeast\'s enzymes and substrate molecules move slowly, so there are few collisions — fermentation is very slow. The enzymes are <b>not</b> damaged: warm it up and it speeds up again.';
+        else if(T < 32) s = '🙂 <b>Getting warmer.</b> Molecules move faster and collide more often, so the rate of fermentation <b>increases</b> as the temperature rises.';
+        else if(T <= 42) s = '🔥 <b>Optimum!</b> Around 35–40 °C the yeast\'s enzymes work fastest — the most CO₂ bubbles. This is why bread dough is left somewhere warm.';
+        else if(T < DEAD) s = '😰 <b>Too hot.</b> The enzymes\' active sites are starting to <b>change shape</b> (denature), so the substrate doesn\'t fit and the rate drops quickly.';
+        else s = '💀 <b>Denatured.</b> The active sites have changed shape permanently. The enzymes can no longer catalyse the reaction — no fermentation, no bubbles. Cooling it down won\'t fix it.';
+        status.innerHTML = s;
+    }
+    slider.addEventListener('input', update); update();
+
+    const cv = document.getElementById('tl-canvas'), cx = cv.getContext('2d');
+    const bubbles = []; let acc = 0, last = performance.now();
+    function frame(now){
+        const dt = Math.min(0.05, (now - last)/1000); last = now;
+        acc += cur * 6 * dt;
+        while(acc >= 1){ acc -= 1; bubbles.push({ x: 92 + Math.random()*56, y: 220, r: 2 + Math.random()*3, v: 30 + Math.random()*30 }); }
+        cx.clearRect(0,0,cv.width,cv.height);
+        cx.save(); cx.translate(0, 40);
+        const T = +slider.value;
+        // water bath tint
+        const hot = T/70;
+        cx.fillStyle = 'rgba(' + Math.round(120+135*hot) + ',' + Math.round(180-80*hot) + ',' + Math.round(230-170*hot) + ',0.25)';
+        cx.fillRect(20, 150, 200, 120);
+        // flask
+        cx.beginPath(); cx.moveTo(105, 30); cx.lineTo(105, 110); cx.lineTo(60, 240); cx.quadraticCurveTo(58, 258, 76, 258); cx.lineTo(164, 258); cx.quadraticCurveTo(182, 258, 180, 240); cx.lineTo(135, 110); cx.lineTo(135, 30);
+        cx.strokeStyle = '#7a6a55'; cx.lineWidth = 3; cx.stroke();
+        // liquid
+        cx.save(); cx.clip();
+        cx.fillStyle = '#f3d9a4'; cx.fillRect(0, 150, 240, 120);
+        bubbles.forEach(function(b){ b.y -= b.v*dt; b.x += Math.sin(b.y/9)*0.3; });
+        for(let i = bubbles.length-1; i >= 0; i--) if(bubbles[i].y < 152) bubbles.splice(i,1);
+        cx.fillStyle = 'rgba(255,255,255,0.85)'; cx.strokeStyle = 'rgba(166,95,8,0.5)'; cx.lineWidth = 1;
+        bubbles.forEach(function(b){ cx.beginPath(); cx.arc(b.x, b.y, b.r, 0, Math.PI*2); cx.fill(); cx.stroke(); });
+        cx.restore();
+        // balloon
+        const size = 14 + cur*26;
+        cx.beginPath(); cx.ellipse(120, 30 - size*0.9, size*0.85, size, 0, 0, Math.PI*2);
+        cx.fillStyle = '#e74c3c'; cx.fill();
+        cx.fillStyle = '#7a6a55'; cx.font = 'bold 11px Karla, sans-serif'; cx.textAlign = 'center';
+        cx.fillText('yeast + sugar + water', 120, 210);
+        cx.fillText(T + ' °C water bath', 120, 275);
+        cx.restore();
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+})();
+
+/* ============ FLASHCARDS ============ */
+(function(){
+    const grid = document.getElementById('fc-grid'), filters = document.getElementById('fc-filters'), count = document.getElementById('fc-count');
+    let active = 'all', order = CARDS.map(function(_,i){ return i; });
+    const chips = [['all','All topics','#d6457a']].concat(Object.keys(TOPICS).map(function(k){ return [k, TOPICS[k].name, TOPICS[k].c]; }));
+    filters.innerHTML = chips.map(function(c){ return '<button class="chip'+(c[0]==='all'?' on':'')+'" data-t="'+c[0]+'" style="--c:'+c[2]+'">'+c[1]+'</button>'; }).join('');
+    filters.querySelectorAll('.chip').forEach(function(ch){
+        ch.onclick = function(){
+            active = ch.dataset.t;
+            filters.querySelectorAll('.chip').forEach(function(x){ x.classList.toggle('on', x === ch); });
+            render();
+        };
+    });
+    function render(){
+        const shown = order.filter(function(i){ return active === 'all' || CARDS[i][0] === active; });
+        grid.innerHTML = shown.map(function(i){
+            const c = CARDS[i], t = TOPICS[c[0]];
+            return '<div class="fc" style="--c:'+t.c+';--cd:'+t.cd+'"><div class="fc-inner">' +
+                '<div class="fc-face fc-front"><div class="term">'+c[1]+'</div><div class="tag">'+t.name+'</div><span class="fc-hint">TAP TO FLIP</span></div>' +
+                '<div class="fc-face fc-back">'+c[2]+'<span class="fc-hint">TAP TO FLIP</span></div></div></div>';
+        }).join('');
+        grid.querySelectorAll('.fc').forEach(function(f){ f.onclick = function(){ f.classList.toggle('flipped'); }; });
+        count.textContent = shown.length + ' cards';
+    }
+    document.getElementById('fc-shuffle').onclick = function(){ shuffle(order); render(); };
+    document.getElementById('fc-flipall').onclick = function(){ grid.querySelectorAll('.fc').forEach(function(f){ f.classList.toggle('flipped'); }); };
+    document.getElementById('fc-reset').onclick = function(){ order = CARDS.map(function(_,i){ return i; }); render(); };
+    render();
+})();
+
+/* ============ BUILD QUIZZES ============ */
+new Quiz(document.getElementById('quiz-dna'), BANKS.dna, 10);
+new Quiz(document.getElementById('quiz-bio'), BANKS.bio, 10);
+new Quiz(document.getElementById('quiz-yeast'), BANKS.yeast, 10);
+new Quiz(document.getElementById('quiz-sci'), BANKS.sci, 8);
+new Quiz(document.getElementById('quiz-master'), [].concat(BANKS.dna, BANKS.bio, BANKS.yeast, BANKS.sci), 20);
+</script>
+<script src="study-audio.js"></script>
+</body>
+</html>
