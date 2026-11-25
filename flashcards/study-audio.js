@@ -177,7 +177,7 @@ const MOODMAP = {
   'factor-lab.html':'classical','fraction-lab.html':'classical','number-lab.html':'classical','balance-lab.html':'classical','rearrange-lab.html':'classical',
   'atom-lab.html':'twilight','element-lab.html':'twilight','compound-lab.html':'twilight','acid-lab.html':'twilight',
   'cell-lab.html':'tribal','bioenergetics-lab.html':'tribal','ecosystem-lab.html':'tribal','predator-prey-sim.html':'tribal',
-  'photosynthesis-adventure.html':'tribal','geography-revision.html':'tribal','genetics-revision.html':'tribal',
+  'photosynthesis-adventure.html':'tribal','geography-revision.html':'tribal','genetics-revision.html':'tribal','dt-woods-revision.html':'calm',
   'henry-viii.html':'classical','mary-elizabeth.html':'classical','english-civil-war.html':'classical',
   'french-grammar-flashcards.html':'moonlit','lower4-french-test.html':'moonlit',
   'hinduism-flashcards.html':'moonlit','hinduism-quiz.html':'moonlit','islam-flashcards.html':'moonlit','islam-quiz.html':'moonlit',

@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DT Woods Revision</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --ink: #2b2118;
+    --wood: #a0662b; --wood-d: #6e4314;
+    --leaf: #3f8f4a; --leaf-d: #24602d;
+    --board: #c08a3e; --board-d: #84581c;
+    --tool: #5b6770; --tool-d: #343d44;
+    --cad: #2f7fbf; --cad-d: #145587;
+    --acc5: #b5487a; --acc5-d: #7f2752;
+    --gold: #c79a2e; --gold-d: #8a6a12;
+    --shadow: rgba(0,0,0,0.15);
+}
+body { font-family: 'Karla', sans-serif; color: var(--ink); background: linear-gradient(135deg, #F6EEDF 0%, #EAF2E4 50%, #F3E4CF 100%); min-height: 100vh; padding: 2rem 1rem 3rem; overflow-x: hidden; }
+.wrap { max-width: 900px; margin: 0 auto; }
+.header { text-align: center; margin-bottom: 1.2rem; }
+.big-icon { font-size: 2.6rem; }
+h1 { font-family: 'Cormorant Garamond', serif; font-size: 3.1rem; font-weight: 700; color: var(--wood-d); text-shadow: 2px 2px 0 rgba(160,102,43,0.18); line-height: 1.05; }
+.subtitle { font-size: 0.95rem; color: var(--leaf-d); font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-top: 0.4rem; }
+.back-link { display: inline-block; text-decoration: none; color: var(--wood-d); font-weight: 700; font-size: 0.95rem; margin-bottom: 1rem; }
+.back-link:hover { text-decoration: underline; }
+
+.banner { background: #fff; border-left: 6px solid var(--gold); border-radius: 14px; padding: 1.1rem 1.3rem; margin-bottom: 1.4rem; box-shadow: 0 6px 22px var(--shadow); font-size: 0.95rem; line-height: 1.55; }
+.banner strong { color: var(--gold-d); }
+.pill { display: inline-block; background: var(--gold); color: #fff; font-weight: 700; font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; padding: 0.18rem 0.7rem; border-radius: 50px; margin-bottom: 0.5rem; }
+.banner ul { margin: 0.4rem 0 0 1.2rem; }
+.banner a { color: var(--cad-d); font-weight: 700; }
+
+/* two big modes */
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1.4rem; }
+.mode { border: none; border-radius: 16px; padding: 1rem 1.1rem; cursor: pointer; text-align: left; font-family: 'Karla', sans-serif; background: rgba(255,255,255,0.75); box-shadow: 0 4px 14px var(--shadow); transition: all 0.2s; border: 3px solid transparent; }
+.mode:hover { transform: translateY(-2px); }
+.mode .mt { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 700; color: var(--wood-d); line-height: 1.1; }
+.mode .md { font-size: 0.88rem; color: #555; margin-top: 0.2rem; }
+.mode.active { background: linear-gradient(135deg, var(--wood), var(--wood-d)); border-color: transparent; }
+.mode.active .mt, .mode.active .md { color: #fff; }
+.mode[data-mode="quiz"].active { background: linear-gradient(135deg, var(--gold), var(--gold-d)); }
+.view { display: none; animation: fade 0.35s ease; }
+.view.active { display: block; }
+@keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* jump nav */
+.jump { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; padding: 0.6rem 0; margin-bottom: 0.6rem; background: linear-gradient(180deg, rgba(246,238,223,0.97) 70%, rgba(246,238,223,0)); }
+.jump a { text-decoration: none; font-weight: 700; font-size: 0.85rem; padding: 0.4rem 0.85rem; border-radius: 50px; background: #fff; color: #555; border: 2px solid rgba(0,0,0,0.08); }
+.jump a:hover { border-color: var(--wood); color: var(--wood-d); }
+
+section.topic { scroll-margin-top: 4rem; margin-bottom: 2.2rem; }
+.topic-head { font-family: 'Cormorant Garamond', serif; font-size: 2.3rem; font-weight: 700; color: var(--acc-d); margin-bottom: 0.2rem; }
+.topic-sub { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+
+.note-card, .diagram-card { background: #fff; border-radius: 14px; padding: 1.2rem 1.3rem; margin-bottom: 1rem; box-shadow: 0 5px 18px var(--shadow); border-left: 5px solid var(--acc); }
+.note-card h3, .diagram-card h3 { font-size: 1.15rem; color: var(--acc-d); margin-bottom: 0.6rem; }
+.note-card ul { list-style: none; }
+.note-card li { padding: 0.28rem 0 0.28rem 1.4rem; position: relative; line-height: 1.5; font-size: 0.96rem; }
+.note-card li::before { content: '▸'; position: absolute; left: 0.2rem; color: var(--acc); font-weight: 700; }
+.note-card p { line-height: 1.55; font-size: 0.96rem; margin-bottom: 0.5rem; }
+.kt { font-weight: 700; color: var(--acc-d); }
+.key-fact { background: #fff8e8; border-radius: 10px; padding: 0.7rem 0.9rem; font-size: 0.94rem; line-height: 1.5; margin: 0.4rem 0 0.2rem; border: 2px dashed #e4c47a; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+.two-col > div { background: #faf7f2; border-radius: 10px; padding: 0.8rem 0.9rem; font-size: 0.93rem; line-height: 1.5; }
+.two-col h4 { margin-bottom: 0.3rem; }
+.good h4 { color: #1d6b3c; } .bad h4 { color: #a4302c; }
+.two-col ul { margin-left: 1.1rem; }
+table.mini { border-collapse: collapse; width: 100%; font-size: 0.9rem; margin-top: 0.3rem; }
+table.mini th, table.mini td { border: 1px solid #eadfcf; padding: 0.45rem 0.55rem; text-align: left; vertical-align: top; line-height: 1.4; }
+table.mini th { background: #f8f0e3; color: var(--acc-d); }
+table.mini td:first-child { font-weight: 700; white-space: nowrap; }
+.table-scroll { overflow-x: auto; }
+ol.steps { counter-reset: s; list-style: none; }
+ol.steps li { counter-increment: s; position: relative; padding: 0.35rem 0 0.35rem 2.2rem; line-height: 1.5; font-size: 0.95rem; }
+ol.steps li::before { content: counter(s); position: absolute; left: 0; top: 0.32rem; width: 1.55rem; height: 1.55rem; border-radius: 50%; background: var(--acc); color: #fff; font-weight: 700; font-size: 0.82rem; display: flex; align-items: center; justify-content: center; }
+
+/* tools */
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.tool-card { background: #fff; border-radius: 14px; padding: 1rem 1.1rem; box-shadow: 0 5px 18px var(--shadow); border-top: 5px solid var(--acc); }
+.tool-card h3 { color: var(--acc-d); font-size: 1.2rem; margin-bottom: 0.4rem; }
+.tool-card svg { width: 100%; height: auto; display: block; background: #f6f3ee; border-radius: 10px; margin-bottom: 0.6rem; }
+.tool-card ul { list-style: none; }
+.tool-card li { padding: 0.2rem 0 0.2rem 1.3rem; position: relative; line-height: 1.45; font-size: 0.92rem; }
+.tool-card li::before { content: '▸'; position: absolute; left: 0.15rem; color: var(--acc); font-weight: 700; }
+.tool-card .safety { margin-top: 0.4rem; background: #fdeeee; border-radius: 8px; padding: 0.5rem 0.7rem; font-size: 0.88rem; line-height: 1.45; color: #7a2a26; }
+
+/* ACCESS FM */
+.afm { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.7rem; }
+.afm-card { background: #fff; border-radius: 12px; padding: 0.8rem 0.9rem; box-shadow: 0 4px 14px var(--shadow); display: flex; gap: 0.7rem; align-items: flex-start; }
+.afm-card .L { flex: 0 0 auto; width: 2.6rem; height: 2.6rem; border: 3px solid var(--ink); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 1.9rem; font-weight: 700; }
+.afm-card b { display: block; font-size: 1rem; }
+.afm-card span { font-size: 0.85rem; color: #555; line-height: 1.4; display: block; margin-top: 0.15rem; }
+.example { background: #fff; border-radius: 14px; padding: 1.1rem 1.2rem; box-shadow: 0 5px 18px var(--shadow); border-left: 5px solid var(--acc); margin-top: 1rem; }
+.example h3 { color: var(--acc-d); margin-bottom: 0.5rem; font-size: 1.12rem; }
+
+/* look cover check */
+.lcc { margin-bottom: 0.6rem; border-radius: 10px; background: #faf7f2; overflow: hidden; }
+.lcc summary { cursor: pointer; padding: 0.7rem 0.9rem; font-weight: 700; font-size: 0.95rem; line-height: 1.4; list-style: none; }
+.lcc summary::-webkit-details-marker { display: none; }
+.lcc summary::before { content: '❓ '; }
+.lcc[open] summary::before { content: '💡 '; }
+.lcc .ans { padding: 0 0.9rem 0.8rem 2.1rem; font-size: 0.93rem; line-height: 1.5; }
+.lcc .ans b { color: var(--acc-d); }
+.to-quiz { text-align: center; margin: 1.5rem 0 0.5rem; }
+
+button.go, button.small { color: #fff; border: none; padding: 0.8rem 1.8rem; font-size: 1rem; font-weight: 700; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px var(--shadow); transition: all 0.25s ease; font-family: 'Karla', sans-serif; background: linear-gradient(135deg, var(--acc), var(--acc-d)); }
+button.small { padding: 0.5rem 1.1rem; font-size: 0.88rem; }
+button.go:hover, button.small:hover { transform: translateY(-2px); }
+
+/* quiz */
+.chips { display: flex; flex-wrap: wrap; gap: 0.45rem; justify-content: center; margin-bottom: 1rem; }
+.chip { border: 2px solid rgba(0,0,0,0.1); background: #fff; border-radius: 50px; padding: 0.45rem 0.95rem; font-family: 'Karla', sans-serif; font-weight: 700; font-size: 0.86rem; cursor: pointer; color: #555; }
+.chip.on { color: #fff; border-color: transparent; background: var(--gold-d); }
+.len-row { text-align: center; font-size: 0.9rem; color: #555; margin-bottom: 1rem; }
+.len-row select { font-family: 'Karla', sans-serif; font-size: 0.9rem; padding: 0.3rem 0.5rem; border-radius: 8px; border: 2px solid rgba(0,0,0,0.12); }
+.quiz-box { background: rgba(255,255,255,0.6); border-radius: 16px; padding: 1.4rem; box-shadow: 0 5px 18px var(--shadow); text-align: center; }
+.qmeta { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: #666; margin-bottom: 0.5rem; }
+.qbar-wrap { height: 8px; background: rgba(0,0,0,0.08); border-radius: 50px; overflow: hidden; margin-bottom: 1.1rem; }
+.qbar { height: 100%; background: linear-gradient(90deg, var(--acc), var(--acc-d)); width: 0; transition: width 0.3s ease; }
+.qcard { background: #fff; border-radius: 14px; padding: 1.2rem; box-shadow: 0 6px 20px var(--shadow); border-left: 6px solid var(--acc); margin-bottom: 1rem; text-align: center; }
+.qtag { font-size: 0.7rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #999; margin-bottom: 0.4rem; }
+.qtext { font-size: 1.12rem; font-weight: 700; line-height: 1.4; }
+.qimg { max-width: 340px; margin: 0.8rem auto 0; }
+.qimg svg { width: 100%; height: auto; background: #f6f3ee; border-radius: 10px; }
+.qopts { display: grid; gap: 0.6rem; }
+.qopt { width: 100%; text-align: left; background: #fff; border: 2px solid rgba(0,0,0,0.1); border-radius: 12px; padding: 0.8rem 1rem; font-family: 'Karla', sans-serif; font-size: 1rem; color: #333; cursor: pointer; transition: all 0.16s ease; line-height: 1.4; }
+.qopt:hover:not(:disabled) { border-color: var(--acc); transform: translateY(-1px); }
+.qopt:disabled { cursor: default; }
+.qopt.correct { background: #e7f7ec; border-color: #2e9e5b; color: #1d6b3c; font-weight: 700; }
+.qopt.wrong { background: #fdeaea; border-color: #d9534f; color: #a4302c; font-weight: 700; }
+.qexplain { margin-top: 1rem; border-radius: 12px; padding: 0.85rem 1.05rem; font-size: 0.96rem; line-height: 1.5; display: none; text-align: left; }
+.qexplain.show { display: block; }
+.qexplain.ok { background: #e7f7ec; border-left: 5px solid #2e9e5b; color: #1d6b3c; }
+.qexplain.no { background: #fdeaea; border-left: 5px solid #d9534f; color: #8c2622; }
+.qexplain .lead { font-weight: 700; display: block; margin-bottom: 0.15rem; }
+.qnext { margin-top: 1.1rem; text-align: center; }
+.score-big { font-family: 'Cormorant Garamond', serif; font-size: 3.4rem; font-weight: 700; color: var(--acc-d); line-height: 1; }
+.score-pct { font-size: 1.1rem; color: var(--acc-d); font-weight: 700; }
+.score-msg { color: #555; margin: 0.5rem 0 0.8rem; }
+.review-list { text-align: left; margin: 0.6rem auto 1.1rem; max-width: 620px; font-size: 0.9rem; line-height: 1.45; }
+.review-list li { margin: 0 0 0.45rem 1.2rem; }
+
+@media (max-width: 640px) {
+    h1 { font-size: 2.3rem; }
+    .topic-head { font-size: 1.9rem; }
+    .two-col, .tool-grid, .modes { grid-template-columns: 1fr; }
+    .mode .mt { font-size: 1.5rem; }
+    section.topic { scroll-margin-top: 7rem; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+    <a href="index.html" class="back-link">← Back to Study Materials</a>
+    <div class="header">
+        <div class="big-icon">🪵</div>
+        <h1>DT: Woods, Tools &amp; CAD/CAM</h1>
+        <div class="subtitle">Design &amp; Technology · Test Revision</div>
+    </div>
+
+    <div class="banner">
+        <span class="pill">What to revise</span><br>
+        <ul>
+            <li><strong>Woods</strong> — hardwoods, softwoods and manufactured boards, and their properties. Watch the video on the <a href="https://www.bbc.co.uk/bitesize/guides/zjgyb82/revision/3" target="_blank" rel="noopener">BBC Bitesize timbers page</a>.</li>
+            <li><strong>Tools</strong> you used — be able to identify the <strong>tenon saw, try square, bench hook and disc sander</strong>.</li>
+            <li><strong>CAD/CAM</strong> — see the <a href="https://www.bbc.co.uk/bitesize/topics/zssks82/articles/zqnp9ty" target="_blank" rel="noopener">BBC Bitesize CAD/CAM page</a>.</li>
+            <li><strong>ACCESS FM</strong> — be familiar with the terms. You don't need to memorise it; you'll be given the sheet.</li>
+        </ul>
+    </div>
+
+    <div class="modes">
+        <button class="mode active" data-mode="review"><div class="mt">📖 1. Review</div><div class="md">Read the notes and test yourself with look–cover–check.</div></button>
+        <button class="mode" data-mode="quiz"><div class="mt">🏆 2. Quiz</div><div class="md">Questions on everything, including "which tool is this?"</div></button>
+    </div>
+
+    <!-- ===================== REVIEW ===================== -->
+    <div class="view active" id="view-review">
+        <nav class="jump">
+            <a href="#s-woods">🌳 Woods</a>
+            <a href="#s-boards">🪵 Boards</a>
+            <a href="#s-props">💪 Properties</a>
+            <a href="#s-tools">🔨 Tools</a>
+            <a href="#s-cad">💻 CAD/CAM</a>
+            <a href="#s-afm">🔎 ACCESS FM</a>
+        </nav>
+
+        <!-- WOODS -->
+        <section class="topic" id="s-woods" style="--acc:var(--leaf);--acc-d:var(--leaf-d);">
+            <div class="topic-head">🌳 Natural timbers</div>
+            <div class="topic-sub">Hardwoods and softwoods — where they come from, what they're like, what they're used for</div>
+
+            <div class="note-card">
+                <h3>🌲 Where timber comes from</h3>
+                <ul>
+                    <li><span class="kt">Timber</span> comes from trees. Trees must grow to full maturity — <b>between 25 and 100 years</b> — before they can be cut down for wood.</li>
+                    <li>There are two groups of natural timber: <span class="kt">hardwoods</span> and <span class="kt">softwoods</span>. The third type of timber material is <span class="kt">manufactured board</span> (see the next section).</li>
+                </ul>
+                <div class="key-fact">⚠️ <b>Watch out!</b> "Hardwood" and "softwood" describe the <b>type of tree</b>, not how hard the wood feels. <b>Balsa</b> is a <b>hardwood</b>, but it is one of the softest woods there is!</div>
+            </div>
+
+            <div class="two-col" style="margin-bottom:1rem;">
+                <div style="background:#fff;box-shadow:0 5px 18px var(--shadow);border-top:5px solid #8a5a2b;">
+                    <h4 style="color:#6e4314;font-size:1.1rem;">🍂 Hardwoods</h4>
+                    <ul>
+                        <li>Come from <b>deciduous</b> trees — large, flat leaves that <b>fall in autumn</b>.</li>
+                        <li>Most <b>grow slowly</b> (balsa is a fast-growing exception), are not easily sourced, and are <b>expensive</b>.</li>
+                        <li>Examples: <b>ash, beech, mahogany, oak, balsa</b>.</li>
+                    </ul>
+                </div>
+                <div style="background:#fff;box-shadow:0 5px 18px var(--shadow);border-top:5px solid var(--leaf);">
+                    <h4 style="color:var(--leaf-d);font-size:1.1rem;">🌲 Softwoods</h4>
+                    <ul>
+                        <li>Come from <b>coniferous</b> trees — needles and cones; most are <b>evergreen</b> all year. (Larch is an exception — it drops its needles in autumn.)</li>
+                        <li><b>Grow faster</b>, so they're <b>cheaper</b> and considered a <b>sustainable</b> material.</li>
+                        <li>Examples: <b>larch, pine, spruce</b>.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="note-card">
+                <h3>🍂 Hardwoods — learn these five</h3>
+                <div class="table-scroll"><table class="mini">
+                    <tr><th>Hardwood</th><th>What it looks like</th><th>How it works &amp; what it's used for</th></tr>
+                    <tr><td>Ash</td><td>Pale, narrow grain</td><td>Flexible and good for <b>steam bending</b>; tough. Used for <b>sports equipment</b>.</td></tr>
+                    <tr><td>Beech</td><td>Slight pink tint, close grain</td><td>Tough, durable, smooth finish. (Good for things like wooden spoons and toys.)</td></tr>
+                    <tr><td>Mahogany</td><td>Dark reddish colour, very close grain</td><td>Cuts and polishes easily, fine finish. Used for <b>high-quality furniture</b>.</td></tr>
+                    <tr><td>Oak</td><td>Medium brown, attractive grain markings</td><td>Tough and durable, polishes well. Used for <b>quality furniture</b>.</td></tr>
+                    <tr><td>Balsa</td><td>Pale, wide-spaced grain (it grows fast)</td><td>Very <b>soft</b>, light and easy to shape. Used for <b>models</b>.</td></tr>
+                </table></div>
+            </div>
+
+            <div class="note-card">
+                <h3>🌲 Softwoods — learn these three</h3>
+                <div class="table-scroll"><table class="mini">
+                    <tr><th>Softwood</th><th>What it looks like</th><th>How it works &amp; what it's used for</th></tr>
+                    <tr><td>Larch</td><td>Pale with darker grain, knotty</td><td>Durable, easy to machine; lots of sap makes it <b>water resistant</b>. Used for <b>outdoor building</b> and flooring.</td></tr>
+                    <tr><td>Pine</td><td>Pale, attractive grain</td><td>Lightweight, easy to work. Used for <b>construction</b> and <b>decking</b>.</td></tr>
+                    <tr><td>Spruce</td><td>Pale cream, even grain</td><td>Easy to work, takes <b>stain</b> well. Used for construction and furniture.</td></tr>
+                </table></div>
+            </div>
+
+            <div class="note-card">
+                <h3>🤔 Look – cover – check</h3>
+                <details class="lcc"><summary>What is the difference between a hardwood and a softwood?</summary><div class="ans"><b>Hardwoods</b> come from <b>deciduous</b> trees (broad leaves that fall in autumn) — slow-growing and expensive. <b>Softwoods</b> come from <b>coniferous</b> trees (needles, evergreen) — faster-growing, cheaper and more sustainable.</div></details>
+                <details class="lcc"><summary>Balsa is very soft. Is it a hardwood or a softwood?</summary><div class="ans">A <b>hardwood</b> — because it comes from a broad-leaved (deciduous-type) tree, not a conifer. Hardwood/softwood is about the type of tree, not how hard the wood is.</div></details>
+                <details class="lcc"><summary>Which wood would you choose for sports equipment, and why?</summary><div class="ans"><b>Ash</b> — it is tough and flexible, and good for steam bending.</div></details>
+                <details class="lcc"><summary>Why are softwoods called sustainable?</summary><div class="ans">They <b>grow faster</b> than hardwoods, so trees can be replanted and replaced more quickly.</div></details>
+                <details class="lcc"><summary>Which softwood is good for outdoor use, and why?</summary><div class="ans"><b>Larch</b> — its high sap content gives it good <b>water resistance</b>.</div></details>
+            </div>
+        </section>
+
+        <!-- BOARDS -->
+        <section class="topic" id="s-boards" style="--acc:var(--board);--acc-d:var(--board-d);">
+            <div class="topic-head">🪵 Manufactured boards</div>
+            <div class="topic-sub">Man-made timber sheets: MDF, plywood and chipboard</div>
+            <div class="note-card">
+                <h3>🏭 What are they?</h3>
+                <ul>
+                    <li>Manufactured boards are usually made from <span class="kt">timber waste</span> (fibres, chips or thin layers of wood) and <span class="kt">adhesive</span> (glue).</li>
+                    <li>They are often <span class="kt">veneered</span> — covered with a thin layer of real wood — to make them look nicer.</li>
+                    <li>They are <span class="kt">cheap</span> to buy and come in large flat sheets.</li>
+                </ul>
+            </div>
+            <div class="note-card">
+                <h3>📋 Learn these three</h3>
+                <div class="table-scroll"><table class="mini">
+                    <tr><th>Board</th><th>What it's like</th><th>How it works &amp; what it's used for</th></tr>
+                    <tr><td>MDF<br><small style="font-weight:400">(medium-density fibreboard)</small></td><td>Smooth, light brown, can be veneered</td><td>Smooth and easy to finish. <b>Absorbs moisture</b>, so <b>not for outdoor use</b>. Used for kitchens and <b>flat-pack furniture</b>.</td></tr>
+                    <tr><td>Plywood</td><td><b>Odd number of layers</b> of veneer glued with the grain at <b>90°</b> to each other for strength; attractive outer layer</td><td>Easy to cut and finish; can be stained or painted. Used for shelving, construction and <b>toys</b>.</td></tr>
+                    <tr><td>Chipboard</td><td>Compacted <b>wood chips</b>, covered (laminated) with different coverings; cut ends are hard to finish</td><td>Strong but <b>absorbs water</b>. Used for veneered <b>worktops</b> and <b>flooring</b>.</td></tr>
+                </table></div>
+            </div>
+            <div class="diagram-card" style="text-align:center;">
+                <h3>Why plywood is strong</h3>
+                <svg viewBox="0 0 420 170" xmlns="http://www.w3.org/2000/svg" font-family="Karla, sans-serif" style="max-width:420px;width:100%;">
+                    <defs>
+                        <pattern id="gx" width="14" height="8" patternUnits="userSpaceOnUse"><rect width="14" height="8" fill="#e3b979"/><path d="M0 4 Q3.5 2 7 4 T14 4" stroke="#b9853f" stroke-width="1" fill="none"/></pattern>
+                        <pattern id="gy" width="8" height="14" patternUnits="userSpaceOnUse"><rect width="8" height="14" fill="#d6a565"/><path d="M4 0 Q2 3.5 4 7 T4 14" stroke="#a87634" stroke-width="1" fill="none"/></pattern>
+                    </defs>
+                    <g transform="translate(60,20)">
+                        <polygon points="0,110 200,110 260,80 60,80" fill="url(#gx)" stroke="#7a5220"/>
+                        <polygon points="0,110 200,110 200,124 0,124" fill="#c99556" stroke="#7a5220"/>
+                        <polygon points="0,88 200,88 260,58 60,58" fill="url(#gy)" stroke="#7a5220"/>
+                        <polygon points="0,88 200,88 200,102 0,102" fill="#b98545" stroke="#7a5220"/>
+                        <polygon points="0,66 200,66 260,36 60,36" fill="url(#gx)" stroke="#7a5220"/>
+                        <polygon points="0,66 200,66 200,80 0,80" fill="#c99556" stroke="#7a5220"/>
+                    </g>
+                    <text x="330" y="62" font-size="12" fill="#555">grain →</text>
+                    <text x="330" y="86" font-size="12" fill="#555">grain ↗ (90°)</text>
+                    <text x="330" y="110" font-size="12" fill="#555">grain →</text>
+                </svg>
+                <div style="font-size:0.86rem;color:#666;font-style:italic;margin-top:0.4rem;">Plywood: an <b>odd number</b> of thin layers (veneers), each with its grain at <b>90°</b> to the next, glued together. That makes it strong in every direction.</div>
+            </div>
+            <div class="note-card">
+                <div class="two-col">
+                    <div class="good"><h4>👍 Good things about boards</h4><ul><li>Cheap</li><li>Come in large sheets</li><li>Use up timber waste</li><li>Can be veneered to look like real wood</li></ul></div>
+                    <div class="bad"><h4>👎 Watch out for</h4><ul><li>MDF and chipboard <b>absorb water</b> — not for outdoors</li><li>Chipboard's cut edges are hard to finish</li><li>The glues used can give off dust and fumes when cut — wear a dust mask</li></ul></div>
+                </div>
+            </div>
+            <div class="note-card">
+                <h3>🤔 Look – cover – check</h3>
+                <details class="lcc"><summary>What are manufactured boards made from?</summary><div class="ans">Usually <b>timber waste</b> (fibres, chips or thin layers) plus <b>adhesive</b>.</div></details>
+                <details class="lcc"><summary>Why is plywood strong?</summary><div class="ans">It is made of an <b>odd number of layers</b> of veneer glued with the grain of each layer at <b>90°</b> to the one next to it.</div></details>
+                <details class="lcc"><summary>Why shouldn't MDF be used for a garden bench?</summary><div class="ans">MDF <b>absorbs moisture</b>, so it would swell and fall apart outdoors.</div></details>
+                <details class="lcc"><summary>What is a veneer?</summary><div class="ans">A <b>thin layer of real wood</b> glued onto a board to make it look more attractive.</div></details>
+            </div>
+        </section>
+
+        <!-- PROPERTIES -->
+        <section class="topic" id="s-props" style="--acc:var(--wood);--acc-d:var(--wood-d);">
+            <div class="topic-head">💪 Material properties</div>
+            <div class="topic-sub">The words you need to describe how a material behaves</div>
+            <div class="two-col" style="margin-bottom:1rem;">
+                <div style="background:#fff;box-shadow:0 5px 18px var(--shadow);">
+                    <h4 style="color:var(--wood-d);font-size:1.05rem;">🔬 Physical properties</h4>
+                    <p style="font-size:0.88rem;color:#666;margin-bottom:0.4rem;">The actual characteristics of the material itself.</p>
+                    <ul>
+                        <li><b>Absorbency</b> — soaks up moisture (MDF and chipboard absorb water).</li>
+                        <li><b>Density</b> — how heavy it is for its size (mass ÷ volume).</li>
+                        <li><b>Thermal conductivity</b> — lets heat through. Wood is a <b>poor</b> conductor, so it's good for pan handles.</li>
+                        <li><b>Electrical conductivity</b> — lets electricity through. Dry wood is a poor conductor (an insulator).</li>
+                    </ul>
+                </div>
+                <div style="background:#fff;box-shadow:0 5px 18px var(--shadow);">
+                    <h4 style="color:var(--wood-d);font-size:1.05rem;">🛠️ Working properties</h4>
+                    <p style="font-size:0.88rem;color:#666;margin-bottom:0.4rem;">How a material behaves <b>when you work or use it</b>.</p>
+                    <ul>
+                        <li><b>Strength</b> — withstands forces (squashing, pulling, shearing).</li>
+                        <li><b>Hardness</b> — resists dents and scratches. Pine dents more easily than oak, so <b>oak is harder</b>.</li>
+                        <li><b>Toughness</b> — hard to break or snap; absorbs shocks (ash, beech, oak).</li>
+                        <li><b>Durability</b> — lasts a long time and resists wear and weather (oak, larch).</li>
+                        <li><b>Flexibility</b> — bends without breaking (ash).</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="note-card">
+                <h3>🍳 Example — why beech for a pan handle?</h3>
+                <p>A steel handle would <b>conduct heat</b> and burn your hand. <b>Beech</b> is <b>tough</b> and a <b>poor conductor of heat</b>, so it's a better choice.</p>
+            </div>
+            <div class="note-card">
+                <h3>🤔 Look – cover – check</h3>
+                <details class="lcc"><summary>What is the difference between hardness and toughness?</summary><div class="ans"><b>Hardness</b> = resisting dents and scratches. <b>Toughness</b> = being hard to break or snap, absorbing shocks.</div></details>
+                <details class="lcc"><summary>Why is wood used for the handles of cooking utensils?</summary><div class="ans">Wood is a <b>poor thermal conductor</b>, so the handle doesn't get hot.</div></details>
+            </div>
+        </section>
+
+        <!-- TOOLS -->
+        <section class="topic" id="s-tools" style="--acc:var(--tool);--acc-d:var(--tool-d);">
+            <div class="topic-head">🔨 The tools you used</div>
+            <div class="topic-sub">Be able to recognise each one and say what it's for</div>
+            <div class="tool-grid" id="tool-grid"></div>
+            <div class="note-card" style="margin-top:1rem;">
+                <h3>🪚 How they work together — cutting a piece of wood to length</h3>
+                <ol class="steps">
+                    <li>Use the <b>try square</b> and a pencil to mark a line at <b>90°</b> across the wood.</li>
+                    <li>Put the <b>bench hook</b> over the front edge of the bench and hold the wood firmly against its top block.</li>
+                    <li>Cut along the waste side of the line with the <b>tenon saw</b>.</li>
+                    <li>Smooth the cut end on the <b>disc sander</b>, using the side of the disc that moves <b>down</b> towards the table.</li>
+                </ol>
+            </div>
+            <div class="note-card">
+                <h3>🤔 Look – cover – check</h3>
+                <details class="lcc"><summary>What is the "back" of a tenon saw for?</summary><div class="ans">The heavy strip of brass or steel along the top keeps the blade <b>stiff and straight</b>, so you get an accurate, straight cut.</div></details>
+                <details class="lcc"><summary>What does a try square check or mark?</summary><div class="ans">A <b>right angle (90°)</b> to a straight edge — for marking lines across wood and checking corners are square.</div></details>
+                <details class="lcc"><summary>What is a bench hook for?</summary><div class="ans">It <b>holds the wood steady</b> while you saw it with a tenon saw, and protects the bench top.</div></details>
+                <details class="lcc"><summary>Give two safety rules for the disc sander.</summary><div class="ans">Wear <b>goggles</b>; tie back long hair and loose clothing; keep fingers away from the disc; use the <b>downward-moving side</b> of the disc so the wood is pushed onto the table; make sure the dust extraction is on.</div></details>
+            </div>
+        </section>
+
+        <!-- CAD/CAM -->
+        <section class="topic" id="s-cad" style="--acc:var(--cad);--acc-d:var(--cad-d);">
+            <div class="topic-head">💻 CAD &amp; CAM</div>
+            <div class="topic-sub">Designing and making with computers</div>
+            <div class="two-col" style="margin-bottom:1rem;">
+                <div style="background:#fff;box-shadow:0 5px 18px var(--shadow);border-top:5px solid var(--cad);">
+                    <h4 style="color:var(--cad-d);font-size:1.1rem;">🖥️ CAD — Computer Aided Design</h4>
+                    <p>Using <b>software</b> to create accurate <b>digital drawings and 3D models</b> of products, so designs can be seen, changed and tested before anything is made.</p>
+                    <p style="margin-top:0.4rem;font-size:0.88rem;color:#555;">e.g. 2D Design, Fusion 360, TinkerCAD, SketchUp</p>
+                </div>
+                <div style="background:#fff;box-shadow:0 5px 18px var(--shadow);border-top:5px solid var(--cad-d);">
+                    <h4 style="color:var(--cad-d);font-size:1.1rem;">⚙️ CAM — Computer Aided Manufacture</h4>
+                    <p>Using <b>software to control machines</b> that make the product. CAM turns the CAD design into instructions for <b>CNC</b> machines.</p>
+                    <p style="margin-top:0.4rem;font-size:0.88rem;color:#555;">e.g. laser cutter, 3D printer, CNC router, milling machine</p>
+                </div>
+            </div>
+            <div class="key-fact" style="margin-bottom:1rem;">🔤 <b>CNC</b> stands for <b>Computer Numerical Control</b> — a machine that is controlled by a computer program.</div>
+
+            <div class="note-card">
+                <h3>🔁 The process</h3>
+                <div class="two-col">
+                    <div><h4 style="color:var(--cad-d);">CAD</h4><ol class="steps">
+                        <li>Sketch the first ideas.</li>
+                        <li>Build a digital model in CAD software, adding dimensions and features.</li>
+                        <li>Run simulations to test the design and spot problems.</li>
+                        <li>The software produces technical drawings for manufacture.</li>
+                    </ol></div>
+                    <div><h4 style="color:var(--cad-d);">CAM</h4><ol class="steps">
+                        <li>Import the CAD model into CAM software.</li>
+                        <li>The software works out how the CNC machine will make the part.</li>
+                        <li>The machine cuts (or prints) the part.</li>
+                        <li>Check the parts are good quality and match the design.</li>
+                    </ol></div>
+                </div>
+            </div>
+
+            <div class="note-card">
+                <h3>⚖️ Advantages and disadvantages</h3>
+                <div class="two-col">
+                    <div class="good"><h4>👍 CAD</h4><ul><li>Very <b>accurate</b> — fewer mistakes than drawing by hand</li><li>Designs can be made and <b>changed quickly</b></li><li>You can see the design in <b>3D</b></li><li>Designs can be tested on screen and shared/emailed easily</li></ul></div>
+                    <div class="bad"><h4>👎 CAD</h4><ul><li>Software and computers can be <b>expensive</b></li><li>Takes <b>training</b> to learn</li><li>Problems if the computer crashes or files are lost</li></ul></div>
+                    <div class="good"><h4>👍 CAM</h4><ul><li><b>Accurate</b> and <b>consistent</b> — every product is identical</li><li><b>Fast</b>, and machines can run for long periods</li><li>Fewer human errors</li><li>Can make complex shapes</li></ul></div>
+                    <div class="bad"><h4>👎 CAM</h4><ul><li>Machines are <b>expensive</b> to buy and maintain</li><li>Staff need <b>training</b></li><li>If a machine breaks down, production stops</li><li>Can mean fewer jobs for people</li></ul></div>
+                </div>
+            </div>
+
+            <div class="note-card">
+                <h3>🔦 Laser cutter — the CAM machine you're most likely to use</h3>
+                <ul>
+                    <li>A high-powered <b>laser</b> beam <b>cuts</b>, <b>etches</b> or <b>engraves</b> a material, following a CAD drawing.</li>
+                    <li>Used on thin sheets like <b>MDF, plywood, acrylic</b> and card.</li>
+                    <li><b>Safety:</b> never leave it running unattended, keep the lid shut, and make sure the fume extraction is on.</li>
+                </ul>
+            </div>
+
+            <div class="note-card">
+                <h3>🤔 Look – cover – check</h3>
+                <details class="lcc"><summary>What do CAD and CAM stand for?</summary><div class="ans"><b>Computer Aided Design</b> and <b>Computer Aided Manufacture</b>.</div></details>
+                <details class="lcc"><summary>Name two CAM machines.</summary><div class="ans">Any two of: <b>laser cutter, 3D printer, CNC router, CNC milling machine</b>, vinyl cutter.</div></details>
+                <details class="lcc"><summary>Give one advantage and one disadvantage of CAM.</summary><div class="ans">Advantage: accurate, consistent (identical products), fast. Disadvantage: machines are expensive, need training, production stops if a machine breaks.</div></details>
+                <details class="lcc"><summary>What does CNC stand for?</summary><div class="ans"><b>Computer Numerical Control</b>.</div></details>
+            </div>
+        </section>
+
+        <!-- ACCESS FM -->
+        <section class="topic" id="s-afm" style="--acc:var(--acc5);--acc-d:var(--acc5-d);">
+            <div class="topic-head">🔎 ACCESS FM</div>
+            <div class="topic-sub">A checklist for <b>analysing a product</b> or writing a <b>specification</b> (a list of requirements for a design). You'll be given the sheet — just get familiar with the words.</div>
+            <div class="afm" id="afm"></div>
+            <div class="note-card" style="margin-top:1rem;">
+                <h3>♻️ The 6 Rs (part of Environment)</h3>
+                <p><b>Recycle · Reuse · Repair · Rethink · Reduce · Refuse</b> — ways to make a product better for the environment.</p>
+            </div>
+            <div class="example">
+                <h3>✏️ Worked example — a beech wooden spoon</h3>
+                <div class="table-scroll"><table class="mini">
+                    <tr><td>A — Aesthetics</td><td>Smooth, pale wood with a slight pink tint and a close grain; simple curved shape.</td></tr>
+                    <tr><td>C — Cost</td><td>Cheap to buy (a few pounds); quick to make from a small piece of wood.</td></tr>
+                    <tr><td>C — Customer</td><td>Anyone who cooks — adults and families.</td></tr>
+                    <tr><td>E — Environment</td><td>Wood is natural and biodegradable; it lasts a long time, so it can be reused instead of thrown away.</td></tr>
+                    <tr><td>S — Size</td><td>About 300 mm long so your hand stays away from the hot pan; the handle fits comfortably in a hand.</td></tr>
+                    <tr><td>S — Safety</td><td>Smooth finish with no splinters; doesn't get hot; don't leave it in a pan on the heat.</td></tr>
+                    <tr><td>F — Function</td><td>Stirs and serves food; won't scratch non-stick pans.</td></tr>
+                    <tr><td>M — Material</td><td><b>Beech</b> (a hardwood) — tough, durable, smooth to finish and a poor conductor of heat. Shaped by cutting and sanding, or turned on a lathe.</td></tr>
+                </table></div>
+            </div>
+            <div class="note-card" style="margin-top:1rem;">
+                <h3>🤔 Look – cover – check</h3>
+                <details class="lcc"><summary>What is ACCESS FM used for?</summary><div class="ans">To help write a <b>specification</b> (a list of requirements for a design) and to <b>analyse and describe</b> an existing product.</div></details>
+                <details class="lcc"><summary>"Is it comfortable to use? Does it fit?" — which letter is this?</summary><div class="ans"><b>S — Size</b>.</div></details>
+                <details class="lcc"><summary>"How does the product work? What is it needed for?" — which letter?</summary><div class="ans"><b>F — Function</b>.</div></details>
+            </div>
+        </section>
+
+        <div class="to-quiz" style="--acc:var(--gold);--acc-d:var(--gold-d);"><button class="go" id="go-quiz">Ready? Take the quiz 🏆</button></div>
+    </div>
+
+    <!-- ===================== QUIZ ===================== -->
+    <div class="view" id="view-quiz" style="--acc:var(--gold);--acc-d:var(--gold-d);">
+        <div class="chips" id="quiz-topics"></div>
+        <div class="len-row">Number of questions:
+            <select id="quiz-len"><option>10</option><option selected>15</option><option>20</option><option value="999">All</option></select>
+        </div>
+        <div class="quiz-box"><div id="quiz"></div></div>
+    </div>
+</div>
+
+<script>
+/* ============ TOOL DRAWINGS ============ */
+const SVG = {
+saw: function(lab){ return '<svg viewBox="0 0 320 150" xmlns="http://www.w3.org/2000/svg" font-family="Karla, sans-serif">' +
+    '<path d="M18 52 L232 52 L232 112 L18 112 Z" fill="#cfd6db" stroke="#7c878f" stroke-width="2"/>' +
+    '<path d="M18 112 ' + (function(){ let d=''; for(let x=18;x<232;x+=6) d+='L'+(x+3)+' 118 L'+(x+6)+' 112 '; return d; })() + '" fill="#cfd6db" stroke="#7c878f" stroke-width="1.5"/>' +
+    '<rect x="14" y="40" width="222" height="16" rx="2" fill="#c9a13b" stroke="#8a6a12" stroke-width="2"/>' +
+    '<path d="M226 34 Q236 30 262 30 L292 30 Q306 30 306 46 L306 112 Q306 126 292 126 L262 126 Q240 126 232 112 L226 52 Z" fill="#9b5f2a" stroke="#5e3611" stroke-width="2"/>' +
+    '<path d="M256 52 Q256 46 262 46 L284 46 Q290 46 290 52 L290 98 Q290 106 282 106 L262 106 Q256 106 256 98 Z" fill="#f6f3ee" stroke="#5e3611" stroke-width="2"/>' +
+    '<circle cx="240" cy="62" r="3" fill="#c9a13b"/><circle cx="240" cy="92" r="3" fill="#c9a13b"/>' +
+    (lab ? '<text x="80" y="34" font-size="12" font-weight="700" fill="#8a6a12">back (stiff brass/steel)</text>' +
+           '<text x="80" y="88" font-size="12" font-weight="700" fill="#4b555c">blade</text>' +
+           '<text x="70" y="138" font-size="12" font-weight="700" fill="#4b555c">fine teeth</text>' +
+           '<text x="258" y="144" font-size="12" font-weight="700" fill="#5e3611">handle</text>' : '') + '</svg>'; },
+square: function(lab){ return '<svg viewBox="0 0 320 170" xmlns="http://www.w3.org/2000/svg" font-family="Karla, sans-serif">' +
+    '<rect x="70" y="24" width="210" height="22" fill="#d5dce1" stroke="#7c878f" stroke-width="2"/>' +
+        '<rect x="40" y="16" width="34" height="140" rx="3" fill="#9b5f2a" stroke="#5e3611" stroke-width="2"/>' +
+    '<rect x="70" y="16" width="4" height="140" fill="#c9a13b"/>' +
+    '<circle cx="57" cy="35" r="3.5" fill="#c9a13b"/><circle cx="57" cy="70" r="3.5" fill="#c9a13b"/>' +
+    '<path d="M74 60 L92 60 L92 46" fill="none" stroke="#d9534f" stroke-width="2"/>' +
+    (lab ? '<text x="140" y="70" font-size="12" font-weight="700" fill="#4b555c">steel blade</text>' +
+           '<text x="84" y="112" font-size="12" font-weight="700" fill="#5e3611">stock (held against</text>' +
+           '<text x="84" y="127" font-size="12" font-weight="700" fill="#5e3611">the edge of the wood)</text>' +
+           '<text x="98" y="88" font-size="12" font-weight="700" fill="#d9534f">90°</text>' : '') + '</svg>'; },
+hook: function(lab){ return '<svg viewBox="0 0 320 165" xmlns="http://www.w3.org/2000/svg" font-family="Karla, sans-serif">' +
+    '<rect x="64" y="96" width="256" height="44" fill="#d9c7a6" stroke="#8c7a58" stroke-width="2"/>' +
+    '<rect x="30" y="74" width="230" height="22" fill="#c99556" stroke="#6e4314" stroke-width="2"/>' +
+    '<rect x="214" y="44" width="46" height="30" fill="#a8743b" stroke="#6e4314" stroke-width="2"/>' +
+    '<rect x="30" y="96" width="34" height="30" fill="#a8743b" stroke="#6e4314" stroke-width="2"/>' +
+    '<rect x="110" y="56" width="104" height="18" fill="#e8cfa2" stroke="#9a7a45" stroke-width="1.5" stroke-dasharray="4 3"/>' +
+    (lab ? '<text x="70" y="24" font-size="12" font-weight="700" fill="#6e4314">top block — push the wood against it ↘</text>' +
+           '<text x="112" y="52" font-size="11" fill="#9a7a45">your wood</text>' +
+           '<text x="4" y="150" font-size="12" font-weight="700" fill="#6e4314">bottom block hooks over</text>' +
+           '<text x="4" y="163" font-size="12" font-weight="700" fill="#6e4314">the front edge of the bench</text>' +
+           '<text x="250" y="124" font-size="12" font-weight="700" fill="#8c7a58">bench</text>' : '') + '</svg>'; },
+sander: function(lab){ const id = lab ? 'L' : 'Q'; return '<svg viewBox="0 0 320 190" xmlns="http://www.w3.org/2000/svg" font-family="Karla, sans-serif">' +
+    '<defs><pattern id="grit' + id + '" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#b88a5a"/><circle cx="2" cy="2" r="0.9" fill="#7a5530"/><circle cx="5" cy="4.5" r="0.7" fill="#e0c09a"/></pattern>' +
+    '<marker id="arr' + id + '" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#fff"/></marker></defs>' +
+    '<rect x="186" y="50" width="96" height="66" rx="12" fill="#3e8f6e" stroke="#245c45" stroke-width="2"/>' +
+    '<rect x="160" y="112" width="34" height="46" fill="#327458"/>' +
+    '<rect x="100" y="156" width="160" height="18" rx="4" fill="#3e8f6e" stroke="#245c45" stroke-width="2"/>' +
+    '<circle cx="130" cy="84" r="66" fill="#6b6b6b" stroke="#444" stroke-width="2"/>' +
+    '<circle cx="130" cy="84" r="60" fill="url(#grit' + id + ')"/>' +
+    '<path d="M66 84 A64 64 0 0 1 194 84" fill="none" stroke="#9aa3a9" stroke-width="9" opacity="0.9"/>' +
+    '<path d="M98 50 A44 44 0 0 0 92 104" fill="none" stroke="#fff" stroke-width="3.5" marker-end="url(#arr' + id + ')"/>' +
+    '<polygon points="50,116 210,116 224,132 36,132" fill="#9aa3a9" stroke="#5b6770" stroke-width="2"/>' +
+    (lab ? '<text x="196" y="40" font-size="12" font-weight="700" fill="#245c45">motor</text>' +
+           '<text x="4" y="14" font-size="12" font-weight="700" fill="#5b3a1a">spinning abrasive disc</text>' +
+           '<text x="4" y="150" font-size="12" font-weight="700" fill="#5b6770">table</text>' +
+           '<text x="200" y="146" font-size="11" fill="#5b6770">(rest the wood here)</text>' : '') + '</svg>'; },
+};
+
+const TOOLS = [
+    { key: 'saw', name: 'Tenon saw', acc: '#5b6770', points: [
+        'A <b>back saw</b>: a strip of <b>brass or steel</b> along the top (the "back") keeps the blade <b>stiff and straight</b>.',
+        '<b>Fine teeth</b> for neat, accurate, <b>straight cuts</b> in wood — for cutting pieces to length and cutting <b>joints</b>.',
+        'Used with a <b>bench hook</b> to hold the wood.' ],
+      safety: 'Hold the wood firmly; keep your other hand behind the blade; start the cut with a few gentle backward strokes; let the saw do the work.' },
+    { key: 'square', name: 'Try square', acc: '#5b6770', points: [
+        'Used to <b>mark lines at 90°</b> (a right angle) across a piece of wood, and to <b>check</b> that edges and corners are square.',
+        'Hold the <b>stock</b> (the thick part) tight against a straight, flat edge of the wood (the <b>face edge</b>), then draw along the <b>blade</b> with a pencil.' ],
+      safety: 'Look after it — dropping a try square can knock it out of square so it no longer marks true 90° lines. (Tip: use a sharp pencil, and measure twice, cut once!)' },
+    { key: 'hook', name: 'Bench hook', acc: '#5b6770', points: [
+        'A flat board with a block on top at one end and underneath at the other.',
+        'The <b>bottom block hooks over the front edge of the bench</b>; you push the wood against the <b>top block</b>.',
+        '<b>Holds the wood steady</b> while you cut with a tenon saw, and <b>protects the bench</b> from saw cuts.' ],
+      safety: 'Keep the hand holding the wood well away from the line of the cut.' },
+    { key: 'sander', name: 'Disc sander', acc: '#5b6770', points: [
+        'A machine with a <b>spinning disc of abrasive paper</b> (like sandpaper) and a <b>table</b> to rest the work on.',
+        'Used to <b>smooth</b> and <b>shape</b> the edges and ends of wood, or to sand accurately <b>up to a line</b>.',
+        'Use the side of the disc that is <b>moving down</b> towards the table, so the wood is pushed <b>onto the table</b>.' ],
+      safety: 'Wear goggles; tie back hair and loose clothing; keep fingers well away from the disc; dust extraction on; never sand tiny pieces; only use it with permission.' },
+];
+document.getElementById('tool-grid').innerHTML = TOOLS.map(function(t){
+    return '<div class="tool-card"><h3>' + t.name + '</h3>' + SVG[t.key](true) +
+        '<ul>' + t.points.map(function(p){ return '<li>' + p + '</li>'; }).join('') + '</ul>' +
+        '<div class="safety">⚠️ <b>Safety:</b> ' + t.safety + '</div></div>';
+}).join('');
+
+/* ============ ACCESS FM ============ */
+const AFM = [
+    ['A','Aesthetics','What does it look like? Colour, shape, texture, pattern, feel, style.'],
+    ['C','Cost','How much does it cost to buy and to make? What do the materials cost? Is it good value?'],
+    ['C','Customer','Who will buy or use it? Their age, likes, dislikes, needs.'],
+    ['E','Environment','Is it recyclable, reusable, repairable, sustainable? Think of the 6 Rs.'],
+    ['S','Size','How big is it (in mm)? Is it comfortable to use? Does it fit?'],
+    ['S','Safety','Is it safe to use? Could anyone get hurt? What are the risks?'],
+    ['F','Function','How does it work? What is it for? How well does it work?'],
+    ['M','Material','What is it made from, and why? Would another material be better? How was it made?'],
+];
+document.getElementById('afm').innerHTML = AFM.map(function(a){ return '<div class="afm-card"><div class="L">' + a[0] + '</div><div><b>' + a[1] + '</b><span>' + a[2] + '</span></div></div>'; }).join('');
+
+/* ============ QUIZ BANK ============ */
+function Q(topic, q, a, wrong, ex, img){ return { topic: topic, q: q, a: a, opts: [a].concat(wrong), ex: ex, img: img }; }
+const BANK = [
+    // woods
+    Q('woods','Hardwoods come from which type of tree?','Deciduous trees, which lose their leaves in autumn',['Coniferous trees with needles','Evergreen trees only','Trees grown in under 5 years'],'Hardwoods come from deciduous (broad-leaved) trees. Softwoods come from coniferous trees.'),
+    Q('woods','Softwoods come from which type of tree?','Coniferous trees — needles, evergreen',['Deciduous trees','Fruit trees only','Trees with large flat leaves'],'Coniferous trees have needles and cones, and most stay green all year.'),
+    Q('woods','Which of these is a SOFTWOOD?','Pine',['Oak','Beech','Mahogany'],'Pine, larch and spruce are softwoods. Oak, beech and mahogany are hardwoods.'),
+    Q('woods','Which of these is a HARDWOOD?','Beech',['Pine','Larch','Spruce'],'Beech is a hardwood. Pine, larch and spruce are softwoods.'),
+    Q('woods','Balsa is very soft and light. What type of wood is it?','A hardwood',['A softwood','A manufactured board','A metal alloy'],'Balsa comes from a broad-leaved tree, so it is a hardwood — even though it is soft. The name is about the type of tree, not the hardness.'),
+    Q('woods','Why are softwoods cheaper than hardwoods?','They grow faster',['They are always softer','They are made from waste wood','They come from deciduous trees'],'Faster growth means more timber more quickly, so softwoods are cheaper and more sustainable.'),
+    Q('woods','Why are softwoods considered a sustainable material?','They grow quickly, so they can be replaced faster',['They never rot','They are made from recycled plastic','They are imported'],'Fast-growing trees can be replanted and harvested again sooner.'),
+    Q('woods','Roughly how long do trees take to grow before they can be cut for timber?','25 to 100 years',['1 to 2 years','About 6 months','500 years'],'Trees must reach maturity — between 25 and 100 years.'),
+    Q('woods','Which hardwood is flexible and good for steam bending, and used for sports equipment?','Ash',['Mahogany','Balsa','Pine'],'Ash is tough and flexible — great for things like hockey sticks, baseball bats and tool handles.'),
+    Q('woods','Which wood would be best for making a lightweight model?','Balsa',['Oak','Larch','Chipboard'],'Balsa is very soft, light and easy to shape.'),
+    Q('woods','Which hardwood is dark reddish, polishes easily and is used for high-quality furniture?','Mahogany',['Spruce','Ash','MDF'],'Mahogany has a very close grain and gives a fine finish.'),
+    Q('woods','Which softwood has a high sap content, making it water resistant for outdoor building?','Larch',['Spruce','Beech','MDF'],'Larch is durable and its sap helps it resist water.'),
+    Q('woods','Oak is best described as…','Tough and durable, with attractive grain — used for quality furniture',['Very soft and used for models','Made from wood chips and glue','A softwood used for decking'],'Oak is a tough, durable hardwood that polishes well.'),
+    Q('woods','Which wood is pale with a slight pink tint, close grain, tough and smooth to finish?','Beech',['Larch','Balsa','Mahogany'],'Beech — tough, durable and smooth. Good for toys, spoons and handles.'),
+    Q('woods','Which softwood is pale cream with an even grain and takes stain colour well?','Spruce',['Larch','Oak','Ash'],'Spruce is easy to work and stains well; used for construction and furniture.'),
+    Q('woods','Pine is mainly used for…','Construction and decking',['Sports equipment','Fine jewellery boxes only','Aircraft windows'],'Pine is lightweight and easy to work — ideal for construction.'),
+    // boards
+    Q('woods','Manufactured boards are usually made from…','Timber waste and adhesive',['Solid planks of hardwood','Recycled metal','Plastic sheets'],'Fibres, chips or thin layers of wood are glued together.'),
+    Q('woods','What does MDF stand for?','Medium-density fibreboard',['Many dense fibres','Manufactured dry flooring','Metal-dense filler'],'MDF = medium-density fibreboard.'),
+    Q('woods','Why is MDF NOT suitable for outdoor use?','It absorbs moisture',['It is too hard to cut','It conducts electricity','It is see-through'],'MDF soaks up water and swells.'),
+    Q('woods','Plywood is strong because…','Its layers are glued with the grain at 90° to each other',['It is made from one solid piece','It contains steel wire','It is made from wood chips'],'An odd number of veneers, each at 90° to the next.'),
+    Q('woods','Plywood is made with…','An odd number of layers of veneer',['An even number of layers','A single layer','Layers of plastic'],'An odd number keeps the grain on both outside faces running the same way.'),
+    Q('woods','Which board is made of compacted wood chips and used for worktops and flooring?','Chipboard',['Plywood','MDF','Balsa'],'Chipboard is strong but absorbs water, and its cut ends are hard to finish.'),
+    Q('woods','A thin layer of attractive real wood glued onto a board is called a…','Veneer',['Laminate of steel','Grain','Knot'],'Veneers make manufactured boards look like solid wood.'),
+    Q('woods','Flat-pack furniture is often made from…','MDF',['Balsa','Ash','Larch'],'MDF is cheap, smooth and easy to finish.'),
+    // properties
+    Q('woods','Pine dents more easily than oak. This means oak has greater…','Hardness',['Absorbency','Electrical conductivity','Flexibility'],'Hardness is the ability to resist dents and scratches.'),
+    Q('woods','A material that is hard to break or snap and absorbs shocks is…','Tough',['Absorbent','Dense','Brittle'],'Toughness = resisting breaking.'),
+    Q('woods','Why is beech better than steel for a pan handle?','Beech is a poor conductor of heat',['Beech conducts heat well','Beech is magnetic','Beech is see-through'],'Wood is a poor thermal conductor, so the handle stays cool.'),
+    // tools
+    Q('tools','Which tool is this?','Tenon saw',['Coping saw','Try square','Hacksaw'],'A tenon saw has a stiff brass or steel back along the top of the blade.', 'saw'),
+    Q('tools','Which tool is this?','Try square',['Tenon saw','Bench hook','Steel rule'],'A try square has a thick stock and a thin steel blade at 90°.', 'square'),
+    Q('tools','Which tool is this?','Bench hook',['Try square','Disc sander','G-clamp'],'A bench hook hooks over the edge of the bench to hold wood while sawing.', 'hook'),
+    Q('tools','Which tool is this?','Disc sander',['Pillar drill','Laser cutter','Bench hook'],'A disc sander has a spinning abrasive disc and a table.', 'sander'),
+    Q('tools','What is the stiff strip along the top of a tenon saw for?','It keeps the blade straight and rigid for an accurate cut',['It is the handle','It sharpens the teeth','It measures the wood'],'That strip is called the "back" — it is why a tenon saw is a back saw.'),
+    Q('tools','A tenon saw is used for…','Straight, accurate cuts in wood, e.g. cutting to length and joints',['Cutting curves in thin wood','Cutting metal pipe','Smoothing edges'],'Its fine teeth and stiff blade give straight, neat cuts.'),
+    Q('tools','A try square is used to…','Mark and check right angles (90°)',['Cut wood to length','Smooth wood','Hold wood while sawing'],'Hold the stock against a straight edge and draw along the blade.'),
+    Q('tools','When using a try square, the stock is held…','Against a straight edge of the wood',['In a vice only','On the disc sander table','Loosely in the air'],'The stock against the edge makes the blade sit at exactly 90°.'),
+    Q('tools','What does a bench hook do?','Holds wood steady while sawing and protects the bench',['Cuts the wood','Measures angles','Sands the wood smooth'],'The bottom block hooks over the bench edge; you push the wood against the top block.'),
+    Q('tools','Which tool is a bench hook normally used with?','Tenon saw',['Disc sander','Laser cutter','3D printer'],'You saw across the wood with a tenon saw while it rests on the bench hook.'),
+    Q('tools','A disc sander is used to…','Smooth and shape the edges and ends of wood',['Cut wood into thin sheets','Mark lines at 90°','Drill holes'],'The spinning abrasive disc removes wood quickly.'),
+    Q('tools','Which side of a disc sander should you use?','The side moving down towards the table',['The side moving up away from the table','The very centre only','Either — it doesn\'t matter'],'The downward-moving side pushes the work onto the table. The upward side can snatch it out of your hands.'),
+    Q('tools','Which is a correct safety rule for the disc sander?','Wear goggles and tie back long hair',['Wear gloves and loose sleeves','Hold tiny pieces with your fingertips','Switch off the dust extraction'],'Goggles, tied-back hair, no loose clothing, fingers away from the disc, extraction on.'),
+    Q('tools','In what order would you use these to cut a piece of wood to length?','Try square → bench hook &amp; tenon saw → disc sander',['Disc sander → try square → tenon saw','Tenon saw → try square → disc sander','Bench hook → disc sander → try square'],'Mark the line, hold and saw, then smooth the end.'),
+    // CAD/CAM
+    Q('cad','What does CAD stand for?','Computer Aided Design',['Computer Automatic Drawing','Cutting And Drilling','Computer Assisted Delivery'],'CAD is using software to design products.'),
+    Q('cad','What does CAM stand for?','Computer Aided Manufacture',['Computer Animated Model','Cut And Measure','Computer Activated Machine'],'CAM is using software to control the machines that make products.'),
+    Q('cad','What does CNC stand for?','Computer Numerical Control',['Cut, Nail and Clamp','Computer Network Cable','Central Number Calculator'],'A CNC machine is controlled by a computer program.'),
+    Q('cad','Which of these is a CAM machine?','Laser cutter',['Tenon saw','Try square','Bench hook'],'Laser cutters, 3D printers and CNC routers are CAM machines.'),
+    Q('cad','Which of these is CAD software?','2D Design / Fusion 360',['A laser cutter','A disc sander','A 3D printer'],'CAD = the design software. The machines are CAM.'),
+    Q('cad','What does a laser cutter do?','Uses a powerful laser beam to cut, etch or engrave materials',['Sands wood smooth','Prints with melted plastic','Bends metal'],'It follows a CAD drawing. Keep the lid shut and extraction on.'),
+    Q('cad','Which is an ADVANTAGE of CAD?','Designs are accurate and can be changed quickly',['The software is always free','No training is needed','Computers never crash'],'Accuracy, quick changes and 3D views are CAD\'s big advantages.'),
+    Q('cad','Which is a DISADVANTAGE of CAD?','Software and computers can be expensive, and it takes training',['Designs are less accurate than hand drawing','You can\'t see designs in 3D','Designs can\'t be changed'],'Cost and the learning curve are the main disadvantages.'),
+    Q('cad','Which is an ADVANTAGE of CAM?','Every product made is identical and accurate',['The machines are cheap','No one needs any training','It never breaks down'],'CAM gives consistent, accurate results quickly.'),
+    Q('cad','Which is a DISADVANTAGE of CAM?','Machines are expensive, and production stops if one breaks down',['Products are less accurate','It is slower than hand-making in factories','It can\'t use CAD designs'],'High cost, training and breakdowns are CAM\'s drawbacks.'),
+    Q('cad','How do CAD and CAM work together?','The CAD design is turned into instructions that control the CAM machine',['CAM designs the product, then CAD makes it','They can\'t be used together','CAD is only used after the product is made'],'Design on screen (CAD) → machine makes it (CAM).'),
+    Q('cad','Before production, CAD lets designers…','Test and simulate the design to find problems',['Skip making any drawings','Avoid using measurements','Make the product by hand'],'Simulations help spot problems before anything is made, reducing errors.'),
+    // ACCESS FM
+    Q('afm','What is ACCESS FM used for?','Writing a specification and analysing an existing product',['Cutting wood safely','Measuring angles','Programming a laser cutter'],'It is a checklist of things to think about.'),
+    Q('afm','In ACCESS FM, what does the A stand for?','Aesthetics',['Accuracy','Age','Assembly'],'Aesthetics = what the product looks like.'),
+    Q('afm','"What does the product look like — colour, shape, texture?" Which letter?','A — Aesthetics',['F — Function','M — Material','S — Size'],'Aesthetics is about appearance and feel.'),
+    Q('afm','"Who will buy or use the product? What are their needs?" Which letter?','C — Customer',['C — Cost','E — Environment','S — Safety'],'Customer = who it is for.'),
+    Q('afm','"Is it recyclable, reusable or sustainable?" Which letter?','E — Environment',['A — Aesthetics','F — Function','C — Cost'],'Environment includes the 6 Rs.'),
+    Q('afm','"How big is it in mm? Is it comfortable? Does it fit?" Which letter?','S — Size',['S — Safety','M — Material','C — Customer'],'Size is about dimensions and comfort.'),
+    Q('afm','"Could the user hurt themselves? What are the risks?" Which letter?','S — Safety',['S — Size','F — Function','E — Environment'],'Safety = is it safe to use?'),
+    Q('afm','"How does the product work? What is it for?" Which letter?','F — Function',['A — Aesthetics','C — Cost','M — Material'],'Function = what it does and how well.'),
+    Q('afm','"What is it made from? Why were those materials chosen?" Which letter?','M — Material',['F — Function','E — Environment','A — Aesthetics'],'Material includes how it was made.'),
+    Q('afm','Which list is the 6 Rs?','Recycle, Reuse, Repair, Rethink, Reduce, Refuse',['Read, Write, Recite, Repeat, Review, Rest','Red, Rust, Ripe, Raw, Rough, Round','Run, Rest, Return, Repeat, Restart, Record'],'The 6 Rs help make products more sustainable.'),
+    Q('afm','A specification is…','A list of requirements a design must meet',['A type of wood','A safety rule for machines','The first sketch of an idea'],'ACCESS FM helps you write one.'),
+];
+
+/* ============ QUIZ ENGINE ============ */
+const TOPICS = [['all','All topics'],['woods','🌳 Woods & boards'],['tools','🔨 Tools'],['cad','💻 CAD/CAM'],['afm','🔎 ACCESS FM']];
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+const mount = document.getElementById('quiz'), lenSel = document.getElementById('quiz-len');
+let topic = 'all', QS = [], idx = 0, score = 0, answered = false, missed = [];
+const topicsEl = document.getElementById('quiz-topics');
+topicsEl.innerHTML = TOPICS.map(function(t){ return '<button class="chip' + (t[0]==='all'?' on':'') + '" data-t="' + t[0] + '">' + t[1] + '</button>'; }).join('');
+topicsEl.querySelectorAll('.chip').forEach(function(c){ c.onclick = function(){ topic = c.dataset.t; topicsEl.querySelectorAll('.chip').forEach(function(x){ x.classList.toggle('on', x === c); }); intro(); }; });
+lenSel.onchange = intro;
+function pool(){ return BANK.filter(function(b){ return topic === 'all' || b.topic === topic; }); }
+function intro(){
+    const n = Math.min(+lenSel.value, pool().length);
+    mount.innerHTML = '<p style="color:#555;margin-bottom:1rem;">' + n + ' questions from ' + (topic === 'all' ? 'all topics' : TOPICS.find(function(t){ return t[0]===topic; })[1]) + '. Every answer is explained.</p><button class="go">Start Quiz ▶</button>';
+    mount.querySelector('button').onclick = start;
+}
+function start(){
+    const p = pool();
+    // in "all", make sure the four tool-ID questions appear
+    let chosen = shuffle(p.slice()).slice(0, Math.min(+lenSel.value, p.length));
+    if(topic === 'all' || topic === 'tools'){
+        const ids = p.filter(function(b){ return b.img; });
+        ids.forEach(function(b){ if(chosen.indexOf(b) < 0){ const k = chosen.findIndex(function(c){ return !c.img; }); if(k >= 0) chosen[k] = b; } });
+        chosen = shuffle(chosen);
+    }
+    QS = chosen.map(function(b){ return { topic: b.topic, q: b.q, correct: b.a, opts: shuffle(b.opts.slice()), ex: b.ex, img: b.img }; });
+    idx = 0; score = 0; missed = [];
+    mount.innerHTML = '<div class="qmeta"><span class="q-counter"></span><span class="q-score"></span></div><div class="qbar-wrap"><div class="qbar"></div></div><div class="q-prompt"></div><div class="qopts"></div><div class="qexplain"></div><div class="qnext"></div>';
+    render();
+}
+const TAG = { woods: 'Woods & boards', tools: 'Tools', cad: 'CAD/CAM', afm: 'ACCESS FM' };
+function render(){
+    const q = QS[idx]; answered = false;
+    mount.querySelector('.q-counter').textContent = 'Question ' + (idx+1) + ' of ' + QS.length;
+    mount.querySelector('.q-score').textContent = 'Score: ' + score;
+    mount.querySelector('.qbar').style.width = (idx / QS.length * 100) + '%';
+    mount.querySelector('.q-prompt').innerHTML = '<div class="qcard"><div class="qtag">' + TAG[q.topic] + '</div><div class="qtext">' + q.q + '</div>' + (q.img ? '<div class="qimg">' + SVG[q.img](false) + '</div>' : '') + '</div>';
+    const o = mount.querySelector('.qopts');
+    o.innerHTML = q.opts.map(function(x, p){ return '<button class="qopt" data-p="' + p + '">' + x + '</button>'; }).join('');
+    o.querySelectorAll('.qopt').forEach(function(b){ b.onclick = function(){ answer(+b.dataset.p); }; });
+    const ex = mount.querySelector('.qexplain'); ex.className = 'qexplain'; ex.innerHTML = '';
+    mount.querySelector('.qnext').innerHTML = '';
+}
+function answer(p){
+    if(answered) return; answered = true;
+    const q = QS[idx], btns = mount.querySelectorAll('.qopt'), cp = q.opts.indexOf(q.correct);
+    btns.forEach(function(b){ b.disabled = true; });
+    btns[cp].classList.add('correct');
+    const ex = mount.querySelector('.qexplain');
+    if(p === cp){ score++; ex.className = 'qexplain ok show'; ex.innerHTML = '<span class="lead">Correct! ✓</span>' + q.ex; }
+    else { btns[p].classList.add('wrong'); missed.push(q); ex.className = 'qexplain no show'; ex.innerHTML = '<span class="lead">Not quite — the answer is highlighted in green.</span>' + q.ex; }
+    mount.querySelector('.q-score').textContent = 'Score: ' + score;
+    const last = idx === QS.length - 1;
+    mount.querySelector('.qnext').innerHTML = '<button class="go">' + (last ? 'See Results 🏁' : 'Next ▶') + '</button>';
+    mount.querySelector('.qnext button').onclick = function(){ idx++; if(idx >= QS.length) results(); else { render(); mount.scrollIntoView({ behavior: 'smooth', block: 'start' }); } };
+}
+function results(){
+    const t = QS.length, pct = Math.round(score / t * 100);
+    const msg = pct >= 90 ? '🏆 Outstanding — test-ready!' : pct >= 70 ? '🌟 Great work — almost there.' : pct >= 50 ? '👍 Good effort — go back to the Review for the ones you missed.' : '📚 Keep revising and try again!';
+    mount.innerHTML = '<div class="score-big">' + score + ' / ' + t + '</div><div class="score-pct">' + pct + '%</div><div class="score-msg">' + msg + '</div>' +
+        (missed.length ? '<div style="font-weight:700;color:#8a6a12;">Revise these:</div><ul class="review-list">' + missed.map(function(q){ return '<li>' + (q.img ? 'Which tool is this? → <b>' + q.correct + '</b>' : q.q.replace(/<[^>]+>/g,'') + ' → <b>' + q.correct + '</b>'); }).join('') + '</ul>' : '') +
+        '<button class="go">Try Again ↻</button>';
+    mount.querySelector('button').onclick = start;
+    mount.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+intro();
+
+/* ============ MODES ============ */
+function setMode(m){
+    document.querySelectorAll('.mode').forEach(function(b){ b.classList.toggle('active', b.dataset.mode === m); });
+    document.querySelectorAll('.view').forEach(function(v){ v.classList.toggle('active', v.id === 'view-' + m); });
+    window.scrollTo({ top: document.querySelector('.modes').offsetTop - 10, behavior: 'smooth' });
+}
+document.querySelectorAll('.mode').forEach(function(b){ b.onclick = function(){ setMode(b.dataset.mode); }; });
+document.getElementById('go-quiz').onclick = function(){ setMode('quiz'); };
+</script>
+<script src="study-audio.js"></script>
+</body>
+</html>
